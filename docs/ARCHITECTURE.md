@@ -7,7 +7,7 @@ Durum: 2026-11-14 tasarım haftası. Burada yazan her şey "şu anki en iyi fiki
 | Katman | Ne | Kim yazar |
 |---|---|---|
 | Kullanıcının modu | `mymod/` klasörü: `.uw` dosyaları + varlıklar (harita, mesh, ses) | Modcu |
-| Paketler (stdlib + topluluk) | `std.native.*` (Native'in sistemleri), `std.sprint`, `std.vn_dialogue`… | Biz / topluluk |
+| Paketler (isteğe bağlı) | `std.native.*` (Native'in sistemleri), modcunun ve topluluğun kendi mekanik paketleri | Modcu / topluluk |
 | Taban (base) | `base: native` ya da `base: empty` | Biz |
 | Çekirdek | `uw` derleyicisi (Rust): ayrıştır → denetle → indir → doku (weave) → `module_*.py` yaz | Biz |
 | Kit | Module System 1.171 (Python 2.7, dokunulmaz) → `.txt` | TaleWorlds |
@@ -27,7 +27,7 @@ mymod/
 
 - **Her şey bir dosya; dosyayı silersen o şey oyundan çıkar.** (Sahibinin "prolog'u kaldırmak için günlerce uğraştım" acısının cevabı.) Derleyici klasördeki bütün `.uw`'ları kendisi bulur; tek tek `import` gerekmez.
 - **İskelet komutları (sahibinin "create_town(sehrim) dosya oluştursun" fikri):** `uw new town sehrim` → `world/towns/sehrim.uw` şablonu açar, gerekli alanlar doldurulmaya hazır. Kodda makro değil, araç komutu: dosya yaratmak derleyicinin değil aracın işi (derleme yan etkisiz kalmalı).
-- `base: empty`: motorun zorunlu ("hardwired") kayıtlarını ve kancalarını karşılayan en küçük iskelet; boş haritada tek başına parti. `base: native`: Native olduğu gibi gelir, üstüne eklenir; istenen parça `disable std.native.tutorial` ya da `override menu start_game_0:` ile çıkarılır/değiştirilir.
+- `base: empty` (sahibinin tercihi, varsayılan önerisi): motorun zorunlu ("hardwired") kayıtlarını ve kancalarını karşılayan en küçük iskelet; boş haritada tek başına parti. `base: native`: Native olduğu gibi gelir, üstüne eklenir; istenen parça `disable std.native.tutorial` ya da `override menu start_game_0:` ile çıkarılır/değiştirilir.
 - Bir şeyi kaldırınca ona başka yerden atlayan kod kalırsa derleyici **"şu menü hâlâ şuradan çağrılıyor"** diye durur (referans grafiği). Sessiz bozulma yok.
 
 ## Derleyici boru hattı (Rust workspace, küçük crate'ler)
@@ -52,30 +52,27 @@ Sahibinin "parçalı yap, her seferinde her şeyi okuma" fikri buraya oturur: he
 1. **Bildirimsel içerik** (eşya, birlik, şehir, görev, diyalog): veri gibi, alan: değer. GUI araçlarının (eşya yöneticisi, harita yerleştirici) düzenleyeceği yer burası; o yüzden kayıpsız CST şart.
 2. **Davranış** (script, olay, mekanik): Python benzeri `if/for/fn`, olaylar `on battle.end:`, savaş içi `every 0.5s in battle:`, `on key x in battle:`.
 
-## L&D tarzı mekanikler nasıl oturur: "özellik" (feature) bloğu
+## Çerçeve, hazır mekanik değil (sahibinin düzeltmesi, 2026-11-14)
 
-Native'de bir mekanik 5–7 dosyaya dağılır (sabit, script, mission trigger, presentation, menü, diyalog). UW'de bir mekanik **tek dosya** (`mechanics/sprint.uw`) ve **tek blok**; dokuyucu parçaları yerine dağıtır:
+UW **mekanik vermez, mekanik yapmayı kolaylaştırır.** Sprint, gizlilik, VN diyalog, tuzak, ağaç kesme, kamp kurma… bunları modcu yazar. Çekirdeğin işi: Native'de "işkence" olan şeyleri birkaç satıra indiren **ilkeller** (yapı taşları) vermek. `std.*` paketleri yalnız örnek ve test amaçlıdır; çekirdeğe gömülmez, silinebilir.
 
-```
-feature sprint:
-    resource stamina: max 100, regen 5/s, hud: bar
-    on key shift held in battle:
-        player.agent.speed *= 1.6
-        stamina -= 10/s
-```
+Ölçü: L&D ekran görüntülerindeki her şey (VN diyalog: sahne arkada sürerken portre + metin kutusu + ▼; HUD: enerji barı, "Exposed" göstergesi, mesaj günlüğü; sinematik: kamera + ateş/duman efektleri; mancınık gibi kullanılabilir sahne nesneleri) modcunun bu ilkellerle **kendi tasarımıyla** birkaç dosyada yazabileceği şey olmalı.
 
-Hedef mekanikler ve gereken çekirdek ilkeller (hepsi düz Warband'da mümkün, L&D gösterdi):
+### Çekirdek ilkeller (önem sırasıyla)
 
-| Mekanik | Çekirdek ilkel |
-|---|---|
-| Sprint, özel vuruş, tekme | savaş içi tuş olayı, agent API, kaynak (stamina) |
-| Gizlilik | agent görüş/ses kontrolü (periyodik tetik), AI durum değiştirme |
-| Yoldaş güçleri (ör. "daha önce gördüğün grubun yerini söyle") | kahraman yeteneği + harita sorgusu (party API) + diyalog seçeneği |
-| VN tarzı diyalog | `ui` DSL → presentation (portre tableau'su, metin kutusu, seçenekler) |
-| Sinematik | `cutscene` DSL → kamera operasyonları + zamanlama |
-| Lineer hikâye | `story`/`chapter`/`quest stage` → global durum makinesi + koşullu diyalog |
+| İlkel | Ne sağlar | Native'deki karşılığı (acı) |
+|---|---|---|
+| **Zaman içinde akan kod** (`wait 2s`, `wait until …`, `wait key`) | Sinematik, diyalog akışı, görev adımı düz yukarıdan aşağı yazılır | Trigger'lar bekleyemez; elle durum makinesi + zamanlayıcı + global değişken. Derleyici `wait`'li kodu durum makinesine kendisi çevirir (coroutine). **En değerli ilkel.** |
+| **Alanlar** (`field energy: int on agent`) | Her nesneye kendi verisini ekle, adıyla kullan | Slot numaralarını elle sayıp `agent_set_slot` yazmak; derleyici numarayı kendisi dağıtır |
+| **Olaylar** (motor kancaları + kendi olayların: `emit noticed(agent)` / `on noticed`) | Mekanikler birbirine gevşek bağlanır | Kanca script'lerine elle satır eklemek |
+| **Seçicili enjeksiyon** (`in battle missions:`, `in scenes tagged dungeon:`) | Bir mekanik tek yerde yazılır, ilgili her yere dağılır | Aynı trigger'ı 20 mission template'e kopyalamak |
+| **UI katmanı** (bildirimsel: `text`, `image`, `portrait(troop)`, `bar`, `button`, konum/çapa; değere bağlama: `bar value: player.energy`) | VN diyalog, HUD, menüler modcunun tasarımıyla | Presentation: overlay id'leri, koordinat, elle yenileme döngüsü. Bağlı değer değişince yenilemeyi derleyici üretir |
+| **Kamera ve efekt** (`camera move … over 3s`, `particles fire at prop`) | Sinematik | Kamera operasyonlarını elle zamanlamak |
+| **Etkileşimli sahne nesnesi** (`prop tree: on use(agent): …`) | Ağaç kesme, mancınık, tuzak, kamp/bina kurma | scene_props trigger'ları + mission tarafı kodu dağınık |
+| **Varlık hattı** (`assets/` → brf/resource/textures kaydı; harita içe aktarma) | Yeni harita, mesh, ses eklemek dosya koymak kadar kolay | module.ini, resource listeleri, map.txt elle |
+| **Kaçış kapısı** (`raw:` ham operasyon) | Dilin henüz bilmediği her şey yine yapılabilir | — |
 
-**En değerli ilkel `ui` DSL'i:** Native'de en zor kısım presentation'lar (koordinat, overlay id'leri, olay döngüsü). Bildirimsel arayüz yazılıp derleyicinin presentation koduna çevirmesi, L&D tarzı estetiğin anahtarı.
+Bu ilkellerle örnek: sahibinin "babayla duygusal konuşma" sahnesi tek dosyada, yukarıdan aşağı (`say father: …`, `wait key`, `camera …`, `choice …`) okunur.
 
 ## Araçlar (sıra önemli)
 

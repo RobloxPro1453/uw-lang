@@ -8,6 +8,10 @@ universal_warband bir mod değil, **Mount & Blade: Warband için bir programlama
 
 ## Sahibinin kararları
 
+- 2026-11-14: **UW bir çerçevedir (framework), hazır mekanik paketi değil.** Hedef "sprint fonksiyonu" vermek değil, sprinti (ve gizliliği, tuzağı, VN diyaloğu, sinematiği, at yarışını, kamp kurmayı…) modcunun kendi tasarımıyla kolayca yazabileceği altyapıyı vermek. Tasarımı modcu yapar; UW mümkün ve kolay kılar.
+- 2026-11-14: Haritalar: `base: empty` ve `base: native` seçilebilir; sahibinin kendi tercihi **tamamen boş**, farklı/yeni haritalarla mod yapmak. Harita eklemek kolay olmalı (sahibi bunda çok çile çekti).
+- 2026-11-14: **Pilot mod (çerçevenin sınavı):** Sahibinin kendi lineer hikâyeli modu. Kaba akış: köyde oduncu genç, avcı baba → kraliyet muhafızları asker toplar, babayla duygusal veda → eğitim, savaş; düşman bir genci öldürmeyip bırakır → dönüşte köy yağmalanmış, babayı o bıraktığı kişi öldürmüş → iz sürme yolculuğu, yoldaşlar, **yerel maceralar** (asıl mekanikler burada: gizlilik/saklanma, ağaç kesme, kamp kurma, bina yapma…). Her faz, bu modun bir sahnesini UW ile yazılabilir kılmalı; sahnenin kendisini ve tasarımını sahibi yazar.
+- 2026-11-14: Referans görüntüler (L&D): sahne sürerken üstte konuşan portresi + metin kutusu + ▼, altta cevap; HUD'da enerji barı, "Exposed" gizlilik göstergesi; ateşli sinematikler; kullanılabilir mancınık. Bunlar çekirdek ilkellerin yeterlilik ölçüsüdür (bkz. ARCHITECTURE "Çerçeve").
 - 2026-11-14: Ana odak: **eksantrik mekanikler** (gizlilik, sprint, özel vuruş, yoldaş güçleri, yeni UI) ve **lineer hikâye** (bölümler, sinematik, VN tarzı estetik diyalog) eklemeyi kolaylaştırmak. Referans his: Light & Darkness: Heroes of Calradia (saf Module System ile yapıldı → bizim derleyiciyle de yapılabilir). İçerik kopyalanmaz.
 - 2026-11-14: İki taban seçeneği: `base: native` (Native expansion yapanlar için) ve `base: empty` (boş dünya, sadece motor).
 - 2026-11-14: Sahibinin en büyük acısı: her şey dağınık ve anlaşılmaz (prolog'u kaldırmak, bir kılıç eklemek bile cehennem). Ölçü: bir şeyi eklemek/çıkarmak tek dosya ya da tek satır olmalı.
@@ -40,6 +44,7 @@ Bu, döngünün ilk sözleşmesidir (`finalForm`). Sonraki fazlar için sözleş
 
 - Sahibi örnek `.uw` dosyasını okuyunca ne yaptığını Module System bilmeden anlıyor.
 - Aynı işi Module System'de elle yazmaya göre en az ~5 kat daha kısa.
+- Sahibi pilot modunun bir sahnesini (ör. babayla veda: diyalog + kamera + bekleme) tek dosyada, belgeye bakarak kendisi yazabiliyor.
 - Üretilen `module_*.py` okunabilir; elle açıp bakan modcu ne olduğunu anlar.
 
 ## Değişmezler

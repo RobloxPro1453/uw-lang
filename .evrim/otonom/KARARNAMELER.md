@@ -48,3 +48,11 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 5. **Önce Native'i anlamak:** Native verisi kitin kendi Python 2.7'siyle yüklenip JSON'a dökülür; ezber ve elle kopya yok.
 6. **Derleme yan etkisiz:** dosya yaratma/şablon işi `uw new` aracında, dilde değil.
 7. **Hata mesajı önce Türkçe**, kodlu (`E0001`), katalogdan; metin koda gömülmez.
+
+## [2026-11-14] [strateji] Çekirdek ilkel verir, mekanik vermez
+- **Bulgu:** Sahibi açıkça düzeltti: "Bunları built-in fonksiyon yapma, kolayca oluşturabilecek altyapıyı sağla." Önceki taslakta `resource`/`ability` gibi hazır mekanik blokları çekirdeğe konmuştu.
+- **Karar:** Çekirdeğe yalnız genel ilkeller girer: zaman içinde akan kod (`wait`, derleyici durum makinesine çevirir), alanlar (otomatik slot), olaylar (motor kancaları + kullanıcı olayları), seçicili enjeksiyon, bildirimsel UI + değer bağlama, kamera/efekt, etkileşimli sahne nesnesi, varlık hattı, `raw:` kaçış kapısı. Somut mekanikler (sprint, enerji, gizlilik…) yalnız örnek paket ya da test olarak yazılır, çekirdekte özel durum olarak kodlanmaz.
+- **Test:** Yeni bir çekirdek özelliği önerilince sor: "Bu bir mekanik mi, yoksa birçok mekaniği mümkün kılan bir yapı taşı mı?" Mekanikse çekirdeğe girmez.
+
+## [2026-11-14] [strateji] Pilot mod çerçevenin kabul testidir
+- **Karar:** Her fazın kabulünde sahibinin pilot modundan (köy → savaş → intikam yolculuğu) bir sahne UW ile yazılıp derlenir (`examples/pilot/`). Sahne yazılırken "burada Native'e kaçmak zorunda kaldım" denen her yer çekirdekte eksik bir ilkel adayıdır → ROADMAP'e yazılır.

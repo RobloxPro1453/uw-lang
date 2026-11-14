@@ -16,6 +16,12 @@ Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Önce araştırma (hazır n
 - [ ] Depo iskeleti: Rust workspace `crates/uw_*` (bkz. ARCHITECTURE), her crate'te sözleşme README'si; `stdlib/`, `examples/`, `tests/`; `uw.toml` içinde kit yolu ve export yolu; kit dosyaları depoya girmez.
 - [ ] `uw explain <id>`: Native'de bir şey nerede tanımlı/kullanılıyor (sahibinin ilk acısına erken çözüm).
 
+## 0b. Harita ve boş dünya (araştırma)
+
+- [ ] `map.txt` biçimini çıkar (köşe/yüz/arazi türü); düz bir zemin `map.txt`'si üretilebilir mi dene → `base: empty`'nin haritası.
+- [ ] Fikir: yükseklik haritası (PNG) + arazi boyama → `map.txt` dönüştürücü (`uw map import`). Topluluk harita editörlerinin lisans/erişim durumu.
+- [ ] `base: empty` için motorun zorunlu kayıt listesi (deneyle): oyun en az neyle açılıyor.
+
 ## 1. Çekirdek (finalForm)
 
 - [ ] Gramer + parser: girinti, ifadeler, `if/for/while`, `script`, `on <olay>`, blok tanımları; hata mesajında satır/sütun.
@@ -27,6 +33,12 @@ Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Önce araştırma (hazır n
 - [ ] Altın testler: `.uw` → beklenen `module_*.py` parçası; uçtan uca test: kit build'i geçiyor + `.txt` içinde beklenen kayıt var.
 - [ ] `examples/praven_start` ve `uw build` / `uw check` komutları.
 
+## 1b. Zaman ve olay ilkelleri (Faz 1'den hemen sonra, pilot: babayla veda sahnesi)
+
+- [ ] `wait` / `wait until` / `wait key` → derleyici durum makinesi (coroutine) üretir.
+- [ ] Kullanıcı olayları (`emit` / `on`), alanlar (`field … on agent/troop/party`, otomatik slot).
+- [ ] Seçicili enjeksiyon (`in battle missions:`).
+
 ## 2. Veri paketleri
 
 - [ ] `item`, `template`, `troop`, `party`, `party_template`, `faction`, `map_icon` tanımları; `town`/`village` eklenince aralıklar otomatik.
@@ -35,13 +47,15 @@ Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Önce araştırma (hazır n
 
 - [ ] `dialog` (stat koşullu cevaplar), `quest` (aşamalar), `alignment`, diyalog simülatörü (oyunu açmadan).
 
-## 4. Savaş sistemleri
+## 4. UI, kamera, sahne nesneleri (ilkeller; mekanikleri modcu yazar)
 
-- [ ] `resource` (enerji), `ability` (tuş, cooldown, AI kullanımı), HUD barı — tek blok bütün savaş mission template'lerine yayılır.
+- [ ] Bildirimsel UI + değer bağlama (portre, metin kutusu, bar) → presentation. Pilot: VN tarzı veda diyaloğu sahibinin tasarımıyla.
+- [ ] Kamera/efekt ilkelleri; etkileşimli sahne nesnesi (`prop … on use`). Pilot: ağaç kesme ya da kamp kurma.
+- [ ] Örnek paketler (çekirdek dışı): sprint + enerji barı, basit gizlilik — yalnız ilkellerin yettiğini kanıtlamak için.
 
-## 5. Eşya sistemleri
+## 5. Eşya ilkelleri
 
-- [ ] Bonus motoru, set bonusu, `on hit` efektleri.
+- [ ] Eşyaya alan ve olay ekleme (`on hit`, `on equip`); bonus/set gibi sistemleri modcu bunlarla yazar.
 
 ## 6. Native standart kütüphanesi
 
