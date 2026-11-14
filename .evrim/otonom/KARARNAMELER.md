@@ -61,3 +61,8 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 - **Bulgu:** Sahibi üç kez aynı şeyi vurguladı: UW bir modun tasarımına karar vermez; Module System'de mümkün olan her şey UW'de de mümkün ve daha kolay olmalı.
 - **Karar:** Kat 0 = kitteki bütün operasyonlar isimli/tipli fonksiyon olarak (tablo kitten otomatik). Faz 1'in kabulüne eklenir: operasyon tablosundaki her operasyon UW'den çağrılabiliyor (otomatik test, tablo üzerinde döner). Üst katlar alttakini kapatmaz; `raw:` her yerde kullanılabilir.
 - **Test:** "Bu özellik modcunun yapabileceği bir şeyi kısıtlıyor mu?" Kısıtlıyorsa reddedilir ya da bir kat aşağı inme yolu eklenir.
+
+## [2026-11-15] [strateji] Mimari, büyük meclis kararı olmadan kesinleşmez
+- **Bulgu:** Sahibi: "Bu bir çevirici değil; dosyaların bağları ve etkileşimi çok büyük." Şu anki ARCHITECTURE tek kişinin taslağı.
+- **Karar:** Bir sonraki 5 saatlik pencere büyük meclise ayrılır (sahibinin onayıyla tamamını kullanabilir). Girdi: `docs/MECLIS_GUNDEMI.md`. Meclisten önce kod yazılmaz; meclisten sonra ARCHITECTURE "taslak" etiketini kaybeder.
+- **Not:** `docs/MECLIS_GUNDEMI.md` belge diyetinin bilinçli istisnasıdır (sahibi bilginin birikmesini istedi); meclis bitince kapanır.
