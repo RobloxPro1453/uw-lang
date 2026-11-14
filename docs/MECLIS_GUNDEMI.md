@@ -52,6 +52,20 @@ V. **Katılık:** uyarı yok sayılmaz; şüpheli her durum hata (Rust `-D warni
 
 Sahibi bu bölümü uygulamanı istediğinde meclisi **Agent aracıyla** topla (sahibinin açık isteği; model seçimi aşağıda). Ana oturum = **moderatör ve yazıcı**: tur açar, mesaj taşır, tutanağı tutar; kendi görüşünü en sona saklar. Üyeler aynı anda serbest sohbet edemez; "ofis" şöyle kurulur: ortak tutanak dosyası (`docs/meclis/TUTANAK.md`) herkesin okuduğu masa, turlar sırayla, her üye öncekilerin sözünü okuyup cevap verir; bir üyeye sonraki turda `SendMessage` ile devam edilir (bağlamı kaybolmaz).
 
+### Ek girdi: `llm-raporlari/` (doğrulanmamış!)
+
+Sahibi Manus AI (~1 saat 5 dk çalıştı, 8 konu belgesi + README, ~1650 satır, `llm-raporlari/manus-ai/`) ve Perplexity'ye (~7 dk; klasör `llm-raporlari/perplexity/` 2026-11-15 itibarıyla **boş** — dosya kopyalanmamış olabilir) Module System araştırması yaptırdı. **Hiçbiri yüzde yüz doğru değil.** Kural:
+- Raporlardaki her iddia ancak kite (`Module_system 1.171/`) karşı doğrulanınca kanıt sayılır; doğrulanamayan "rapor iddiası, doğrulanmadı" diye işaretlenir.
+- Sahibinin notu: Manus raporunda cevher olabilir, özellikle bakılsın. Kanıtçılar kendi alanlarına denk gelen Manus belgesini okur (H1 → 03, H2 → 02 + 04, H3 → 06 + 07; 01, 05, 08 → moderatör dağıtır), doğrulanan cevherleri ve bulunan hataları `kanit-H<n>.md`'de ayrı başlıkla yazar.
+- Raporlarda adı geçen dış araçlar (W.R.E.C.K., Python 3 fork'ları, harita araçları vb.) lisans/kullanılabilirlik için ROADMAP Faz 0 araştırmasına not edilir.
+
+### Yetki, kota ve kaydetme (sahibinin talimatı, 2026-11-15)
+
+Sahibi meclise **tam yetki** verdi: pencerenin tamamı kullanılabilir.
+- **Kota:** moderatör her tur başında ve uzun tur ortasında kullanımı kontrol eder (`mcp__ccd_session_mgmt__get_usage` — ToolSearch ile yüklenir — ya da `cv status`). 5 saatlik pencere **%85'te** yeni tur/üye başlatılmaz; **%90'da** yarım iş bırakmadan toparlanır: o anki durum yazılır, açık kalanlar "sonraki oturum" listesine girer. Yarım kalmış bir karar asla ARCHITECTURE'a "kesin" diye yazılmaz.
+- **Düzenli kayıt:** `docs/meclis/GUNLUK.md` her adımda (üye başlatıldı, çıktı geldi, tur bitti) tek satır güncellenir: `[saat] tur N · üye · durum · çıktı dosyası`. Her tur sonunda `git commit` (`meclis: tur N`). İnternet/oturum kesilirse hiçbir şey kaybolmaz.
+- **Devam protokolü:** Sahibi "devam" derse ya da yeni oturum açılırsa: önce `docs/meclis/GUNLUK.md` son satırları + mevcut `docs/meclis/*.md` dosyaları okunur; bitmiş tur tekrarlanmaz; yarım kalan üye çıktısı varsa ondan, yoksa o üyenin işi baştan başlatılır.
+
 Bütçe: sahibi 5 saatlik pencerenin tamamını kullanma izni verdi. Yine de her tur sonunda tutanak dosyaya yazılır; pencere biterse sonraki oturum kaldığı turdan devam eder. **Kod yazılmaz** (kitten veri çıkaran tek seferlik okuma betikleri hariç, onlar da `docs/meclis/` altına değil scratchpad'e).
 
 Üyeler (sahibinin tercihi: 1 Opus, 2 Sonnet, 3 Haiku):
@@ -67,7 +81,7 @@ Bütçe: sahibi 5 saatlik pencerenin tamamını kullanma izni verdi. Yine de her
 
 Turlar:
 
-0. **Hazırlık (moderatör):** `docs/meclis/` aç; her üyeye ortak paket: bu belge + `docs/VISION.md` + `docs/ARCHITECTURE.md` (taslak, sorgulanacak) + `.evrim/otonom/KARARNAMELER.md`. Kit yolu: `Module_system 1.171/` (yalnız okunur).
+0. **Hazırlık (moderatör):** `docs/meclis/` ve `docs/meclis/GUNLUK.md` aç (önce GUNLUK var mı bak: varsa devam protokolü); kotayı kontrol et; her üyeye ortak paket: bu belge + `docs/VISION.md` + `docs/ARCHITECTURE.md` (taslak, sorgulanacak) + `.evrim/otonom/KARARNAMELER.md`. Kit yolu: `Module_system 1.171/` (yalnız okunur).
 1. **Kanıt (H1-H3 paralel, arka planda):** her biri bulgusunu `docs/meclis/kanit-H<n>.md`'ye yazar; her iddia dosya:satır kaynaklı, tahmin "tahmin" diye işaretli.
 2. **Tasarım (S1, S2 paralel):** kanıtları okuyup A–V sorularının her birine cevap; en çok 2 sayfa + crate/IR şeması. `docs/meclis/tasarim-S<n>.md`.
 3. **Çapraz eleştiri (S1↔S2, SendMessage ile devam):** her biri ötekinin tasarımındaki en zayıf 5 noktayı yazar, kendi tasarımını gerekirse düzeltir. Kanıtçılardan biri iki tasarımdaki olgusal iddiaları kite karşı doğrular.
