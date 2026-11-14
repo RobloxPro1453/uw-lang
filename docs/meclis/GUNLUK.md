@@ -17,3 +17,6 @@ Biçim: `[saat] tur N · üye · durum · çıktı dosyası`. Devam protokolü: 
 - [01:34] tur 3 · S2 · eleştiri bitti (67 satır) · elestiri-S2.md
 - [01:35] tur 3 · H1 · denetim bitti (112 satır) · denetim-H1.md
 - [01:35] tur 3 · moderatör · tur kapandı · TUTANAK.md
+- [01:36] tur 4 · O1 (opus) · başlatıldı (arka plan); kota 5s %27 · KARAR.md
+- [01:40] tur 4 · O1 · ilk karar bitti (216 satır) · KARAR.md
+- [01:40] tur 4 · S1, S2 · itiraz hakkı başlatıldı · itiraz-S1.md, itiraz-S2.md

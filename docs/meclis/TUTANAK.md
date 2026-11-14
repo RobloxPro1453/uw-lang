@@ -24,3 +24,8 @@ Manus dağıtımı: H1 → 03 + 01 (derleme zinciri); H2 → 02 + 04 + 08 (düny
 - H1 denetimi (`denetim-H1.md`): `game_*` ID 0..134 (49 kayıt) DOĞRU; item hardwired iki işaret (17 ve 125), motor gerçeği doğrulanamadı; ID_*.py build sırasında yazılır, eski dosya import edilir (bayat ID riski) DOĞRU; satır numarası küçük kaymaları düzeltildi.
 - Moderatör notu: H1'in "kitte `mnu_start_phase_2` yok" bulgusu yanlış yorum — menü adı `start_phase_2` (module_game_menus.py:55), kod içinde başvuru biçimi `"mnu_<ad>"` (ör. :69 `"mnu_start_phase_2_5"`); ID_menus.py'de önek `menu_`. Yani başvuru geçerli.
 - Ortak zemin: iki tasarımcı da hibrite yakınsadı (Native özgün metin kademe 0, UW katman/yama; atlas + gidiş-dönüş + yükseltme oranı).
+
+## Tur 4 · Karar (O1, ilk yazım)
+- `KARAR.md`: "Birleştir"in yeni hali — **değer düzeyinde yama**. Native `module_*.py` staging'e `native_module_*.py` olarak değişmeden kopyalanır; UW aynı adlı ince sarmalayıcı `module_*.py` üretir (`from native_module_x import *`, adla bul-değiştir, sona ekle). Faz 1 kuralı: Native girdisi silinmez/yer değiştirmez. "Tek kaynak" Faz 1'de reddedildi; `uw lift` Faz 6'ya.
+- Moderatör doğrulaması: process_*.py dosyaları modülleri yalnız `from module_x import *` ile değer olarak alıyor; modül metnini okuyan tek dosya `process_line_correction.py` (bat'ta çağrılmıyor, H1). Native modüller birbirini çoğunlukla `module_constants` üzerinden alıyor. → Sarmalayıcı yaklaşımı kitle uyumlu (yapısal olarak); D2 gidiş-dönüş deneyiyle kanıtlanacak.
+- Sıradaki: S1 ve S2'ye birer itiraz hakkı, sonra O1 son söz.
