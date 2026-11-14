@@ -45,15 +45,34 @@ Q. **Varlık hattı:** brf/doku/ses kaydı otomatik (`assets/` → `module.ini` 
 R. **Hızlı sahne testi:** `uw run --scene X` için test derlemesine özel bir başlangıç (oyun açılır açılmaz karakter yaratmayı atlayıp sahneye ışınlama). Warband'ı modu seçili olarak komut satırından başlatmak mümkün mü — kanıtlanacak.
 S. **Kayıt noktaları:** `uw build` öncesi mod projesinde yerel git commit'i (kullanıcı git bilmek zorunda değil; `uw history`, `uw undo`, `uw diff` git'in üstünde ince sarmalayıcı). Git yoksa ne olur?
 T. **Çok dillilik:** Metinler kaynakta tek dilde yazılır; derleyici bütün metinleri zaten topladığı için `uw lang export tr→en` çeviri tablosu üretir ve Warband'ın `languages/<dil>/*.csv` dosyalarına yazar. Ek iş yükü: derleyicide metin kimliklerinin kararlı olması.
-U. **Unicode adlar:** Modcu `köy_meydanı`, `babayla_veda` gibi Türkçe adlar yazabilmeli; Warband kimlikleri ASCII → derleyici kararlı biçimde çevirir (`koy_meydani`), çakışmayı yakalar.
+U. ~~Unicode adlar~~ **Karara bağlandı (sahibi):** kimlikler yalnız ASCII İngilizce; Türkçe karakterli ad derleme hatası.
+V. **Katılık:** uyarı yok sayılmaz; şüpheli her durum hata (Rust `-D warnings` gibi). Hangi denetimler derleme anında yapılabilir (eksik referans, kullanılmayan, ulaşılamayan diyalog, tip, aralık, kanca sözleşmesi)? Tam liste çıkarılmalı.
 
-## Meclis yöntemi (öneri)
+## Meclis talimatı (yeni oturumda bunu uygula)
 
-1. Her üye aynı paketi okur (bu belge + VISION + ARCHITECTURE + kitten küçük örnekler).
-2. Haiku'lar: kitten kanıt toplama (ör. kanca listesi, hardwired kayıtlar, operasyon sayısı, diyalog yapısı) — ucuz, paralel.
-3. Sonnet'ler: A–M için iki rakip tasarım taslağı (biri "Native'i içe al ve birleştir", biri "her şey UW'ye çevrilir").
-4. Opus: taslakları çürütmeye çalışır, karar verir, gerekçesini ve reddedilen yolları yazar.
-5. Sonuç: ARCHITECTURE güncellenir, açık kalanlar burada "açık" işaretiyle durur.
+Sahibi bu bölümü uygulamanı istediğinde meclisi **Agent aracıyla** topla (sahibinin açık isteği; model seçimi aşağıda). Ana oturum = **moderatör ve yazıcı**: tur açar, mesaj taşır, tutanağı tutar; kendi görüşünü en sona saklar. Üyeler aynı anda serbest sohbet edemez; "ofis" şöyle kurulur: ortak tutanak dosyası (`docs/meclis/TUTANAK.md`) herkesin okuduğu masa, turlar sırayla, her üye öncekilerin sözünü okuyup cevap verir; bir üyeye sonraki turda `SendMessage` ile devam edilir (bağlamı kaybolmaz).
+
+Bütçe: sahibi 5 saatlik pencerenin tamamını kullanma izni verdi. Yine de her tur sonunda tutanak dosyaya yazılır; pencere biterse sonraki oturum kaldığı turdan devam eder. **Kod yazılmaz** (kitten veri çıkaran tek seferlik okuma betikleri hariç, onlar da `docs/meclis/` altına değil scratchpad'e).
+
+Üyeler (sahibinin tercihi: 1 Opus, 2 Sonnet, 3 Haiku):
+
+| Üye | Model | Rol |
+|---|---|---|
+| H1 Kanıtçı | haiku | `header_operations.py` (operasyon sayısı, lhs/can_fail, tip ipuçları) + `module_scripts.py` içindeki motor kancaları (`game_*`), parametreleri, `reg0`/`set_trigger_result` kullanımı |
+| H2 Kanıtçı | haiku | Hardwired kayıtlar, `*_begin/*_end` aralıkları, kimlik sırası; slot ve global değişken kullanımı; `module_info`/`module.ini` ilişkisi |
+| H3 Kanıtçı | haiku | "Oh be" hedefi: Native karakter yaratma zinciri (menüler, presentation, script), prolog/tüccar görevi, ilk menü kuralı — kaldırmak için dokunulması gereken her yer; ayrıca diyalog/menü/presentation/mission template yapısından birer örnek |
+| S1 Tasarımcı | sonnet | Tasarım "Birleştir": Native verisi içe alınır (Python 2.7 JSON dökümü), UW parçaları onunla birleştirilir |
+| S2 Tasarımcı | sonnet | Tasarım "Tek kaynak": Native önce UW'ye çevrilir, her şey UW'den üretilir (gidiş-dönüş testiyle) |
+| O1 Başmimar | opus | İki tasarımı çürütmeye çalışır, karar verir, reddedilen yolları gerekçesiyle yazar |
+
+Turlar:
+
+0. **Hazırlık (moderatör):** `docs/meclis/` aç; her üyeye ortak paket: bu belge + `docs/VISION.md` + `docs/ARCHITECTURE.md` (taslak, sorgulanacak) + `.evrim/otonom/KARARNAMELER.md`. Kit yolu: `Module_system 1.171/` (yalnız okunur).
+1. **Kanıt (H1-H3 paralel, arka planda):** her biri bulgusunu `docs/meclis/kanit-H<n>.md`'ye yazar; her iddia dosya:satır kaynaklı, tahmin "tahmin" diye işaretli.
+2. **Tasarım (S1, S2 paralel):** kanıtları okuyup A–V sorularının her birine cevap; en çok 2 sayfa + crate/IR şeması. `docs/meclis/tasarim-S<n>.md`.
+3. **Çapraz eleştiri (S1↔S2, SendMessage ile devam):** her biri ötekinin tasarımındaki en zayıf 5 noktayı yazar, kendi tasarımını gerekirse düzeltir. Kanıtçılardan biri iki tasarımdaki olgusal iddiaları kite karşı doğrular.
+4. **Karar (O1):** hepsini okur; madde madde karar + gerekçe + reddedilen seçenek + "neyi kanıtlamadan kesinleştirme" listesi. `docs/meclis/KARAR.md`. S1/S2 bir kez itiraz edebilir; O1 son sözü yazar.
+5. **İşleme (moderatör):** `docs/ARCHITECTURE.md` "taslak" etiketini kaldırarak yeniden yazılır; kalıcı kurallar `KARARNAMELER.md`'ye; açık kalanlar bu belgede "açık"; `docs/ROADMAP.md` Faz 0-1 maddeleri güncellenir; commit. Sahibine sade Türkçe 10 satırlık özet: ne karar verildi, neden, sahibi neyi onaylamalı.
 
 ## Beyin fırtınası verisi (sahibinden, süzülmüş)
 

@@ -8,6 +8,10 @@ universal_warband bir mod değil, **Mount & Blade: Warband için bir programlama
 
 ## Sahibinin kararları
 
+- 2026-11-15: **Kimlikler (adlar) yalnız ASCII İngilizce** (`village_square`, `farewell_father`); Türkçe karakterli ad yasak, derleyici hata verir — sessiz çeviri riskli (sahibinin düzeltmesi; Claude'un "Türkçe ad + otomatik çeviri" önerisi reddedildi). Oyunda görünen metinler ve yorumlar her dilde olabilir.
+- 2026-11-15: **Derleyici katı:** "geç geç" yok. Şüpheli her şey derlemeyi durdurur (Rust gibi); oyunda fark edilen hata en pahalı hatadır (Warband açılışı ~1 dk). Katılık Module System'i bozmamanın da güvencesi.
+- 2026-11-15: **İlk "oh be" ölçüsü:** Native'in karakter yaratma ekranlarını (geçmiş soruları, yüz editörü, şehir seçimi) ve prolog'u (Praven tüccarı görevi) kaldırıp kendi sorularını/hikâyesini koymak ve doğrudan haritada başlamak — sahibi bunun için 2 hafta uğraştı; UW ile **5 dakikada** yapılabilmeli. Faz 1'in kabulüne eklendi.
+- 2026-11-15: UW ile birlikte "aç, çalıştır, kodu oku" tarzı çalışan örnek modlar gelecek.
 - 2026-11-15: Sahneyi doğrudan test etmek (`uw run --scene …`: oyun açılınca karakter yaratmadan doğrudan o sahne) işe yarar.
 - 2026-11-15: Geri alma güvencesi: her derlemede otomatik kayıt noktası, "dünkü haline dön", farkları görme — **yerel git üstüne kurulur**, sıfırdan sürüm algoritması yazılmaz.
 - 2026-11-15: Editör: şimdilik VS Code + sözdizimi desteği yeter; kendi editör/Studio çok sonra, ayrı proje sayılır.
@@ -52,6 +56,7 @@ Bu, döngünün ilk sözleşmesidir (`finalForm`). Sonraki fazlar için sözleş
 - [ ] `uw build examples/praven_start` tek komutla (derleyici Rust, `cargo test --workspace` yeşil) `.uw` → `module_*.py` → kit build → `.txt` zincirini çalıştırıyor, hata yok.
 - [ ] Örnek modda karakter yaratma iki biçimde de tanımlanabiliyor: oyuncuya soru sorarak (A) ve statları doğrudan koyarak (B).
 - [ ] `on game.start: player.spawn_at(near(praven, 3))` üretilen `scripts.txt`'de ana partiyi Praven yakınına taşıyor (test betiği doğruluyor).
+- [ ] `base: native` üzerinde: Native karakter yaratma zinciri ve prolog kaldırılıp kendi soruları konuyor, oyuncu doğrudan haritada başlıyor — örnek `.uw` dosyası kısa ve okunur ("5 dakika" ölçüsü).
 - [ ] Yanlış yazılan bir isimde derleyici satır numarası ve "şunu mu demek istedin?" önerisiyle duruyor.
 - [ ] Aynı olay (`on game.start`) birden çok dosyada yazılınca bağlayıcı hepsini doğru sırayla birleştiriyor.
 

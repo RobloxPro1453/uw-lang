@@ -76,3 +76,6 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 
 ## [2026-11-15] [strateji] Hazır araç önce — somut liste
 - **Karar:** Sürüm/geri alma = git (CLI ya da `gix`/`git2` crate), fark = git diff; ayrıştırıcı altyapısı = `rowan`/`logos`; hata gösterimi = `ariadne`; editör = VS Code + TextMate grameri + `tower-lsp`; test = `insta`. Bunların yerine "kendimiz yazalım" önerisi ancak meclis kararıyla.
+
+## [2026-11-15] [strateji] Katı derleyici
+- **Karar:** Derleyicinin "uyarı" kategorisi yok sayılarak geçilmez: şüpheli her durum hata. Gevşetme yalnız açık, satıra özel ve gerekçeli bir işaretle (`#[allow(...)]` benzeri) mümkün. Kimlikler ASCII İngilizce; değilse hata.

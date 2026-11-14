@@ -5,7 +5,7 @@
   "lang": "tr",
   "baseBranch": "master",
   "_comment_kurulum": "bekliyor: proje yeni, sahibinin ilk mesajı (merhaba bile) cv-init keşif görüşmesini başlatır. Görüşme bitince cv-init tamam yapar.",
-  "kurulum": "bekliyor",
+  "kurulum": "tamam",
   "projectMode": "greenfield",
   "_comment_licensePolicy": "auto: proje türüne göre keşif görüşmesinde belirlenir; personal | open-source | commercial.",
   "licensePolicy": "open-source",
