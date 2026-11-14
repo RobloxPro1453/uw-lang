@@ -47,6 +47,34 @@ Sahibinin "parçalı yap, her seferinde her şeyi okuma" fikri buraya oturur: he
 | `uw_cli` | `uw build / check / new / explain / verify` |
 | sonra `uw_lsp` | Editör desteği (tamamlama, hata, "nerede kullanılıyor") — VS Code eklentisi bunu kullanır |
 
+## Evrensellik: üç kat, her kat bir alttakine inebilir
+
+Kural: **Module System'in yapabildiği her şeyi UW de yapabilir, daha kolay.** (Sahibinin örneği: Warband'a Counter-Strike modu bile yapılabilmeli.) Bu yüzden dil üç kat:
+
+| Kat | Ne | Garanti |
+|---|---|---|
+| 0. Tam operasyon erişimi | Kitteki ~900 operasyonun hepsi isimli, tipli fonksiyon olarak çağrılabilir (`agent_set_speed_modifier(a, 160)`); tablo kitten **otomatik** üretilir | Native'de mümkün olan hiçbir şey UW'de imkânsız değil |
+| 1. Dil yapıları | İfadeler, `if/for`, `fn`, `wait`, alanlar, olaylar, `when`, UI, seçicili enjeksiyon | Aynı şeyi 5-10 kat kısa ve hatasız yazmak |
+| 2. Kütüphaneler | `std.native.*`, örnek paketler, topluluk paketleri | İsteğe bağlı; hiçbiri zorunlu değil, hepsi silinebilir |
+
+Üst kat asla alttakini kapatmaz: bir yapı yetmezse modcu aynı dosyada bir kat aşağı iner (en dipte `raw:`). Yeni dil yapısı ancak 0. katın üstüne şeker olarak eklenir.
+
+### Tetikleme her koşulda (sahibinin "universal her koşulda çalışmalı" sözü)
+
+Tek bir tetik modeli, her yerde aynı biçim:
+
+```
+on <olay>                 # motor kancası ya da kendi olayın: on dialog.with(koylu), on party.enters(village)
+when <koşul> [every 1h]   # sürekli kontrol: when player.near(any village, 2) and chance(10%)
+in <seçici>: …            # nerede geçerli: in battle missions, in scene koy_meydani, on world map
+```
+
+"Köyün yanından geçerken rastgele olay", "birisiyle konuşunca başlayan iş", "bir yere girince sahne" — üçü de aynı yapıyla yazılır; derleyici `when`'i uygun trigger'a, `on`'u ilgili kancaya bağlar.
+
+### Kod ve GUI: tek kaynak
+
+Kaynak her zaman `.uw` dosyasıdır. GUI araçları (eşya yöneticisi, şehir yerleştirme…) aynı dosyayı kayıpsız düzenler; GUI'de yapılan iş koda dönüşür, kodda yapılan iş GUI'de görünür. İsteyen kodla, isteyen GUI ile çalışır.
+
 ## Dilin iki yüzü
 
 1. **Bildirimsel içerik** (eşya, birlik, şehir, görev, diyalog): veri gibi, alan: değer. GUI araçlarının (eşya yöneticisi, harita yerleştirici) düzenleyeceği yer burası; o yüzden kayıpsız CST şart.

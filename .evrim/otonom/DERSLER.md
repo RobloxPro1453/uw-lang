@@ -6,3 +6,4 @@ Her satır bir ders: "X yapınca Y oldu → artık Z yapıyorum (GUNLUK: tarih s
 - Test koşarken derleme yapınca çıktı dosyası kilitli olduğu için derleme düştü → önce testin bitmesini bekliyorum (GUNLUK: 2026-01-15 00:00) [evrensel→taşındı v1.0.0]
 -->
 - [evrensel→taşındı makine] Tekerleği yeniden icat etme: yeni alt sisteme başlamadan hazır kod/kütüphane ara; MIT/Apache/BSD/ISC lisanslıysa lisans notunu koruyarak doğrudan kullan, sıfırdan yeniden üretmeye çalışma (kalite ve zaman kaybı). Lisansı belirsiz kod yalnız fikir için okunur. (2026-11-14)
+- [yerel] Sahibine onun modunun tasarımını (hikâye dallanır mı, olay nasıl tetiklenir) sorma; cevap hep 'modcu ne isterse'. Soruları çerçeveye yönelt (öncelik, kolaylık, araç); belirsizlikte en esnek yolu seç. (2026-11-15)

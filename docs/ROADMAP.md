@@ -25,6 +25,7 @@ Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Önce araştırma (hazır n
 ## 1. Çekirdek (finalForm)
 
 - [ ] Gramer + parser: girinti, ifadeler, `if/for/while`, `script`, `on <olay>`, blok tanımları; hata mesajında satır/sütun.
+- [ ] Kat 0: tablodaki her operasyon UW'den isimli fonksiyon olarak çağrılabiliyor (tablo üstünde dönen otomatik test).
 - [ ] Operasyon tablosundan otomatik ifade çevirisi: `a = b + c*2` → `store_*`; `if` → `try_begin`; `or` → `this_or_next|`; `not` → `neg|`; `return` → `reg0`.
 - [ ] Bağlayıcı: aynı kancaya bağlı parçaları toplar, Native kancasının sonuna/başına doğru sırayla ekler; global değişken/slot numaralarını çakışmasız dağıtır.
 - [ ] `on game.start`, `player.spawn_at(near(x, r))`, `player.party.add(...)`.
@@ -36,6 +37,7 @@ Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Önce araştırma (hazır n
 ## 1b. Zaman ve olay ilkelleri (Faz 1'den hemen sonra, pilot: babayla veda sahnesi)
 
 - [ ] `wait` / `wait until` / `wait key` → derleyici durum makinesi (coroutine) üretir.
+- [ ] Tek tetik modeli: `on <olay>`, `when <koşul> [every …]`, `in <seçici>`.
 - [ ] Kullanıcı olayları (`emit` / `on`), alanlar (`field … on agent/troop/party`, otomatik slot).
 - [ ] Seçicili enjeksiyon (`in battle missions:`).
 
@@ -72,6 +74,7 @@ Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Önce araştırma (hazır n
 
 ## Yapılmayacaklar
 
+- Eski kayıt dosyası uyumu (şimdilik; sahibi için öncelik değil).
 - Multiplayer (sahibinin kararı; fork'a açık).
 - WSE2 çekirdekte (ileride isteğe bağlı hedef profili olabilir).
 - Kitin `process_*.py` dosyalarını yeniden yazmak (test edilmiş, olduğu gibi kullanılır).

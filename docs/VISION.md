@@ -8,6 +8,10 @@ universal_warband bir mod değil, **Mount & Blade: Warband için bir programlama
 
 ## Sahibinin kararları
 
+- 2026-11-15: **Evrensellik:** Module System'de yapılabilen her şey UW'de de yapılabilmeli, daha kolay (Counter-Strike modu bile). Hikâye dallanması, tetikleme biçimi, mekanik tasarımı gibi şeylerde UW karar vermez; modcuya her yolu açık bırakır.
+- 2026-11-15: Tetikleme her koşulda çalışmalı: haritada bir yere yaklaşınca rastgele olay, biriyle konuşunca, bir yere girince… hepsi.
+- 2026-11-15: Kod + GUI hibrit: isteyen kodla, isteyen GUI ile; GUI'de yapılan koda dönüşür.
+- 2026-11-15: Eski kayıt dosyası uyumu ilk öncelik değil.
 - 2026-11-14: **UW bir çerçevedir (framework), hazır mekanik paketi değil.** Hedef "sprint fonksiyonu" vermek değil, sprinti (ve gizliliği, tuzağı, VN diyaloğu, sinematiği, at yarışını, kamp kurmayı…) modcunun kendi tasarımıyla kolayca yazabileceği altyapıyı vermek. Tasarımı modcu yapar; UW mümkün ve kolay kılar.
 - 2026-11-14: Haritalar: `base: empty` ve `base: native` seçilebilir; sahibinin kendi tercihi **tamamen boş**, farklı/yeni haritalarla mod yapmak. Harita eklemek kolay olmalı (sahibi bunda çok çile çekti).
 - 2026-11-14: **Pilot mod (çerçevenin sınavı):** Sahibinin kendi lineer hikâyeli modu. Kaba akış: köyde oduncu genç, avcı baba → kraliyet muhafızları asker toplar, babayla duygusal veda → eğitim, savaş; düşman bir genci öldürmeyip bırakır → dönüşte köy yağmalanmış, babayı o bıraktığı kişi öldürmüş → iz sürme yolculuğu, yoldaşlar, **yerel maceralar** (asıl mekanikler burada: gizlilik/saklanma, ağaç kesme, kamp kurma, bina yapma…). Her faz, bu modun bir sahnesini UW ile yazılabilir kılmalı; sahnenin kendisini ve tasarımını sahibi yazar.

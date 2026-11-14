@@ -56,3 +56,8 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 
 ## [2026-11-14] [strateji] Pilot mod çerçevenin kabul testidir
 - **Karar:** Her fazın kabulünde sahibinin pilot modundan (köy → savaş → intikam yolculuğu) bir sahne UW ile yazılıp derlenir (`examples/pilot/`). Sahne yazılırken "burada Native'e kaçmak zorunda kaldım" denen her yer çekirdekte eksik bir ilkel adayıdır → ROADMAP'e yazılır.
+
+## [2026-11-15] [strateji] Evrensellik garantisi: UW ⊇ Module System
+- **Bulgu:** Sahibi üç kez aynı şeyi vurguladı: UW bir modun tasarımına karar vermez; Module System'de mümkün olan her şey UW'de de mümkün ve daha kolay olmalı.
+- **Karar:** Kat 0 = kitteki bütün operasyonlar isimli/tipli fonksiyon olarak (tablo kitten otomatik). Faz 1'in kabulüne eklenir: operasyon tablosundaki her operasyon UW'den çağrılabiliyor (otomatik test, tablo üzerinde döner). Üst katlar alttakini kapatmaz; `raw:` her yerde kullanılabilir.
+- **Test:** "Bu özellik modcunun yapabileceği bir şeyi kısıtlıyor mu?" Kısıtlıyorsa reddedilir ya da bir kat aşağı inme yolu eklenir.
