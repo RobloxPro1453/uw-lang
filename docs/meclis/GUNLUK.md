@@ -8,3 +8,7 @@ Biçim: `[saat] tur N · üye · durum · çıktı dosyası`. Devam protokolü: 
 - [01:24] tur 1 · H2 · bitti (204 satır) · kanit-H2.md
 - [01:27] tur 1 · H3 · bitti (175 satır) · kanit-H3.md
 - [01:27] tur 1 · moderatör · tur kapandı; kota 5s %13 · TUTANAK.md
+- [01:27] tur 2 · S1, S2 (sonnet) · başlatıldı (arka plan) · tasarim-S1.md, tasarim-S2.md
+- [01:32] tur 2 · S1 · bitti (128 satır) · tasarim-S1.md
+- [01:32] tur 2 · S2 · bitti (178 satır) · tasarim-S2.md
+- [01:32] tur 2 · moderatör · tur kapandı · TUTANAK.md

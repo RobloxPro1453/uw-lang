@@ -12,3 +12,8 @@ Manus dağıtımı: H1 → 03 + 01 (derleme zinciri); H2 → 02 + 04 + 08 (düny
 - H2 (`kanit-H2.md`): hardwired başlar (troop 0-3, item 0-16, faction 0-2, party 0-2, string 0-3, mt 0-1); 101 begin/end çifti; kimlik = liste indeksi; 15 item + 31 string çift adı; 555 slot adı, ilişki slotları troop ID ile çakışma riski.
 - H3 (`kanit-H3.md`): Praven = `p_town_6` (moderatör doğruladı: module_parties.py:82); `game_start` ana partiyi rastgele eğitim alanına taşıyor (module_scripts.py:37-38, moderatör doğruladı); karakter yaratma + prolog zinciri dosya:satır ile; 217 menü, 2773 diyalog, 50 mt, 49 presentation; aynı trigger gövdesi 14 şablonda kopya.
 - Manus: çoğu yapısal iddia doğrulandı; hatalar (yanlış yol, örnek değerler, module.ini, try_for derinliği vb.) kanıt dosyalarında ayrı başlıkta. Perplexity: ince, çoğu doğru; "header eksik" iddiası bu kit için yanlış.
+
+## Tur 2 · Tasarım (bitti)
+- S1 "Birleştir" (`tasarim-S1.md`): Native py2.7 ile JSON atlasına dökülür; Native girdileri emit'te birebir geri yazılır, UW ekler/yamar/mezar taşı koyar; kitin kendi process zinciri staging'de çalışır. IR: CST → HIR → LHIR → PLAN → Python + .uwmap. ID'yi kit verir, UW önceden hesaplayıp ID_*.py ile karşılaştırır. 12 crate (uw_atlas, uw_lower, uw_kitrun eklendi).
+- S2 "Tek kaynak" (`tasarim-S2.md`): Native kullanıcının kitinden bir kez UW'ye çevrilir (`.uw/base/native/` önbellek, depoya girmez); mod üstüne katman (`override`, `disable`); gidiş-dönüş .txt bayt eşitliği + ayrı "yükseltme oranı" ölçüsü. 5 katman IR; numara yalnız `uw_link`'te, sıra `uw.lock`'tan. praven_start ~15 satır.
+- Ortak "kanıtlanacak": motorun gerçek hardwired listesi, `mnu_start_phase_2` / menü 0 davranışı, trigger birimleri, log yolu, komut satırı başlatma, module.ini, Türkçe kodlama.
