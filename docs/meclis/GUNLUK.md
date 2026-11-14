@@ -12,3 +12,8 @@ Biçim: `[saat] tur N · üye · durum · çıktı dosyası`. Devam protokolü: 
 - [01:32] tur 2 · S1 · bitti (128 satır) · tasarim-S1.md
 - [01:32] tur 2 · S2 · bitti (178 satır) · tasarim-S2.md
 - [01:32] tur 2 · moderatör · tur kapandı · TUTANAK.md
+- [01:33] tur 3 · S1, S2 (çapraz eleştiri), H1 (olgu denetimi) · başlatıldı; kota 5s %22 · elestiri-S1.md, elestiri-S2.md, denetim-H1.md
+- [01:34] tur 3 · S1 · eleştiri bitti · elestiri-S1.md
+- [01:34] tur 3 · S2 · eleştiri bitti (67 satır) · elestiri-S2.md
+- [01:35] tur 3 · H1 · denetim bitti (112 satır) · denetim-H1.md
+- [01:35] tur 3 · moderatör · tur kapandı · TUTANAK.md
