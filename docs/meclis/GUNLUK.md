@@ -20,3 +20,8 @@ Biçim: `[saat] tur N · üye · durum · çıktı dosyası`. Devam protokolü: 
 - [01:36] tur 4 · O1 (opus) · başlatıldı (arka plan); kota 5s %27 · KARAR.md
 - [01:40] tur 4 · O1 · ilk karar bitti (216 satır) · KARAR.md
 - [01:40] tur 4 · S1, S2 · itiraz hakkı başlatıldı · itiraz-S1.md, itiraz-S2.md
+- [01:42] tur 4 · S2 · itiraz bitti (3 itiraz, karara karşı değil) · itiraz-S2.md
+- [01:42] tur 4 · S1 · itiraz bitti (3 itiraz; yaklaşım çalışır) · itiraz-S1.md
+- [01:42] tur 4 · O1 · son söz başlatıldı · KARAR.md (güncelleme)
+- [01:44] tur 4 · O1 · son söz bitti (bütün itirazlar kabul) · KARAR.md
+- [01:44] tur 4 · moderatör · tur kapandı · TUTANAK.md

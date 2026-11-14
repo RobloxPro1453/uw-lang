@@ -29,3 +29,8 @@ Manus dağıtımı: H1 → 03 + 01 (derleme zinciri); H2 → 02 + 04 + 08 (düny
 - `KARAR.md`: "Birleştir"in yeni hali — **değer düzeyinde yama**. Native `module_*.py` staging'e `native_module_*.py` olarak değişmeden kopyalanır; UW aynı adlı ince sarmalayıcı `module_*.py` üretir (`from native_module_x import *`, adla bul-değiştir, sona ekle). Faz 1 kuralı: Native girdisi silinmez/yer değiştirmez. "Tek kaynak" Faz 1'de reddedildi; `uw lift` Faz 6'ya.
 - Moderatör doğrulaması: process_*.py dosyaları modülleri yalnız `from module_x import *` ile değer olarak alıyor; modül metnini okuyan tek dosya `process_line_correction.py` (bat'ta çağrılmıyor, H1). Native modüller birbirini çoğunlukla `module_constants` üzerinden alıyor. → Sarmalayıcı yaklaşımı kitle uyumlu (yapısal olarak); D2 gidiş-dönüş deneyiyle kanıtlanacak.
 - Sıradaki: S1 ve S2'ye birer itiraz hakkı, sonra O1 son söz.
+
+## Tur 4 · İtiraz ve son söz (bitti)
+- S1 (`itiraz-S1.md`): yaklaşım kitte çalışır; 3 itiraz: döngüsel import (yalnız sabit), bayat `.pyc` (temiz staging, `-B`), adsız tablolar (kural 2 yalnız ID'li tablolara).
+- S2 (`itiraz-S2.md`): karara karşı değil; 3 itiraz: `uw explain` için kaynak aralığı + `disable` kısayolu, çift ad `ad#n`, `pin` + derin kopya.
+- O1 son söz: altı itirazın tamamı kabul edildi, `KARAR.md`'ye işlendi (229 satır); D2 deneyi beş alt testle genişledi.

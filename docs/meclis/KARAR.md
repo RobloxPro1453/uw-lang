@@ -19,7 +19,7 @@ O1'in bu turda kitte kendisinin doğruladıkları (yeni kanıt):
 | S2 Tek kaynak | Çevirici ikinci derleyici; `.txt` eşitliği yanlış yükseltmeyi yakalamaz (elestiri-S1 Z1); `uw.lock` Native sırasını depoya sokar (Z2); `dup` istisnası (Z4); gizli `quest` taşıyıcısı günlüğe sızabilir (Z5). praven_start bunların hiçbirine ihtiyaç duymuyor. | Faz 1'de **reddedildi**. Katman semantiği (`override`, sona ekle, ad çakışması = hata) HIR'a alındı. |
 | S1 Birleştir (kaynak metin) | Girdi bazlı kesme dosya düzeyi durumu kaçırır (elestiri-S2 Z1); boş UW'de gidiş-dönüş totolojik, yazıcıyı sınamaz (Z3); varsayılan mezar taşı kanıtsız (Z4); "en büyük slot + 1" dinamik slotu görmez (Z5). | Atlas, staging, `uw_kitrun`, baseline, ID önyazımı **alındı**; kaynak kesme ve varsayılan mezar taşı **reddedildi**. |
 | Yakınsanan hibrit (kademe 0 = özgün metin + kademe 1 lift) | Kademe 0 hâlâ metin kesme + prelude bakımı; kademe 1 yine ikinci derleyici; ikisi de praven_start için gereksiz. | Kademe 0 yerine **sarmalayıcı**; kademe 1 Faz 6'ya ve yalnız ölçü olarak. |
-| Seçilen yol (kendime itiraz) | (a) `replace_entry` çift adda (15 item, 31 string, H2) yanlış girdiyi bulabilir → çift adda hata verir. (b) Native gövdesi sarmalayıcıda görünmez → yanındaki `native_module_*.py` + `uw explain`. (c) Silme gerekince liste süzme ID kaydırır → Faz 1'de yasak, sonra açık izin + kanıt. (d) Kitin bilmediğimiz bir modül-kimliği bağımlılığı varsa D2 yakalar; yakalarsa S1'in kaynak-metin yolu yedektir. | Kabul, D2'ye bağlı. |
+| Seçilen yol (kendime itiraz) | (a) `replace_entry` çift adda (15 item, 31 string, H2) yanlış girdiyi bulabilir → çift adda hata verir. (b) Native gövdesi sarmalayıcıda görünmez → yanındaki `native_module_*.py` + `uw explain`. (c) Silme gerekince liste süzme ID kaydırır → Faz 1'de yasak, sonra açık izin + kanıt. (d) Kitin bilmediğimiz bir modül-kimliği bağımlılığı varsa D2 yakalar; yakalarsa S1'in kaynak-metin yolu yedektir. (e) Paylaşılan Python nesnesi (`common_battle_init_banner` 21 şablonda) yerinde değişirse her yerde değişir → derin kopya (itiraz-S2 3). (f) Sarmalayıcıda hesap döngüsel import doğurur → sabitler PLAN'da (itiraz-S1 1). (g) Eski `.pyc` sarmalayıcıyı gölgeler → `-B`, temiz staging (itiraz-S1 2). | Kabul, D2'ye bağlı. |
 
 ## 2. A–V kararları
 
@@ -74,7 +74,7 @@ O1'in bu turda kitte kendisinin doğruladıkları (yeni kanıt):
 | CST | `uw_syntax` | `print(parse(x)) == x` (her bayt); hata düğümü ayrıştırmayı durdurmaz. |
 | HIR | `uw_check` | Her ad tek tanıma çözülmüş (UW ya da atlas girdisi); tipli; katman (`override`, sona ekle) birleşmiş; referans grafiği kurulmuş; V tanıları burada; **hiç sayı yok**. |
 | LIR | `uw_lower` | Şeker yok (`on`, ifade, `if/for`, sonra `wait/when/in/ui`); çıktı = katkı listesi `(hedef tablo, hedef ad, işlem: replace_body/prepend/append/new, MS-op dizisi)`; bloklar dengeli; slot/yazmaç **sanal**. |
-| PLAN | `uw_plan` | Kapalı dünya = atlas ⊕ katkılar; Native girdisi indeksi değişmez (Faz 1 kuralı); yeni girdiler sona, `uw.lock` sırasıyla; slot, global, yerel, yazmaç somut; öngörülen ID tablosu hesaplı; belirlenimci. |
+| PLAN | `uw_plan` | Kapalı dünya = atlas ⊕ katkılar; girdi türü `Native(ref) \| Yamalı(ref, düzenlemeler) \| Üretilen \| Lift(ref)` (Lift Faz 1'de yalnız tip, kod yok); ID taşıyan tablolarda Native girdisi indeksi değişmez (Faz 1 kuralı); adsız sıralı tablolarda (diyalog, trigger, simple_trigger, mt trigger listesi) ekleme/çıkarma çapa ile; yeni girdiler sona, `uw.lock` sırasıyla; slot, global, yerel, yazmaç somut; öngörülen ID tablosu hesaplı; belirlenimci. |
 | EMIT | `uw_emit` (saf) | PLAN → dosya içerikleri: sarmalayıcı `module_*.py`, `uw_runtime.py`, `ID_*.py`, `variables.txt` tohumu, `module_info.py`, `.uwmap`. Yan etki yok. |
 
 Numara atamaları — hepsi PLAN'da:
@@ -83,14 +83,16 @@ Numara atamaları — hepsi PLAN'da:
 - **Slot**: aile başına `kit-meta/slots.toml`'da elle bildirilmiş rezerve bölge (kanıt satırıyla; troop için ilişki dizisi nedeniyle en az troop sayısı ve 165, `K/module_constants.py:951-953`, `K/module_scripts.py:40387`); yeni alan bölge sonundan, sıra `uw.lock`; boşluk yeniden kullanılmaz.
 - **Global `$`**: UW adları tohum `variables.txt`'nin sonuna derleyici tarafından, `uw.lock` sırasıyla eklenir (kitin tarama sırasına bırakılmaz; H1 `process_global_variables` sırası).
 - **Yazmaç/yerel**: fonksiyon başına (F).
-- **`uw.lock`**: yalnız UW deltası (girdi sırası, slot haritası, global sırası) + Native taban hash'i. Native adı/sırası girmez (elestiri-S1 Z2).
+- **`uw.lock`**: yalnız UW deltası (girdi sırası, slot haritası, global sırası) + Native taban hash'i + kullanıcının override/lift ettiği Native girdileri için `pin <tablo> <ad>[#n] = <indeks>` (itiraz-S2 3). TaleWorlds'ün tam ad/sıra listesi girmez (elestiri-S1 Z2).
+- **Hedef gösterimi**: ad tek ise `ad`; çift adlı (15 item, 31 string; H2) hedefte `ad#n` (n = adın kaçıncı geçişi) zorunlu, yoksa hata; mesaj iki adayı ve kitin hangisini çözdüğünü söyler (itiraz-S2 2). Adsız sıralı tablolarda anahtar = atlasın kararlı kimliği (tablo + durum/çıkış etiketi + metin özeti hash'i, çakışırsa sıra no); belirsiz eşleşme = hata (itiraz-S1 3).
+- **Sabitler**: rezerve slot sınırı gibi her sayı PLAN'da (Rust) hesaplanır, sarmalayıcıya sabit basılır; import anında listeden hesap yok (itiraz-S1 1).
 
 ## 4. Crate listesi
 
 Faz 1 (10 crate + Python yardımcıları):
 - `uw_diag` — hata kataloğu, `Span`, dosya kimliği, `.uwmap` türleri (en dipte).
 - `uw_syntax` — `logos` + `rowan` CST, biçimlendirici.
-- `uw_atlas` — gömülü Python 2.7 döküm betiği: op tablosu (lhs/can_fail/global_lhs), `game_*` listesi, aralıklar, Native girdi adları/indeksleri/değerleri → JSON önbellek (kit hash'li, depoya girmez); `kit-meta/*.toml` (elle, depoda) okur.
+- `uw_atlas` — gömülü Python 2.7 döküm betiği: op tablosu (lhs/can_fail/global_lhs), `game_*` listesi, aralıklar, Native girdi adları/indeksleri/değerleri + her girdinin **salt okunur kaynak satır aralığı** (`native_module_*.py:satır`; yalnız `uw explain` ve sabit adlarla kurulan ters başvuru grafiği için, emisyonda asla kullanılmaz; itiraz-S2 1a) → JSON önbellek (kit hash'li, depoya girmez); `kit-meta/*.toml` (elle, depoda; `native_features.toml` = `disable` kümeleri) okur.
 - `uw_check` — HIR, ad çözümleme, tip, katman, referans grafiği, V tanıları.
 - `uw_lower` — LIR (Faz 1: ifade → op, `if/for`, `on <kanca>`, menü override).
 - `uw_plan` — numaralama, kilit, kapalı dünya.
@@ -98,7 +100,7 @@ Faz 1 (10 crate + Python yardımcıları):
 - `uw_kitrun` — staging kurulumu, bat'tan okunan 29 `process_*` adımını `-E -s` ile tek tek, çıkış kodu ve çıktı ayrıştırması, export kopyası.
 - `uw_verify` — gidiş-dönüş, yeniden yazdırma, ID karşılaştırma, baseline.
 - `uw_cli` — `build/check/explain/verify`; git savepoint ince sarmalayıcı burada.
-- Depoda `py/` (MIT): `atlas_dump.py`, `uw_runtime.py` (`replace_entry`, `prepend_ops`, `append_ops`, `extend`; bulunamayan ya da çift adlı hedefte istisna) — `include_str!` ile ikiliye gömülür.
+- Depoda `py/` (MIT): `atlas_dump.py`, `uw_runtime.py` — API: `replace_entry`, `replace_body`, `prepend_ops`, `append_ops`, `extend` (adlı tablolar, hedef `ad`/`ad#n`) ve `insert_before/insert_after/remove_where(anahtar)` (adsız sıralı tablolar; Faz 1'de imza tanımlı, gövde Faz 2-3). Bulunamayan/belirsiz hedefte istisna; her işlem hedefi ve değiştirdiği listeyi **derin kopyalayıp yeniden bağlar**, yerinde mutasyon yok. Yalnız `header_*`, `ID_*` ve `native_module_<kendisi>` import eder — `include_str!` ile ikiliye gömülür.
 
 Sonraya: `uw_pkg` (Faz 2), `uw_assets` (Faz 0b/4), `uw_lsp` (Faz 2 sonrası), `uw_lift` (Faz 6; bildirimsel türleri `.uw`'ye çıkarır, yükseltme oranını raporlar).
 
@@ -116,15 +118,13 @@ override menu start_game_0:            # motorun ilk menüsü (indeks 0, K/modul
         player.gender = male           # troop_set_type + $character_gender (K/module_scripts.py:36502 okur)
         player.set_skill(...)          # B biçimi: statları doğrudan koy (A biçimi: kendi menü zinciri)
         leave menu                     # change_screen_return  (D4 deneyiyle kesinleşecek)
-override menu start_phase_2:           # menü 1, motorun karakter yaratmadan sonra açtığı varsayılan (D4)
-    on enter:
-        leave menu                     # prolog zinciri ulaşılamaz kalır
+disable native.prologue                # şeker: menü 1 (start_phase_2) girişini keser, zincir ulaşılamaz kalır (D4)
 on game.start:
     player.spawn_at(near(praven, 3))
 ```
 IR adımları:
 1. `uw_atlas`: Native döküm (önbellekten). `praven` → atlas girdisi `p_town_6`, görünen adı "Praven" (`K/module_parties.py:82`); belirsiz ad = hata.
-2. `uw_check`: `start_game_0`, `start_phase_2` atlasta var; `override` hedefi tek. Referans grafiği bilgi olarak raporlar: `start_game_1…auto_return`, `start_phase_2_5…4`, 3 mt, 3 script artık ulaşılamaz ("Native, ulaşılamaz" — hata değil, baseline).
+2. `uw_check`: `disable native.prologue` → `kit-meta/native_features.toml` kümesi → kenar kesme katkısı (`start_phase_2` gövdesi = `change_screen_return`); fiziksel silme yok. `start_game_0`, `start_phase_2` atlasta var; `override` hedefi tek. Referans grafiği bilgi olarak raporlar: `start_game_1…auto_return`, `start_phase_2_5…4`, 3 mt, 3 script artık ulaşılamaz ("Native, ulaşılamaz" — hata değil, baseline).
 3. `uw_lower`: katkılar `(game_menus, start_game_0, replace_body: giriş op'ları + seçenekler)`, `(game_menus, start_phase_2, replace_body)`, `(scripts, game_start, append, [party_relocate_near_party …])`.
 4. `uw_plan`: yeni girdi yok → ID'ler Native'le aynı; yeni global yok (`$character_gender` Native tohumunda).
 5. `uw_emit` (üretilen parça):
@@ -134,7 +134,7 @@ from native_module_scripts import *
 from header_operations import *
 import uw_runtime as _uw
 scripts = _uw.append_ops(scripts, "game_start", [
-    (party_relocate_near_party, "p_main_party", "p_town_6", 3),  # uw: start.uw:13
+    (party_relocate_near_party, "p_main_party", "p_town_6", 3),  # uw: start.uw:11
 ])
 ```
 ```python
@@ -148,7 +148,7 @@ game_menus = _uw.replace_body(game_menus, "start_game_0",
                (change_screen_return)],                         # uw: start.uw:7
     options=None)  # None = Native seçenekleri kalır (D4 sonucu belirleyecek)
 game_menus = _uw.replace_body(game_menus, "start_phase_2",
-    enter_ops=[(change_screen_return)], options=None)           # uw: start.uw:11
+    enter_ops=[(change_screen_return)], options=None)           # uw: start.uw:9 (disable native.prologue)
 ```
 6. `uw_kitrun`: staging = kit kopyası + `native_module_*.py` + sarmalayıcılar + önyazılı `ID_*.py` + tohum + `module_info.py` (staging export); 29 adım; çıktı → `Modules/universalwarband/`.
 7. `uw_verify` / kabul: `scripts.txt`'te script 0 içinde `party_relocate_near_party` op'u, ilk argüman `p_main_party` (0), ikinci 26 (`p_town_6`), üçüncü 3; Native'in rastgele eğitim alanı taşımasından **sonra** (son söz bizde); `menus.txt`'te menü 0 ve 1'in yeni giriş op'ları; ID'ler Native'le aynı. Oyundaki davranış yalnız D4 ile kesinleşir.
@@ -156,7 +156,7 @@ game_menus = _uw.replace_body(game_menus, "start_phase_2",
 ## 6. Kanıtlamadan kesinleştirme listesi (Faz 0, öncelik sırasıyla)
 
 1. **D1 Temiz Native build** — kitin staging kopyasında 29 adımı py2.7 `-E -s` ile tek tek koş; süre, çıktı dosya listesi, bütün ERROR/WARNING satırları (= `native.baseline`). Ek: `ID_*.py` silinmiş kopyada ilk adım ImportError veriyor mu (bayat ID iddiası, H2).
-2. **D2 Boş yama gidiş-dönüş** — bütün `module_*.py` → `native_module_*.py` + boş sarmalayıcı; `.txt`'ler D1 ile bayt bayt karşılaştır. Geçmezse fark hangi dosyada, S1 kaynak-metin yedeği değerlendirilir.
+2. **D2 Boş yama gidiş-dönüş** — temiz staging (yalnız `.py`, `.pyc` ve kit `ID_*.py` kopyalanmaz), bütün `module_*.py` → `native_module_*.py` + boş sarmalayıcı, `python -B -E -s`; `.txt`'ler D1 ile bayt bayt karşılaştır. Ek testler: (a) her sarmalayıcı yalın yorumlayıcıda tek başına `import module_X` ile yüklenir; (b) tek bir mission template yamalanır, kalan şablonların `.txt` satırları bayt eşit kalır (paylaşılan nesne); (c) çift adlı bir string `#1` ve `#2` ile ayrı ayrı değiştirilir, hangisinin hangi `.txt` satırını etkilediği kaydedilir; (d) iki ardışık derlemede (aynı saniye) sarmalayıcı değişikliği çıktıya yansır; (e) `native_module_*.py` hash'i kitin özgünüyle aynı. Geçmezse S1 kaynak-metin yedeği değerlendirilir.
 3. **D4 Oyun sondası: başlangıç akışı (oh-be riski)** — elle yazılmış sarmalayıcıyla 3 varyant: (a) menü 0 girişinde `change_screen_return`; (b) `change_screen_map`; (c) menü 1 override. Gözlem: yüz editörü çıkıyor mu, menü 1 açılıyor mu, `game_start` menü 0'dan önce mi sonra mı, oyuncu Praven yanında mı. Sahibinin onayıyla tek seferlik.
 4. **D3 Yeniden yazdırma testi** — atlas değerleri → (önce Python'da prototip) yazıcı → kit → `.txt` eşitliği; yazıcının 1053 op / bayraklar / tuple şekilleri sınaması.
 5. **D5 Türkçe metin** — bir menü metninde ğ/ş/ı/İ; py2.7 kaynak kodlaması + `.txt` baytları + oyunda görünüm.
@@ -168,15 +168,15 @@ game_menus = _uw.replace_body(game_menus, "start_phase_2",
 
 ## 7. Kalıcı kurallar (KARARNAMELER adayı)
 
-1. Native `module_*.py` metni kesilmez ya da yeniden basılmaz; değişiklik sarmalayıcıda, adla bulunan girdide yapılır; hedef yoksa ya da ad çiftse derleme durur.
-2. Faz 1'de Native girdisi silinmez ve yer değiştirmez; yalnız gövde değişir ve yeni girdi sona eklenir. Silme/kaydırma ancak açık izin + kanıtlanmış motor kuralıyla.
+1. Native `module_*.py` metni kesilmez ya da yeniden basılmaz, Native Python nesneleri yerinde değiştirilmez; değişiklik sarmalayıcıda, derin kopya üstünde, adla (`ad#n`) ya da kararlı anahtarla bulunan girdide yapılır; hedef yoksa ya da belirsizse derleme durur.
+2. Faz 1'de **ID taşıyan tablolarda** Native girdisi silinmez ve yer değiştirmez; yalnız gövde değişir ve yeni girdi sona eklenir. Adsız sıralı tablolarda (diyalog, trigger) çapalı ekleme/çıkarma serbesttir. ID'li silme/kaydırma ancak açık izin + kanıtlanmış motor kuralıyla.
 3. Sayılar (ID, slot, global, yazmaç) yalnız PLAN aşamasında atanır; HIR ve LIR sayı taşımaz.
 4. `uw.lock` yalnız UW deltasını ve Native taban hash'ini taşır; TaleWorlds adları/sırası depoya girmez.
 5. `build_module.bat` çağrılmaz; `process_*` adımları staging'de tek tek, çıkış kodu ve çıktı denetimli koşar; baseline dışı ERROR/WARNING = hata.
 6. `ID_*.py` ve `variables.txt` tohumu derleyici tarafından önyazılır; kitin yazdığıyla fark = iç hata.
 7. Motor davranışına dayanan karar, oyun sondası yapılıp sonucu `docs/KNOWLEDGE.md`'ye yazılmadan KESİN sayılmaz.
 8. Süre birimsiz yazılamaz; `when` aralıksız yazılamaz.
-9. Python 2.7 her koşuda `-E -s` ile ve yalnız staging'de çalışır; kit klasörüne yazılmaz, `process_line_correction.py` asla çalıştırılmaz.
+9. Python 2.7 her koşuda `-B -E -s` ile, her derlemede yeniden kurulan temiz staging'de çalışır (`.pyc` kopyalanmaz); sarmalayıcılar import anında hesap yapmaz, yalnız `header_*`/`ID_*`/kendi Native'ini import eder; kit klasörüne yazılmaz, `process_line_correction.py` asla çalıştırılmaz.
 10. Gidiş-dönüş testi tek başına yeterli sayılmaz; yazıcı Native verisiyle yeniden yazdırma testinden geçer.
 
 ## 8. Yol haritası önerisi
@@ -201,7 +201,7 @@ Faz 1 (sıralı): gramer + CST → `uw_atlas` Rust tarafı → HIR (ad, tip, ove
 - Faz 0 "Depo iskeleti … ARCHITECTURE": crate listesi §4'e göre (10 crate, `uw_atlas`/`uw_plan`/`uw_kitrun`/`uw_verify` yeni; `uw_kit`+`uw_native` birleşir, `uw_ir`/`uw_weave` → `uw_lower`/`uw_plan`).
 - Faz 0b "`base: empty` için motorun zorunlu kayıt listesi": D8'e bağlanır; `base: empty` Faz 1 kabulünde yok (sahibi onaylamalı).
 - Faz 1 "Bağlayıcı … global değişken/slot numaralarını": "`kit-meta/slots.toml` rezerve bölgeleri + `uw.lock` deltası" diye netleşir.
-- Faz 1 "`character_creation` A ve B": "menü 0/1 override ile; Native zincir ulaşılamaz kalır, silinmez" eklenir.
+- Faz 1 "`character_creation` A ve B": "menü 0 override + `disable native.character_creation|prologue` şekeri (kenar kesme); Native zincir ulaşılamaz kalır, silinmez" eklenir.
 - Faz 1 altın test maddesine "yeniden yazdırma testi (D3)" eklenir.
 - Faz 1b `wait`/`when`: D6 ve D9 sonuçlarına bağlı olduğu yazılır.
 - Faz 6 "ters çevirici (Native → .uw)": "`uw lift`, yalnız bildirimsel türler, ölçü amaçlı" diye daraltılır.
@@ -213,4 +213,17 @@ Faz 1 (sıralı): gramer + CST → `uw_atlas` Rust tarafı → HIR (ad, tip, ove
 2. **Faz 0'da bir kez oyunu açıp 3-4 şeye bakmak gerekiyor** (karakter ekranı atlanıyor mu, Praven'de mi başlıyorsun, Türkçe harfler görünüyor mu). "Oyunu açmak doğrulama değil" kuralına tek seferlik istisna; kabul mü?
 3. **İlk sürüm yalnız `base: native` ile çalışacak.** Senin tercihin olan tamamen boş dünya (`base: empty`) ayrı bir deneyle mümkün olduğu kanıtlanınca, Faz 1'den sonra gelir. Uygun mu?
 4. **Derleme için makinede Python 2.7 gerekiyor** (TaleWorlds'ün kiti onunla çalışıyor). Modculara "Python 2.7 kur" demek kabul mü, yoksa ileride kurulumu `uw` mu halletsin?
-5. **Üretilen Module System dosyaları "Native + fark" biçiminde olacak:** Native dosyası olduğu gibi yanında durur, UW'nin dosyası yalnız neyi değiştirdiğini gösterir. Okunabilirlik ölçüsü olarak bu kabul mü?
+5. **Üretilen Module System dosyaları "Native + fark" biçiminde olacak:** Native dosyası olduğu gibi yanında durur, UW'nin dosyası yalnız neyi değiştirdiğini gösterir. Bilmen gereken: Native'in kendi kodu UW'ye çevrilmiyor, yani Native içi eskisi kadar zor okunur kalır; ona `uw explain` ile (nerede tanımlı, kim çağırıyor, kaynak satırı) bakarsın. Okunabilirlik ölçüsü olarak bu kabul mü?
+
+## Son söz (itirazlar sonrası)
+
+- **S1-1 (sarmalayıcıda hesap → döngüsel import): KABUL.** Sayılar PLAN'da hesaplanıp sabit basılır; sarmalayıcı/`uw_runtime` yalnız `header_*`/`ID_*`/kendi Native'ini import eder; D2(a) tek başına yükleme testi (§3, §4, kural 9).
+- **S1-2 (`.pyc`/mtime gölgelemesi): KABUL.** Her derleme temiz staging, `.pyc` ve kit `ID_*.py` kopyalanmaz, `-B -E -s`; `native_module_*.py` hash denetimi; D2(d)(e) (kural 9).
+- **S1-3 (adsız tablolarda ad yok; silme yasağı fazla geniş): KABUL.** Kural 2 ID taşıyan tablolara daraltıldı; adsız sıralı tablolar için kararlı anahtar + `insert_before/after/remove_where` API'si Faz 1'de imza olarak tanımlı (§3, §4).
+- **S2-1a (atlas kaynak satır aralığı, yalnız explain için): KABUL.** Emisyonda asla kullanılmaz, bu yüzden reddedilen "kaynak kesme" geri gelmez (§4 `uw_atlas`).
+- **S2-1b (`disable native.*` şekeri Faz 1'de): KABUL.** Derleyici kenar kesmeye çevirir, kümeler `kit-meta/native_features.toml`'da; D4 sonucu değişirse tek yer düzelir (§5, §8).
+- **S2-1c (sahibine Native içi okunamazlığın kaldığını söyle): KABUL** (§9 madde 5).
+- **S2-2 (çift adda indeksli hedef `ad#n`): KABUL.** `#n` yoksa hata; hangi girdinin etkin olduğu D2(c) ile ölçülür (§3, kural 1). S2'nin eski `dup` işareti yine reddedilmiş sayılır.
+- **S2-3a (`pin` satırı ve `Lift` girdi türü): KABUL.** `pin` yalnız kullanıcının dokunduğu Native girdileri için; `Lift` Faz 1'de yalnız tip olarak var (§3). Kural 4 bununla çelişmez: TaleWorlds'ün tam listesi yine depoya girmez.
+- **S2-3b (paylaşılan nesnede yerinde mutasyon): KABUL.** `uw_runtime` derin kopya + yeniden bağlama; D2(b) testi; kural 1'e "Native nesneleri değiştirilmez" eklendi.
+- **S1 küçük not (doğrusal tarama maliyeti): KABUL, ölçü olarak.** D1'de süreye ad→indeks tarama payı da yazılır; gerekirse `uw_runtime` ad dizinini bir kez kurar.
