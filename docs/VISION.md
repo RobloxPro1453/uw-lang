@@ -8,6 +8,14 @@ universal_warband bir mod değil, **Mount & Blade: Warband için bir programlama
 
 ## Sahibinin kararları
 
+- 2026-11-14: Ana odak: **eksantrik mekanikler** (gizlilik, sprint, özel vuruş, yoldaş güçleri, yeni UI) ve **lineer hikâye** (bölümler, sinematik, VN tarzı estetik diyalog) eklemeyi kolaylaştırmak. Referans his: Light & Darkness: Heroes of Calradia (saf Module System ile yapıldı → bizim derleyiciyle de yapılabilir). İçerik kopyalanmaz.
+- 2026-11-14: İki taban seçeneği: `base: native` (Native expansion yapanlar için) ve `base: empty` (boş dünya, sadece motor).
+- 2026-11-14: Sahibinin en büyük acısı: her şey dağınık ve anlaşılmaz (prolog'u kaldırmak, bir kılıç eklemek bile cehennem). Ölçü: bir şeyi eklemek/çıkarmak tek dosya ya da tek satır olmalı.
+- 2026-11-14: Hata mesajları ve belgeler iki dilli; **önce Türkçe**, sonra İngilizce.
+- 2026-11-14: Sağlamlık hızdan önce gelir, ama kaplumbağa olmadan. Kod tabanı büyüyünce kontrol kaybolmasın: parçalı (modüler) mimari, her parça tek başına okunur ve test edilir.
+- 2026-11-14: Derleyici dili **Rust** (sahibinin önerisi, Claude onayladı; gerekçe KARARNAMELER'de).
+- 2026-11-14: İleride araçlar: eşya yöneticisi, harita editörü/yerleştirici, kod editörü (tamamlama, şablon). Çekirdekten sonra.
+- 2026-11-14: Bu hafta kod yok: tasarım ve beyin fırtınası haftası (haftalık kota dolu). Kodlama sonraki hafta.
 - 2026-11-14: Dil ve dosya uzantısı: **UW**, uzantı `.uw`, komut `uw` (karar Claude'a bırakıldı; neden: kısa, proje adıyla aynı, başka modlama aracıyla çakışmıyor).
 - 2026-11-14: Hedef motor: düz **Warband 1.174**; WSE2 çekirdekte yok, ileride isteğe bağlı "hedef profili" olarak eklenebilecek şekilde açık bırakılır (karar Claude'a bırakıldı; neden: oyuncu ek kurulum yapmadan çalıştırır, L&D'nin kendisi WSE'siz yapıldı, yani hedef tarz için yetiyor).
 - 2026-11-14: "Tekerleği yeniden icat etme": MIT/Apache/BSD/ISC lisanslı hazır kod ya da kütüphane varsa doğrudan kullanılır/kopyalanır (lisans notu korunarak); sıfırdan yeniden yazılmaz.
@@ -22,7 +30,7 @@ universal_warband bir mod değil, **Mount & Blade: Warband için bir programlama
 
 Bu, döngünün ilk sözleşmesidir (`finalForm`). Sonraki fazlar için sözleşme sahibinin onayıyla yenilenir.
 
-- [ ] `uw build examples/praven_start` tek komutla `.uw` → `module_*.py` → kit build → `.txt` zincirini çalıştırıyor, hata yok.
+- [ ] `uw build examples/praven_start` tek komutla (derleyici Rust, `cargo test --workspace` yeşil) `.uw` → `module_*.py` → kit build → `.txt` zincirini çalıştırıyor, hata yok.
 - [ ] Örnek modda karakter yaratma iki biçimde de tanımlanabiliyor: oyuncuya soru sorarak (A) ve statları doğrudan koyarak (B).
 - [ ] `on game.start: player.spawn_at(near(praven, 3))` üretilen `scripts.txt`'de ana partiyi Praven yakınına taşıyor (test betiği doğruluyor).
 - [ ] Yanlış yazılan bir isimde derleyici satır numarası ve "şunu mu demek istedin?" önerisiyle duruyor.

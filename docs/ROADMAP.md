@@ -9,10 +9,12 @@ Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Önce araştırma (hazır n
 ## 0. Araştırma ve kurulum (kod öncesi)
 
 - [ ] Hazır araç taraması: W.R.E.C.K. (Lav'ın derleyici kiti), Swyter'ın araçları, GitHub'daki Warband ModSys araçları; her biri için lisans + neyini kullanabiliriz notu → `docs/KNOWLEDGE.md`.
-- [ ] Ayrıştırıcı kütüphanesi seçimi (aday: Lark, MIT; girinti duyarlı gramer desteği var) — kısa deneme ile karar.
+- [ ] Rust crate seçimi teyidi: `rowan`, `logos`, `insta`, `ariadne`, `tower-lsp` lisans + sürüm notu (hepsi MIT/Apache olmalı).
 - [ ] Kitin dokunulmamış haliyle Python 2.7 build'i `Modules/universalwarband/`'a hatasız geçiyor; süre ve çıktı listesi kaydedildi.
 - [ ] Kit envanteri (otomatik betikle, elle değil): `header_operations.py` → operasyon tablosu (ad, kod, lhs mi, can_fail mi); `module_scripts.py` → motorun çağırdığı `game_*` kanca listesi; `module_constants.py` → `*_begin/*_end` aralıkları; hardwired kayıtlar listesi.
-- [ ] Depo iskeleti: `compiler/` (parser, ast, checker, codegen, linker), `stdlib/`, `examples/`, `tests/`; `uw.toml` içinde kit yolu ve export yolu; kit dosyaları depoya girmez.
+- [ ] Native dökümü: kitin Python 2.7'siyle bütün `module_*.py` → JSON (betik); Native atlasının ham verisi.
+- [ ] Depo iskeleti: Rust workspace `crates/uw_*` (bkz. ARCHITECTURE), her crate'te sözleşme README'si; `stdlib/`, `examples/`, `tests/`; `uw.toml` içinde kit yolu ve export yolu; kit dosyaları depoya girmez.
+- [ ] `uw explain <id>`: Native'de bir şey nerede tanımlı/kullanılıyor (sahibinin ilk acısına erken çözüm).
 
 ## 1. Çekirdek (finalForm)
 
@@ -46,6 +48,9 @@ Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Önce araştırma (hazır n
 - [ ] Native'in sistemleri (`std.character_creation`, `std.lords_ai`, `std.economy`…) isteğe bağlı paketler; ters çevirici (Native `module_*.py` → `.uw`).
 
 ## Öneriler (sahibinin kararını bekler)
+
+- `ui` DSL'i (bildirimsel arayüz → presentation): VN diyalog ve HUD'ların anahtarı; Faz 3-4 arası.
+- UW Studio (Tauri + Monaco): eşya yöneticisi, harita üstünde şehir yerleştirme; LSP'den sonra.
 
 - VS Code eklentisi (renklendirme + tamamlama) — Faz 2 sonrası, küçük iş.
 - Hikâye grafiği (görev/diyalog dallarını çizer, ulaşılamayan aşamayı bulur) — Faz 3 ile.

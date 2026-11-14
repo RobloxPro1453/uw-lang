@@ -13,7 +13,7 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 
 ## [2026-11-14] [strateji] Derleyici kitin üstüne oturur, onu değiştirmez
 - **Bulgu:** Module System 1.171'in `process_*.py` zinciri yıllardır test edilmiş; Python 2.7 ile çalışıyor.
-- **Karar:** Derleyici Python 3 ile yazılır ve yalnız `module_*.py` üretir; build kitin kendi Python 2.7'siyle yapılır. Kit dosyaları depoya girmez (TaleWorlds kodu, açık kaynak depo); yol `uw.toml`'dan okunur.
+- **Karar:** Derleyici ~~Python 3~~ **Rust** ile yazılır (bkz. aşağıdaki Rust kararnamesi) ve yalnız `module_*.py` üretir; build kitin kendi Python 2.7'siyle yapılır. Kit dosyaları depoya girmez (TaleWorlds kodu, açık kaynak depo); yol `uw.toml`'dan okunur.
 - **Beklenen etki:** Oyunu bozma riski düşük, üretilen kod okunabilir, depo yayımlanabilir.
 
 ## [2026-11-14] [strateji] Kit bilgisi elle değil, betikle çıkarılır
@@ -29,3 +29,22 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 
 ## [2026-11-14] [strateji] Hazır kod önce
 - **Karar:** Her yeni alt sistemden önce 10 dakikalık "hazırı var mı" taraması; MIT/Apache/BSD/ISC ise lisans başlığı korunarak kullanılır. Lisansı belirsiz kod yalnız fikir için okunur, kopyalanmaz.
+
+## [2026-11-14] [strateji] Derleyici Rust ile, küçük crate'ler halinde
+- **Bulgu:** Sahibinin korkusu: kod büyüyünce bir hatayı düzeltirken başkası çıkıyor, kontrol kayboluyor. Derleyici; çok sayıda AST/IR durumu olan, tip hatasına açık bir program.
+- **Karar:** Rust (sistemde cargo 1.99 kurulu). Gerekçe: (1) `enum` + eksiksiz `match`: yeni bir dil yapısı eklenip bir yerde ele alınmazsa derleme durur — unutma hatası test beklemeden yakalanır; (2) ucuz modelin (DeepSeek) yanlışını derleyici anında söyler, döngü hızlanır; (3) modculara tek `uw.exe` dağıtılır, Python 3 kurdurmayız; (4) ekosistem hazır: `rowan` (kayıpsız sözdizimi ağacı), `logos` (lexer), `insta` (altın testler), `ariadne`/`codespan` (güzel hata mesajı), `tower-lsp` (editör) — hepsi MIT/Apache.
+- **Önlem:** Ödünç denetleyiciyle (borrow checker) boğuşmamak için basit stil: veri bir "arena"da, referans yerine sayısal kimlik (`ItemId`), gerektiğinde `clone`. `unsafe` yasak.
+- **Geri dönüş koşulu:** Faz 1'in ilk iki haftasında ucuz model Rust'ta tekrar tekrar takılıyorsa (aynı derleme hatası 3+ tur) Meclis toplanır.
+
+## [2026-11-14] [strateji] Parçalı mimari: crate başına sözleşme
+- **Karar:** Her crate'in kökünde kısa `README.md`: tek işi, girdisi, çıktısı, kimlere bağımlı. Ajan bir iş için yalnız ilgili crate(ler)i okur. Crate'ler arası bağımlılık tek yönlü (syntax → check → ir → weave → emit); döngü yasak.
+- **Beklenen etki:** Token tasarrufu, yerel hata, kontrol kaybı yok.
+
+## [2026-11-14] [strateji] Tasarım ilkeleri (her yeni dil özelliği bunlardan geçer)
+1. **Bir şey = bir dosya/blok.** Eklemek dosya eklemek, kaldırmak dosya silmek.
+2. **Sessiz bozulma yok.** Kaldırılan/yanlış yazılan şeye referans kalırsa derleyici satır ve öneriyle durur.
+3. **Mekanik tek blokta; dağıtmak dokuyucunun işi** (`feature`, `ability`, `resource` → çok dosya).
+4. **Kayıpsız sözdizimi:** her `.uw` araçla bozulmadan yeniden yazılabilir (biçimlendirici, GUI, şablon).
+5. **Önce Native'i anlamak:** Native verisi kitin kendi Python 2.7'siyle yüklenip JSON'a dökülür; ezber ve elle kopya yok.
+6. **Derleme yan etkisiz:** dosya yaratma/şablon işi `uw new` aracında, dilde değil.
+7. **Hata mesajı önce Türkçe**, kodlu (`E0001`), katalogdan; metin koda gömülmez.

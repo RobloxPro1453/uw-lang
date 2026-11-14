@@ -11,13 +11,11 @@
   "licensePolicy": "open-source",
   "_comment_finalForm": "Hedeflenen son ürün biçimi. deliverable: beklenen çalıştırılabilir çıktı yolu (ör. dist/app.exe); verifyCmd: [program, arg, ...] ya da null; criteria: bitiş kontrol listesi.",
   "finalForm": {
-    "deliverable": "uw build examples/praven_start (derleyici: compiler/, örnek: examples/praven_start/)",
+    "deliverable": "uw.exe (cargo build --release) + examples/praven_start; uw build examples/praven_start",
     "verifyCmd": [
-      "python",
-      "-m",
-      "pytest",
-      "-q",
-      "tests"
+      "cargo",
+      "test",
+      "--workspace"
     ],
     "criteria": [
       "uw build examples/praven_start: .uw -> module_*.py -> kit build -> .txt hatasız",
@@ -28,16 +26,23 @@
     ]
   },
   "_comment_build": "Komutlar dizi olarak yazılır (kabuk yok): [program, argüman, ...]. Yoksa null. Dakikalar süre sınırıdır; aşan komut öldürülür.",
-  "build": null,
-  "test": null,
+  "build": [
+    "cargo",
+    "build",
+    "--workspace"
+  ],
+  "test": [
+    "cargo",
+    "test",
+    "--workspace"
+  ],
   "buildMinutes": 10,
   "testMinutes": 15,
   "_comment_paths": "codePaths: ölçümde 'kod' sayılan klasörler. forbiddenWrite: ucuz modelin yazamayacağı yollar (düzenli ifade, / ile). Bu liste yalnız sahibinin sözüyle daraltılır; evrensel güncelleme buraya dokunamaz. skipDirs: ajanın listelemediği/aramadığı klasörler.",
   "codePaths": [
-    "compiler/",
-    "stdlib/",
-    "tests/",
-    "examples/"
+    "crates/",
+    "examples/",
+    "tests/"
   ],
   "forbiddenWrite": [
     "^\\.git(/|$)",
@@ -51,8 +56,8 @@
     "^docs/VISION\\.md$",
     "^docs/WORKER\\.md$",
     "^docs/tasks/(?!.*\\.report\\.md$)",
-    "^(build|dist|node_modules|vendor)/",
-    "^Module_system 1\\.171/"
+    "^Module_system 1\\.171/",
+    "^(build|dist|node_modules|vendor|target)/"
   ],
   "skipDirs": "^(\\.git|node_modules|build|dist|target|vendor|\\.evrim/state)(/|$)",
   "_comment_docs": "Becerilerin okuduğu belge adları. Bir belgeyi yeniden adlandırırsanız burayı değiştirin; beceri metni değişmez.",
