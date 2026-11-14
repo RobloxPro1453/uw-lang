@@ -8,12 +8,24 @@
   "kurulum": "bekliyor",
   "projectMode": "greenfield",
   "_comment_licensePolicy": "auto: proje türüne göre keşif görüşmesinde belirlenir; personal | open-source | commercial.",
-  "licensePolicy": "auto",
+  "licensePolicy": "open-source",
   "_comment_finalForm": "Hedeflenen son ürün biçimi. deliverable: beklenen çalıştırılabilir çıktı yolu (ör. dist/app.exe); verifyCmd: [program, arg, ...] ya da null; criteria: bitiş kontrol listesi.",
   "finalForm": {
-    "deliverable": null,
-    "verifyCmd": null,
-    "criteria": []
+    "deliverable": "uw build examples/praven_start (derleyici: compiler/, örnek: examples/praven_start/)",
+    "verifyCmd": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests"
+    ],
+    "criteria": [
+      "uw build examples/praven_start: .uw -> module_*.py -> kit build -> .txt hatasız",
+      "character_creation A (soru zinciri) ve B (doğrudan stat) derleniyor ve build geçiyor",
+      "player.spawn_at(near(praven,3)) scripts.txt içinde game_start'ta ana partiyi p_town_6 yakınına taşıyor (testle)",
+      "yanlış isimde satır numarası + 'şunu mu demek istedin' önerisiyle hata",
+      "birden çok 'on game.start' bağlayıcıda doğru sırayla birleşiyor (testle)"
+    ]
   },
   "_comment_build": "Komutlar dizi olarak yazılır (kabuk yok): [program, argüman, ...]. Yoksa null. Dakikalar süre sınırıdır; aşan komut öldürülür.",
   "build": null,
@@ -22,8 +34,10 @@
   "testMinutes": 15,
   "_comment_paths": "codePaths: ölçümde 'kod' sayılan klasörler. forbiddenWrite: ucuz modelin yazamayacağı yollar (düzenli ifade, / ile). Bu liste yalnız sahibinin sözüyle daraltılır; evrensel güncelleme buraya dokunamaz. skipDirs: ajanın listelemediği/aramadığı klasörler.",
   "codePaths": [
-    "src/",
-    "tests/"
+    "compiler/",
+    "stdlib/",
+    "tests/",
+    "examples/"
   ],
   "forbiddenWrite": [
     "^\\.git(/|$)",
@@ -37,7 +51,8 @@
     "^docs/VISION\\.md$",
     "^docs/WORKER\\.md$",
     "^docs/tasks/(?!.*\\.report\\.md$)",
-    "^(build|dist|node_modules|vendor)/"
+    "^(build|dist|node_modules|vendor)/",
+    "^Module_system 1\\.171/"
   ],
   "skipDirs": "^(\\.git|node_modules|build|dist|target|vendor|\\.evrim/state)(/|$)",
   "_comment_docs": "Becerilerin okuduğu belge adları. Bir belgeyi yeniden adlandırırsanız burayı değiştirin; beceri metni değişmez.",
