@@ -8,3 +8,5 @@ Her satır bir ders: "X yapınca Y oldu → artık Z yapıyorum (GUNLUK: tarih s
 - [evrensel→taşındı makine] Tekerleği yeniden icat etme: yeni alt sisteme başlamadan hazır kod/kütüphane ara; MIT/Apache/BSD/ISC lisanslıysa lisans notunu koruyarak doğrudan kullan, sıfırdan yeniden üretmeye çalışma (kalite ve zaman kaybı). Lisansı belirsiz kod yalnız fikir için okunur. (2026-11-14)
 - [yerel] Sahibine onun modunun tasarımını (hikâye dallanır mı, olay nasıl tetiklenir) sorma; cevap hep 'modcu ne isterse'. Soruları çerçeveye yönelt (öncelik, kolaylık, araç); belirsizlikte en esnek yolu seç. (2026-11-15)
 - [yerel] Beyin fırtınasında sahibine turda 3 değil 8-12 soru sor; o çok fikir üretir, Claude süzer: biriken %10 kemik sağlam fikir değerlidir. (2026-11-15)
+- [yerel] Meclis: Haiku kanıtçıların 'kitte X yok' bulguları başvuru önekini (mnu_/menu_) karıştırabilir; moderatör grep ile tekrar bakmalı. (2026-11-15)
+- [evrensel→taşındı makine] Dış LLM araştırma raporlarında (Manus vb.) yapısal iddialar çoğunlukla doğru, somut değer/yol/sayı/sürüm iddiaları sık yanlış; yalnız birincil kaynağa (kod, kit) karşı dosya:satırla doğrulananı kanıt say. (2026-11-15)

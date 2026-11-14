@@ -1,5 +1,7 @@
 # Mimari Meclis gündemi
 
+> **KARARA BAĞLANDI (2026-11-15).** Meclis toplandı (H1-H3 haiku, S1-S2 sonnet, O1 opus); 4 tur + işleme. Karar: `docs/meclis/KARAR.md` ("Native + fark": değer düzeyinde yama). Tutanak ve günlük: `docs/meclis/TUTANAK.md`, `GUNLUK.md`. A–V'nin hepsi karara bağlandı; motor davranışına bağlı olanlar **açık** (KANITLANACAK, Faz 0 deneyleri D1–D10): C (wait birimleri, D6/D9), D birimleri (D6), G çözünürlük (Faz 4), I kit mesaj biçimi (D1), J/Q varlık ve `base: empty` (D8), O/R log ve başlatma (D7), T Türkçe (D5). Sahibinin onayı beklenen 5 karar: `.evrim/otonom/SORULAR.md`. Not: aşağıdaki "perplexity klasörü boş" bilgisi eskidi; klasörde 13 dosya var. Bu belge artık yalnız tarihsel kayıttır.
+
 Sahibinin kararı (2026-11-15): Mimari tek kişinin "hop düşündüm" işi değil. 5 saatlik pencere sıfırlanınca yeni oturumda **büyük meclis** toplanır (ör. 1 Opus + 2 Sonnet + 3 Haiku; pencerenin tamamı mimariye gidebilir, sorun değil). Bu belge meclisin girdisidir: beyin fırtınasında biriken veri + çözülmesi gereken zor sorular. Meclis sonucu `docs/ARCHITECTURE.md` ve `KARARNAMELER.md`'ye işlenir; bu belge o zaman "karara bağlandı" notlarıyla kapanır.
 
 Önce okunacak: `docs/VISION.md` (sahibinin kararları), `docs/ARCHITECTURE.md` (şu anki taslak — sorgulanacak, kutsal değil), `.evrim/otonom/KARARNAMELER.md`.

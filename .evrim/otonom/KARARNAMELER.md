@@ -25,7 +25,7 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 - **Beklenen etki:** Her turda çalışan bir şey kalır; büyük ama yarım derleyici riski yok.
 
 ## [2026-11-14] [arac] Doğrulama = altın test + kit build'i
-- **Karar:** Her derleyici değişikliğinden sonra: birim/altın testler (`.uw` → beklenen `module_*.py`) ve örneklerin kit build'i (`Modules/universalwarband/`'a, hatasız). Oyunu açmak doğrulama değildir (sahibinin kararı).
+- **Karar:** Her derleyici değişikliğinden sonra: birim/altın testler (`.uw` → beklenen `module_*.py`) ve örneklerin kit build'i (`Modules/universalwarband/`'a, hatasız). Oyunu açmak doğrulama değildir (sahibinin kararı). Meclis önerisi (ONAY BEKLİYOR): Faz 0'da tek seferlik oyun sondası (D4 başlangıç akışı, D5 Türkçe, D6 birimler, D7 log) — motor davranışını kanıtlamak için, rutin doğrulama olarak değil.
 
 ## [2026-11-14] [strateji] Hazır kod önce
 - **Karar:** Her yeni alt sistemden önce 10 dakikalık "hazırı var mı" taraması; MIT/Apache/BSD/ISC ise lisans başlığı korunarak kullanılır. Lisansı belirsiz kod yalnız fikir için okunur, kopyalanmaz.
@@ -37,7 +37,7 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 - **Geri dönüş koşulu:** Faz 1'in ilk iki haftasında ucuz model Rust'ta tekrar tekrar takılıyorsa (aynı derleme hatası 3+ tur) Meclis toplanır.
 
 ## [2026-11-14] [strateji] Parçalı mimari: crate başına sözleşme
-- **Karar:** Her crate'in kökünde kısa `README.md`: tek işi, girdisi, çıktısı, kimlere bağımlı. Ajan bir iş için yalnız ilgili crate(ler)i okur. Crate'ler arası bağımlılık tek yönlü (syntax → check → ir → weave → emit); döngü yasak.
+- **Karar:** Her crate'in kökünde kısa `README.md`: tek işi, girdisi, çıktısı, kimlere bağımlı. Ajan bir iş için yalnız ilgili crate(ler)i okur. Crate'ler arası bağımlılık tek yönlü (diag en dipte; syntax → check → lower → plan → emit → kitrun → verify; atlas veri sağlar; cli en üstte — meclis 2026-11-15); döngü yasak.
 - **Beklenen etki:** Token tasarrufu, yerel hata, kontrol kaybı yok.
 
 ## [2026-11-14] [strateji] Tasarım ilkeleri (her yeni dil özelliği bunlardan geçer)
@@ -66,6 +66,22 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 - **Bulgu:** Sahibi: "Bu bir çevirici değil; dosyaların bağları ve etkileşimi çok büyük." Şu anki ARCHITECTURE tek kişinin taslağı.
 - **Karar:** Bir sonraki 5 saatlik pencere büyük meclise ayrılır (sahibinin onayıyla tamamını kullanabilir). Girdi: `docs/MECLIS_GUNDEMI.md`. Meclisten önce kod yazılmaz; meclisten sonra ARCHITECTURE "taslak" etiketini kaybeder.
 - **Not:** `docs/MECLIS_GUNDEMI.md` belge diyetinin bilinçli istisnasıdır (sahibi bilginin birikmesini istedi); meclis bitince kapanır.
+- **Sonuç (2026-11-15):** Meclis toplandı (1 Opus, 2 Sonnet, 3 Haiku); karar `docs/meclis/KARAR.md`, ARCHITECTURE yeniden yazıldı. Kod yasağı kalktı; ilk iş Faz 0 deneyleri (D1 → D2 → D4).
+
+## [2026-11-15] [strateji] Meclis kuralları: Native + fark
+- **Bulgu:** Kitin bütün `process_*.py` dosyaları modülleri yalnız değer olarak (`from module_X import *`) alıyor; modül metnini okuyan tek dosya çağrılmayan `process_line_correction.py` (docs/meclis/kanit-H1.md, KARAR.md).
+- **Karar (kalıcı kurallar):**
+  1. Native `module_*.py` metni kesilmez ya da yeniden basılmaz, Native Python nesneleri yerinde değiştirilmez; değişiklik sarmalayıcıda, derin kopya üstünde, adla (`ad#n`) ya da kararlı anahtarla bulunan girdide yapılır; hedef yoksa ya da belirsizse derleme durur.
+  2. Faz 1'de ID taşıyan tablolarda Native girdisi silinmez, yer değiştirmez; yalnız gövde değişir, yeni girdi sona eklenir. Adsız sıralı tablolarda (diyalog, trigger) çapalı ekleme/çıkarma serbest. ID'li silme ancak açık izin + kanıtlanmış motor kuralıyla.
+  3. Sayılar (ID, slot, global, yazmaç) yalnız PLAN aşamasında atanır; HIR ve LIR sayı taşımaz.
+  4. `uw.lock` yalnız UW deltasını ve Native taban hash'ini taşır; TaleWorlds adları/sırası depoya girmez.
+  5. `build_module.bat` çağrılmaz; `process_*` adımları staging'de tek tek, çıkış kodu ve çıktı denetimli koşar; `native.baseline` dışı ERROR/WARNING = hata.
+  6. `ID_*.py` ve `variables.txt` tohumu derleyici tarafından önyazılır; kitin yazdığıyla fark = iç hata.
+  7. Motor davranışına dayanan karar, oyun sondası yapılıp sonucu `docs/KNOWLEDGE.md`'ye yazılmadan KESİN sayılmaz.
+  8. Süre birimsiz yazılamaz; `when` aralıksız yazılamaz.
+  9. Python 2.7 her koşuda `-B -E -s` ile, her derlemede yeniden kurulan temiz staging'de çalışır (`.pyc` ve kit `ID_*.py` kopyalanmaz); sarmalayıcılar import anında hesap yapmaz; kit klasörüne yazılmaz; `process_line_correction.py` asla çalıştırılmaz.
+  10. Gidiş-dönüş testi tek başına yeterli sayılmaz; yazıcı Native verisiyle yeniden yazdırma testinden geçer.
+- **Beklenen etki:** Native davranışı bozulmadan üstüne eklenir; numara çakışması ve bayat ID sessiz bozulmaları derlemede yakalanır.
 
 ## [2026-11-15] [strateji] LLM dostu dil ve LLM'e hazır hata çıktısı
 - **Bulgu:** Sahibi Module System'i 12 LLM'le bile öğrenemedi; LLM'ler de Module System'de zayıf. UW büyük ölçüde LLM yardımıyla yazılacak.

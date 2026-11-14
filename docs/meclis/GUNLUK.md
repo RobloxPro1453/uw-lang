@@ -25,3 +25,6 @@ Biçim: `[saat] tur N · üye · durum · çıktı dosyası`. Devam protokolü: 
 - [01:42] tur 4 · O1 · son söz başlatıldı · KARAR.md (güncelleme)
 - [01:44] tur 4 · O1 · son söz bitti (bütün itirazlar kabul) · KARAR.md
 - [01:44] tur 4 · moderatör · tur kapandı · TUTANAK.md
+- [01:44] tur 5 · moderatör · işleme başladı (ARCHITECTURE, KARARNAMELER, ROADMAP, GUNDEM); kota 5s %43 · —
+- [01:46] tur 5 · moderatör · ARCHITECTURE, KARARNAMELER, ROADMAP, GUNDEM, SORULAR, PROGRESS, KNOWLEDGE güncellendi · —
+- [01:46] tur 5 · moderatör · işleme bitti; meclis kapandı · KARAR.md, ARCHITECTURE.md
