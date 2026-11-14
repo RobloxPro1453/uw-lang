@@ -73,3 +73,6 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 
 ## [2026-11-15] [strateji] Öğretim gösterimle
 - **Karar:** Belgelerin ana biçimi öğretici: her kavram = çalışan küçük örnek + oyunda ne göründüğü (ekran görüntüsü) + satır satır açıklama. Sözlük tipi referans ikincil (ve çoğunlukla LLM'ler için).
+
+## [2026-11-15] [strateji] Hazır araç önce — somut liste
+- **Karar:** Sürüm/geri alma = git (CLI ya da `gix`/`git2` crate), fark = git diff; ayrıştırıcı altyapısı = `rowan`/`logos`; hata gösterimi = `ariadne`; editör = VS Code + TextMate grameri + `tower-lsp`; test = `insta`. Bunların yerine "kendimiz yazalım" önerisi ancak meclis kararıyla.

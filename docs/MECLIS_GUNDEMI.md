@@ -42,6 +42,11 @@ O. **Hata ayıklama derlemesi:** `uw build --debug` izleme kodu enjekte eder (ha
 P. **Paket uyumu nasıl sağlanır:** Paketler numara (slot, değişken, ID) taşımaz, adla konuşur; numaraları bağlama anında derleyici dağıtır → iki paket çakışamaz. Paket hangi kancaya girdiğini ve neye bağımlı olduğunu bildirir; çatışma derlemede yakalanır. Native'de bu imkânsız çünkü numaralar elle seçiliyor.
 Q. **Varlık hattı:** brf/doku/ses kaydı otomatik (`assets/` → `module.ini` + resource listeleri). OpenBRF ve diğer araçların lisans/kullanım durumu araştırılacak; model üretimi (Blender vb.) kapsam dışı.
 
+R. **Hızlı sahne testi:** `uw run --scene X` için test derlemesine özel bir başlangıç (oyun açılır açılmaz karakter yaratmayı atlayıp sahneye ışınlama). Warband'ı modu seçili olarak komut satırından başlatmak mümkün mü — kanıtlanacak.
+S. **Kayıt noktaları:** `uw build` öncesi mod projesinde yerel git commit'i (kullanıcı git bilmek zorunda değil; `uw history`, `uw undo`, `uw diff` git'in üstünde ince sarmalayıcı). Git yoksa ne olur?
+T. **Çok dillilik:** Metinler kaynakta tek dilde yazılır; derleyici bütün metinleri zaten topladığı için `uw lang export tr→en` çeviri tablosu üretir ve Warband'ın `languages/<dil>/*.csv` dosyalarına yazar. Ek iş yükü: derleyicide metin kimliklerinin kararlı olması.
+U. **Unicode adlar:** Modcu `köy_meydanı`, `babayla_veda` gibi Türkçe adlar yazabilmeli; Warband kimlikleri ASCII → derleyici kararlı biçimde çevirir (`koy_meydani`), çakışmayı yakalar.
+
 ## Meclis yöntemi (öneri)
 
 1. Her üye aynı paketi okur (bu belge + VISION + ARCHITECTURE + kitten küçük örnekler).

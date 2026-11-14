@@ -8,6 +8,10 @@ universal_warband bir mod değil, **Mount & Blade: Warband için bir programlama
 
 ## Sahibinin kararları
 
+- 2026-11-15: Sahneyi doğrudan test etmek (`uw run --scene …`: oyun açılınca karakter yaratmadan doğrudan o sahne) işe yarar.
+- 2026-11-15: Geri alma güvencesi: her derlemede otomatik kayıt noktası, "dünkü haline dön", farkları görme — **yerel git üstüne kurulur**, sıfırdan sürüm algoritması yazılmaz.
+- 2026-11-15: Editör: şimdilik VS Code + sözdizimi desteği yeter; kendi editör/Studio çok sonra, ayrı proje sayılır.
+- 2026-11-15: Modun çok dilli olması: aşırı iş yükü getirmeyecekse olsun.
 - 2026-11-15: **Birincil kullanıcı sahibinin kendisi:** programlama bilen (assembly'yi bile kendi öğrenmiş) ama Module System'i 12 farklı LLM'le bile öğrenememiş biri. UW programcıya tanıdık gelmeli, Module System kavramlarını tamamen gizlemeli. Paylaşım ikincil; topluluk için sahibinden taviz verilmez (önce Türkçe).
 - 2026-11-15: Hata ayıklama iki yoldan: (1) **LLM'e yapıştırılabilir log** — modcu logu bir LLM'e verince sorun hemen çözülebilmeli; (2) **oyun içi hata ayıklama menüsü** — kayan buton, yanlış tıklama gibi şeyleri gözle görüp düzeltmek için.
 - 2026-11-15: Paket ekosistemi (başkasının mekaniğini tek satırla eklemek) güzel olur ama öncelik sahibinin kendi kullanımı.
