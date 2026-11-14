@@ -66,3 +66,10 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 - **Bulgu:** Sahibi: "Bu bir çevirici değil; dosyaların bağları ve etkileşimi çok büyük." Şu anki ARCHITECTURE tek kişinin taslağı.
 - **Karar:** Bir sonraki 5 saatlik pencere büyük meclise ayrılır (sahibinin onayıyla tamamını kullanabilir). Girdi: `docs/MECLIS_GUNDEMI.md`. Meclisten önce kod yazılmaz; meclisten sonra ARCHITECTURE "taslak" etiketini kaybeder.
 - **Not:** `docs/MECLIS_GUNDEMI.md` belge diyetinin bilinçli istisnasıdır (sahibi bilginin birikmesini istedi); meclis bitince kapanır.
+
+## [2026-11-15] [strateji] LLM dostu dil ve LLM'e hazır hata çıktısı
+- **Bulgu:** Sahibi Module System'i 12 LLM'le bile öğrenemedi; LLM'ler de Module System'de zayıf. UW büyük ölçüde LLM yardımıyla yazılacak.
+- **Karar:** (1) Sözdizimi LLM'lerin iyi bildiği biçime (Python) yakın kalır; "akıllı" ama alışılmadık sözdiziminden kaçınılır. (2) Makine okunur tam referans üretilir (kitten otomatik + elle açıklama). (3) Her hata/log satırı tek başına anlaşılır: `.uw` dosya:satır, ne beklendi, ne bulundu, öneri. `uw report` LLM'e yapıştırmaya hazır paket üretir.
+
+## [2026-11-15] [strateji] Öğretim gösterimle
+- **Karar:** Belgelerin ana biçimi öğretici: her kavram = çalışan küçük örnek + oyunda ne göründüğü (ekran görüntüsü) + satır satır açıklama. Sözlük tipi referans ikincil (ve çoğunlukla LLM'ler için).

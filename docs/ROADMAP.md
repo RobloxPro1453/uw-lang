@@ -65,6 +65,10 @@ Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Önce araştırma (hazır n
 
 ## Öneriler (sahibinin kararını bekler)
 
+- Hata ayıklama derlemesi (`--debug`): LLM'e hazır log + `uw report` + oyun içi hata ayıklama menüsü. Faz 1b-4 arası; meclis yerini belirler.
+- Öğretici belgeler: her kavram için çalışan örnek + ekran görüntüsü; ileride sesli video.
+- Paket sistemi (isim alanı, bağımlılık, çakışma denetimi).
+
 - `ui` DSL'i (bildirimsel arayüz → presentation): VN diyalog ve HUD'ların anahtarı; Faz 3-4 arası.
 - UW Studio (Tauri + Monaco): eşya yöneticisi, harita üstünde şehir yerleştirme; LSP'den sonra.
 
@@ -74,6 +78,7 @@ Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Önce araştırma (hazır n
 
 ## Yapılmayacaklar
 
+- Var olan modların Module System kaynağını UW'ye alma (şimdilik; ilgi olursa sonra).
 - Eski kayıt dosyası uyumu (şimdilik; sahibi için öncelik değil).
 - Multiplayer (sahibinin kararı; fork'a açık).
 - WSE2 çekirdekte (ileride isteğe bağlı hedef profili olabilir).

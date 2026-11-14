@@ -37,6 +37,11 @@ K. **Rust crate sınırları:** taslaktaki 10 crate doğru mu; artımlı derleme
 L. **Sözdizimi:** girinti mi süslü parantez mi; bildirimsel blok + davranış kodu aynı dilde mi; GUI'nin yeniden yazabileceği biçim.
 M. **Doğrulama stratejisi:** altın testler, kit build'i, Native'i UW'ye çevir → geri derle → bayt bayt aynı mı ("gidiş-dönüş testi") gibi güçlü değişmez testler.
 
+N. **LLM dostu dil:** Sahibi ve gelecekteki modcular UW'yi büyük ölçüde LLM yardımıyla yazacak. LLM'lerin zaten iyi bildiği biçime (Python) yakınlık, tutarlı adlandırma, makine okunur tam referans (`llms.txt` benzeri), açık hata mesajları. Sözdizimi kararını (L) bu etkiler.
+O. **Hata ayıklama derlemesi:** `uw build --debug` izleme kodu enjekte eder (hangi `.uw` satırı/olay çalıştı, değerler) → yapılandırılmış log + `uw report` (log + ilgili kaynak parçaları, LLM'e yapıştırmaya hazır). Oyun içi menü: tetiklenen olaylar, canlı değişkenler, UI öğelerinin sınır kutuları/tıklama alanları, hikâye bölümüne atlama. Yayın derlemesinde hepsi çıkar. Warband'da log nereye yazılabilir (`rgl_log.txt`?) — kanıtlanacak.
+P. **Paket uyumu nasıl sağlanır:** Paketler numara (slot, değişken, ID) taşımaz, adla konuşur; numaraları bağlama anında derleyici dağıtır → iki paket çakışamaz. Paket hangi kancaya girdiğini ve neye bağımlı olduğunu bildirir; çatışma derlemede yakalanır. Native'de bu imkânsız çünkü numaralar elle seçiliyor.
+Q. **Varlık hattı:** brf/doku/ses kaydı otomatik (`assets/` → `module.ini` + resource listeleri). OpenBRF ve diğer araçların lisans/kullanım durumu araştırılacak; model üretimi (Blender vb.) kapsam dışı.
+
 ## Meclis yöntemi (öneri)
 
 1. Her üye aynı paketi okur (bu belge + VISION + ARCHITECTURE + kitten küçük örnekler).
@@ -51,4 +56,5 @@ Kaynak: `docs/VISION.md` > Sahibinin kararları. Buraya yalnız meclisin bilmesi
 
 - Sahibi Module System'de en basit işte (prolog'u silmek, kılıç eklemek) bile kayboldu → anlaşılabilirlik ve "bir şey = bir dosya" birinci sınıf hedef.
 - Sahibi modunun tasarımını kendisi yapmak istiyor; UW tasarım kararı vermez, her yolu açık tutar (Counter-Strike modu ölçüsü).
+- Birincil kullanıcı: programlama bilen ama Module System bilmeyen sahibi; UW, LLM'lerle birlikte yazılacak bir dil olarak düşünülmeli.
 - L&D ekran görüntüleri (VN diyalog, HUD, sinematik, kullanılabilir mancınık) ilkellerin yeterlilik ölçüsü.

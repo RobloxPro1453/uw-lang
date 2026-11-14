@@ -8,6 +8,13 @@ universal_warband bir mod değil, **Mount & Blade: Warband için bir programlama
 
 ## Sahibinin kararları
 
+- 2026-11-15: **Birincil kullanıcı sahibinin kendisi:** programlama bilen (assembly'yi bile kendi öğrenmiş) ama Module System'i 12 farklı LLM'le bile öğrenememiş biri. UW programcıya tanıdık gelmeli, Module System kavramlarını tamamen gizlemeli. Paylaşım ikincil; topluluk için sahibinden taviz verilmez (önce Türkçe).
+- 2026-11-15: Hata ayıklama iki yoldan: (1) **LLM'e yapıştırılabilir log** — modcu logu bir LLM'e verince sorun hemen çözülebilmeli; (2) **oyun içi hata ayıklama menüsü** — kayan buton, yanlış tıklama gibi şeyleri gözle görüp düzeltmek için.
+- 2026-11-15: Paket ekosistemi (başkasının mekaniğini tek satırla eklemek) güzel olur ama öncelik sahibinin kendi kullanımı.
+- 2026-11-15: Model/doku/ses tarafında sahibinin deneyimi yok; varlık eklemek de UW'nin kolaylaştıracağı iş (dosyayı koy, gerisini UW halletsin).
+- 2026-11-15: Derleme hızı ortalama olsun; ileride "TurboUW" optimizasyonu olabilir. Modülerlik bunun için de önemli.
+- 2026-11-15: Sahibi video/gösterimle öğreniyor; belge-sözlük okuyarak dil öğrenmek ona göre imkânsız. UW'nin öğretimi gösterimli öğreticilerle olmalı.
+- 2026-11-15: Var olan bir modun Module System kaynağını UW'ye almak şimdilik gereksiz.
 - 2026-11-15: **Evrensellik:** Module System'de yapılabilen her şey UW'de de yapılabilmeli, daha kolay (Counter-Strike modu bile). Hikâye dallanması, tetikleme biçimi, mekanik tasarımı gibi şeylerde UW karar vermez; modcuya her yolu açık bırakır.
 - 2026-11-15: Tetikleme her koşulda çalışmalı: haritada bir yere yaklaşınca rastgele olay, biriyle konuşunca, bir yere girince… hepsi.
 - 2026-11-15: Kod + GUI hibrit: isteyen kodla, isteyen GUI ile; GUI'de yapılan koda dönüşür.
