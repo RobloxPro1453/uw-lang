@@ -1,0 +1,43 @@
+# Dialog records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_dialogs.py
+# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "dialogs"
+kind = "dialog"
+id_prefix = ""
+
+[[fields]]
+name = "dialogue_partner"
+ty = "raw"
+source = "module_dialogs.py:21"
+
+[[fields]]
+name = "starting_dialog_state"
+ty = "raw"
+source = "module_dialogs.py:29"
+
+[[fields]]
+name = "conditions_block"
+ty = "raw"
+source = "module_dialogs.py:38"
+
+[[fields]]
+name = "dialog_text"
+ty = "raw"
+source = "module_dialogs.py:39"
+
+[[fields]]
+name = "ending_dialog_state"
+ty = "raw"
+source = "module_dialogs.py:40"
+
+[[fields]]
+name = "consequences_block"
+ty = "raw"
+source = "module_dialogs.py:42"
+
+# Field 7 is left out when a line has no voice-over (process_dialogs.py:180 writes NO_VOICEOVER).
+[[fields]]
+name = "voice_over"
+ty = "raw"
+optional = true
+source = "module_dialogs.py:43"
