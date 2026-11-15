@@ -144,11 +144,17 @@ impl<'a> Printer<'a> {
         }
     }
 
-    /// `ops` as UW statements: clean `if` blocks, `assign` as `=`, everything else as a call.
+    /// `ops` as UW statements: clean `if` blocks, `for` loops, `attempt` blocks for the tries that
+    /// are not a clean `if`, guards as `require`, `assign` as `=`, everything else as a call.
     fn structured_into(&self, ops: &[RawOp], indent: usize, out: &mut Vec<String>) {
         let mut depth = indent;
         let mut index = 0;
         while index < ops.len() {
+            if let Some((kind, end)) = self.loop_end(ops, index) {
+                self.for_into(kind, &ops[index], &ops[index + 1..end], depth, out);
+                index = end + 1;
+                continue;
+            }
             let opened = match self.op_name(ops[index].code) {
                 Some("try_begin") => self.matching_end(ops, index),
                 _ => None,
@@ -156,14 +162,25 @@ impl<'a> Printer<'a> {
             if let Some(end) = opened {
                 match self.if_arms(&ops[index + 1..end]) {
                     Some(arms) => self.if_into(&arms, depth, out),
-                    // Not clean: the try_begin/else_try/try_end shell stays raw, each arm is
-                    // still printed structured inside it.
-                    None => self.raw_shell_into(&ops[index..=end], depth, out),
+                    // Not clean: the block prints as `attempt { } else attempt { } else { }`, each
+                    // arm still structured inside it.
+                    None => self.attempt_into(&ops[index..=end], depth, out),
                 }
                 index = end + 1;
                 continue;
             }
             let kind = self.kind(ops[index].code);
+            // A condition standing in a block (not an `if` head) is a guard: the rest of the block
+            // runs only when it holds. Its `this_or_next|` chain prints as one `or` group.
+            if kind == Kind::Other && self.is_condition(&ops[index]) {
+                if let Some((parts, body)) = self.cond_parts(&ops[index..]) {
+                    if !parts.is_empty() {
+                        out.push(indented(depth, &format!("require {}", join_parts(parts))));
+                        index = ops.len() - body.len();
+                        continue;
+                    }
+                }
+            }
             let line_depth = match kind {
                 Kind::End | Kind::Else => depth.saturating_sub(1),
                 Kind::Open | Kind::Other => depth,
@@ -182,27 +199,90 @@ impl<'a> Printer<'a> {
         }
     }
 
-    /// A whole `try_begin … try_end` block (`block` includes both) whose arms are not a clean `if`:
-    /// the opener, every top-level `else_try` and the closer as raw lines, the arms structured.
-    fn raw_shell_into(&self, block: &[RawOp], indent: usize, out: &mut Vec<String>) {
-        let last = block.len() - 1;
-        out.push(indented(indent, &self.raw_line(&block[0])));
+    /// The `try_end` closing a `try_for_<kind>` loop at `start`, with `kind` (the operation name
+    /// without `try_for_`), when the loop can print as `for`: the loop variable is a `$global` /
+    /// `:local` the checker accepts and the body has no top-level `else_try`.
+    fn loop_end(&self, ops: &[RawOp], start: usize) -> Option<(&'a str, usize)> {
+        let op = ops.get(start)?;
+        if self.has(op.code, self.neg) || self.has(op.code, self.this_or_next) {
+            return None;
+        }
+        let named = self.atlas.op_for_code(self.base(op.code))?;
+        let kind = named.name.strip_prefix("try_for_")?;
+        if !is_identifier(kind) {
+            return None;
+        }
+        let RawArg::Str(var) = op.args.first()? else { return None };
+        // `:_` names are reserved for lowering, so they cannot be a loop variable.
+        if !(var.starts_with('$') || var.starts_with(':')) || var.starts_with(":_") {
+            return None;
+        }
+        let end = self.matching_end(ops, start)?;
         let mut depth = 0usize;
+        for op in &ops[start + 1..end] {
+            match self.kind(op.code) {
+                Kind::Open => depth += 1,
+                Kind::End => depth = depth.checked_sub(1)?,
+                // A top-level `else_try` has no place inside a `for` body.
+                Kind::Else if depth == 0 => return None,
+                Kind::Else | Kind::Other => {}
+            }
+        }
+        Some((kind, end))
+    }
+
+    /// One `for <var> in <kind>(<values>) { … }` loop; the body is printed again, recursively.
+    fn for_into(&self, kind: &str, opener: &RawOp, body: &[RawOp], indent: usize, out: &mut Vec<String>) {
+        let Some(named) = self.atlas.op_for_code(self.base(opener.code)) else { return };
+        let RawArg::Str(var) = &opener.args[0] else { return };
+        // The kit names the operands from the operation's own argument list, the loop variable
+        // first: the loop values keep their original index.
+        let values: Vec<String> =
+            opener.args.iter().enumerate().skip(1).map(|(index, arg)| self.arg(named, index, arg)).collect();
+        out.push(indented(indent, &format!("for {var} in {kind}({}) {{", values.join(", "))));
+        self.structured_into(body, indent + 1, out);
+        out.push(indented(indent, "}"));
+    }
+
+    /// A whole `try_begin … try_end` block (`block` includes both) whose arms are not a clean `if`:
+    /// `attempt { } else attempt { } else { }`, one arm per top-level `else_try`. The last arm
+    /// prints as a plain `else` when it starts with no `require`.
+    fn attempt_into(&self, block: &[RawOp], indent: usize, out: &mut Vec<String>) {
+        let last = block.len() - 1;
+        let mut bounds = Vec::new();
         let mut start = 1;
+        let mut depth = 0usize;
         for (index, op) in block.iter().enumerate().take(last).skip(1) {
             match self.kind(op.code) {
                 Kind::Open => depth += 1,
                 Kind::End => depth = depth.saturating_sub(1),
                 Kind::Else if depth == 0 => {
-                    self.structured_into(&block[start..index], indent + 1, out);
-                    out.push(indented(indent, &self.raw_line(op)));
+                    bounds.push((start, index));
                     start = index + 1;
                 }
                 Kind::Else | Kind::Other => {}
             }
         }
-        self.structured_into(&block[start..last], indent + 1, out);
-        out.push(indented(indent, &self.raw_line(&block[last])));
+        bounds.push((start, last));
+        let count = bounds.len();
+        for (position, (from, to)) in bounds.iter().enumerate() {
+            let arm = &block[*from..*to];
+            let head = if position == 0 {
+                "attempt {".to_owned()
+            } else if position + 1 == count && !self.arm_guarded(arm) {
+                "} else {".to_owned()
+            } else {
+                "} else attempt {".to_owned()
+            };
+            out.push(indented(indent, &head));
+            self.structured_into(arm, indent + 1, out);
+        }
+        out.push(indented(indent, "}"));
+    }
+
+    /// True when an arm starts with conditions, so its first line is a `require`.
+    fn arm_guarded(&self, arm: &[RawOp]) -> bool {
+        self.cond_parts(arm).is_some_and(|(parts, _)| !parts.is_empty())
     }
 
     /// `assign($x, v)` / `assign(:x, v)` as `x = v`; `None` for anything else.
@@ -268,13 +348,7 @@ impl<'a> Printer<'a> {
             if parts.is_empty() && (position < last || last == 0) {
                 return None;
             }
-            // `or` binds weaker than `and`: a group joined into a longer chain needs parentheses.
-            let parts: Vec<String> = if parts.len() > 1 {
-                parts.into_iter().map(|p| if p.contains(" or ") { format!("({p})") } else { p }).collect()
-            } else {
-                parts
-            };
-            arms.push(Arm { cond: parts.join(" and "), body });
+            arms.push(Arm { cond: join_parts(parts), body });
         }
         Some(arms)
     }
@@ -479,6 +553,17 @@ fn slot_kind(name: &str) -> Option<&str> {
         .filter(|kind| !kind.is_empty())
 }
 
+/// A condition's parts as one expression: `or` binds weaker than `and`, so a group joined into a
+/// longer chain needs parentheses.
+fn join_parts(parts: Vec<String>) -> String {
+    let parts: Vec<String> = if parts.len() > 1 {
+        parts.into_iter().map(|p| if p.contains(" or ") { format!("({p})") } else { p }).collect()
+    } else {
+        parts
+    };
+    parts.join(" and ")
+}
+
 /// The comparison operator for `eq` / `gt` / `ge`, flipped when the `neg` flag is set.
 fn comparison(name: &str, negated: bool) -> Option<&'static str> {
     Some(match (name, negated) {
@@ -537,6 +622,7 @@ mod tests {
             {"name":"try_begin","code":4,"line":17,"signature":"(try_begin),","lhs":false,"can_fail":false,"global_lhs":false},
             {"name":"else_try","code":5,"line":18,"signature":"(else_try),","lhs":false,"can_fail":false,"global_lhs":false},
             {"name":"try_for_range","code":6,"line":19,"signature":"(try_for_range,<destination>,<lower_bound>,<upper_bound>),","lhs":true,"can_fail":false,"global_lhs":false},
+            {"name":"try_for_parties","code":11,"line":26,"signature":"(try_for_parties,<destination>),","lhs":true,"can_fail":false,"global_lhs":false},
             {"name":"ge","code":30,"line":30,"signature":"(ge,<value>,<value>),","lhs":false,"can_fail":true,"global_lhs":false},
             {"name":"eq","code":31,"line":31,"signature":"(eq,<value>,<value>),","lhs":false,"can_fail":true,"global_lhs":false},
             {"name":"gt","code":32,"line":32,"signature":"(gt,<value>,<value>),","lhs":false,"can_fail":true,"global_lhs":false},
@@ -720,9 +806,9 @@ mod tests {
     }
 
     #[test]
-    fn decompile_structured_keeps_unclean_and_nested_tries() {
-        // The first arm starts with an assignment, so the shell stays raw; the arms inside it
-        // are still structured (a clean nested `if`, `=`).
+    fn decompile_structured_prints_attempt_arms_instead_of_a_raw_shell() {
+        // The first arm starts with an assignment, so the block is no clean `if`: it prints as
+        // `attempt`, its arms still structured inside (a clean nested `if`, `=`).
         let unclean = vec![
             op(4, vec![]),
             op(2133, vec![text("$g_x"), int(1)]),
@@ -737,16 +823,97 @@ mod tests {
         assert_eq!(
             decompile(&atlas(), &unclean, Mode::Structured),
             concat!(
-                "try_begin()\n",
+                "attempt {\n",
                 "    $g_x = 1\n",
                 "    if $g_x >= 1 {\n",
                 "        change_screen_map()\n",
                 "    }\n",
-                "else_try()\n",
+                "} else {\n",
                 "    :y = 2\n",
-                "try_end()"
+                "}"
             )
         );
+        // An arm that starts with a condition says so; the last one without a `require` is `else`.
+        let guarded = vec![
+            op(4, vec![]),
+            op(2133, vec![text("$g_x"), int(1)]),
+            op(5, vec![]),
+            op(132, vec![text("p_town_6")]),
+            op(2052, vec![]),
+            op(3, vec![]),
+        ];
+        assert_eq!(
+            decompile(&atlas(), &guarded, Mode::Structured),
+            concat!(
+                "attempt {\n",
+                "    $g_x = 1\n",
+                "} else attempt {\n",
+                "    require party_is_active(p_town_6)\n",
+                "    change_screen_map()\n",
+                "}"
+            )
+        );
+    }
+
+    #[test]
+    fn decompile_structured_prints_loops_as_for() {
+        let range = vec![op(6, vec![text(":i"), int(0), int(3)]), op(2052, vec![]), op(3, vec![])];
+        assert_eq!(
+            decompile(&atlas(), &range, Mode::Structured),
+            "for :i in range(0, 3) {\n    change_screen_map()\n}"
+        );
+        // The loop variable first, the kind is the operation name without `try_for_`.
+        let parties = vec![op(11, vec![text(":p")]), op(132, vec![text(":p")]), op(3, vec![])];
+        assert_eq!(
+            decompile(&atlas(), &parties, Mode::Structured),
+            "for :p in parties() {\n    require party_is_active(:p)\n}"
+        );
+        // A top-level `else_try` has no place in a `for` body: the loop stays raw.
+        let else_try = vec![op(6, vec![text(":i"), int(0), int(3)]), op(5, vec![]), op(2052, vec![]), op(3, vec![])];
+        assert_eq!(
+            decompile(&atlas(), &else_try, Mode::Structured),
+            "try_for_range(:i, 0, 3)\nelse_try()\n    change_screen_map()\ntry_end()"
+        );
+        // Only a `$global` / `:local` can be a loop variable.
+        let number = vec![op(6, vec![int(0), int(1), int(3)]), op(2052, vec![]), op(3, vec![])];
+        assert_eq!(
+            decompile(&atlas(), &number, Mode::Structured),
+            "try_for_range(0, 1, 3)\n    change_screen_map()\ntry_end()"
+        );
+    }
+
+    #[test]
+    fn decompile_structured_prints_guards_as_require() {
+        let guard = vec![op(2052, vec![]), op(132, vec![text("p_town_6")]), op(2052, vec![])];
+        assert_eq!(
+            decompile(&atlas(), &guard, Mode::Structured),
+            "change_screen_map()\nrequire party_is_active(p_town_6)\nchange_screen_map()"
+        );
+        // A `this_or_next|` chain is one `or` group, parenthesised inside a longer `and` chain.
+        let chain = vec![
+            op(31, vec![text("$g_x"), int(1)]),
+            op(THIS_OR_NEXT_EQ, vec![text(":a"), int(2)]),
+            op(31, vec![text(":a"), int(3)]),
+            op(2147483648 | 132, vec![text("p_town_6")]),
+            op(2052, vec![]),
+        ];
+        assert_eq!(
+            decompile(&atlas(), &chain, Mode::Structured),
+            concat!(
+                "require $g_x == 1 and (:a == 2 or :a == 3) and not party_is_active(p_town_6)\n",
+                "change_screen_map()"
+            )
+        );
+        // A dangling `this_or_next|` cannot be a `require`: that line stays raw and reads back.
+        let dangling = vec![op(THIS_OR_NEXT_EQ, vec![text(":a"), int(1)]), op(2052, vec![])];
+        assert_eq!(
+            decompile(&atlas(), &dangling, Mode::Structured),
+            "this_or_next|eq(:a, 1)\nchange_screen_map()"
+        );
+    }
+
+    #[test]
+    fn decompile_structured_keeps_nested_and_grouped_blocks() {
         // An `or` group inside a longer `and` chain is parenthesised (`or` binds weaker).
         let grouped = vec![
             op(4, vec![]),
@@ -760,8 +927,7 @@ mod tests {
             decompile(&atlas(), &grouped, Mode::Structured),
             "if $g_x == 0 and (:a == 1 or :a == 2) {\n    change_screen_map()\n}"
         );
-        // A nested clean block is printed inside the outer arm; a `try_for_*` stays raw but
-        // still indents its body.
+        // A nested clean block is printed inside the outer arm; a `try_for_*` prints as `for`.
         let nested = vec![
             op(4, vec![]),
             op(31, vec![text("$g_x"), int(0)]),
@@ -783,9 +949,9 @@ mod tests {
                 "        change_screen_map()\n",
                 "    }\n",
                 "} else {\n",
-                "    try_for_range(:i, 0, 3)\n",
+                "    for :i in range(0, 3) {\n",
                 "        change_screen_map()\n",
-                "    try_end()\n",
+                "    }\n",
                 "}"
             )
         );

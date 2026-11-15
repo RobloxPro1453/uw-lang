@@ -111,6 +111,13 @@ fn real_atlas_menus_and_scripts_records_show_their_blocks() {
     assert_eq!(words(records, "scripts"), ["scripts", "610", "records,", "exact", "610,", "failed", "0"]);
     assert_eq!(words(records, "TOTAL"), ["TOTAL", "12815", "records,", "exact", "12815,", "failed", "0"]);
 
+    // T-054: loops, guards and unclean tries print structured, so no `neg|` / `this_or_next|` /
+    // compute-then-test line is left (T-050's classes 1-3 stay empty; loops whose body has a
+    // top-level `else_try` remain raw, in the "other" class).
+    assert!(!ops.contains("compute-then-test arm"), "{ops}");
+    assert!(!ops.contains("guard condition mid-block"), "{ops}");
+    assert!(!ops.contains("this_or_next| chain outside an if head"), "{ops}");
+
     // The written text shows the decompiler's code, not the raw numbers.
     let menus = std::fs::read_to_string(root.join("out/records/menus.uw")).expect("menus records");
     assert!(menus.contains("ops {"), "{menus}");
