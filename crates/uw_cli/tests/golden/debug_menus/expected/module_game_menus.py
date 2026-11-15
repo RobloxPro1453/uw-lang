@@ -12,5 +12,5 @@ game_menus = _uw.replace_body(game_menus, "start_phase_2", 4, [
     change_screen_map,  # input.uw:6
 ])
 
-# uw --debug: every menu shows its id when it opens
-game_menus = _uw.tag_all(game_menus, 4, lambda e: [(display_message, "@uw: menu_" + e[0])])
+# uw --debug: every menu shows its id when it opens (game shows _ as space, so - is used)
+game_menus = _uw.tag_all(game_menus, 4, lambda e: [(display_log_message, "@uw: menu-" + e[0].replace("_", "-"), 0xFFFF00)])
