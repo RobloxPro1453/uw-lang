@@ -1,11 +1,13 @@
 {
   "taskId": "T-007",
   "branch": "cv/T-007",
-  "headSha": "7193aa54a4ebb7851c07359cd112d234547ce3a1",
+  "base": "master",
   "treeSha": "da28bdd15c7b39a601ea4abe1cd27d84f35906b3",
   "buildOk": true,
   "testOk": true,
-  "status": "done",
-  "testsBy": "agent",
-  "timestamp": "2026-11-15T10:19:30.374Z"
+  "verdict": "PASS",
+  "ok": true,
+  "skippedRun": false,
+  "findingsCount": 0,
+  "timestamp": "2026-11-15T10:20:04.922Z"
 }
