@@ -150,3 +150,7 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 ## Kullanıcı kılavuzu (sahibi, 2026-11-15)
 - **Karar:** `docs/kilavuz/UW_KILAVUZU.md` sahibinin okuduğu Türkçe UW kılavuzudur. Dile ya da `uw` komutlarına görünür bir şey eklenen her turda kılavuzun ilgili bölümü aynı turda güncellenir (yalnız yeni olan; baştan yazma yok). Her yeni dil özelliğinin tarifi "kılavuza şu bölümü ekle" adımını ve bir altın testi (`crates/uw_cli/tests/golden/`) içerir.
 - **Beklenen etki:** belge kodla aynı anda büyür; sahibi Module System bilmeden kılavuzdan mod yazar.
+
+## [2026-11-15] [mimari] Gramer 2: ifadeler, if, menü dili (hafif meclis: mimar + risk, oybirliği)
+- **Karar:** `docs/meclis/gramer-2-oneri.md` (1-7. bölümler) bağlayıcıdır: `$x = ifade`, `+= -= *= /= %=`, `if / else if / else`, `and/or/not` (Python önceliği), `override menu_x { text "…"; on enter {…}; option id "metin" [when …] [after|before id] {…}; change option id {…}; remove option id }`, `new menu_x "metin" {…}`. İndirgeme `uw_lower`'da; ara yereller `:_uwN`; `not karşılaştırma` işleci ters çevirir (neg|lt tuzağı).
+- **Beklenen etki:** modcu menü metnini, seçenekleri, koşulları ve yeni menüleri Module System bilmeden yazar; her yapı altın testle ve kılavuz bölümüyle gelir.

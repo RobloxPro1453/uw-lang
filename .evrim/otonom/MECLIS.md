@@ -1,11 +1,11 @@
 # Meclis Müzakere Planı
 
-- Tarih: 2026-11-15T09:47:02.854Z
-- Konu: UW sözdizimi: süslü parantez mi girinti mi; Faz 1 için en küçük dil alt kümesi (override menu, on game.start, Native op çağrısı)
+- Tarih: 2026-11-15T13:04:42.278Z
+- Konu: UW gramer genişletmesi: ifadeler ($x = $y + 2), if/else, and/or/not, menü dili (text, option ekle/değiştir/kaldır, yeni menu), ad biçimi override menu_x
 - Karar / Kip: `light` — Hafif Meclis (2 koltuk)
-- Gerekçe: Orta karmaşıklık + sıkı kota/plan (5s %100, hafta %100 (kalan %0)): 4 ağır Opus koltuğu yerine 2 odaklı ekonomik koltuk (haiku/sonnet/yerel CLI/API) seçildi.
-- Karmaşıklık: `medium` (istenen: `medium`, derinlik: `auto`)
-- Plan / Kota: 5s %100, hafta %100 (kalan %0)
+- Gerekçe: Hafif meclis istendi (5s %48, hafta %60 (kalan %40)): 2 odaklı koltuk ekonomik katmanlarla (haiku/sonnet/yerel CLI/ucuz API) çalışır.
+- Karmaşıklık: `medium` (istenen: `auto`, derinlik: `light`)
+- Plan / Kota: 5s %48, hafta %60 (kalan %40)
 - Yerel CLI'lar: (yok)
 - API Anahtarları: deepseek
 - Lisans Politikası: `open-source` (Yalnız izin verici lisanslar (MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC) incelenir; copyleft/lisanssız koddan uyarlama yasaktır.)
@@ -39,7 +39,7 @@ Odak açın: Sistem sınırları, veri akışı, modülerlik, geriye dönük uyu
 </role>
 
 <topic>
-UW sözdizimi: süslü parantez mi girinti mi; Faz 1 için en küçük dil alt kümesi (override menu, on game.start, Native op çağrısı)
+UW gramer genişletmesi: ifadeler ($x = $y + 2), if/else, and/or/not, menü dili (text, option ekle/değiştir/kaldır, yeni menu), ad biçimi override menu_x
 </topic>
 
 <license_policy mode="open-source" restricted="true">
@@ -47,7 +47,7 @@ Dağıtım/ticari kullanım politikası (open-source): Açık kaynak referans ve
 </license_policy>
 
 <context>
-Plan/Kota: 5s %100, hafta %100 (kalan %0).
+Plan/Kota: 5s %48, hafta %60 (kalan %40).
 </context>
 
 <instructions>
@@ -67,7 +67,7 @@ Odak açın: Kör noktalar, başarısızlık kipleri, güvenlik açıkları, giz
 </role>
 
 <topic>
-UW sözdizimi: süslü parantez mi girinti mi; Faz 1 için en küçük dil alt kümesi (override menu, on game.start, Native op çağrısı)
+UW gramer genişletmesi: ifadeler ($x = $y + 2), if/else, and/or/not, menü dili (text, option ekle/değiştir/kaldır, yeni menu), ad biçimi override menu_x
 </topic>
 
 <license_policy mode="open-source" restricted="true">
@@ -75,7 +75,7 @@ Dağıtım/ticari kullanım politikası (open-source): Açık kaynak referans ve
 </license_policy>
 
 <context>
-Plan/Kota: 5s %100, hafta %100 (kalan %0).
+Plan/Kota: 5s %48, hafta %60 (kalan %40).
 </context>
 
 <instructions>
