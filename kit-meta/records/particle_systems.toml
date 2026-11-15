@@ -1,4 +1,5 @@
-# Particle system records, round 1 (raw): every field is the atlas value as it is.
+# Particle system records: `particle_system_flags` decodes with the `psf_` constants of
+# header_particle_systems.py; the other fields are the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_particle_systems.py
 # (`source` points at it); docs/meclis/YON2-KARAR.md §2.
 table = "particle_systems"
@@ -12,7 +13,7 @@ source = "module_particle_systems.py:15"
 
 [[fields]]
 name = "particle_system_flags"
-ty = "raw"
+ty = "flags:psf_"
 source = "module_particle_systems.py:17"
 
 [[fields]]

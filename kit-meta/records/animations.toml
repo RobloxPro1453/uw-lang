@@ -1,4 +1,6 @@
-# Animation records, round 1 (raw): every field is the atlas value as it is.
+# Animation records: `animation_flags` packs the `acf_` flags in bits 0-23 and the animation
+# length in bits 24-31 (`acf_anim_length_bits` / `acf_anim_length_mask`); `animation_master_flags`
+# is an `amf_` set. The id and the sequence list stay as they are.
 # Field names and order follow the layout comment at the top of the kit's module_animations.py
 # (`source` points at it); docs/meclis/YON2-KARAR.md §2.
 table = "animations"
@@ -13,12 +15,26 @@ source = "module_animations.py:6"
 
 [[fields]]
 name = "animation_flags"
-ty = "raw"
+ty = "bits"
 source = "module_animations.py:7"
+
+[[fields.parts]]
+name = "flags"
+shift = 0
+width = 24
+ty = "flags:acf_"
+source = "header_animations.py:119"
+
+[[fields.parts]]
+name = "anim_length"
+shift = 24
+width = 8
+source = "header_animations.py:121"
 
 [[fields]]
 name = "animation_master_flags"
-ty = "raw"
+ty = "flags:amf_"
+# module_animations.py:8: master flags are anything beginning with amf_ in header_animations.py.
 source = "module_animations.py:8"
 
 [[fields]]

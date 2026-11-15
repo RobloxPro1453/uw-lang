@@ -1,4 +1,5 @@
-# Track records, round 1 (raw): every field is the atlas value as it is.
+# Track records: both flag fields are `mtf_` sets (header_music.py); the six culture bits
+# (mask mtf_culture_all) decode as one culture name. The id and file name stay as they are.
 # Field names and order follow the layout comment at the top of the kit's module_music.py
 # (`source` points at it); docs/meclis/YON2-KARAR.md §2.
 table = "music"
@@ -17,10 +18,18 @@ source = "module_music.py:5"
 
 [[fields]]
 name = "track_flags"
-ty = "raw"
+ty = "flags:mtf_"
 source = "module_music.py:6"
+
+[[fields.enums]]
+mask = "mtf_culture_all"
+prefix = "mtf_culture_"
 
 [[fields]]
 name = "continue_track_flags"
-ty = "raw"
+ty = "flags:mtf_"
 source = "module_music.py:7"
+
+[[fields.enums]]
+mask = "mtf_culture_all"
+prefix = "mtf_culture_"

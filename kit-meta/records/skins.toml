@@ -1,4 +1,5 @@
-# Skin records, round 1 (raw): every field is the atlas value as it is.
+# Skin records: `skin_flags` decodes with the `skf_` constants of header_skins.py and the two blood
+# particle fields are `ref:particle_systems`; the other fields are the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_skins.py
 # (`source` points at it); docs/meclis/YON2-KARAR.md §2.
 table = "skins"
@@ -13,7 +14,7 @@ source = "module_skins.py:5"
 
 [[fields]]
 name = "skin_flags"
-ty = "raw"
+ty = "flags:skf_"
 source = "module_skins.py:6"
 
 [[fields]]
@@ -81,15 +82,16 @@ name = "scale"
 ty = "raw"
 source = "module_skins.py:19"
 
+# psys_* constants from ID_particle_systems (module_skins.py:2,154) are particle-system indices.
 [[fields]]
 name = "blood_particles_1"
-ty = "raw"
-source = "module_skins.py:20"
+ty = "ref:particle_systems"
+source = "module_skins.py:154"
 
 [[fields]]
 name = "blood_particles_2"
-ty = "raw"
-source = "module_skins.py:21"
+ty = "ref:particle_systems"
+source = "module_skins.py:154"
 
 # Commented "17)" a second time in the kit; `woman` (module_skins.py:166-185) stops before it.
 [[fields]]
