@@ -221,6 +221,12 @@ enum Tok {
     Semi,
     Dot,
     Colon,
+    /// `+ - * / %` (also the unary `-`).
+    Bin(BinOp),
+    /// `== != > >= < <=`
+    Cmp(CmpOp),
+    /// `=` `+=` `-=` `*=` `/=` `%=`
+    Assign(AssignOp),
     Newline,
     Eof,
 }
@@ -246,14 +252,23 @@ fn is_ident(c: char) -> bool {
 fn lex(text: &str) -> Result<Vec<Token>, Diagnostic> {
     let chars: Vec<(usize, char)> = text.char_indices().collect();
     let end_of = |i: usize| chars.get(i).map_or(text.len(), |&(o, _)| o);
-    let mut out = Vec::new();
+    let mut out: Vec<Token> = Vec::new();
     let mut i = 0;
+    // A new line inside parentheses does not end the statement (§7.5).
+    let mut depth = 0usize;
     while i < chars.len() {
         let (start, c) = chars[i];
+        // `-` starts a number only where a value may begin, so `a - 5` keeps its minus.
+        let prev_is_value = matches!(
+            out.last().map(|t| &t.tok),
+            Some(Tok::Ident(_) | Tok::Global(_) | Tok::Local(_) | Tok::Int(_) | Tok::Str(_) | Tok::RParen | Tok::RBrace)
+        );
         let one = |tok| Token { tok, span: Span { start, end: end_of(i + 1) } };
         match c {
             '\n' => {
-                out.push(one(Tok::Newline));
+                if depth == 0 {
+                    out.push(one(Tok::Newline));
+                }
                 i += 1;
             }
             // Pasted whitespace of any kind (tabs, CR, no-break space, BOM).
@@ -278,7 +293,7 @@ fn lex(text: &str) -> Result<Vec<Token>, Diagnostic> {
                         .with_help("close it with */"));
                 }
                 // Keep line breaks inside the comment as statement separators.
-                if chars[i..j].iter().any(|p| p.1 == '\n') {
+                if depth == 0 && chars[i..j].iter().any(|p| p.1 == '\n') {
                     out.push(Token { tok: Tok::Newline, span: Span { start, end: start } });
                 }
                 i = j + 2;
@@ -293,10 +308,12 @@ fn lex(text: &str) -> Result<Vec<Token>, Diagnostic> {
             }
             '(' => {
                 out.push(one(Tok::LParen));
+                depth += 1;
                 i += 1;
             }
             ')' => {
                 out.push(one(Tok::RParen));
+                depth = depth.saturating_sub(1);
                 i += 1;
             }
             ',' => {
@@ -358,7 +375,9 @@ fn lex(text: &str) -> Result<Vec<Token>, Diagnostic> {
                 out.push(one(Tok::Colon));
                 i += 1;
             }
-            c if c.is_ascii_digit() || (c == '-' && chars.get(i + 1).is_some_and(|p| p.1.is_ascii_digit())) => {
+            c if c.is_ascii_digit()
+                || (c == '-' && !prev_is_value && chars.get(i + 1).is_some_and(|p| p.1.is_ascii_digit())) =>
+            {
                 let mut j = i + 1;
                 while j < chars.len() && chars[j].1.is_ascii_digit() {
                     j += 1;
@@ -370,6 +389,35 @@ fn lex(text: &str) -> Result<Vec<Token>, Diagnostic> {
                     .map_err(|_| err(E0103_BAD_TOKEN, format!("number {digits} is too large"), span))?;
                 out.push(Token { tok: Tok::Int(value), span });
                 i = j;
+            }
+            c @ ('+' | '-' | '*' | '/' | '%' | '=' | '!' | '<' | '>') => {
+                let two = chars.get(i + 1).map(|p| p.1) == Some('=');
+                let tok = match (c, two) {
+                    ('+', false) => Tok::Bin(BinOp::Add),
+                    ('+', true) => Tok::Assign(AssignOp::Add),
+                    ('-', false) => Tok::Bin(BinOp::Sub),
+                    ('-', true) => Tok::Assign(AssignOp::Sub),
+                    ('*', false) => Tok::Bin(BinOp::Mul),
+                    ('*', true) => Tok::Assign(AssignOp::Mul),
+                    ('/', false) => Tok::Bin(BinOp::Div),
+                    ('/', true) => Tok::Assign(AssignOp::Div),
+                    ('%', false) => Tok::Bin(BinOp::Mod),
+                    ('%', true) => Tok::Assign(AssignOp::Mod),
+                    ('=', false) => Tok::Assign(AssignOp::Set),
+                    ('=', true) => Tok::Cmp(CmpOp::Eq),
+                    ('!', true) => Tok::Cmp(CmpOp::Ne),
+                    ('<', false) => Tok::Cmp(CmpOp::Lt),
+                    ('<', true) => Tok::Cmp(CmpOp::Le),
+                    ('>', false) => Tok::Cmp(CmpOp::Gt),
+                    ('>', true) => Tok::Cmp(CmpOp::Ge),
+                    _ => {
+                        return Err(err(E0103_BAD_TOKEN, "'!' is not part of UW; write '!='", Span { start, end: end_of(i + 1) })
+                            .with_help("write `!=` for 'not equal'"));
+                    }
+                };
+                let len = if two { 2 } else { 1 };
+                out.push(Token { tok, span: Span { start, end: end_of(i + len) } });
+                i += len;
             }
             c if is_ident_start(c) => {
                 let mut j = i;
@@ -434,6 +482,32 @@ fn describe(tok: &Tok) -> String {
         Tok::Semi => "';'".into(),
         Tok::Dot => "'.'".into(),
         Tok::Colon => "':'".into(),
+        Tok::Bin(op) => match op {
+            BinOp::Add => "'+'",
+            BinOp::Sub => "'-'",
+            BinOp::Mul => "'*'",
+            BinOp::Div => "'/'",
+            BinOp::Mod => "'%'",
+        }
+        .into(),
+        Tok::Cmp(op) => match op {
+            CmpOp::Eq => "'=='",
+            CmpOp::Ne => "'!='",
+            CmpOp::Gt => "'>'",
+            CmpOp::Ge => "'>='",
+            CmpOp::Lt => "'<'",
+            CmpOp::Le => "'<='",
+        }
+        .into(),
+        Tok::Assign(op) => match op {
+            AssignOp::Set => "'='",
+            AssignOp::Add => "'+='",
+            AssignOp::Sub => "'-='",
+            AssignOp::Mul => "'*='",
+            AssignOp::Div => "'/='",
+            AssignOp::Mod => "'%='",
+        }
+        .into(),
         Tok::Newline => "the end of the line".into(),
         Tok::Eof => "the end of the file".into(),
     }
@@ -608,7 +682,7 @@ impl Parser {
                     return Ok(Block { stmts, span: Span { start: open.start, end: t.span.end } });
                 }
                 Tok::Eof => return Err(self.unclosed(open, &format!("`{head}`"))),
-                Tok::Ident(_) => stmts.push(self.stmt()?),
+                Tok::Ident(_) | Tok::Global(_) | Tok::Local(_) => stmts.push(self.stmt()?),
                 other => {
                     return Err(err(
                         E0100_UNEXPECTED,
@@ -621,23 +695,33 @@ impl Parser {
     }
 
     fn stmt(&mut self) -> Result<Stmt, Diagnostic> {
-        let op = self.ident("an operation name")?;
-        if matches!(op.text.as_str(), "if" | "elif" | "else" | "while" | "for") {
-            let python = self.toks[self.pos..]
-                .iter()
-                .take_while(|t| t.tok != Tok::Newline && t.tok != Tok::Eof)
-                .any(|t| t.tok == Tok::Colon);
-            let d = err(
-                if python { E0104_PYTHON_BLOCK } else { E0100_UNEXPECTED },
-                format!("`{}` is not in UW yet (Faz 1 has `on`, `override` and operation calls)", op.text),
-                op.span,
-            );
-            return Err(if python {
-                d.with_help("UW blocks use { }, not ':' — and for now use Native's try_begin()/try_end() operations")
-            } else {
-                d.with_help("for now use Native's try_begin() ... try_end() operations")
-            });
+        // `$g = …` / `:l += …`
+        if matches!(self.peek().tok, Tok::Global(_) | Tok::Local(_)) {
+            let t = self.bump();
+            let target = match t.tok {
+                Tok::Global(text) => Arg::Global(Ident { text, span: t.span }),
+                Tok::Local(text) => Arg::Local(Ident { text, span: t.span }),
+                _ => unreachable!(),
+            };
+            return self.assign_after(target);
         }
+        let op = self.ident("an operation name")?;
+        if op.text == "if" {
+            return self.if_stmt(op);
+        }
+        if matches!(op.text.as_str(), "elif" | "else" | "while" | "for") {
+            return Err(self.keyword_error(op));
+        }
+        if matches!(self.peek().tok, Tok::Assign(_)) {
+            return self.assign_after(Arg::Name(op));
+        }
+        let call = self.call_after(op)?;
+        self.end_of_stmt(&format!("`{}(...)`", call.op.text))?;
+        Ok(Stmt::Call(call))
+    }
+
+    /// The arguments of `name(...)`; the name is already read.
+    fn call_after(&mut self, op: Ident) -> Result<Call, Diagnostic> {
         let mut args = Vec::new();
         let mut end = op.span.end;
         match self.peek().tok {
@@ -688,7 +772,7 @@ impl Parser {
             Tok::Newline | Tok::Semi | Tok::RBrace | Tok::Eof => {}
             Tok::Colon => {
                 return Err(err(E0104_PYTHON_BLOCK, format!("`{}` is not a UW block; blocks use {{ }}", op.text), self.peek().span)
-                    .with_help("UW has no `if ...:` yet; Faz 1 has `on`, `override` and operation calls"));
+                    .with_help("operation calls are plain lines, e.g. `name(a, b)`"));
             }
             ref other => {
                 return Err(err(
@@ -699,14 +783,302 @@ impl Parser {
                 .with_help(format!("call it as `{}(a, b)`", op.text)));
             }
         }
-        // One statement per line (or `;`).
+        let span = Span { start: op.span.start, end };
+        Ok(Call { op, args, span })
+    }
+
+    /// One statement per line (or `;`).
+    fn end_of_stmt(&mut self, what: &str) -> Result<(), Diagnostic> {
         match self.peek().tok {
-            Tok::Newline | Tok::Semi | Tok::RBrace | Tok::Eof => {}
+            Tok::Newline | Tok::Semi | Tok::RBrace | Tok::Eof => Ok(()),
+            ref other => Err(err(
+                E0100_UNEXPECTED,
+                format!("expected a new line or ';' after {what}, found {}", describe(other)),
+                self.peek().span,
+            )),
+        }
+    }
+
+    /// `target = expr`: the target is already read, the assignment operator must be next.
+    fn assign_after(&mut self, target: Arg) -> Result<Stmt, Diagnostic> {
+        let t = self.peek().clone();
+        let op = match t.tok {
+            Tok::Assign(op) => op,
             ref other => {
-                return Err(err(E0100_UNEXPECTED, format!("expected a new line or ';' after `{}(...)`, found {}", op.text, describe(other)), self.peek().span));
+                return Err(err(
+                    E0100_UNEXPECTED,
+                    format!("expected an assignment operator after this target, found {}", describe(other)),
+                    t.span,
+                )
+                .with_help("write `target = value`; `+= -= *= /= %=` also work"));
+            }
+        };
+        self.bump();
+        // A line that ends with `=` continues on the next one (§7.5).
+        self.skip_newlines();
+        let value = self.expr()?;
+        let span = Span { start: target.span().start, end: expr_span(&value).end };
+        self.end_of_stmt("this assignment")?;
+        Ok(Stmt::Assign { target, op, value, span })
+    }
+
+    /// `elif` / `else` / `while` / `for` written as a statement; each gets a one-line fix.
+    fn keyword_error(&self, op: Ident) -> Diagnostic {
+        let python = self.toks[self.pos..]
+            .iter()
+            .take_while(|t| t.tok != Tok::Newline && t.tok != Tok::Eof)
+            .any(|t| t.tok == Tok::Colon);
+        let d = err(
+            if python { E0104_PYTHON_BLOCK } else { E0100_UNEXPECTED },
+            format!("`{}` is not a UW statement", op.text),
+            op.span,
+        );
+        match op.text.as_str() {
+            "elif" => d.with_help("write `else if <condition> { ... }` instead of `elif`"),
+            "else" => d.with_help("write `else { ... }`; `else` must follow the `}` of an `if` block"),
+            _ => d.with_help("UW has no loops yet; write the steps one by one"),
+        }
+    }
+
+    /// `if <cond> { } else if <cond> { } else { }`.
+    fn if_stmt(&mut self, kw: Ident) -> Result<Stmt, Diagnostic> {
+        let start = kw.span.start;
+        let mut arms = Vec::new();
+        let mut otherwise = None;
+        loop {
+            let cond = self.cond()?;
+            let body = self.block("if <condition>")?;
+            arms.push((cond, body));
+            // `else` may follow the `}` directly or on the next line.
+            let save = self.pos;
+            self.skip_newlines();
+            let t = self.peek().clone();
+            if let Tok::Ident(word) = &t.tok {
+                if word == "elif" {
+                    return Err(self.keyword_error(Ident { text: word.clone(), span: t.span }));
+                }
+            }
+            if !matches!(&t.tok, Tok::Ident(word) if word == "else") {
+                self.pos = save;
+                break;
+            }
+            self.bump();
+            if matches!(&self.peek().tok, Tok::Ident(word) if word == "if") {
+                self.bump();
+                continue;
+            }
+            otherwise = Some(self.block("else")?);
+            break;
+        }
+        let end = match &otherwise {
+            Some(body) => body.span.end,
+            None => arms.last().map_or(start, |(_, body)| body.span.end),
+        };
+        self.end_of_stmt("this `if` block")?;
+        Ok(Stmt::If { arms, otherwise, span: Span { start, end } })
+    }
+
+    /// `a < b`, `not c`, `x and y or z` — precedence `not` > `and` > `or` (§7.3).
+    fn cond(&mut self) -> Result<Cond, Diagnostic> {
+        let mut parts = vec![self.and_cond()?];
+        while matches!(&self.peek().tok, Tok::Ident(word) if word == "or") {
+            self.bump();
+            self.skip_newlines();
+            parts.push(self.and_cond()?);
+        }
+        Ok(if parts.len() == 1 { parts.pop().unwrap() } else { Cond::Or(parts) })
+    }
+
+    fn and_cond(&mut self) -> Result<Cond, Diagnostic> {
+        let mut parts = vec![self.not_cond()?];
+        while matches!(&self.peek().tok, Tok::Ident(word) if word == "and") {
+            self.bump();
+            self.skip_newlines();
+            parts.push(self.not_cond()?);
+        }
+        Ok(if parts.len() == 1 { parts.pop().unwrap() } else { Cond::And(parts) })
+    }
+
+    fn not_cond(&mut self) -> Result<Cond, Diagnostic> {
+        if matches!(&self.peek().tok, Tok::Ident(word) if word == "not") {
+            let start = self.bump().span.start;
+            self.skip_newlines();
+            let inner = self.not_cond()?;
+            let span = Span { start, end: cond_span(&inner).end };
+            return Ok(Cond::Not(Box::new(inner), span));
+        }
+        self.cmp_cond()
+    }
+
+    fn cmp_cond(&mut self) -> Result<Cond, Diagnostic> {
+        let left = self.cond_operand()?;
+        let t = self.peek().clone();
+        match left {
+            CondOperand::Call(call) => {
+                if let Tok::Cmp(_) = t.tok {
+                    return Err(err(
+                        E0100_UNEXPECTED,
+                        format!("expected a full condition after this operation, found {}", describe(&t.tok)),
+                        t.span,
+                    )
+                    .with_help("a condition operation is used on its own, not inside a comparison"));
+                }
+                Ok(Cond::Call(call))
+            }
+            CondOperand::Expr(left) => {
+                let op = match t.tok {
+                    Tok::Cmp(op) => op,
+                    ref other => {
+                        return Err(err(
+                            E0100_UNEXPECTED,
+                            format!("a condition needs a comparison, found {}", describe(other)),
+                            t.span,
+                        )
+                        .with_help("write `if <value> < <= > >= == != <value> { ... }`, or call a condition operation"));
+                    }
+                };
+                self.bump();
+                self.skip_newlines();
+                let right = self.expr()?;
+                let span = Span { start: expr_span(&left).start, end: expr_span(&right).end };
+                Ok(Cond::Cmp { op, left, right, span })
             }
         }
-        Ok(Stmt::Call(Call { span: Span { start: op.span.start, end }, op, args }))
+    }
+
+    /// The left side of a condition: a call, a bare condition operation, or an expression.
+    fn cond_operand(&mut self) -> Result<CondOperand, Diagnostic> {
+        let t = self.peek().clone();
+        if let Tok::Ident(name) = &t.tok {
+            let after = self.toks.get(self.pos + 1).map(|t| &t.tok);
+            let op = Ident { text: name.clone(), span: t.span };
+            if matches!(after, Some(Tok::LParen)) {
+                self.bump();
+                return Ok(CondOperand::Call(self.call_after(op)?));
+            }
+            // A bare name is a condition operation without operands (`if game_over {`).
+            if !matches!(after, Some(Tok::Bin(_)) | Some(Tok::Cmp(_))) {
+                self.bump();
+                return Ok(CondOperand::Call(Call { span: t.span, op, args: Vec::new() }));
+            }
+        }
+        Ok(CondOperand::Expr(self.expr()?))
+    }
+
+    /// An integer expression: `+ -` lowest, then `* / %`, then unary `-`.
+    fn expr(&mut self) -> Result<Expr, Diagnostic> {
+        let mut left = self.mul()?;
+        loop {
+            let op = match self.peek().tok {
+                Tok::Bin(BinOp::Add) => BinOp::Add,
+                Tok::Bin(BinOp::Sub) => BinOp::Sub,
+                _ => break,
+            };
+            self.bump();
+            self.skip_newlines();
+            let right = self.mul()?;
+            let span = Span { start: expr_span(&left).start, end: expr_span(&right).end };
+            left = Expr::Bin { op, left: Box::new(left), right: Box::new(right), span };
+        }
+        Ok(left)
+    }
+
+    fn mul(&mut self) -> Result<Expr, Diagnostic> {
+        let mut left = self.unary()?;
+        loop {
+            let op = match self.peek().tok {
+                Tok::Bin(BinOp::Mul) => BinOp::Mul,
+                Tok::Bin(BinOp::Div) => BinOp::Div,
+                Tok::Bin(BinOp::Mod) => BinOp::Mod,
+                _ => break,
+            };
+            self.bump();
+            self.skip_newlines();
+            let right = self.unary()?;
+            let span = Span { start: expr_span(&left).start, end: expr_span(&right).end };
+            left = Expr::Bin { op, left: Box::new(left), right: Box::new(right), span };
+        }
+        Ok(left)
+    }
+
+    fn unary(&mut self) -> Result<Expr, Diagnostic> {
+        if self.peek().tok == Tok::Bin(BinOp::Sub) {
+            let start = self.bump().span.start;
+            self.skip_newlines();
+            let inner = self.unary()?;
+            let end = expr_span(&inner).end;
+            return Ok(match inner {
+                Expr::Value(Arg::Int(n, _)) => Expr::Value(Arg::Int(-n, Span { start, end })),
+                other => Expr::Neg(Box::new(other), Span { start, end }),
+            });
+        }
+        self.primary()
+    }
+
+    fn primary(&mut self) -> Result<Expr, Diagnostic> {
+        let t = self.peek().clone();
+        let value = match t.tok {
+            Tok::Int(n) => Arg::Int(n, t.span),
+            Tok::Str(s) => Arg::Str(s, t.span),
+            Tok::Ident(text) => Arg::Name(Ident { text, span: t.span }),
+            Tok::Global(text) => Arg::Global(Ident { text, span: t.span }),
+            Tok::Local(text) => Arg::Local(Ident { text, span: t.span }),
+            Tok::LParen => {
+                self.bump();
+                self.skip_newlines();
+                let inner = self.expr()?;
+                self.skip_newlines();
+                let close = self.peek().clone();
+                match close.tok {
+                    Tok::RParen => {
+                        self.bump();
+                        return Ok(inner);
+                    }
+                    Tok::Eof | Tok::LBrace | Tok::RBrace => {
+                        return Err(err(E0101_UNCLOSED, "this '(' is never closed", t.span)
+                            .with_help("add the missing ')'"));
+                    }
+                    other => {
+                        return Err(err(E0100_UNEXPECTED, format!("expected ')', found {}", describe(&other)), close.span));
+                    }
+                }
+            }
+            other => {
+                return Err(err(E0100_UNEXPECTED, format!("expected a value, found {}", describe(&other)), t.span)
+                    .with_help("values are names (p_town_6), $globals, :locals, numbers or \"text\""));
+            }
+        };
+        self.bump();
+        Ok(Expr::Value(value))
+    }
+}
+
+/// One side of a condition, before the comparison operator (if any) is known.
+enum CondOperand {
+    Expr(Expr),
+    Call(Call),
+}
+
+/// The span of an expression (the AST keeps no helper for it).
+fn expr_span(expr: &Expr) -> Span {
+    match expr {
+        Expr::Value(arg) => arg.span(),
+        Expr::Neg(_, span) => *span,
+        Expr::Bin { span, .. } => *span,
+    }
+}
+
+/// The span of a condition (`Cond::And`/`Cond::Or` keep none).
+fn cond_span(cond: &Cond) -> Span {
+    match cond {
+        Cond::Cmp { span, .. } => *span,
+        Cond::Call(call) => call.span,
+        Cond::Not(_, span) => *span,
+        Cond::And(parts) | Cond::Or(parts) => {
+            let first = parts.first().map_or(Span { start: 0, end: 0 }, cond_span);
+            let last = parts.last().map_or(first, cond_span);
+            Span { start: first.start, end: last.end }
+        }
     }
 }
 
@@ -851,5 +1223,122 @@ on game.start {
         let Item::On { body, .. } = &file.items[0] else { panic!() };
         assert!(matches!(body.stmts[0].as_call().unwrap().args[0], Arg::Int(-5, _)));
         assert!(matches!(&body.stmts[0].as_call().unwrap().args[1], Arg::Local(l) if l.text == ":loc"));
+    }
+
+    fn on_body(text: &str) -> Vec<Stmt> {
+        let file = parse(text).expect("parses");
+        let Item::On { body, .. } = &file.items[0] else { panic!() };
+        body.stmts.clone()
+    }
+
+    #[test]
+    fn assignment_operators_parse() {
+        let stmts = on_body(
+            "on game.start {\n$x = 1\n$x += 2\n$x -= 3\n$x *= 4\n$x /= 5\n$x %= 6\nreg0 = 7\n:loc = $x\n}",
+        );
+        let ops: Vec<AssignOp> = stmts
+            .iter()
+            .map(|s| match s {
+                Stmt::Assign { op, .. } => *op,
+                other => panic!("not an assignment: {other:?}"),
+            })
+            .collect();
+        assert_eq!(
+            ops,
+            [AssignOp::Set, AssignOp::Add, AssignOp::Sub, AssignOp::Mul, AssignOp::Div, AssignOp::Mod, AssignOp::Set, AssignOp::Set]
+        );
+        assert!(matches!(&stmts[0], Stmt::Assign { target: Arg::Global(g), value: Expr::Value(Arg::Int(1, _)), .. } if g.text == "$x"));
+        assert!(matches!(&stmts[6], Stmt::Assign { target: Arg::Name(n), value: Expr::Value(Arg::Int(7, _)), .. } if n.text == "reg0"));
+        assert!(matches!(&stmts[7], Stmt::Assign { target: Arg::Local(l), value: Expr::Value(Arg::Global(g)), .. } if l.text == ":loc" && g.text == "$x"));
+    }
+
+    #[test]
+    fn expression_precedence() {
+        let stmts = on_body("on game.start {\n$x = a + b * c\n$y = (a + b) * c\n}");
+        let Stmt::Assign { value, .. } = &stmts[0] else { panic!() };
+        let Expr::Bin { op: BinOp::Add, left, right, .. } = value else { panic!("{value:?}") };
+        assert!(matches!(&**left, Expr::Value(Arg::Name(n)) if n.text == "a"));
+        assert!(matches!(&**right, Expr::Bin { op: BinOp::Mul, .. }));
+        let Stmt::Assign { value, .. } = &stmts[1] else { panic!() };
+        let Expr::Bin { op: BinOp::Mul, left, right, .. } = value else { panic!("{value:?}") };
+        assert!(matches!(&**left, Expr::Bin { op: BinOp::Add, .. }));
+        assert!(matches!(&**right, Expr::Value(Arg::Name(n)) if n.text == "c"));
+    }
+
+    #[test]
+    fn condition_operands_and_negative_literals() {
+        let stmts = on_body("on game.start {\nif $gold >= 100 and party_is_active(p_town_6) {\n$x = -5\n}\n}");
+        let Stmt::If { arms, .. } = &stmts[0] else { panic!("{:?}", stmts[0]) };
+        let Cond::And(parts) = &arms[0].0 else { panic!("{:?}", arms[0].0) };
+        assert_eq!(parts.len(), 2);
+        assert!(matches!(&parts[0], Cond::Cmp { op: CmpOp::Ge, right: Expr::Value(Arg::Int(100, _)), .. }));
+        assert!(matches!(&parts[1], Cond::Call(c) if c.op.text == "party_is_active" && c.args.len() == 1));
+        let Stmt::Assign { value, .. } = &arms[0].1.stmts[0] else { panic!() };
+        assert!(matches!(value, Expr::Value(Arg::Int(-5, _))));
+    }
+
+    #[test]
+    fn condition_precedence_is_not_then_and_then_or() {
+        let stmts = on_body("on game.start {\nif a() or b() and c() {\n$x = 1\n}\n}");
+        let Stmt::If { arms, .. } = &stmts[0] else { panic!() };
+        let Cond::Or(parts) = &arms[0].0 else { panic!("{:?}", arms[0].0) };
+        assert_eq!(parts.len(), 2);
+        assert!(matches!(&parts[0], Cond::Call(c) if c.op.text == "a"));
+        let Cond::And(inner) = &parts[1] else { panic!("{:?}", parts[1]) };
+        assert_eq!(inner.len(), 2);
+        assert!(matches!(&inner[0], Cond::Call(c) if c.op.text == "b"));
+        assert!(matches!(&inner[1], Cond::Call(c) if c.op.text == "c"));
+    }
+
+    #[test]
+    fn not_wraps_a_comparison() {
+        let stmts = on_body("on game.start {\nif not $gold < 10 {\n$x = 1\n}\n}");
+        let Stmt::If { arms, .. } = &stmts[0] else { panic!() };
+        let Cond::Not(inner, _) = &arms[0].0 else { panic!("{:?}", arms[0].0) };
+        assert!(matches!(&**inner, Cond::Cmp { op: CmpOp::Lt, .. }));
+    }
+
+    #[test]
+    fn else_if_chain_parses() {
+        let stmts = on_body(
+            "on game.start {\nif $g < 1 {\n$x = 1\n} else if $g < 2 {\n$x = 2\n} else {\n$x = 3\n}\n}",
+        );
+        let Stmt::If { arms, otherwise, .. } = &stmts[0] else { panic!("{:?}", stmts[0]) };
+        assert_eq!(arms.len(), 2);
+        assert!(matches!(&arms[0].0, Cond::Cmp { op: CmpOp::Lt, .. }));
+        assert!(matches!(&arms[1].0, Cond::Cmp { op: CmpOp::Lt, .. }));
+        let Some(otherwise) = otherwise else { panic!("no else block") };
+        assert_eq!(otherwise.stmts.len(), 1);
+    }
+
+    #[test]
+    fn condition_continues_on_the_next_line_after_and() {
+        let stmts = on_body(
+            "on game.start {\nif party_is_active(p_town_6) and\n   $gold > 10 {\n$x = 1\n}\n}",
+        );
+        let Stmt::If { arms, .. } = &stmts[0] else { panic!("{:?}", stmts[0]) };
+        let Cond::And(parts) = &arms[0].0 else { panic!("{:?}", arms[0].0) };
+        assert_eq!(parts.len(), 2);
+        assert!(matches!(&parts[0], Cond::Call(c) if c.op.text == "party_is_active"));
+        assert!(matches!(&parts[1], Cond::Cmp { op: CmpOp::Gt, .. }));
+    }
+
+    #[test]
+    fn a_line_continues_inside_parentheses() {
+        let stmts = on_body("on game.start {\n$x = (a\n + b) * c\n}");
+        let Stmt::Assign { value, .. } = &stmts[0] else { panic!("{:?}", stmts[0]) };
+        let Expr::Bin { op: BinOp::Mul, left, .. } = value else { panic!("{value:?}") };
+        assert!(matches!(&**left, Expr::Bin { op: BinOp::Add, .. }));
+    }
+
+    #[test]
+    fn elif_and_python_else_get_a_one_line_fix() {
+        let (d, r) = error("on game.start {\n  if $x < 1 {\n    a()\n  } elif $x < 2 {\n    a()\n  }\n}");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("else if"), "{r}");
+        assert!(!r.contains("unexpected end"), "{r}");
+        let (d, r) = error("on game.start {\n  if $x < 1 {\n  } else:\n  }\n}");
+        assert_eq!(d.code, E0104_PYTHON_BLOCK);
+        assert!(r.contains("else {"), "{r}");
     }
 }
