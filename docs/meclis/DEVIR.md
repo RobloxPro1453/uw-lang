@@ -1,5 +1,13 @@
 # Devir: sonraki oturum buradan başlar
 
+## 00. EN GÜNCEL (2026-11-15, tur 1 sonrası)
+
+- Tur 1 bitti: D1, atlas, D2 ana testi, D3 (tamamı) geçti; `uw_diag`, `uw_atlas`, `uw_kitrun` yazıldı, 29 test. Ayrıntı: `docs/PROGRESS.md` en üst kayıt, `docs/KNOWLEDGE.md` > "Faz 0 deney sonuçları".
+- **Sahibinin kararı:** çekirdeği Claude (Opus) kendisi yazar; DeepSeek beklenmez, çekirdek işi ona verilmez (AGENTS iş bölümünü çekirdek için geçersiz kılar).
+- Atlas yerel üretilir (`docs/DEVELOPMENT.md` > Atlas üretimi); `target/` silinmişse önce onu üret.
+- Sıradaki tur (2): `uw explain <id>` (atlas üstünde, `uw_cli`), `py/uw_runtime.py` + D2 alt testleri (b paylaşılan nesne, c `ad#n`), D4 oyun sondası adımları `docs/CHECKUP.md` kuyruğuna, `kit-meta/` ilk taslağı (`hooks.toml` atlastan). Sonra sözdizimi meclisi (Faz 1 gramerinden önce).
+- Sahibinin yeni isteği (ROADMAP): sandbox / görsel önizleme — UW komutu → Module System'de nereye ne eklendiği; derleyici ilk komutu çevirince.
+
 ## 0. GÜNCEL (2026-11-15 akşam): tasarım haftası bitti, kodlama başlıyor
 
 Sahibi 4 tur daha beyin fırtınası yaptı (cevaplar süzülüp `docs/VISION.md` > "Sahibinin kararları"nda "(süzüldü)" etiketiyle). Aşağıdaki §1-§10 meclis sonrası durumu anlatır ve hâlâ geçerlidir; şunlar eklendi/değişti:
