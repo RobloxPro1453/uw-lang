@@ -1,11 +1,13 @@
 {
   "taskId": "T-005",
   "branch": "cv/T-005",
-  "headSha": "1f923b67e31b46da4b67f47b6c843a5fd85f65db",
+  "base": "master",
   "treeSha": "ce9e53942dca57a0e5d7f79392e0a81de79b895c",
   "buildOk": true,
   "testOk": true,
-  "status": "done",
-  "testsBy": "runner",
-  "timestamp": "2026-11-15T10:22:15.403Z"
+  "verdict": "PASS",
+  "ok": true,
+  "skippedRun": false,
+  "findingsCount": 0,
+  "timestamp": "2026-11-15T10:23:14.005Z"
 }
