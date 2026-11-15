@@ -1,0 +1,43 @@
+{
+  "updatedAt": "2026-11-15T08:52:41.238Z",
+  "tasks": {
+    "T-001": {
+      "task": "T-001",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-001",
+      "updatedAt": "2026-11-15T08:52:21.876Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_diag/src/lib.rs +292 -0"
+      ]
+    },
+    "T-002": {
+      "task": "T-002",
+      "status": "pending",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-002",
+      "updatedAt": "2026-11-15T08:50:20.499Z"
+    },
+    "T-003": {
+      "task": "T-003",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-003",
+      "updatedAt": "2026-11-15T08:52:41.238Z",
+      "summary": "status=done",
+      "files": [
+        "Cargo.lock +98 -0",
+        "crates/uw_atlas/Cargo.toml +2 -0",
+        "crates/uw_atlas/src/lib.rs +242 -0",
+        "crates/uw_atlas/tests/atlas.rs +129 -0"
+      ]
+    }
+  }
+}

@@ -14,6 +14,7 @@ Output JSON (schema 1):
   ranges:  [{name, value, line}]                                        *_begin / *_end in module_constants.py
   tables:  {table: {module, var, id_prefix, id_file, entries: [{index, name, id, dup, line, value}]}}
            unnamed tables (dialogs, triggers, simple_triggers) have name/id = null.
+           value: a Python tuple is a JSON array, a Python list is {"list": [...]} (the kit cares).
 Source lines are read-only pointers for `uw explain`; output generation never uses source text.
 """
 import io
@@ -62,9 +63,12 @@ def read_lines(path):
 
 
 def jsonable(v):
-    """Entry values: tuples -> lists, longs stay ints, byte strings decoded as latin-1."""
-    if isinstance(v, (list, tuple)):
+    """Entry values. The kit tells tuples from lists (D3: `"%f" % [..]` fails), so both survive:
+    tuple -> JSON array, list -> {"list": [...]}. Longs stay ints; byte strings decoded as latin-1."""
+    if isinstance(v, tuple):
         return [jsonable(x) for x in v]
+    if isinstance(v, list):
+        return {"list": [jsonable(x) for x in v]}
     if isinstance(v, str):
         return v.decode("latin-1")
     if isinstance(v, (int, long, float, bool)) or v is None:
