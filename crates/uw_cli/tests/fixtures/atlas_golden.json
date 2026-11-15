@@ -1,0 +1,34 @@
+{
+      "schema": 1, "kit_hash": "golden",
+      "ops": [
+        {"name":"party_relocate_near_party","code":1623,"line":667,"signature":"(party_relocate_near_party,<party_id>,<target_party_id>,<value_spawn_radius>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"change_screen_map","code":2052,"line":1093,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"display_message","code":1106,"line":482,"signature":"(display_message,<string_id>,[hex_colour_code]),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"assign","code":2133,"line":40,"signature":"","lhs":true,"can_fail":false,"global_lhs":false},
+        {"name":"troop_set_type","code":1509,"line":600,"signature":"(troop_set_type,<troop_id>,<type_no>),","lhs":false,"can_fail":false,"global_lhs":false}
+      ],
+      "hooks": ["game_start"],
+      "ranges": [],
+      "constants": [
+        {"name":"reg0","value":1,"module":"header_common","line":563},
+        {"name":"tf_male","value":0,"module":"header_troops","line":25}
+      ],
+      "tables": {
+        "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","ref_tag":"mnu",
+          "entries": [
+            {"index":0,"name":"start_game_0","id":"menu_start_game_0","dup":null,"line":39,"value":[]},
+            {"index":1,"name":"start_phase_2","id":"menu_start_phase_2","dup":null,"line":55,"value":[]}
+          ]},
+        "parties": {"module":"module_parties","var":"parties","id_file":"ID_parties","id_prefix":"p_","ref_tag":"p",
+          "entries": [
+            {"index":0,"name":"main_party","id":"p_main_party","dup":null,"line":1,"value":[]},
+            {"index":26,"name":"town_6","id":"p_town_6","dup":null,"line":82,"value":[]}
+          ]},
+        "troops": {"module":"module_troops","var":"troops","id_file":"ID_troops","id_prefix":"trp_","ref_tag":"trp",
+          "entries": [
+            {"index":0,"name":"player","id":"trp_player","dup":null,"line":1,"value":[]}
+          ]},
+        "scripts": {"module":"module_scripts","var":"scripts","id_file":"ID_scripts","id_prefix":"script_","ref_tag":"script",
+          "entries": [{"index":0,"name":"game_start","id":"script_game_start","dup":null,"line":31,"value":[]}]}
+      }
+    }

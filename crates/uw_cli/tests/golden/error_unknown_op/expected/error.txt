@@ -1,0 +1,7 @@
+error[E0001]: 'change_screan_map' is not a Native operation
+ --> input.uw:5:9
+  |
+5 |         change_screan_map()
+  |         ^^^^^^^^^^^^^^^^^
+  |
+  = help: did you mean 'change_screen_map'? (`uw browse` lists every operation)
