@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T12:59:19.981Z",
+  "updatedAt": "2026-11-15T13:02:40.542Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -156,12 +156,26 @@
     },
     "T-013": {
       "task": "T-013",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-013",
-      "updatedAt": "2026-11-15T12:59:19.980Z"
+      "updatedAt": "2026-11-15T13:02:40.542Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/tests/fixtures/atlas_golden.json +34 -0",
+        "crates/uw_cli/tests/golden.rs +148 -0",
+        "crates/uw_cli/tests/golden/debug_menus/debug +1 -0",
+        "crates/uw_cli/tests/golden/debug_menus/expected/module_game_menus.py +16 -0",
+        "crates/uw_cli/tests/golden/debug_menus/input.uw +8 -0",
+        "crates/uw_cli/tests/golden/error_unknown_op/expected/error.txt +7 -0",
+        "crates/uw_cli/tests/golden/error_unknown_op/input.uw +7 -0",
+        "crates/uw_cli/tests/golden/hook_append/expected/module_scripts.py +15 -0",
+        "crates/uw_cli/tests/golden/hook_append/input.uw +7 -0",
+        "crates/uw_cli/tests/golden/override_menu_enter/expected/module_game_menus.py +13 -0",
+        "crates/uw_cli/tests/golden/override_menu_enter/input.uw +8 -0"
+      ]
     }
   }
 }
