@@ -1025,3 +1025,96 @@ kimliğidir** (`parties/towns/town_6.uw`), görünen ad değil (`praven`).
 `uw new` bir proje klasörü **yazar ve geri okur**; o klasörü `uw build` ile derlemez. Derleme
 geldiğinde bu bölüm güncellenecek. Bugüne kadar `uw build` yalnız yama kipinde çalışır: `.uw`
 dosyaları Native'in üzerine değişiklik koyar.
+
+---
+
+## 11. `require`, `attempt` ve `for`
+
+Bu üç deyim, Native'in iki kalıbını okunur biçimde yazmak içindir: bloğun ortasındaki koşul işlemi
+(`eq(...)`, `neg|...`) ve `try_begin / else_try / try_end` blokları. Native biçimi her zaman geçerlidir.
+
+### 11.1. `require <koşul>`
+
+Koşul tutmazsa **içinde bulunulan bloğun geri kalanı çalışmaz**; Native'de bloğun ortasına yazılmış
+çıplak bir koşul işlemiyle aynıdır (3.6'daki "Native kuralı"). Bir `attempt` kolunda o kol biter, sıradaki
+kol denenir. Koşul `if` gibi yazılır (karşılaştırma, koşul işlemi çağrısı, `and / or / not`); `neg|` öneki
+`not` olur.
+
+**Örnek.** Native (`target/uw-native/scripts.uw:302`):
+
+```uw
+neg|faction_slot_eq(:kingdom_hero_faction, slot_faction_leader, :kingdom_hero)
+```
+
+UW:
+
+```uw
+require not faction_slot_eq(:kingdom_hero_faction, slot_faction_leader, :kingdom_hero)
+```
+
+### 11.2. `attempt { … } else attempt { … } else { … }`
+
+`attempt`, Native'in `try_begin / else_try / try_end` bloğudur. Kollar sırayla denenir: `require`'ları
+tutmayan kol yarıda kalır, tutan kol sonuna kadar çalışır. Sondaki `else { … }` bir kol daha ekler;
+`attempt`'tan sonra `else if` değil, `else attempt` yazılır.
+
+**Örnek.** Native (`target/uw-native/scripts.uw`: 2295-2300, 2342; aradaki kollar atlandı):
+
+```uw
+    try_begin()
+        party_slot_eq($g_encountered_party, slot_party_type, 3)
+        jump_to_menu(mnu_castle_outside)
+    else_try()
+        party_slot_eq($g_encountered_party, slot_party_type, 2)
+        jump_to_menu(mnu_castle_outside)
+    try_end()
+```
+
+UW:
+
+```uw
+attempt {
+    require party_slot_eq($g_encountered_party, slot_party_type, 3)
+    jump_to_menu(mnu_castle_outside)
+} else attempt {
+    require party_slot_eq($g_encountered_party, slot_party_type, 2)
+    jump_to_menu(mnu_castle_outside)
+}
+```
+
+### 11.3. `for <değişken> in <tür>(<argümanlar>) { … }`
+
+`for <$global|:local> in <tür>(<argümanlar>) { … }` kitin `try_for_*` döngü işlemini açar, gövdeyi
+yazar, `try_end` ile kapatır. `<tür>`, işlem adının `try_for_` öneki atılmış hâlidir;
+`Module_system 1.171/header_operations.py:21-29` döngüleri: `range` (6), `range_backwards` (7),
+`parties` (11), `agents` (12), `prop_instances` (16), `players` (17). Başka tür hata verir (liste atlasın
+işlem tablosundan gelir). Değişken `$global` ya da `:local` olmalıdır; argümanlar çağrıdaki gibidir (boş
+da olabilir: `for :p in parties() { }`). Gövdesinde `else_try` olan döngü (scripts.uw:351-356) şimdilik
+Native kalır (YON2-KARAR §8).
+
+**Örnek.** Native (`target/uw-native/scripts.uw:345-347`):
+
+```uw
+try_for_range(:troop_no, trp_player, trp_merchants_end)
+    add_troop_note_tableau_mesh(:troop_no, tableau_troop_note_mesh)
+try_end()
+```
+
+UW:
+
+```uw
+for :troop_no in range(trp_player, trp_merchants_end) {
+    add_troop_note_tableau_mesh(:troop_no, tableau_troop_note_mesh)
+}
+```
+
+### 11.4. `if` mi, `attempt` mi?
+
+- **Tek koşul, iki sonuç:** `if / else if / else` (3.6) yazın; UW zaten onu
+  `try_begin / else_try / try_end`'e çevirir.
+- **Koşul tutmazsa bloğun kalanı çalışmasın, ayrı dal yok:** `require` yazın; `if` gereksiz blok açardı.
+- **Birkaç koldan yalnız ilki tutan çalışsın:** `attempt` yazın; her kol kendi `require`'ını taşır.
+  `if c { A }` = `attempt { require c; A }`; son `else { }` düz `else` gibidir.
+
+> **Not:** Bu üç deyimin ayrıştırıcı ve indirgeyici bağlantısı henüz yok (T-052, T-053). O iş gelene kadar
+> bu deyimleri `.uw` dosyasına yazmayın; Native biçimini kullanın.
