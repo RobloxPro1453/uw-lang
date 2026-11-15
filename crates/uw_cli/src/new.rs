@@ -36,7 +36,7 @@ fn export_project(dir: &Path, atlas_path: Option<PathBuf>) -> ExitCode {
     let paths = crate::roundtrip::block_paths(&blocks);
     let mut render = |schema: &Schema, entry: &Entry| {
         let paths = paths.get(&(schema.table.as_str(), entry.index)).map(Vec::as_slice).unwrap_or(&[]);
-        records::print_with_blocks(schema, entry, paths, &mut |block| crate::roundtrip::block_text(&atlas, block))
+        records::print_with_blocks(&atlas, schema, entry, paths, &mut |block| crate::roundtrip::block_text(&atlas, block))
     };
     match project::export(&atlas, &schemas, dir, &mut render) {
         Ok(summary) => {
@@ -59,7 +59,7 @@ fn check_project(dir: &Path, atlas_path: Option<PathBuf>) -> ExitCode {
         Err(message) => return crate::fail(&message),
     };
     let mut compile = |text: &str| crate::roundtrip::compile(&atlas, text).map(|ops| records::ops_to_json(&ops));
-    let mut parse = |schema: &Schema, text: &str| records::parse_with_blocks(schema, text, &mut compile);
+    let mut parse = |schema: &Schema, text: &str| records::parse_with_blocks(&atlas, schema, text, &mut compile);
     let blocks = uw_decomp::extract::all(&atlas);
     let paths = crate::roundtrip::block_paths(&blocks);
     let mut same = |schema: &Schema, entry: &Entry, value: &serde_json::Value| {
