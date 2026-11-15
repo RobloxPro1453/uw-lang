@@ -629,6 +629,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "uw_decomp"
+version = "0.0.1"
+dependencies = [
+ "serde_json",
+ "uw_atlas",
+ "uw_lower",
+]
+
+[[package]]
 name = "uw_diag"
 version = "0.0.1"
 

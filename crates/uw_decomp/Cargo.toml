@@ -1,0 +1,10 @@
+[package]
+name = "uw_decomp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+uw_atlas = { path = "../uw_atlas" }
+uw_lower = { path = "../uw_lower" }
+serde_json = "1"

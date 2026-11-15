@@ -10,6 +10,7 @@ members = [
     "crates/uw_emit",
     "crates/uw_kitrun",
     "crates/uw_verify",
+    "crates/uw_decomp",
     "crates/uw_cli",
 ]
 
