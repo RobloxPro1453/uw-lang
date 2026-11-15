@@ -8,7 +8,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 
-use uw_check::{Action, Checked, Patch, Value};
+use uw_check::{Action, Checked, NewOption, Op, OptionPlace, Patch, Value};
 
 /// The runtime the wrappers import (py/uw_runtime.py, embedded).
 pub const UW_RUNTIME: &str = include_str!("../../../py/uw_runtime.py");
@@ -51,6 +51,42 @@ fn value(v: &Value) -> String {
     }
 }
 
+/// One operation as a Python expression; the kit flag prefixes (`neg|eq`) stay as written.
+fn op_stmt(op: &Op) -> String {
+    if op.args.is_empty() {
+        op.name.clone()
+    } else {
+        let args: Vec<String> = op.args.iter().map(value).collect();
+        format!("({}, {})", op.name, args.join(", "))
+    }
+}
+
+/// An operation list literal: `[`, one op per line with its `# origin`, `]` at `indent`.
+fn op_list(ops: &[Op], indent: usize) -> String {
+    if ops.is_empty() {
+        return "[]".to_string();
+    }
+    let mut out = String::from("[\n");
+    for op in ops {
+        let _ = writeln!(out, "{:width$}{},  # {}", "", op_stmt(op), op.origin, width = indent + 4);
+    }
+    let _ = write!(out, "{:width$}]", "", width = indent);
+    out
+}
+
+/// An option tuple `(ID, [COND], TEXT, [CONS])` after an already-open `(`: fields one per line at
+/// `base + 4`, closing `)` at `base` (no trailing comma).
+fn write_option(out: &mut String, option: &NewOption, base: usize) {
+    let field = " ".repeat(base + 4);
+    let close = " ".repeat(base);
+    let _ = writeln!(out);
+    let _ = writeln!(out, "{field}{},", py_str(&option.id));
+    let _ = writeln!(out, "{field}{},", op_list(&option.condition, base + 4));
+    let _ = writeln!(out, "{field}{},", py_str(&option.text));
+    let _ = writeln!(out, "{field}{},", op_list(&option.consequence, base + 4));
+    let _ = write!(out, "{close})");
+}
+
 /// Debug builds: a line after the patches that makes every menu print its own id when it opens
 /// (`uw: menu-start-phase-2`), so the owner sees in game which menu to override. The game shows
 /// `_` as a space, so the id is written with `-`; `display_log_message` keeps the line in the log
@@ -86,29 +122,83 @@ fn wrapper(name: &str, module: &str, patches: &[&Patch], debug: bool) -> String 
     }
     let _ = writeln!(out, "import uw_runtime as _uw");
     for patch in patches {
-        let func = match &patch.action {
-            Action::ReplaceBody => "replace_body",
-            Action::Append => "append_ops",
-            // Menu text, options and new menus: task T-018.
-            other => unimplemented!("T-018: emit {other:?}"),
-        };
         let path = match patch.path.as_slice() {
             [one] => one.to_string(),
             many => format!("({},)", many.iter().map(usize::to_string).collect::<Vec<_>>().join(", ")),
         };
         let _ = writeln!(out);
         let _ = writeln!(out, "# {}", patch.origin);
-        let _ = writeln!(out, "{var} = _uw.{func}({var}, {entry}, {path}, [", var = patch.var, entry = py_str(&patch.entry));
-        for op in &patch.ops {
-            let stmt = if op.args.is_empty() {
-                op.name.clone()
-            } else {
-                let args: Vec<String> = op.args.iter().map(value).collect();
-                format!("({}, {})", op.name, args.join(", "))
-            };
-            let _ = writeln!(out, "    {stmt},  # {}", op.origin);
+        match &patch.action {
+            Action::ReplaceBody | Action::Append => {
+                let func = if matches!(&patch.action, Action::ReplaceBody) { "replace_body" } else { "append_ops" };
+                let _ = writeln!(out, "{var} = _uw.{func}({var}, {entry}, {path}, [", var = patch.var, entry = py_str(&patch.entry));
+                for op in &patch.ops {
+                    let _ = writeln!(out, "    {},  # {}", op_stmt(op), op.origin);
+                }
+                let _ = writeln!(out, "])");
+            }
+            Action::ReplaceText(text) => {
+                let _ = writeln!(
+                    out,
+                    "{var} = _uw.set_text({var}, {entry}, {path}, {text})",
+                    var = patch.var,
+                    entry = py_str(&patch.entry),
+                    text = py_str(text)
+                );
+            }
+            Action::InsertOption { option, place } => {
+                let _ = write!(out, "{var} = _uw.add_option({var}, {entry}, {path}, (", var = patch.var, entry = py_str(&patch.entry));
+                write_option(&mut out, option, 0);
+                let (after, before) = match place {
+                    OptionPlace::End => ("None".to_string(), "None".to_string()),
+                    OptionPlace::After(id) => (py_str(id), "None".to_string()),
+                    OptionPlace::Before(id) => ("None".to_string(), py_str(id)),
+                };
+                let _ = writeln!(out, ", after={after}, before={before})");
+            }
+            Action::ChangeOption { id, text, condition, consequence } => {
+                let _ = write!(
+                    out,
+                    "{var} = _uw.change_option({var}, {entry}, {path}, {id}",
+                    var = patch.var,
+                    entry = py_str(&patch.entry),
+                    id = py_str(id)
+                );
+                let text = text.as_deref().map_or_else(|| "None".to_string(), py_str);
+                let condition = condition.as_deref().map_or_else(|| "None".to_string(), |ops| op_list(ops, 0));
+                let consequence = consequence.as_deref().map_or_else(|| "None".to_string(), |ops| op_list(ops, 0));
+                let _ = writeln!(out, ", text={text}, condition={condition}, consequence={consequence})");
+            }
+            Action::RemoveOption(id) => {
+                let _ = writeln!(
+                    out,
+                    "{var} = _uw.remove_option({var}, {entry}, {path}, {id})",
+                    var = patch.var,
+                    entry = py_str(&patch.entry),
+                    id = py_str(id)
+                );
+            }
+            Action::NewMenu { text, enter, options } => {
+                let _ = writeln!(out, "{var} = _uw.add_entry({var}, (", var = patch.var);
+                let _ = writeln!(out, "    {},", py_str(&patch.entry));
+                let _ = writeln!(out, "    0,");
+                let _ = writeln!(out, "    {},", py_str(text));
+                let _ = writeln!(out, "    \"none\",");
+                let _ = writeln!(out, "    {},", op_list(enter, 4));
+                if options.is_empty() {
+                    let _ = writeln!(out, "    [],");
+                } else {
+                    let _ = writeln!(out, "    [");
+                    for option in options {
+                        let _ = write!(out, "        (");
+                        write_option(&mut out, option, 8);
+                        let _ = writeln!(out, ",");
+                    }
+                    let _ = writeln!(out, "    ],");
+                }
+                let _ = writeln!(out, "))");
+            }
         }
-        let _ = writeln!(out, "])");
     }
     if debug && module == "module_game_menus" {
         out.push_str(DEBUG_MENUS);
@@ -139,6 +229,27 @@ pub fn emit(checked: &Checked, debug: bool) -> Emitted {
 mod tests {
     use super::*;
     use uw_check::Op;
+
+    fn op(name: &str, args: Vec<Value>, origin: &str) -> Op {
+        Op { name: name.into(), args, origin: origin.into() }
+    }
+
+    fn menu_patch(entry: &str, path: Vec<usize>, action: Action, origin: &str) -> Patch {
+        Patch {
+            module: "module_game_menus".into(),
+            var: "game_menus".into(),
+            entry: entry.into(),
+            path,
+            action,
+            ops: vec![],
+            origin: origin.into(),
+        }
+    }
+
+    /// The one wrapper `emit` writes for a single menu patch.
+    fn emitted(patch: Patch) -> String {
+        emit(&Checked { name: "m".into(), patches: vec![patch] }, false).files[0].text.clone()
+    }
 
     #[test]
     fn praven_wrappers_match_the_hand_written_d4_shape() {
@@ -220,5 +331,175 @@ mod tests {
         let menus = &out.files[0].text;
         assert!(menus.contains("game_menus = _uw.tag_all(game_menus, 4, lambda e: [(display_log_message, \"@uw: menu-\" + e[0].replace(\"_\", \"-\"), 0xFFFF00)])"), "{menus}");
         assert!(emit(&checked, false).files.iter().all(|f| f.name != "module_game_menus.py"));
+    }
+
+    #[test]
+    fn replace_text_emits_set_text() {
+        let text = emitted(menu_patch("start_phase_2", vec![2], Action::ReplaceText("New text".into()), "x.uw:3"));
+        let expected = [
+            "# x.uw:3",
+            "game_menus = _uw.set_text(game_menus, \"start_phase_2\", 2, \"New text\")",
+        ]
+        .join("\n")
+            + "\n";
+        assert!(text.ends_with(expected.as_str()), "{text}");
+    }
+
+    #[test]
+    fn insert_option_emits_add_option() {
+        let option = NewOption {
+            id: "uw_skip".into(),
+            condition: vec![op("eq", vec![Value::Ref("$x".into()), Value::Int(1)], "x.uw:5")],
+            text: "Skip".into(),
+            consequence: vec![op("jump_to_menu", vec![Value::Ref("mnu_start_game_0".into())], "x.uw:6")],
+            origin: "x.uw:4".into(),
+        };
+        let text = emitted(menu_patch(
+            "start_phase_2",
+            vec![5],
+            Action::InsertOption { option, place: OptionPlace::End },
+            "x.uw:3",
+        ));
+        let expected = [
+            "# x.uw:3",
+            "game_menus = _uw.add_option(game_menus, \"start_phase_2\", 5, (",
+            "    \"uw_skip\",",
+            "    [",
+            "        (eq, \"$x\", 1),  # x.uw:5",
+            "    ],",
+            "    \"Skip\",",
+            "    [",
+            "        (jump_to_menu, \"mnu_start_game_0\"),  # x.uw:6",
+            "    ],",
+            "), after=None, before=None)",
+        ]
+        .join("\n")
+            + "\n";
+        assert!(text.ends_with(expected.as_str()), "{text}");
+    }
+
+    #[test]
+    fn insert_option_places_use_the_matching_keyword() {
+        let option = |id: &str| NewOption {
+            id: id.into(),
+            condition: vec![],
+            text: "T".into(),
+            consequence: vec![],
+            origin: "x.uw:4".into(),
+        };
+        let after = emitted(menu_patch(
+            "m",
+            vec![5],
+            Action::InsertOption { option: option("a"), place: OptionPlace::After("a".into()) },
+            "x.uw:3",
+        ));
+        assert!(after.ends_with("), after=\"a\", before=None)\n"), "{after}");
+        let before = emitted(menu_patch(
+            "m",
+            vec![5],
+            Action::InsertOption { option: option("b"), place: OptionPlace::Before("b".into()) },
+            "x.uw:3",
+        ));
+        assert!(before.ends_with("), after=None, before=\"b\")\n"), "{before}");
+    }
+
+    #[test]
+    fn change_option_emits_change_option() {
+        let text = emitted(menu_patch(
+            "start_phase_2",
+            vec![5],
+            Action::ChangeOption {
+                id: "uw_skip".into(),
+                text: Some("Skip".into()),
+                condition: Some(vec![op("neg|eq", vec![Value::Ref("$x".into()), Value::Int(1)], "x.uw:5")]),
+                consequence: Some(vec![op("jump_to_menu", vec![Value::Ref("mnu_start_game_0".into())], "x.uw:6")]),
+            },
+            "x.uw:3",
+        ));
+        let expected = [
+            "# x.uw:3",
+            "game_menus = _uw.change_option(game_menus, \"start_phase_2\", 5, \"uw_skip\", text=\"Skip\", condition=[",
+            "    (neg|eq, \"$x\", 1),  # x.uw:5",
+            "], consequence=[",
+            "    (jump_to_menu, \"mnu_start_game_0\"),  # x.uw:6",
+            "])",
+        ]
+        .join("\n")
+            + "\n";
+        assert!(text.ends_with(expected.as_str()), "{text}");
+    }
+
+    #[test]
+    fn change_option_none_keeps_the_native_part() {
+        let text = emitted(menu_patch(
+            "start_phase_2",
+            vec![5],
+            Action::ChangeOption { id: "uw_skip".into(), text: None, condition: None, consequence: None },
+            "x.uw:3",
+        ));
+        let expected = [
+            "# x.uw:3",
+            "game_menus = _uw.change_option(game_menus, \"start_phase_2\", 5, \"uw_skip\", text=None, condition=None, consequence=None)",
+        ]
+        .join("\n")
+            + "\n";
+        assert!(text.ends_with(expected.as_str()), "{text}");
+    }
+
+    #[test]
+    fn remove_option_emits_remove_option() {
+        let text = emitted(menu_patch("start_phase_2", vec![5], Action::RemoveOption("uw_skip".into()), "x.uw:3"));
+        let expected = [
+            "# x.uw:3",
+            "game_menus = _uw.remove_option(game_menus, \"start_phase_2\", 5, \"uw_skip\")",
+        ]
+        .join("\n")
+            + "\n";
+        assert!(text.ends_with(expected.as_str()), "{text}");
+    }
+
+    #[test]
+    fn new_menu_emits_add_entry() {
+        let text = emitted(menu_patch(
+            "uw_ask",
+            vec![],
+            Action::NewMenu {
+                text: "Where from?".into(),
+                enter: vec![op("change_screen_map", vec![], "x.uw:9")],
+                options: vec![NewOption {
+                    id: "north".into(),
+                    condition: vec![],
+                    text: "From the north".into(),
+                    consequence: vec![op("jump_to_menu", vec![Value::Ref("mnu_start_phase_2".into())], "x.uw:11")],
+                    origin: "x.uw:10".into(),
+                }],
+            },
+            "x.uw:8",
+        ));
+        let expected = [
+            "# x.uw:8",
+            "game_menus = _uw.add_entry(game_menus, (",
+            "    \"uw_ask\",",
+            "    0,",
+            "    \"Where from?\",",
+            "    \"none\",",
+            "    [",
+            "        change_screen_map,  # x.uw:9",
+            "    ],",
+            "    [",
+            "        (",
+            "            \"north\",",
+            "            [],",
+            "            \"From the north\",",
+            "            [",
+            "                (jump_to_menu, \"mnu_start_phase_2\"),  # x.uw:11",
+            "            ],",
+            "        ),",
+            "    ],",
+            "))",
+        ]
+        .join("\n")
+            + "\n";
+        assert!(text.ends_with(expected.as_str()), "{text}");
     }
 }
