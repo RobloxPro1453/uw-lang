@@ -3,10 +3,12 @@
 ## 0000. ÖNCE BU (2026-11-15, Claude döngüsü durduruldu)
 
 Sahibi Claude limitini bekliyor; arada iş **Antigravity/Gemini**'de sürüyor. Güncel durum, yarım işler ve
-kurallar: `docs/meclis/GEMINI_DEVIR.md`. **Claude geri gelince ilk iş:** o belgenin sonundaki
-"Gemini'nin yaptıkları" listesini ve `git log` ile Gemini commit'lerini oku; her birini diff + `cargo test
---workspace` + `cargo build --release` + `uw build examples/menu_demo --no-install` ile denetle; iyi olanı
-tut, kötüsünü `git revert` ile geri al, kararı PROGRESS'e yaz. Sonra `cv/T-019` (altın testler) hâlâ
+kurallar: `docs/meclis/GEMINI_DEVIR.md`. Gemini git'siz bir **kopyada** çalışıyor; sahibi onun kopyasını
+proje köküne `geminiversion/` olarak koyacak (`.gitignore`'da, depoya girmez). **Claude geri gelince ilk iş:**
+`geminiversion/docs/meclis/GEMINI_DEVIR.md` sonundaki değişiklik defterini oku; her dosyayı ana projeyle
+karşılaştır (`git diff --no-index <ana> geminiversion/<aynı yol>`); alınacakları tek tek kopyala, sonra
+`cargo test --workspace` + `cargo build --release` + `uw build examples/menu_demo --no-install`; neyi aldığını,
+neyi neden almadığını PROGRESS'e yaz. Defterde olmayan değişiklik alınmaz. Sonra `cv/T-019` (altın testler) hâlâ
 birleşmediyse onu gözden geçir. Aşağıdaki eski bölümler tarihçedir; gramer 2 (if, hesap, menü
 seçenekleri) artık çalışıyor.
 
