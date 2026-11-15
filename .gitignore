@@ -15,3 +15,8 @@ ornek-modlar/
 
 # Rust ve derleme hazırlık klasörleri
 target/
+
+# graph_viewer örnek verisi: Native metinleri içerir, depoya girmez (py/flow_export.py üretir)
+docs/graph_viewer/sample_flow.json
+flow.json
+akis.html
