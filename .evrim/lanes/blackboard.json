@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T13:07:55.906Z",
+  "updatedAt": "2026-11-15T13:22:00.300Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -191,6 +191,42 @@
         "crates/uw_cli/tests/golden/override_menu_enter/expected/module_game_menus.py +13 -0",
         "crates/uw_cli/tests/golden/override_menu_enter/input.uw +8 -0"
       ]
+    },
+    "T-014": {
+      "task": "T-014",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-014",
+      "updatedAt": "2026-11-15T13:22:00.267Z"
+    },
+    "T-016": {
+      "task": "T-016",
+      "status": "pending",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-016",
+      "updatedAt": "2026-11-15T13:22:00.113Z"
+    },
+    "T-017": {
+      "task": "T-017",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-017",
+      "updatedAt": "2026-11-15T13:22:00.283Z"
+    },
+    "T-018": {
+      "task": "T-018",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-018",
+      "updatedAt": "2026-11-15T13:22:00.299Z"
     }
   }
 }

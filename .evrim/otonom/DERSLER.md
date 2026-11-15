@@ -16,3 +16,4 @@ Her satır bir ders: "X yapınca Y oldu → artık Z yapıyorum (GUNLUK: tarih s
 - [yerel] Git Bash heredoc içinden Python ile dosyaya regex yazınca \b görünmez backspace (\x08) oldu; regex içeren düzenlemeleri Edit aracıyla yap ve od -c ile doğrula. (2026-11-15)
 - [yerel] Kodu degistirince sahibinin kullandigi target/release/uw'yi de derle (cargo build --release); yalniz debug derlemek 'calismiyor' dedirtir (2026-11-15)
 - [yerel] claudevolution paket testleri gerçek ~/.claudevolution/projects.json kaydına sahte proj projeleri yazıyor (CV_STATE_HOME ayarlanmadan); bunlar 48 saat boyunca bütün projelerde SIRA_DEGIL üretiyor. Testler CV_STATE_HOME'u geçici klasöre almalı. (2026-11-15)
+- [yerel] Bu ortamda Bash komutunda tek tırnak içeren Türkçe metin (Steam'deki, OZET'te) ya da çok dosyalı uzun heredoc 'unexpected EOF' ile tümden düşüyor; metin dosyalarını Write/Edit aracıyla yaz, kabukta yalnız kısa komut. (2026-11-15)

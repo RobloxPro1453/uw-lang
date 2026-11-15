@@ -1,9 +1,10 @@
 # Özet (sahibi için, sade)
 
 ## Şu an
-OHAL: yalnız bu proje (haftalık tavan %90). 3. çevrim bitti; sırada dilin ağaç yapısı (ifade, if, menü öğeleri) ve DeepSeek şeritleri var.
+OHAL. 4. çevrim bitti. Dilin yeni ağaç yapısı yazıldı; DeepSeek 4 şeritte çalışıyor: ayrıştırıcı (T-014), hesaplama/if çevirisi (T-016), denetim (T-017), menü çıktısı (T-018).
 
 ## Bitenler
+- Gramer 2 iskeleti: hesaplama, if, menü seçenekleri ve yeni menü için türler hazır (testler 92/92).
 - UW kılavuzu hazır: docs/kilavuz/UW_KILAVUZU.md (Türkçe; dil, komutlar, hata kodları, sınırlar). Bugünkü yenilikler de işlendi.
 - Dilin yeni yazım kuralları kararı: docs/meclis/gramer-2-oneri.md (örneklerle). Kısa risk denetiminden geçti; iki gerçek tuzak (and/or önceliği, "not a < b") karara eklendi.
 - Türkçe metinler: uw explain / browse artık oyunun resmî Türkçesini de gösteriyor ve Türkçe kelimeyle arıyor.
