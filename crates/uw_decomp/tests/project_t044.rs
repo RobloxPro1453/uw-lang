@@ -93,7 +93,13 @@ fn export_writes_every_record_and_verify_reads_them_back() {
     let summary = export(&atlas, &[schema.clone()], &out, &mut |schema, entry| print(schema, entry))
         .expect("export writes the folder");
     assert_eq!(summary.records, 2);
-    assert_eq!(summary.files, 1);
+    // As many files as distinct layout paths (factions: one file per record since T-045).
+    let paths: std::collections::BTreeSet<String> = atlas.tables["factions"]
+        .entries
+        .iter()
+        .map(|e| layout::path_for(&atlas, &schema, e))
+        .collect();
+    assert_eq!(summary.files, paths.len());
 
     // The record file sits where layout::path_for says; its first line names the table and the count.
     let relative = layout::path_for(&atlas, &schema, &atlas.tables["factions"].entries[0]);
