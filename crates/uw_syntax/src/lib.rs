@@ -341,14 +341,14 @@ fn lex(text: &str) -> Result<Vec<Token>, Diagnostic> {
                         Some('\\') => {
                             match chars.get(j + 1).map(|p| p.1) {
                                 Some('n') => value.push('\n'),
-                                Some(other @ ('"' | '\\')) => value.push(other),
+                                Some(other @ ('"' | '\\' | '\u{201c}' | '\u{201d}')) => value.push(other),
                                 _ => {
                                     return Err(err(
                                         E0103_BAD_TOKEN,
                                         "unknown escape in text",
                                         Span { start: chars[j].0, end: end_of(j + 2) },
                                     )
-                                    .with_help("use \\\" for a quote, \\\\ for a backslash, \\n for a new line"));
+                                    .with_help("use \\\" for a quote, \\\\ for a backslash, \\n for a new line, \\\u{201c} for a curly quote"));
                                 }
                             }
                             j += 2;
@@ -428,6 +428,13 @@ fn lex(text: &str) -> Result<Vec<Token>, Diagnostic> {
                 if chars.get(j).map(|p| p.1) == Some('#') && chars.get(j + 1).is_some_and(|p| p.1.is_ascii_digit()) {
                     j += 1;
                     while j < chars.len() && chars[j].1.is_ascii_digit() {
+                        j += 1;
+                    }
+                }
+                // `neg|eq` / `neg|this_or_next|eq`: the part after `|` belongs to the same name.
+                while chars.get(j).map(|p| p.1) == Some('|') && chars.get(j + 1).is_some_and(|p| is_ident_start(p.1)) {
+                    j += 1;
+                    while j < chars.len() && is_ident(chars[j].1) {
                         j += 1;
                     }
                 }
@@ -551,6 +558,25 @@ impl Parser {
             }
             other => Err(err(E0100_UNEXPECTED, format!("expected {what}, found {}", describe(&other)), t.span)),
         }
+    }
+
+    /// `neg|eq` / `this_or_next|party_is_active`: only `neg` and `this_or_next` may come before `|`.
+    fn check_flag_prefix(&self, op: &Ident) -> Result<(), Diagnostic> {
+        let parts: Vec<&str> = op.text.split('|').collect();
+        let mut at = op.span.start;
+        for part in &parts[..parts.len().saturating_sub(1)] {
+            if !matches!(*part, "neg" | "this_or_next") {
+                return Err(err(
+                    E0100_UNEXPECTED,
+                    format!("`{part}` is not allowed before '|' in an operation name"),
+                    Span { start: at, end: at + part.len() },
+                )
+                .with_help("only `neg` and `this_or_next` may come before '|', e.g. `neg|eq(a, b)`"));
+            }
+            // Past the `|`.
+            at += part.len() + 1;
+        }
+        Ok(())
     }
 
     /// `{` that opens a block after `head` (e.g. "on enter"). A `:` here is Python style.
@@ -898,6 +924,30 @@ impl Parser {
         }
     }
 
+    /// The statements of a block body without its braces (a decompiler prints a body this way).
+    fn block_body(&mut self) -> Result<Vec<Stmt>, Diagnostic> {
+        let mut stmts = Vec::new();
+        loop {
+            self.skip_separators();
+            let t = self.peek().clone();
+            match &t.tok {
+                Tok::Eof => return Ok(stmts),
+                Tok::RBrace => {
+                    return Err(err(E0102_STRAY_CLOSE, "this '}' has no matching '{'", t.span)
+                        .with_help("remove it, or check which block above was closed early"));
+                }
+                Tok::Ident(_) | Tok::Global(_) | Tok::Local(_) => stmts.push(self.stmt()?),
+                other => {
+                    return Err(err(
+                        E0100_UNEXPECTED,
+                        format!("expected an operation like `name(a, b)`, found {}", describe(other)),
+                        t.span,
+                    ));
+                }
+            }
+        }
+    }
+
     fn stmt(&mut self) -> Result<Stmt, Diagnostic> {
         // `$g = …` / `:l += …`
         if matches!(self.peek().tok, Tok::Global(_) | Tok::Local(_)) {
@@ -910,6 +960,7 @@ impl Parser {
             return self.assign_after(target);
         }
         let op = self.ident("an operation name")?;
+        self.check_flag_prefix(&op)?;
         if op.text == "if" {
             return self.if_stmt(op);
         }
@@ -1156,6 +1207,7 @@ impl Parser {
         if let Tok::Ident(name) = &t.tok {
             let after = self.toks.get(self.pos + 1).map(|t| &t.tok);
             let op = Ident { text: name.clone(), span: t.span };
+            self.check_flag_prefix(&op)?;
             if matches!(after, Some(Tok::LParen)) {
                 self.bump();
                 return Ok(CondOperand::Call(self.call_after(op)?));
@@ -1290,6 +1342,12 @@ fn cond_span(cond: &Cond) -> Span {
 pub fn parse(text: &str) -> Result<File, Diagnostic> {
     let toks = lex(text)?;
     Parser { toks, pos: 0, text: text.to_owned() }.file()
+}
+
+/// Parses the statements of a block body written without its `{ }`, same rules as inside a block.
+pub fn parse_block(text: &str) -> Result<Vec<Stmt>, Diagnostic> {
+    let toks = lex(text)?;
+    Parser { toks, pos: 0, text: text.to_owned() }.block_body()
 }
 
 #[cfg(test)]
@@ -1637,5 +1695,59 @@ on game.start {
         let (d, r) = error("override menu_x {\n  change option a {\n    when\n  }\n}");
         assert_eq!(d.code, E0100_UNEXPECTED);
         assert!(r.contains("after `when`"), "{r}");
+    }
+
+    #[test]
+    fn parse_block_reads_statements() {
+        let stmts = parse_block("party_is_active(p)\nif $x < 1 {\n  change_screen_map()\n}\n$x = 2").expect("parses");
+        assert_eq!(stmts.len(), 3);
+        assert!(matches!(&stmts[0], Stmt::Call(c) if c.op.text == "party_is_active"));
+        assert!(matches!(&stmts[1], Stmt::If { arms, .. } if arms[0].1.stmts.len() == 1));
+        assert!(matches!(&stmts[2], Stmt::Assign { target: Arg::Global(g), .. } if g.text == "$x"));
+        assert!(parse_block("").expect("parses").is_empty());
+    }
+
+    #[test]
+    fn flagged_call_names() {
+        let stmts = parse_block("neg|eq(a, b)\nthis_or_next|party_is_active(p)\nneg|this_or_next|x()").expect("parses");
+        let first = stmts[0].as_call().expect("a call");
+        assert_eq!(first.op.text, "neg|eq");
+        assert_eq!(first.op.span, Span { start: 0, end: 6 });
+        assert!(matches!(&first.args[0], Arg::Name(a) if a.text == "a"));
+        // the span covers all of `this_or_next|party_is_active`
+        let second = stmts[1].as_call().expect("a call");
+        assert_eq!(second.op.text, "this_or_next|party_is_active");
+        assert_eq!(second.op.span.end - second.op.span.start, "this_or_next|party_is_active".len());
+        assert!(matches!(&second.args[0], Arg::Name(p) if p.text == "p"));
+        assert_eq!(stmts[2].as_call().expect("a call").op.text, "neg|this_or_next|x");
+
+        let stmts = parse_block("if neg|party_is_active(p) {\n  a()\n}").expect("parses");
+        let Stmt::If { arms, .. } = &stmts[0] else { panic!("{:?}", stmts[0]) };
+        assert!(matches!(&arms[0].0, Cond::Call(c) if c.op.text == "neg|party_is_active" && c.args.len() == 1));
+    }
+
+    #[test]
+    fn flag_prefix_unknown_is_error() {
+        let d = parse_block("foo|eq(1, 2)").expect_err("should fail");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(d.message.contains("`foo`"), "{}", d.message);
+        assert!(d.help.unwrap_or_default().contains("this_or_next"));
+        let d = parse_block("if not neg|foo|eq(1, 2) {\n  a()\n}").expect_err("should fail");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+    }
+
+    #[test]
+    fn curly_quote_escape() {
+        let stmts = parse_block("display_message(\"\\\u{201c}hi\\\u{201d}\")").expect("parses");
+        assert!(matches!(&stmts[0].as_call().unwrap().args[0], Arg::Str(s, _) if s == "\u{201c}hi\u{201d}"));
+    }
+
+    #[test]
+    fn negative_and_big_ints_in_calls() {
+        let stmts = parse_block("f(-1)\nf(72057594037927936)\ntry_begin()\n$x = -5").expect("parses");
+        assert!(matches!(&stmts[0].as_call().unwrap().args[0], Arg::Int(-1, _)));
+        assert!(matches!(&stmts[1].as_call().unwrap().args[0], Arg::Int(72057594037927936, _)));
+        assert!(stmts[2].as_call().unwrap().args.is_empty());
+        assert!(matches!(&stmts[3], Stmt::Assign { value: Expr::Value(Arg::Int(-5, _)), .. }));
     }
 }
