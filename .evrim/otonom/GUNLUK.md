@@ -16,3 +16,8 @@ Sıradaki: gramer kararı (ifade, if, option, text, menu) + IR, ardından DeepSe
 Yaptım: T-013 ve T-012 birleşti (altın test, resmî Türkçe metin); gramer 2 kararı hafif meclisle (risk koltuğu haiku) alındı
 Maliyet: 5s %3 · commit: 8 · Değdi: evet
 Sıradaki: uw_syntax AST (Stmt/Expr/Cond/MenuItem/New) Claude yazar; ardından DeepSeek şeritleri: parser, lower, emit, check, altın testler, kılavuz bölümleri; T-011 gözden geçir
+
+## 2026-11-15 16:14 · kota 5s %56 / hafta %61
+Yaptım: OHAL ayarı (tavan %90, pay 3, 20 şerit); sıra kaydındaki test kayıtları silindi; T-011 kılavuz birleşti ve güncellendi; CHANGELOG
+Maliyet: 5s %4 · commit: 5 · Değdi: evet
+Sıradaki: uw_syntax AST (Stmt/Expr/Cond/MenuItem/New) + parser iskeleti Claude; ardından DeepSeek şeritleri (lower, emit, check, altın test, kılavuz)

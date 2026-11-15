@@ -1,9 +1,10 @@
 # Özet (sahibi için, sade)
 
 ## Şu an
-Döngü 2. çevrimi bitirdi. DeepSeek kılavuzun ilk hâlini yazıyor. Dilin yeni kuralları (hesaplama, if, menü seçenekleri, yeni menü) kararlaştırıldı; sırada bunun kodu var.
+OHAL: yalnız bu proje (haftalık tavan %90). 3. çevrim bitti; sırada dilin ağaç yapısı (ifade, if, menü öğeleri) ve DeepSeek şeritleri var.
 
 ## Bitenler
+- UW kılavuzu hazır: docs/kilavuz/UW_KILAVUZU.md (Türkçe; dil, komutlar, hata kodları, sınırlar). Bugünkü yenilikler de işlendi.
 - Dilin yeni yazım kuralları kararı: docs/meclis/gramer-2-oneri.md (örneklerle). Kısa risk denetiminden geçti; iki gerçek tuzak (and/or önceliği, "not a < b") karara eklendi.
 - Türkçe metinler: uw explain / browse artık oyunun resmî Türkçesini de gösteriyor ve Türkçe kelimeyle arıyor.
 - Altın testler: her dil özelliği için örnek .uw ve beklenen çıktı.
@@ -17,7 +18,7 @@ Döngü 2. çevrimi bitirdi. DeepSeek kılavuzun ilk hâlini yazıyor. Dilin yen
 - Remote Control'ü açmadım (araç yalnız senin isteğinle açılmasını istiyor).
 
 ## Takıldıklarım
-(yok)
+- Döngü bir süre SIRA_DEGIL dedi: makinedeki sıra kaydında paket testlerinden kalan iki sahte proje vardı; senin sözünle silindi (yedek: ~/.claudevolution/projects.json.bak).
 
 ## Harcama
 Bu çevrim: 5 saatlik kotanın ~%4'ü; DeepSeek şu ana kadar birkaç sent.
