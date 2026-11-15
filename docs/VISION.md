@@ -8,6 +8,15 @@ universal_warband bir mod değil, **Mount & Blade: Warband için bir programlama
 
 ## Sahibinin kararları
 
+- 2026-11-15 (süzüldü): **UW ad uydurmaz.** Sahibi Claude'un `tavernkeeper.greeting` örneğini yakaladı: "tahmin ettin". Native'deki bir şeye (özellikle adsız diyaloglara) işaret etmek için bulma araçları gerekir: tablo, metinle arama, oyunda kimliği gösteren hata ayıklama derlemesi, editör yardımı. Bkz. `docs/bilgi/diyaloglar-ve-ceviri.md`.
+- 2026-11-15 (süzüldü): Native adlarına okunaklı karşılık (town_6 = Praven): sahibinin fikri her ikisinin de görünmesi; VS Code tamamlamasında `town_` yazınca yanında adları. Kodda kanonik ad + editörde görünen ad yönünde; ayrıntı meclisin.
+- 2026-11-15 (süzüldü): Hata mesajları **tamamen İngilizce** olabilir (önceki "önce Türkçe" kararının yerine; katalog yapısı Türkçeyi sonra eklemeye açık kalır). Belgeler/öğreticiler için önce-Türkçe kararı değişmedi.
+- 2026-11-15 (süzüldü): Native haritası/gezgini gibi deneyimi çok artırmayan araçlar çekirdekten sonraya; önce çalışan çekirdek ve mimari.
+- 2026-11-15 (süzüldü): Native değiştiyse (override ettiğin şey farklılaştıysa) derleme **durur**; katılık önemli (derle + oyuna gir = dakikalar).
+- 2026-11-15 (süzüldü): Bir mekanik = bir klasör; parçaları (UI, kurallar…) ayrı dosyalarda.
+- 2026-11-15 (süzüldü): **İlk mekanik sınavı: sprint** (tuşa bağlı eylem + stamina + menü/arayüz öğesi). Tuş önerisi Ctrl; çakışma kontrol edilecek.
+- 2026-11-15 (süzüldü): Oyun içi hata ayıklama menüsü F12 (çakışmıyorsa).
+- 2026-11-15 (süzüldü): Yedek yerel git; ilk çalışan sürüm GitHub'a konacak.
 - 2026-11-15 (süzüldü): `override dialog tavernkeeper at start` örneğinde sahibi "start"ı "oyunun başı" sandı; Module System'de "konuşmanın açıldığı an" demek. → UW Module System terimlerini **sızdırmaz**, kendi açık adlarını kullanır (ör. `greeting`).
 - 2026-11-15 (süzüldü): `uw new` her şeyi kendi bağlar: mod adını sorar, Warband'ın yerini bulur, `Modules/` altına Native'in kopyasını mod adıyla koyar, çıktı yolunu ayara yazar, Python 2.7'yi bulur (çoğu kişide PATH'te Python 3 var; 2.7 PATH'e eklenmemiş olabilir — ona güvenmeden arar).
 - 2026-11-15 (süzüldü): `uw explain` kısa ve iyi anlatan olsun; uzun çıktı yorar (ayrıntı isteğe bağlı).

@@ -123,3 +123,11 @@ Kaynak: `docs/VISION.md` > Sahibinin kararları. Buraya yalnız meclisin bilmesi
 
 ### `uw new` ve kurulum
 - Sahibi: Warband yolu, Native kopyası, mod adı, çıktı yolu, Python 2.7 yeri otomatik. Moderatör notu: KARAR kural 5 gereği `build_module.bat` kullanılmaz; Python 2.7 yolu `uw.toml`'a yazılır. Arama sırası: kayıt defteri (PythonCore.7), `py -2.7`, `C:\Python27`. Steam kütüphanesi `libraryfolders.vdf`'den bulunur. Python 2.7 yoksa ne olur (kur rehberi mi, ileride gömülü mü) açık.
+
+### Native'e işaret ve görünen adlar (2026-11-15, sahibinin itirazıyla)
+- Kural adayı: **derleyici ve belgeler ad uydurmaz**; kanonik başvuru = Native'in kendi kimliği (`town_6`, diyalogda `start:lord_talk.12` gibi motor kimliği). Okunaklılık editörde (tamamlama/hover'da görünen ad ve metin), `uw find "<metin>"` ile arama ve `--debug` derlemesinde oyunda kimlik gösterme ile sağlanır. Kullanıcı isterse kendi takma adını tanımlar (`alias praven = town_6`).
+- Açık: sıra eki (`.12`) Native güncellemesinde kayarsa ne olur (Native sabit 1.171 → pratikte kaymaz; yine de `uw.lock`'ta metin hash'iyle doğrulanıp kayarsa derleme durur).
+- Sahibi: görünen adla da yazabilmek (`praven`) çekici; risk: aynı ad birden çok yerde, çeviriyle değişen ad. Meclis değerlendirsin.
+
+### Tuşlar
+- **[KİT]** `header_triggers.py:206` `key_f12 = 0x58`, `:226` `key_left_control = 0x1d`. Oyunun varsayılan kısayollarıyla (Warband kontrol ayarları) çakışma **motor deneyi gerekir** (D7 sondasına ekle). İlk mekanik (sprint) için Ctrl, hata ayıklama menüsü için F12 önerildi.

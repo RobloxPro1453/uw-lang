@@ -22,6 +22,8 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 - [ ] Depo iskeleti: Rust workspace, ARCHITECTURE'daki 10 crate (`uw_diag`, `uw_syntax`, `uw_atlas`, `uw_check`, `uw_lower`, `uw_plan`, `uw_emit`, `uw_kitrun`, `uw_verify`, `uw_cli`) + `py/`, her crate'te sözleşme README'si; `examples/`, `tests/`; `uw.toml` içinde kit yolu ve export yolu; kit dosyaları depoya girmez.
 - [ ] `uw explain <id>`: atlas üstünde; Native'de bir şey nerede tanımlı/kullanılıyor, kaynak satırı (sahibinin ilk acısına erken çözüm).
 
+- [ ] Native bulma tabloları (atlas'tan, otomatik): diyalog tablosu (motor kimliği, kim konuşuyor, EN metin, resmî TR metin, sonraki durum, kaynak satırı); kişi/şehir/eşya tabloları (kimlik ↔ görünen ad). `uw find "<metin>"` bunların üstünde.
+
 ## 0b. Harita ve boş dünya (araştırma)
 
 - [x] `map.txt` biçimini çıkar (köşe/yüz/arazi türü) — okundu, bkz. `docs/bilgi/harita.md` (yüz satırındaki 2. alanın anlamı açık).
@@ -61,6 +63,8 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 
 ## 4. UI, kamera, sahne nesneleri (ilkeller; mekanikleri modcu yazar)
 
+- [ ] **İlk mekanik sınavı: sprint** (sahibi yazar): tuşa bağlı eylem (Ctrl, çakışma deneyle kontrol), stamina alanı, ekranda bar, ayar menüsü. Bir klasör, ayrı dosyalar. Native'e kaçmak zorunda kalınan her yer = eksik ilkel.
+
 - [ ] Bildirimsel UI + değer bağlama (portre, metin kutusu, bar) → presentation. Pilot: VN tarzı veda diyaloğu sahibinin tasarımıyla.
 - [ ] Kamera/efekt ilkelleri; etkileşimli sahne nesnesi (`prop … on use`). Pilot: ağaç kesme ya da kamp kurma.
 - [ ] Örnek paketler (çekirdek dışı): sprint + enerji barı, basit gizlilik — yalnız ilkellerin yettiğini kanıtlamak için.
@@ -75,7 +79,7 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 
 ## Öneriler (sahibinin kararını bekler)
 
-- Hata ayıklama derlemesi (`--debug`): LLM'e hazır log + `uw report` + oyun içi hata ayıklama menüsü. Faz 1b-4 arası; meclis yerini belirler.
+- Hata ayıklama derlemesi (`--debug`): oyunda her diyalog/menü metninin başında kimliği gösterme; F12 menüsü (çakışma kontrolüyle); LLM'e hazır log + `uw report` + oyun içi hata ayıklama menüsü. Faz 1b-4 arası; meclis yerini belirler.
 - Öğretici belgeler: her kavram için çalışan örnek + ekran görüntüsü; ileride sesli video.
 - Paket sistemi (isim alanı, bağımlılık, çakışma denetimi) — sahibi kesin istiyor; biçim için meclis girdisi `docs/MECLIS_GUNDEMI.md` > Paketler.
 - LLM tanıtım dosyası (UW'yi bir LLM'e öğreten tek dosya); ölçü: Antigravity, ChatGPT, Claude aynı görevde derlenen kod üretiyor mu.
