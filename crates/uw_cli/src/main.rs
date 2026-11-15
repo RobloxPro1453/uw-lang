@@ -2,6 +2,7 @@
 
 mod build;
 mod explain;
+mod graph_export;
 mod model;
 mod tui;
 
