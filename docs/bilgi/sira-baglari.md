@@ -18,21 +18,33 @@ içe aktarmaz, çalıştırmaz. Aşağıdaki "Ölçüm" satırlarının tek say�
 - **Zincir (`X_end == Y_begin`):** bir `_end` ile bir `_begin` aynı (tablo, indeks) çiftine çözülüyor.
 - **Ofset sitesi:** kitin `module_*.py` dosyalarında bir aritmetik işlem çağrısı — op adları atlas
   `ops`'tan (`store_add`, `store_sub`, `val_add`, `val_sub`, `val_mul`, `val_div`, `store_mod`, …) — ve
-  argümanlarından en az biri bir kayıt kimliği ya da bir aralık sabiti. Yorum satırındaki çağrılar sayılmaz.
+  o çağrının kayıt kimliği ya da aralık sabiti olan **her argümanı** bir site sayılır. Yorum satırındaki
+  çağrılar sayılmaz.
 
-## Ölçüm (script çıktısından doldurulur)
+## Ölçüm
 
-- aralık adı / tanım sayısı: —
-- tablo indeksine çözülen / sayı / çözülemeyen: —
-- aralık dokunan tablo sayısı ve tablo başına adet: —
-- zincir sayısı: —
-- ofset sitesi toplamı (kayıt kimliği / aralık sabiti): —
-- site içeren dosya sayısı; tabloya ve sabite göre dağılım: —
+Aşağıdaki sayıların tek kaynağı `py/order_ties.py` çıktısıdır (script çalıştırıldı, çıkış 0).
 
-> Bu satırlar **bu oturumda doldurulamadı**: araç seti yalnız `cargo build/test` ve git komutları veriyor,
-> Python başlatacak kabuk yok; atlas da tek satırlık ~6,5 MB JSON olduğu için okuma araçlarıyla
-> çözülemiyor. Yukarıdaki komut çalıştırıldığında satırlar script'in özetinden birebir alınacak. Sayı
-> uydurulmadı; ölçüm yapılmadı.
+- aralık adı / tanım sayısı: 236 / 238
+- tablo indeksine çözülen / sayı / çözülemeyen: 191 / 40 / 5
+- aralık dokunan tablo sayısı ve tablo başına adet: 11 tablo — factions 4, items 24, map_icons 3,
+  meshes 15, parties 14, quests 14, scene_props 3, scenes 10, sounds 5, strings 20, troops 79
+- zincir sayısı (`X_end == Y_begin`): 48
+- ofset sitesi toplamı (kayıt kimliği / aralık sabiti): 586 (133 / 453), 27 dosyada
+- aritmetik op (atlas): 20 ad — store_add, store_and, store_div, store_mod, store_mul, store_or,
+  store_pow, store_sqrt, store_sub, val_abs, val_add, val_and, val_clamp, val_div, val_max, val_min,
+  val_mod, val_mul, val_or, val_sub
+- tabloya göre (özetin ilk 8'i): factions 102, strings 82, troops 64, meshes 50, items 47, parties 36,
+  scenes 32, scene_props 16
+- farklı sabit sayısı: 71; sabite göre (özetin ilk 8'i): slot_player_selected_item_indices_begin 47,
+  kingdoms_begin 42, trade_goods_begin 40, npc_kingdoms_begin 35, slot_town_trade_good_prices_begin 33,
+  towns_begin 17, banner_scene_props_begin 14, multiplayer_coop_companion_equipment_sets_begin 14
+
+Çözülemeyen 5 aralık (atlas değeri tekil bir kayıt kimliği değil; kitte de tanımları yok):
+`player_realm_quests_end` = `"qst_blank_quest_1"` (`module_constants.py:1541`), `training_grounds_end` =
+`"p_Bridge_1"` (:1567), `swadian_merc_parties_begin` = `"p_town_1_mercs"` (:1578),
+`swadian_merc_parties_end` = `"p_town_8_mercs"` (:1579), `vaegir_merc_parties_begin` =
+`"p_town_8_mercs"` (:1581). Bunlar kitte ölü sabitlerdir: dört ad da `ID_*.py` dosyalarında geçmiyor. [KİT]
 
 ## Kitte satır satır doğrulanan üç örnek
 
