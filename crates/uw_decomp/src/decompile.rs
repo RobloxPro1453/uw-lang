@@ -1,7 +1,10 @@
 //! Native operation block -> UW text (docs/tasks/T-020).
 
+use std::cell::OnceCell;
+use std::collections::HashMap;
+
 use crate::{RawArg, RawOp};
-use uw_atlas::Atlas;
+use uw_atlas::{Atlas, Op};
 
 /// How much structure the printer may recover.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -49,12 +52,18 @@ struct Printer<'a> {
     atlas: &'a Atlas,
     neg: u64,
     this_or_next: u64,
+    /// The kit's operand names; built the first time an operand may carry one.
+    names: OnceCell<Names<'a>>,
 }
 
 impl<'a> Printer<'a> {
     fn new(atlas: &'a Atlas) -> Self {
         let code = |name: &str| atlas.op(name).map_or(0, |op| op.code);
-        Printer { atlas, neg: code("neg"), this_or_next: code("this_or_next") }
+        Printer { atlas, neg: code("neg"), this_or_next: code("this_or_next"), names: OnceCell::new() }
+    }
+
+    fn names(&self) -> &Names<'a> {
+        self.names.get_or_init(|| Names::build(self.atlas))
     }
 
     /// `code` with the `neg` / `this_or_next` flag bits cleared.
@@ -84,7 +93,7 @@ impl<'a> Printer<'a> {
 
     /// One operation as a plain UW call, flags written as name prefixes.
     fn raw_line(&self, op: &RawOp) -> String {
-        let Some(name) = self.op_name(op.code) else {
+        let Some(named) = self.atlas.op_for_code(self.base(op.code)) else {
             return format!("// unknown operation {}", op.code);
         };
         let mut head = String::new();
@@ -94,19 +103,23 @@ impl<'a> Printer<'a> {
         if self.has(op.code, self.this_or_next) {
             head.push_str("this_or_next|");
         }
-        head.push_str(name);
-        format!("{head}({})", self.args(&op.args))
+        head.push_str(&named.name);
+        format!("{head}({})", self.args(named, &op.args))
     }
 
-    fn args(&self, args: &[RawArg]) -> String {
-        args.iter().map(|arg| self.arg(arg)).collect::<Vec<_>>().join(", ")
+    fn args(&self, op: &Op, args: &[RawArg]) -> String {
+        args.iter().enumerate().map(|(index, arg)| self.arg(op, index, arg)).collect::<Vec<_>>().join(", ")
     }
 
-    /// One operand: a number, `$global` / `:local` as written, a reference the atlas knows as a
-    /// bare name, anything else as escaped text.
-    fn arg(&self, arg: &RawArg) -> String {
+    /// One operand: the kit's name for a register, a position or a slot the operation asks for, a
+    /// number, `$global` / `:local` as written, a reference the atlas knows as a bare name,
+    /// anything else as escaped text.
+    fn arg(&self, op: &Op, index: usize, arg: &RawArg) -> String {
         match arg {
-            RawArg::Int(n) => n.to_string(),
+            RawArg::Int(n) => match self.names().name(op, index, *n) {
+                Some(name) => name.to_owned(),
+                None => n.to_string(),
+            },
             RawArg::Str(s) if s.starts_with('$') || s.starts_with(':') => s.clone(),
             RawArg::Str(s) if is_identifier(s) && self.atlas.resolve_ref(s).is_some() => s.clone(),
             RawArg::Str(s) => quote(s),
@@ -197,14 +210,15 @@ impl<'a> Printer<'a> {
         if self.has(op.code, self.neg) || self.has(op.code, self.this_or_next) {
             return None;
         }
-        if self.op_name(op.code)? != "assign" || op.args.len() != 2 {
+        let named = self.atlas.op_for_code(self.base(op.code))?;
+        if named.name != "assign" || op.args.len() != 2 {
             return None;
         }
         let RawArg::Str(target) = &op.args[0] else { return None };
         if !(target.starts_with('$') || target.starts_with(':')) {
             return None;
         }
-        Some(format!("{target} = {}", self.arg(&op.args[1])))
+        Some(format!("{target} = {}", self.arg(named, 1, &op.args[1])))
     }
 
     /// The index of the `try_end` closing the opener at `start`, if the block is balanced.
@@ -308,20 +322,21 @@ impl<'a> Printer<'a> {
 
     /// One condition operation as expression text (`a == b`, `not op(...)`).
     fn cond_text(&self, op: &RawOp) -> Option<String> {
-        let name = self.op_name(op.code)?;
+        let named = self.atlas.op_for_code(self.base(op.code))?;
+        let name = named.name.as_str();
         let negated = self.has(op.code, self.neg);
         if let Some(cmp) = comparison(name, negated) {
             if op.args.len() != 2 {
                 return None;
             }
-            return Some(format!("{} {cmp} {}", self.arg(&op.args[0]), self.arg(&op.args[1])));
+            return Some(format!("{} {cmp} {}", self.arg(named, 0, &op.args[0]), self.arg(named, 1, &op.args[1])));
         }
         let mut head = String::new();
         if negated {
             head.push_str("not ");
         }
         head.push_str(name);
-        Some(format!("{head}({})", self.args(&op.args)))
+        Some(format!("{head}({})", self.args(named, &op.args)))
     }
 
     /// One `if / else if / else` chain; the bodies are printed again, recursively.
@@ -339,6 +354,129 @@ impl<'a> Printer<'a> {
         }
         out.push(indented(indent, "}"));
     }
+}
+
+/// The kit's readable names for numbers in a block (docs/tasks/T-048): tagged registers,
+/// positions and object slots. A number is named only where the kit names it exactly once.
+struct Names<'a> {
+    /// `op_num_value_bits` and `tag_register`: a register operand's bit count and its tag.
+    register: Option<(u32, i64)>,
+    /// `reg<N>` constants by value.
+    registers: HashMap<i64, &'a str>,
+    /// `pos<N>` constants by value.
+    positions: HashMap<i64, &'a str>,
+    /// Every `slot_*` constant by value; the operation's object kind picks from them.
+    slots: HashMap<i64, Vec<&'a str>>,
+}
+
+impl<'a> Names<'a> {
+    fn build(atlas: &'a Atlas) -> Names<'a> {
+        let register = match (atlas.constant("op_num_value_bits"), atlas.constant("tag_register")) {
+            (Some(bits), Some(tag)) => match (bits.value.as_u64(), tag.value.as_i64()) {
+                (Some(bits), Some(tag)) if bits > 0 && bits < 64 => Some((bits as u32, tag)),
+                _ => None,
+            },
+            _ => None,
+        };
+        let mut slots: HashMap<i64, Vec<&'a str>> = HashMap::new();
+        for constant in atlas.constants.iter().filter(|constant| constant.name.starts_with("slot_")) {
+            if let Some(value) = constant.value.as_i64() {
+                slots.entry(value).or_default().push(constant.name.as_str());
+            }
+        }
+        Names { register, registers: numbered(atlas, "reg"), positions: numbered(atlas, "pos"), slots }
+    }
+
+    /// The kit name for operand `index` of `op`, when the kit names that number there.
+    fn name(&self, op: &Op, index: usize, n: i64) -> Option<&'a str> {
+        if let Some(name) = self.register_name(n) {
+            return Some(name);
+        }
+        let placeholder = placeholder_at(&op.signature, index)?;
+        if is_position_placeholder(placeholder) {
+            return self.positions.get(&n).copied();
+        }
+        if placeholder == "slot_no" {
+            return self.slot_name(n, slot_kind(&op.name)?);
+        }
+        None
+    }
+
+    /// The `reg<N>` name of a register-tagged number, when the kit has one for it.
+    fn register_name(&self, n: i64) -> Option<&'a str> {
+        let (bits, tag) = self.register?;
+        if n >> bits != tag {
+            return None;
+        }
+        self.registers.get(&n).copied()
+    }
+
+    /// The one `slot_<kind>_*` constant of `n`; `scene_prop_set_slot` must not take a
+    /// `slot_scene_*` name, so the kind comes from the operation's own name.
+    fn slot_name(&self, n: i64, kind: &str) -> Option<&'a str> {
+        let prefix = format!("slot_{kind}_");
+        let mut candidates = self.slots.get(&n)?.iter().filter(|name| name.starts_with(&prefix));
+        let name = *candidates.next()?;
+        candidates.next().is_none().then_some(name)
+    }
+}
+
+/// Constants named `<prefix><digits>` (`reg0`, `pos1`) by value; a value named twice is left out,
+/// because only an unambiguous name may replace the number.
+fn numbered<'a>(atlas: &'a Atlas, prefix: &str) -> HashMap<i64, &'a str> {
+    let mut found = HashMap::new();
+    let mut shared = Vec::new();
+    for constant in &atlas.constants {
+        let Some(number) = constant.name.strip_prefix(prefix) else { continue };
+        if number.is_empty() || !number.bytes().all(|b| b.is_ascii_digit()) {
+            continue;
+        }
+        let Some(value) = constant.value.as_i64() else { continue };
+        if found.insert(value, constant.name.as_str()).is_some() {
+            shared.push(value);
+        }
+    }
+    for value in shared {
+        found.remove(&value);
+    }
+    found
+}
+
+/// The `index`-th `<...>` placeholder of a signature, in operand order:
+/// `(troop_get_slot,<destination>,<troop_id>,<slot_no>)` gives `<slot_no>` at 2. `None` when the
+/// signature names fewer operands (the kit sometimes writes no signature, or the next line).
+fn placeholder_at(signature: &str, index: usize) -> Option<&str> {
+    signature
+        .split('<')
+        .skip(1)
+        .filter_map(|part| part.split_once('>'))
+        .map(|(name, _)| name.trim())
+        .nth(index)
+}
+
+/// True for the signature placeholders the kit marks as a position: `<position_no>`,
+/// `<position_no_2>`, `<dest_position_no>`, `<source_position_no>`, `<position_register_no>`...
+fn is_position_placeholder(placeholder: &str) -> bool {
+    matches!(
+        placeholder,
+        "position_no"
+            | "position_no_1"
+            | "position_no_2"
+            | "position_no_to_be_transformed"
+            | "dest_position_no"
+            | "source_position_no"
+            | "position_register_no"
+            | "hit_position_register"
+            | "ray_position_register"
+    )
+}
+
+/// The object kind of a slot operation, from its own name (`scene_prop_set_slot` -> `scene_prop`).
+fn slot_kind(name: &str) -> Option<&str> {
+    ["_set_slot", "_get_slot", "_slot_eq", "_slot_ge"]
+        .iter()
+        .find_map(|suffix| name.strip_suffix(suffix))
+        .filter(|kind| !kind.is_empty())
 }
 
 /// The comparison operator for `eq` / `gt` / `ge`, flipped when the `neg` flag is set.
@@ -405,12 +543,28 @@ mod tests {
             {"name":"party_is_active","code":132,"line":94,"signature":"(party_is_active,<party_id>),","lhs":false,"can_fail":true,"global_lhs":false},
             {"name":"display_message","code":1106,"line":482,"signature":"(display_message,<string_id>,[hex_colour_code]),","lhs":false,"can_fail":false,"global_lhs":false},
             {"name":"change_screen_map","code":2052,"line":1093,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+            {"name":"player_item_slot_is_picked_up","code":461,"line":200,"signature":"(player_item_slot_is_picked_up,<player_id>,<item_slot_no>),","lhs":false,"can_fail":true,"global_lhs":false},
+            {"name":"troop_set_slot","code":500,"line":239,"signature":"(troop_set_slot,<troop_id>,<slot_no>,<value>),","lhs":false,"can_fail":false,"global_lhs":false},
+            {"name":"scene_prop_set_slot","code":510,"line":249,"signature":"(scene_prop_set_slot,<scene_prop_instance_id>,<slot_no>,<value>),","lhs":false,"can_fail":false,"global_lhs":false},
+            {"name":"init_position","code":701,"line":302,"signature":"(init_position,<position_no>),","lhs":false,"can_fail":false,"global_lhs":false},
             {"name":"assign","code":2133,"line":40,"signature":"","lhs":true,"can_fail":false,"global_lhs":false}
           ],
           "hooks": ["game_start"],
           "ranges": [],
           "constants": [
-            {"name":"reg0","value":1,"module":"header_common","line":563}
+            {"name":"op_num_value_bits","value":56,"module":"header_common","line":357},
+            {"name":"tag_register","value":1,"module":"header_common","line":359},
+            {"name":"opmask_register","value":72057594037927936,"module":"header_common","line":387},
+            {"name":"reg0","value":72057594037927936,"module":"header_common","line":563},
+            {"name":"reg1","value":72057594037927937,"module":"header_common","line":564},
+            {"name":"pos0","value":0,"module":"header_common","line":497},
+            {"name":"pos1","value":1,"module":"header_common","line":498},
+            {"name":"pos_belfry_begin","value":64,"module":"header_common","line":561},
+            {"name":"slot_troop_x","value":7,"module":"module_constants","line":15},
+            {"name":"slot_troop_amb_a","value":10,"module":"module_constants","line":16},
+            {"name":"slot_troop_amb_b","value":10,"module":"module_constants","line":17},
+            {"name":"slot_scene_q","value":9,"module":"module_constants","line":18},
+            {"name":"slot_scene_prop_z","value":9,"module":"module_constants","line":19}
           ],
           "tables": {
             "parties": {"module":"module_parties","var":"parties","id_file":"ID_parties","id_prefix":"p_","ref_tag":"p",
@@ -635,5 +789,94 @@ mod tests {
                 "}"
             )
         );
+    }
+
+    #[test]
+    fn decompile_names_registers_positions_and_slots() {
+        let ops = vec![
+            op(2133, vec![int(72057594037927936), text("$g_multiplayer_team_1_faction")]),
+            op(701, vec![int(1)]),
+            op(500, vec![int(0), int(7), int(1)]),
+            op(510, vec![int(72057594037927937), int(9), int(1)]),
+        ];
+        assert_eq!(
+            decompile(&atlas(), &ops, Mode::Raw),
+            concat!(
+                "assign(reg0, $g_multiplayer_team_1_faction)\n",
+                "init_position(pos1)\n",
+                "troop_set_slot(0, slot_troop_x, 1)\n",
+                "scene_prop_set_slot(reg1, slot_scene_prop_z, 1)"
+            )
+        );
+        // The same names in structured text, where `assign` to a number stays a plain call.
+        assert_eq!(
+            decompile(&atlas(), &ops[..2], Mode::Structured),
+            "assign(reg0, $g_multiplayer_team_1_faction)\ninit_position(pos1)"
+        );
+    }
+
+    #[test]
+    fn decompile_names_only_where_the_kit_is_unambiguous() {
+        let ops = vec![
+            // `pos0` / `pos1` are plain numbers (0, 1): only a position-marked operand is named.
+            op(31, vec![int(1), int(0)]),
+            // `<item_slot_no>` is an inventory slot, not the object `<slot_no>`.
+            op(461, vec![int(0), int(7)]),
+            // Two `slot_troop_*` names share 10: the number stays.
+            op(500, vec![int(0), int(10), int(0)]),
+            // 9 names a `slot_scene_prop_*` and a `slot_scene_*` constant, not a `slot_troop_*`.
+            op(500, vec![int(0), int(9), int(0)]),
+            // Register-tagged but no `reg<N>` constant of that value: the number stays.
+            op(2133, vec![int(72057594037928036), text("$g_x")]),
+        ];
+        assert_eq!(
+            decompile(&atlas(), &ops, Mode::Raw),
+            concat!(
+                "eq(1, 0)\n",
+                "player_item_slot_is_picked_up(0, 7)\n",
+                "troop_set_slot(0, 10, 0)\n",
+                "troop_set_slot(0, 9, 0)\n",
+                "assign(72057594037928036, $g_x)"
+            )
+        );
+    }
+
+    /// The real kit: the two constants the naming reads must exist, every position placeholder in
+    /// its signatures must be either a position this decompiler names or a known non-position, and
+    /// the goal's own example numbers name.
+    #[test]
+    fn real_atlas_position_placeholders_and_names() {
+        // Signature placeholders with "position" in the name that are NOT a position number: screen
+        // coordinates, scene bounds and free text. A new one in the kit needs a decision here.
+        const NOT_A_POSITION: &[&str] =
+            &["position_x", "position_y", "position_min", "position_max", "starting_position", "position"];
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/uw-staging/atlas.json");
+        if !std::path::Path::new(path).exists() {
+            eprintln!("skipped: no atlas at {path}");
+            return;
+        }
+        let atlas = Atlas::from_path(path).expect("full atlas loads");
+        assert!(atlas.constant("op_num_value_bits").is_some(), "no op_num_value_bits");
+        assert!(atlas.constant("tag_register").is_some(), "no tag_register");
+        let mut unknown = Vec::new();
+        for op in &atlas.ops {
+            let mut index = 0;
+            while let Some(placeholder) = placeholder_at(&op.signature, index) {
+                if placeholder.contains("position")
+                    && !is_position_placeholder(placeholder)
+                    && !NOT_A_POSITION.contains(&placeholder)
+                {
+                    unknown.push(format!("{}: <{placeholder}>", op.name));
+                }
+                index += 1;
+            }
+        }
+        assert!(unknown.is_empty(), "{unknown:?}");
+        let names = Names::build(&atlas);
+        let assign = atlas.op("assign").expect("assign op");
+        // target/uw-native/scripts.uw: assign(72057594037927936, $g_multiplayer_team_1_faction)
+        assert_eq!(names.name(assign, 0, 72057594037927936), Some("reg0"));
+        let init = atlas.op("init_position").expect("init_position op");
+        assert_eq!(names.name(init, 0, 1), Some("pos1"));
     }
 }
