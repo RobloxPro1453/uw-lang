@@ -16,7 +16,9 @@ Output JSON (schema 1):
            ref_tag: the tag operations use for this table ("mnu" for menus), from process_operations.py;
            null when operations cannot name it. "<ref_tag>_<name>" resolves to the FIRST entry whose
            name matches case-insensitively (header_common.find_object), unlike ID_*.py (last wins).
-           unnamed tables (dialogs, triggers, simple_triggers) have name/id = null.
+           unnamed tables (dialogs, triggers, simple_triggers) have name = null; dialogs get the kit's
+           own `dlga_<in>:<out>[.N]` id from a previous build's conversation.txt (else null), and the
+           line of their text literal.
            value: a Python tuple is a JSON array, a Python list is {"list": [...]} (the kit cares).
 Source lines are read-only pointers for `uw explain`; output generation never uses source text.
 """
@@ -140,6 +142,38 @@ def entry_lines(module, names):
     return out
 
 
+def dialog_lines(module, entries):
+    """Line of each dialog's text literal (field 4, module_dialogs.py header comment), searched in
+    list order. None when the literal is not written plainly in the source. Pointer only."""
+    with io.open(module + ".py", "r", encoding="latin-1") as fh:
+        text = fh.read()
+    out, pos = [], 0
+    for e in entries:
+        lit = e[3] if len(e) > 3 and isinstance(e[3], str) else None
+        found = text.find('"%s"' % lit, pos) if lit else -1
+        if found < 0:
+            out.append(None)
+            continue
+        out.append(text.count("\n", 0, found) + 1)
+        pos = found + len(lit) + 2
+    return out
+
+
+def dialog_ids(count):
+    """The kit's own dialog ids (`dlga_<in>:<out>[.N]`, process_dialogs.create_auto_id2), read from
+    the conversation.txt a kit build left in export_dir, one per dialog in list order. All None
+    when there is no such file or its count does not match."""
+    import os
+    from module_info import export_dir
+    path = os.path.join(export_dir, "conversation.txt")
+    if not os.path.isfile(path):
+        return [None] * count
+    with io.open(path, "r", encoding="latin-1") as fh:
+        rows = fh.read().splitlines()
+    ids = [r.split(" ", 1)[0] for r in rows[2:] if r.startswith("dlga_")]
+    return ids if len(ids) == count else [None] * count
+
+
 def dump_table(table, module, var, id_file, prefix):
     mod = __import__(module)
     entries = getattr(mod, var)
@@ -166,7 +200,13 @@ def dump_table(table, module, var, id_file, prefix):
     for k in keys:
         if k is not None:
             counts[k] = counts.get(k, 0) + 1
-    lines = entry_lines(module, names) if named else [None] * len(entries)
+    if named:
+        lines = entry_lines(module, names)
+    elif table == "dialogs":
+        lines = dialog_lines(module, entries)
+        ids_by_index = dict(enumerate(dialog_ids(len(entries))))
+    else:
+        lines = [None] * len(entries)
     out = []
     for i, e in enumerate(entries):
         k = keys[i]

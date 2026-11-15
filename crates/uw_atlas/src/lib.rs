@@ -104,6 +104,9 @@ pub struct Atlas {
     /// Op code -> position in `ops` (the first non-deprecated name for that code).
     #[serde(skip)]
     code_index: HashMap<u64, usize>,
+    /// `neg | this_or_next`, from the atlas' own op list.
+    #[serde(skip)]
+    flag_mask: u64,
 }
 
 /// One place where an operation block mentions something (see [`Atlas::references`]).
@@ -195,6 +198,10 @@ impl Atlas {
                 code_index.insert(op.code, pos);
             }
         }
+        self.flag_mask = ["neg", "this_or_next"]
+            .iter()
+            .filter_map(|name| op_index.get(*name).map(|&pos| self.ops[pos].code))
+            .fold(0, |mask, code| mask | code);
         self.tag_index = tag_index;
         self.code_index = code_index;
         self.op_index = op_index;
@@ -260,16 +267,10 @@ impl Atlas {
     /// The operation named for a statement head, with the kit's `neg` / `this_or_next` flag bits
     /// (taken from the atlas' own op list) cleared.
     pub fn op_for_code(&self, code: u64) -> Option<&Op> {
-        let mut flags = 0u64;
-        for flag in ["neg", "this_or_next"] {
-            if let Some(op) = self.op(flag) {
-                flags |= op.code;
-            }
-        }
         let pos = self
             .code_index
             .get(&code)
-            .or_else(|| self.code_index.get(&(code & !flags)))?;
+            .or_else(|| self.code_index.get(&(code & !self.flag_mask)))?;
         self.ops.get(*pos)
     }
 
@@ -279,33 +280,38 @@ impl Atlas {
     /// `ID_*.py` integer) is already a number in the atlas and cannot be traced back.
     pub fn references(&self, matches: impl Fn(&str) -> bool) -> Vec<Reference> {
         let mut out = Vec::new();
-        for (table_name, table) in &self.tables {
-            for entry in &table.entries {
-                let mut ops = Vec::new();
-                self.scan(&entry.value, None, false, &matches, &mut ops);
-                for op in ops {
-                    out.push(Reference { table: table_name.clone(), index: entry.index, op });
-                }
+        self.for_each_string(|table, entry, op, text| {
+            if matches(text) {
+                out.push(Reference {
+                    table: table.to_owned(),
+                    index: entry.index,
+                    op: op.map(str::to_owned),
+                });
             }
-        }
+        });
         out
     }
 
-    fn scan(
-        &self,
-        value: &serde_json::Value,
-        op: Option<&str>,
+    /// Calls `f(table, entry, op, text)` for every string inside every entry's value, in table
+    /// order; `op` names the operation whose statement holds the string (see [`Atlas::references`]).
+    pub fn for_each_string<'a>(&'a self, mut f: impl FnMut(&'a str, &'a Entry, Option<&'a str>, &'a str)) {
+        for (table_name, table) in &self.tables {
+            for entry in &table.entries {
+                self.scan(&entry.value, None, false, &mut |op, text| f(table_name, entry, op, text));
+            }
+        }
+    }
+
+    fn scan<'a>(
+        &'a self,
+        value: &'a serde_json::Value,
+        op: Option<&'a str>,
         in_block: bool,
-        matches: &impl Fn(&str) -> bool,
-        found: &mut Vec<Option<String>>,
+        f: &mut dyn FnMut(Option<&'a str>, &'a str),
     ) {
         use serde_json::Value;
         match value {
-            Value::String(text) => {
-                if matches(text) {
-                    found.push(op.map(str::to_owned));
-                }
-            }
+            Value::String(text) => f(op, text),
             Value::Array(items) => {
                 // A tuple sitting directly in a block, headed by an integer, is a statement.
                 let statement_op = if in_block {
@@ -319,7 +325,7 @@ impl Atlas {
                 };
                 let op = statement_op.or(op);
                 for item in items {
-                    self.scan(item, op, false, matches, found);
+                    self.scan(item, op, false, f);
                 }
             }
             Value::Object(map) => {
@@ -327,10 +333,10 @@ impl Atlas {
                     match (key.as_str(), item) {
                         ("list", Value::Array(items)) => {
                             for item in items {
-                                self.scan(item, op, true, matches, found);
+                                self.scan(item, op, true, f);
                             }
                         }
-                        _ => self.scan(item, op, false, matches, found),
+                        _ => self.scan(item, op, false, f),
                     }
                 }
             }

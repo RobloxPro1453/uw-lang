@@ -14,7 +14,7 @@ cargo test --workspace
 
 - Süre: kit derlemesi ~27 s (D1); `cargo test --workspace` gerçek kit testiyle ~30 s. Kit ya da `C:\Python27` yoksa o test kendini atlar.
 - Atlas üretimi (kit değişince): `python py/kitrun.py --kit "Module_system 1.171" --staging target/uw-staging/d1`, sonra `target/uw-staging/d1` içinde `C:/Python27/python.exe -B -E -s ../../../py/atlas_dump.py ../atlas.json` → `target/uw-staging/atlas.json` (depoya girmez). Deneyler: `py/d2_empty_patch.py`, `py/d2_runtime.py`, `py/d3_reprint.py`, `py/d4_sonda.py` (`--modules <Warband>/Modules` ile `uw_sonda_a/b/c` kurar). `uw_runtime.py` birim testleri: `python py/test_uw_runtime.py` (Python 3 ve 2.7). `kit-meta/hooks.toml` yeniden üretimi: `target/uw-staging/d1` içinde `C:/Python27/python.exe -B -E -s ../../../py/hooks_meta.py ../../../kit-meta/hooks.toml`.
-- `uw explain <şey>` atlası `--atlas`, `UW_ATLAS` ya da bu klasör/üst klasörlerdeki `target/uw-staging/atlas.json`'dan okur.
+- `uw browse [arama]` (terminal arayüzü) ve `uw explain <şey>` atlası `--atlas`, `UW_ATLAS` ya da bu klasör/üst klasörlerdeki `target/uw-staging/atlas.json`'dan okur.
 - Testler geçici staging klasörü kullanır; kit klasörüne ve sahibinin Warband mod klasörlerine dokunmaz (oyun deneyleri ayrı test modu klasöründe).
 
 ## Yeni özellik ekleme

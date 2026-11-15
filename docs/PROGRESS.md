@@ -7,6 +7,10 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · uw browse (TUI) ve okunaklı explain (Claude, Opus)
+Sahibi explain çıktısını anlaşılmaz buldu → ortak model (`uw_cli/src/model.rs`: arama dizini, oyundaki ad, ters kullanım dizini), gruplu `explain`, `uw browse` (ratatui). Atlas: diyaloglara kitin `dlga_` kimliği (`conversation.txt`'den) ve metin satırı (2461/2773). Arayüz gerçek terminalde açıldı; tuş testleri TestBackend ile. Testler 44/44.
+Sıradaki: sahibinin `uw browse` denemesi; resmî Türkçe metinler (`languages/tr`) aramaya; sözdizimi meclisi.
+
 ## 2026-11-15 · Tur 2: uw explain, uw_runtime, D2 b/c, D4 hazır, hooks.toml (Claude, tamamı Opus)
 `uw explain` gerçek atlasla çalışıyor (atlasa kitten `ref_tag` eklendi: kod `mnu_`/`mt_` der, ID dosyası `menu_`/`mst_`). `uw_runtime.py` + D2 (b) paylaşılan trigger (21 şablon) ve (c) `ad#n`: 13/13 kontrol, çıktıda yalnız hedef satır değişti. D4: 3 test modu `Modules/uw_sonda_a/b/c`'ye kuruldu, adımlar CHECKUP'ta. `kit-meta/hooks.toml` 49 kanca. Bulgular KNOWLEDGE'da (find_object ilki seçer, hızlı metin kayması). Testler 38/38.
 Sıradaki: sahibinin D4 sonucu → `docs/bilgi/`; D2 (a/d/e); sözdizimi meclisi; diyalog kaynak satırları + `uw find`.

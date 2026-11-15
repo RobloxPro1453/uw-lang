@@ -23,7 +23,7 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 - [ ] **Sandbox / görsel önizleme (sahibi, 2026-11-15):** bir UW komutu yazınca Module System'de nereye ne eklendiğini (hangi dosya, hangi kayıt, eklenen satırlar) güzel bir arayüzde yan yana göstermek; test kiti olarak da kullanılır. Derleyici ilk komutu çevirebildiğinde başlar.
 - [x] `uw explain <id>` (2026-11-15; globaller, op'lar, sabitler dahil; diyalogların kaynak satırı henüz yok): atlas üstünde; Native'de bir şey nerede tanımlı/kullanılıyor, kaynak satırı (sahibinin ilk acısına erken çözüm).
 
-- [ ] Native bulma tabloları (atlas'tan, otomatik): diyalog tablosu (motor kimliği, kim konuşuyor, EN metin, resmî TR metin, sonraki durum, kaynak satırı); kişi/şehir/eşya tabloları (kimlik ↔ görünen ad). `uw find "<metin>"` bunların üstünde.
+- [ ] (kısmen 2026-11-15: `uw browse` / `uw explain` adın parçası ve oyundaki metinle arıyor, diyaloglar kit kimliği + kaynak satırıyla; resmî TR metin henüz yok) Native bulma tabloları (atlas'tan, otomatik): diyalog tablosu (motor kimliği, kim konuşuyor, EN metin, resmî TR metin, sonraki durum, kaynak satırı); kişi/şehir/eşya tabloları (kimlik ↔ görünen ad). `uw find "<metin>"` bunların üstünde.
 
 ## 0b. Harita ve boş dünya (araştırma)
 
