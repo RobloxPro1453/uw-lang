@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T13:27:26.242Z",
+  "updatedAt": "2026-11-15T13:30:11.004Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -239,6 +239,15 @@
       "files": [
         "crates/uw_emit/src/lib.rs +298 -17"
       ]
+    },
+    "T-015": {
+      "task": "T-015",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-015",
+      "updatedAt": "2026-11-15T13:30:11.003Z"
     }
   }
 }

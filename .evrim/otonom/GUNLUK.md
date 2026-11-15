@@ -26,3 +26,8 @@ Sıradaki: uw_syntax AST (Stmt/Expr/Cond/MenuItem/New) + parser iskeleti Claude;
 Yaptım: Gramer 2 iskeleti (AST, lower türleri, Action); T-014/016/017/018 DeepSeek şeritleri başladı
 Maliyet: 5s %5 · commit: 3 · Değdi: evet
 Sıradaki: uw_runtime yardımcıları (set_text, add_option, change_option, remove_option, add_entry) Claude; T-015 (menü öğeleri ayrıştırıcı) tarifi; biten dalları gözden geçir
+
+## 2026-11-15 16:30 · kota 5s %68 / hafta %62
+Yaptım: T-016, T-018, T-014 birleşti; lower this_or_next hatası düzeltildi; uw_runtime menü yardımcıları; T-015 başladı
+Maliyet: 5s %3 · commit: 11 · Değdi: evet
+Sıradaki: T-017 ve T-015 gözden geçir/birleştir; altın testler + örnek mod (if, option) + kılavuz bölümleri; release derle
