@@ -12,6 +12,16 @@ neyi neden almadığını PROGRESS'e yaz. Defterde olmayan değişiklik alınmaz
 birleşmediyse onu gözden geçir. Aşağıdaki eski bölümler tarihçedir; gramer 2 (if, hesap, menü
 seçenekleri) artık çalışıyor.
 
+**Dönüş planı (sahibi yetki verdi: "Gemini'nin yaptıklarını göz önüne al, planı sen ayarla"):** (1) Gemini
+kopyasını denetle, alınacakları al. (2) Büyük meclis: Yön 2 + veri kayıtları için tek genel biçim
+(`troop harlaus { … }` gibi, sahibinin `info.uw` fikri), Gemini kanıtlarıyla. (3) **Module System → UW
+çeviricisi ana iş** (sahibi: "tüm Module System'i en az bir kez UW'ye çevirelim"): önce L0 (her şey
+çevrilir, alt seviye ama eksiksiz), sonra katman katman okunaklılaştırma. (4) Büyük DeepSeek paketi:
+27 tablonun her biri bir şerit, **kabul = gidiş-dönüş birebir** (Native → UW → .txt = Native .txt);
+paralel ikinci paket: okunaklı ad tabloları, dosya başı açıklamaları, kılavuz tabloları, altın testler.
+Sahibi DeepSeek'i bol kullanmayı istedi (~14$): `delegate.dailyBudget` 8-10$'a çıkarılabilir; denetim
+atlanmaz, hız gidiş-dönüş testinden gelir.
+
 **YÖN 2 (sahibinin isteği, 2026-11-15 akşam):** Native'e yama yerine `uw new` proje iskeleti (Native →
 okunaklı UW dosyaları) ve yüksek seviyeli dil (DSL). Muhakeme `docs/meclis/yon-2-proje-modeli.md`;
 **sonraki büyük iş: büyük meclis** (`docs/MECLIS_GUNDEMI.md` > BÜYÜK MECLİS — Yön 2), sonra ROADMAP Y1-Y8.
