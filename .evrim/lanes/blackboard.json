@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T13:04:34.532Z",
+  "updatedAt": "2026-11-15T13:07:55.906Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -138,12 +138,16 @@
     },
     "T-011": {
       "task": "T-011",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-011",
-      "updatedAt": "2026-11-15T12:59:19.944Z"
+      "updatedAt": "2026-11-15T13:07:55.905Z",
+      "summary": "status=done",
+      "files": [
+        "docs/kilavuz/UW_KILAVUZU.md +798 -0"
+      ]
     },
     "T-012": {
       "task": "T-012",
