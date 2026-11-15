@@ -23,6 +23,10 @@
 - **Claude denetler:** her dal `cv delegate verify` + diff okuma + `cargo test --workspace` + `cargo build --release`; uçtan uca `uw build examples/<x> --no-install`; oyunda denenecekler CHECKUP'a.
 - DeepSeek ayarı: sahibi ortam değişkenini ve önbelleği güncelledi; turun başında `cv delegate` ile küçük bir iş çalıştırıp maliyet/önbellek satırına bak (anahtarı okuma). Bütçe: `.evrim/config.json` > `delegate` (toplam 15$ tavan).
 
+**Hazır bilgi tabanı (yeni):** `kit-meta/aciklama/*.json`: her Native işlemi (1060), menü, görev şablonu, sunum, sahne ve script için Türkçe "kısa/uzun/güven" açıklaması (`py/describe.py`, DeepSeek, adlar atlasa karşı denetli; ~1.3$). `uw explain`/`browse` ve hata mesajlarında da kullanılabilir (henüz yalnız `uw graph --json` okuyor). Yeniden üretmek gerekmez; yeni tablo için `python -X utf8 py/describe.py --tables <ad>`.
+
+**graph_viewer (bu oturum, ayrı; BİTTİ 2026-11-15):** `docs/graph_viewer/program/app/target/release/graph_viewer.exe flow.json [--root <id>]`; veri `target/release/uw graph --json flow.json`. Yeni oturum buna dokunmaz.
+
 **graph_viewer (bu oturum, ayrı):** veri `uw graph --json flow.json` (409 düğüm/949 ok, Python betiğiyle aynı). Uygulama `docs/graph_viewer/program/app` (Craft Anything yazdı; Rust + eframe/egui; kendi `target/`'ı depoya girmez).
 
 ## 00. DURUM RAPORU (2026-11-15, tur 3 sonrası) — önce bunu oku
