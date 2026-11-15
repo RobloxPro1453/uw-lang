@@ -157,3 +157,7 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 
 ## [2026-11-15] [strateji] OHAL: yalnız universal_warband (sahibinin sözü)
 - **Karar:** Sahibi OHAL ilan etti: uzun süre yalnız bu proje geliştirilir, diğer projeler (pdfcanavari, Fotosop) mühürlü. Bu proje makinedeki kota payında öndedir (`autonomy.share.weight` 3, haftalık tavan %90). Sıra kaydında yabancı ya da test kaydı engel olursa (SIRA_DEGIL) nedeni bulunur, OZET'e yazılır.
+
+## [2026-11-15] [verimlilik] Bağlamı koru: devir raporu + yeni oturum (sahibinin tavsiyesi)
+- **Karar:** Her çevrim sonunda OZET ve GUNLUK zaten yazılır; ek olarak oturum bağlamı ~400 bin tokeni geçince döngü `docs/meclis/DEVIR.md` en üstüne kısa devir notu (açık şeritler, yarım işler, sıradaki adım) yazar ve işi yeni bir oturuma devreder (start_session, fresh, istem: otonom döngüyü sürdür). Yeni oturum çevrim kilidini alınca eski oturum döngüsünü durdurur (kilit çift çalışmayı önler: MESGUL).
+- **Beklenen etki:** her çağrı küçük bağlamla çalışır, kota daha çok işe gider.
