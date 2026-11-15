@@ -7,10 +7,13 @@ use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use uw_decomp::decompile::decompile;
-use uw_decomp::records::{Schema, TableReport};
-use uw_decomp::roundtrip::{run, Outcome, Report};
-use uw_decomp::RawOp;
+use serde_json::Value as Json;
+use uw_decomp::decompile::{decompile, Mode};
+use uw_decomp::records::{
+    ops_to_json, print_with_blocks, roundtrip_table_with_blocks, Schema, TableReport,
+};
+use uw_decomp::roundtrip::{first_difference, run, Outcome, Report};
+use uw_decomp::{Block, RawOp};
 use uw_diag::SourceFile;
 
 /// Where the record schemas live unless `--schemas` says otherwise (this or a parent folder).
@@ -98,23 +101,54 @@ impl Records {
     }
 }
 
+/// The block paths of every record, keyed by `(table, entry index)`.
+fn block_paths(blocks: &[Block]) -> std::collections::BTreeMap<(&str, usize), Vec<Vec<usize>>> {
+    let mut paths: std::collections::BTreeMap<(&str, usize), Vec<Vec<usize>>> = Default::default();
+    for block in blocks {
+        paths.entry((block.table.as_str(), block.index)).or_default().push(block.path.clone());
+    }
+    paths
+}
+
+/// One operation block as readable UW text: structured when that compiles back identical, raw
+/// otherwise, the same choice [`run`] makes.
+fn block_text(atlas: &uw_atlas::Atlas, block: &Json) -> String {
+    let ops = uw_decomp::parse_ops(block).unwrap_or_default();
+    let structured = decompile(atlas, &ops, Mode::Structured);
+    match compile(atlas, &structured) {
+        Ok(got) if first_difference(&ops, &got).is_none() => structured,
+        _ => decompile(atlas, &ops, Mode::Raw),
+    }
+}
+
 /// Round-trips every record of `atlas` through `schemas` and collects the texts to write.
+/// Operation blocks (`extract::all`) print as `ops { … }`.
 fn measure_records(atlas: &uw_atlas::Atlas, schemas: &[Schema]) -> Records {
+    let blocks = uw_decomp::extract::all(atlas);
+    let paths = block_paths(&blocks);
     let mut records = Records::default();
     for schema in schemas {
-        let text = match atlas.tables.get(&schema.table) {
-            Some(table) => table
-                .entries
-                .iter()
-                .map(|entry| uw_decomp::records::print(schema, entry))
-                .collect::<Vec<_>>()
-                .join("\n"),
-            None => String::new(),
-        };
+        let entries = atlas.tables.get(&schema.table).map(|table| table.entries.as_slice()).unwrap_or(&[]);
+        let text = entries
+            .iter()
+            .map(|entry| {
+                let paths = paths.get(&(schema.table.as_str(), entry.index)).map(Vec::as_slice).unwrap_or(&[]);
+                print_with_blocks(schema, entry, paths, &mut |block| block_text(atlas, block))
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
         if !text.is_empty() {
             records.texts.insert(schema.table.clone(), text);
         }
-        records.tables.insert(schema.table.clone(), Some(uw_decomp::records::roundtrip_table(atlas, schema)));
+        let mut compile_block = |text: &str| compile(atlas, text).map(|ops| ops_to_json(&ops));
+        let report = roundtrip_table_with_blocks(
+            atlas,
+            schema,
+            &blocks,
+            &mut |block| block_text(atlas, block),
+            &mut compile_block,
+        );
+        records.tables.insert(schema.table.clone(), Some(report));
     }
     for name in atlas.tables.keys() {
         records.tables.entry(name.clone()).or_insert(None);

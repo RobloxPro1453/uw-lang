@@ -11,6 +11,8 @@ use serde::Deserialize;
 use serde_json::Value as Json;
 use uw_atlas::{Atlas, Entry};
 
+use crate::{items, RawArg, RawOp};
+
 /// One value of a record, as the atlas holds it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Value {
@@ -28,6 +30,8 @@ pub enum Value {
     List(Vec<Value>),
     /// Python tuple (atlas JSON array).
     Tuple(Vec<Value>),
+    /// An operation block, as the compiler handed it back; only [`parse_with_blocks`] builds one.
+    Block(Json),
 }
 
 /// Reads an atlas value. `{"list": …}` is a Python list, a JSON array is a Python tuple.
@@ -80,7 +84,28 @@ pub fn to_json(v: &Value) -> Json {
             Json::Object(map)
         }
         Value::Tuple(items) => Json::Array(items.iter().map(to_json).collect()),
+        Value::Block(json) => json.clone(),
     }
+}
+
+/// Writes an operation block back as atlas JSON; the inverse of [`crate::parse_ops`] up to the
+/// spellings that function normalises (list statements, one-element tuple operands).
+pub fn ops_to_json(ops: &[RawOp]) -> Json {
+    let statements = ops
+        .iter()
+        .map(|op| {
+            let mut parts = Vec::with_capacity(1 + op.args.len());
+            parts.push(Json::from(op.code));
+            parts.extend(op.args.iter().map(|arg| match arg {
+                RawArg::Int(n) => Json::from(*n),
+                RawArg::Str(s) => Json::String(s.clone()),
+            }));
+            Json::Array(parts)
+        })
+        .collect();
+    let mut map = serde_json::Map::new();
+    map.insert("list".into(), Json::Array(statements));
+    Json::Object(map)
 }
 
 /// A string that prints bare and reads back unchanged: `[a-z_][a-z0-9_]*`, not a JSON literal.
@@ -174,6 +199,20 @@ fn record_values(value: &Json) -> Vec<Value> {
 ///
 /// Values past the schema's fields print as `field_<n>` (`n` is the 1-based position in the record).
 pub fn print(schema: &Schema, entry: &Entry) -> String {
+    print_with_blocks(schema, entry, &[], &mut |_| unreachable!("no block paths were given"))
+}
+
+/// Prints one atlas entry like [`print`], but every value at a `paths` position prints as an
+/// operation block: `ops {`, the block text `print_block` returns indented four more spaces, `}`.
+///
+/// A path counts list/tuple positions from the record value root, with `{"list": …}` wrappers not
+/// counted, the same walk [`crate::extract`] uses. Values at no path keep their raw text.
+pub fn print_with_blocks(
+    schema: &Schema,
+    entry: &Entry,
+    paths: &[Vec<usize>],
+    print_block: &mut dyn FnMut(&Json) -> String,
+) -> String {
     let id = record_id(schema, entry);
     let mut out = format!("{} ", schema.kind);
     if is_word(&id) {
@@ -182,7 +221,9 @@ pub fn print(schema: &Schema, entry: &Entry) -> String {
         write_str(&id, &mut out);
     }
     out.push_str(" {\n");
-    for (i, value) in record_values(&entry.value).iter().enumerate() {
+    let fields = record_values(&entry.value).len();
+    let seq = items(&entry.value);
+    for i in 0..fields {
         let name = match schema.fields.get(i) {
             Some(field) => field.name.clone(),
             None => format!("field_{}", i + 1),
@@ -190,11 +231,68 @@ pub fn print(schema: &Schema, entry: &Entry) -> String {
         out.push_str("  ");
         out.push_str(&name);
         out.push(' ');
-        write_value(value, &mut out);
+        let value = seq.and_then(|items| items.get(i)).unwrap_or(&entry.value);
+        write_json_value(value, &mut vec![i], paths, print_block, 2, &mut out);
         out.push('\n');
     }
     out.push_str("}\n");
     out
+}
+
+/// Writes one atlas value, printing the value itself as an `ops { … }` block when `path` names
+/// one of `paths` and recursing into lists and tuples otherwise.
+fn write_json_value(
+    value: &Json,
+    path: &mut Vec<usize>,
+    paths: &[Vec<usize>],
+    print_block: &mut dyn FnMut(&Json) -> String,
+    indent: usize,
+    out: &mut String,
+) {
+    if paths.iter().any(|block| block == path) {
+        write_block(&print_block(value), indent, out);
+        return;
+    }
+    let (open, close, items) = match value {
+        Json::Array(items) => ('(', ')', Some(items)),
+        Json::Object(map) => match map.get("list").and_then(Json::as_array) {
+            Some(items) => ('[', ']', Some(items)),
+            None => (' ', ' ', None),
+        },
+        _ => (' ', ' ', None),
+    };
+    let Some(items) = items else {
+        write_value(&from_json(value), out);
+        return;
+    };
+    out.push(open);
+    for (i, item) in items.iter().enumerate() {
+        if i > 0 {
+            out.push_str(", ");
+        }
+        path.push(i);
+        write_json_value(item, path, paths, print_block, indent + 2, out);
+        path.pop();
+    }
+    // A one-element tuple is `(a,)`, like [`write_seq`].
+    if open == '(' && items.len() == 1 {
+        out.push(',');
+    }
+    out.push(close);
+}
+
+/// `ops {`, the block text one level deeper, `}`.
+fn write_block(text: &str, indent: usize, out: &mut String) {
+    out.push_str("ops {\n");
+    for line in text.lines() {
+        if !line.is_empty() {
+            out.push_str(&" ".repeat(indent + 4));
+            out.push_str(line);
+        }
+        out.push('\n');
+    }
+    out.push_str(&" ".repeat(indent));
+    out.push('}');
 }
 
 fn write_value(value: &Value, out: &mut String) {
@@ -203,6 +301,9 @@ fn write_value(value: &Value, out: &mut String) {
         Value::Str(text) => write_str(text, out),
         Value::List(items) => write_seq('[', ']', items, out),
         Value::Tuple(items) => write_seq('(', ')', items, out),
+        // Only `parse_with_blocks` builds one; printing takes blocks from the atlas by path
+        // before it converts a value, so this is not reached by `print`.
+        Value::Block(json) => out.push_str(&json.to_string()),
     }
 }
 
@@ -236,7 +337,25 @@ fn write_str(text: &str, out: &mut String) {
 
 /// Parses record text back into `(id, atlas value)`. Errors name the line.
 pub fn parse(schema: &Schema, text: &str) -> Result<(String, Json), String> {
-    let mut p = Parser::new(text);
+    parse_record(schema, text, None)
+}
+
+/// Parses record text written by [`print_with_blocks`]: every `ops { … }` block is cut out
+/// (strings and nested braces aware) and `compile` turns its inner text back into atlas JSON.
+pub fn parse_with_blocks(
+    schema: &Schema,
+    text: &str,
+    compile: &mut dyn FnMut(&str) -> Result<Json, String>,
+) -> Result<(String, Json), String> {
+    parse_record(schema, text, Some(compile))
+}
+
+fn parse_record<'t, 'c>(
+    schema: &Schema,
+    text: &'t str,
+    compile: Option<&'c mut dyn FnMut(&str) -> Result<Json, String>>,
+) -> Result<(String, Json), String> {
+    let mut p = Parser::new(text, compile);
     p.skip_gaps();
     let kind_line = p.line;
     let kind = p.word();
@@ -362,16 +481,119 @@ pub fn roundtrip_table(atlas: &Atlas, schema: &Schema) -> TableReport {
     report
 }
 
-/// Character reader that keeps the line number, so errors can name it.
-struct Parser<'a> {
-    chars: std::str::Chars<'a>,
-    peeked: Option<char>,
-    line: usize,
+/// Like [`roundtrip_table`], but every operation block at a `blocks` path prints as `ops { … }`
+/// through `print_block` and reads back through `compile`. `blocks` may hold other tables'
+/// blocks; only those whose table matches the schema are used.
+pub fn roundtrip_table_with_blocks(
+    atlas: &Atlas,
+    schema: &Schema,
+    blocks: &[crate::Block],
+    print_block: &mut dyn FnMut(&Json) -> String,
+    compile: &mut dyn FnMut(&str) -> Result<Json, String>,
+) -> TableReport {
+    let mut report = TableReport::default();
+    let Some(table) = atlas.tables.get(&schema.table) else {
+        report.failed += 1;
+        report.first_failures.push(format!("no table `{}` in the atlas", schema.table));
+        return report;
+    };
+    let mut by_entry: std::collections::BTreeMap<usize, Vec<Vec<usize>>> = Default::default();
+    for block in blocks.iter().filter(|block| block.table == schema.table) {
+        by_entry.entry(block.index).or_default().push(block.path.clone());
+    }
+    for entry in &table.entries {
+        report.records += 1;
+        let label = record_id(schema, entry);
+        let paths = by_entry.get(&entry.index).map(Vec::as_slice).unwrap_or(&[]);
+        let text = print_with_blocks(schema, entry, paths, &mut *print_block);
+        match parse_with_blocks(schema, &text, &mut *compile) {
+            Ok((id, value)) if id == label => {
+                match first_difference(&entry.value, &value, &mut Vec::new(), paths) {
+                    None => report.exact += 1,
+                    Some(diff) => {
+                        report.fail(format!("{label}: print/parse changed the record value: {diff}"));
+                    }
+                }
+            }
+            Ok(_) => report.fail(format!("{label}: print/parse read another record id")),
+            Err(e) => report.fail(format!("{label}: {e}")),
+        }
+    }
+    report
 }
 
-impl<'a> Parser<'a> {
-    fn new(text: &'a str) -> Self {
-        Parser { chars: text.chars(), peeked: None, line: 1 }
+/// The first value `got` changed from `want`, described for a report; `None` when they are the
+/// same record. At a block path the operations must match (the atlas spellings `parse_ops`
+/// normalises are compared through it); elsewhere the value and the Python list-versus-tuple
+/// shape must be identical.
+fn first_difference(
+    want: &Json,
+    got: &Json,
+    path: &mut Vec<usize>,
+    paths: &[Vec<usize>],
+) -> Option<String> {
+    if paths.iter().any(|block| block == path) {
+        let (want, got) = (crate::parse_ops(want), crate::parse_ops(got));
+        return (want != got).then(|| format!("{path:?}: operations {want:?} became {got:?}"));
+    }
+    match (want, got) {
+        (Json::Array(want_items), Json::Array(got_items)) => {
+            first_item_difference(want_items, got_items, path, paths)
+        }
+        (Json::Object(want_map), Json::Object(got_map)) => match (want_map.get("list"), got_map.get("list")) {
+            (Some(Json::Array(want_items)), Some(Json::Array(got_items)))
+                if want_map.len() == 1 && got_map.len() == 1 =>
+            {
+                first_item_difference(want_items, got_items, path, paths)
+            }
+            _ => (want != got).then(|| format!("{path:?}: {} became {}", preview(want), preview(got))),
+        },
+        _ => (want != got).then(|| format!("{path:?}: {} became {}", preview(want), preview(got))),
+    }
+}
+
+fn first_item_difference(
+    want: &[Json],
+    got: &[Json],
+    path: &mut Vec<usize>,
+    paths: &[Vec<usize>],
+) -> Option<String> {
+    if want.len() != got.len() {
+        return Some(format!("{path:?}: {} values became {}", want.len(), got.len()));
+    }
+    for (i, (want, got)) in want.iter().zip(got).enumerate() {
+        path.push(i);
+        let found = first_difference(want, got, path, paths);
+        path.pop();
+        if found.is_some() {
+            return found;
+        }
+    }
+    None
+}
+
+/// JSON text for a failure line, cut short so a huge block does not flood the report.
+fn preview(value: &Json) -> String {
+    let text = value.to_string();
+    if text.chars().count() <= 160 {
+        text
+    } else {
+        format!("{}…", text.chars().take(160).collect::<String>())
+    }
+}
+
+/// Character reader that keeps the line number, so errors can name it.
+struct Parser<'t, 'c> {
+    chars: std::str::Chars<'t>,
+    peeked: Option<char>,
+    line: usize,
+    /// Reads an `ops { … }` body back; `None` in the plain [`parse`], which has no blocks.
+    compile: Option<&'c mut dyn FnMut(&str) -> Result<Json, String>>,
+}
+
+impl<'t, 'c> Parser<'t, 'c> {
+    fn new(text: &'t str, compile: Option<&'c mut dyn FnMut(&str) -> Result<Json, String>>) -> Self {
+        Parser { chars: text.chars(), peeked: None, line: 1, compile }
     }
 
     fn peek(&mut self) -> Option<char> {
@@ -453,6 +675,15 @@ impl<'a> Parser<'a> {
                 if word.is_empty() {
                     return Err(format!("line {line}: expected a value"));
                 }
+                if word == "ops" && self.compile.is_some() {
+                    self.skip_gaps();
+                    if self.peek() == Some('{') {
+                        self.bump();
+                        let inner = self.block_text()?;
+                        let compile = self.compile.as_mut().expect("checked just above");
+                        return compile(&inner).map(Value::Block);
+                    }
+                }
                 Ok(number_or_ident(&word))
             }
         }
@@ -470,6 +701,48 @@ impl<'a> Parser<'a> {
                     return Ok(items);
                 }
                 Some(_) => items.push(self.value()?),
+            }
+        }
+    }
+
+    /// The body of `ops { … }`; the opening brace is already read. Stops at the matching `}`,
+    /// ignoring braces inside strings, and returns the text between the braces.
+    fn block_text(&mut self) -> Result<String, String> {
+        let open_line = self.line;
+        let mut text = String::new();
+        let mut depth = 0usize;
+        let mut quoted = false;
+        loop {
+            match self.bump() {
+                None => return Err(format!("line {open_line}: unterminated `ops {{` block")),
+                Some(c) if quoted => {
+                    text.push(c);
+                    if c == '\\' {
+                        // The escaped character is part of the string; keep it verbatim.
+                        match self.bump() {
+                            Some(escaped) => text.push(escaped),
+                            None => {
+                                return Err(format!("line {open_line}: unterminated `ops {{` block"));
+                            }
+                        }
+                    } else if c == '"' {
+                        quoted = false;
+                    }
+                }
+                Some('"') => {
+                    quoted = true;
+                    text.push('"');
+                }
+                Some('{') => {
+                    depth += 1;
+                    text.push('{');
+                }
+                Some('}') if depth == 0 => return Ok(text),
+                Some('}') => {
+                    depth -= 1;
+                    text.push('}');
+                }
+                Some(c) => text.push(c),
             }
         }
     }
@@ -729,5 +1002,118 @@ source = "module_factions.py:7"
         assert_eq!(report.records, 34);
         assert_eq!(report.exact, 34);
         assert_eq!(report.failed, 0, "{:?}", report.first_failures);
+    }
+
+    /// One menu with a top-level enter block and an option with an empty condition block and a
+    /// consequence block.
+    const MENUS: &str = r#"{
+      "schema": 1, "kit_hash": "records", "ops": [], "hooks": [], "ranges": [],
+      "tables": {
+        "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","entries":[
+          {"index":0,"name":"start","id":"menu_start","dup":null,"line":10,
+           "value":["start",0,"Start","none",{"list":[[2052],[1106,"@hi"]]},{"list":[
+             ["go",{"list":[]},"Go",{"list":[[2060,"mnu_town"]]}]
+           ]}]}
+        ]}
+      }
+    }"#;
+
+    fn menus_schema() -> Schema {
+        Schema::from_toml(
+            "table = \"menus\"\nkind = \"menu\"\nid_prefix = \"menu_\"\n\
+             [[fields]]\nname = \"id\"\nty = \"raw\"\nsource = \"module_game_menus.py:20\"\n\
+             [[fields]]\nname = \"flags\"\nty = \"raw\"\nsource = \"module_game_menus.py:20\"\n\
+             [[fields]]\nname = \"text\"\nty = \"raw\"\nsource = \"module_game_menus.py:20\"\n\
+             [[fields]]\nname = \"mesh\"\nty = \"raw\"\nsource = \"module_game_menus.py:20\"\n\
+             [[fields]]\nname = \"operations\"\nty = \"raw\"\nsource = \"module_game_menus.py:20\"\n\
+             [[fields]]\nname = \"options\"\nty = \"raw\"\nsource = \"module_game_menus.py:20\"\n",
+        )
+        .expect("menus schema loads")
+    }
+
+    /// A fake printer/compiler pair: a block's atlas JSON prints as compact JSON (braces and
+    /// quoted text included) and reads back through `serde_json`.
+    #[test]
+    fn blocks_print_as_ops_and_parse_back() {
+        let atlas = Atlas::from_str(MENUS).expect("tiny atlas loads");
+        let schema = menus_schema();
+        let entry = &atlas.tables["menus"].entries[0];
+        let paths = vec![vec![4], vec![5, 0, 3]];
+        let mut print_block = |block: &Json| block.to_string();
+        let text = print_with_blocks(&schema, entry, &paths, &mut print_block);
+        assert!(text.contains("  operations ops {"), "{text}");
+        assert!(text.contains("  options [(go, [], \"Go\", ops {"), "{text}");
+        assert_eq!(text.matches("ops {").count(), 2, "{text}");
+
+        let mut compile = |text: &str| serde_json::from_str(text).map_err(|e| e.to_string());
+        let (id, value) = parse_with_blocks(&schema, &text, &mut compile).expect("parses");
+        assert_eq!(id, "start");
+        assert_eq!(value, entry.value);
+
+        // The same pair through `extract::all` (which also finds the empty condition block).
+        let mut print_block = |block: &Json| block.to_string();
+        let mut compile = |text: &str| serde_json::from_str(text).map_err(|e| e.to_string());
+        let report = roundtrip_table_with_blocks(
+            &atlas,
+            &schema,
+            &crate::extract::all(&atlas),
+            &mut print_block,
+            &mut compile,
+        );
+        assert_eq!((report.records, report.exact, report.failed), (1, 1, 0), "{:?}", report.first_failures);
+    }
+
+    /// The block body ends at its matching `}`, not at a brace inside a nested `if` or a string.
+    #[test]
+    fn an_ops_body_ends_at_its_matching_brace_and_ignores_strings() {
+        let schema = Schema::from_toml(
+            "table = \"menus\"\nkind = \"menu\"\nid_prefix = \"menu_\"\n\
+             [[fields]]\nname = \"operations\"\nty = \"raw\"\nsource = \"x:1\"\n",
+        )
+        .expect("schema loads");
+        let mut seen = String::new();
+        let mut compile = |text: &str| {
+            seen = text.to_string();
+            Ok(serde_json::json!({"list": [[4]]}))
+        };
+        let text = "menu start {\n  operations ops {\n    if x { y() }\n    text \"} { \\\" }\"\n  }\n}\n";
+        let (id, value) = parse_with_blocks(&schema, text, &mut compile).expect("parses");
+        assert_eq!(id, "start");
+        assert!(seen.contains("if x { y() }"), "{seen}");
+        assert!(seen.trim_end().ends_with("text \"} { \\\" }\""), "{seen}");
+        assert_eq!(value, serde_json::json!([{"list": [[4]]}]));
+    }
+
+    /// `ops_to_json` is read back by `parse_ops` as the same operations.
+    #[test]
+    fn ops_to_json_is_read_back_by_parse_ops() {
+        let block: Json =
+            serde_json::from_str(r#"{"list":[[31,"$x",3],4,[2147483679,":a","trp_player"]]}"#).expect("json");
+        let ops = crate::parse_ops(&block).expect("a block");
+        assert_eq!(crate::parse_ops(&ops_to_json(&ops)), Some(ops.clone()));
+        // A plain-array block spelling: the normalised operations survive the trip.
+        let array: Json = serde_json::from_str(r#"[[4],[31,1,0]]"#).expect("json");
+        let ops = crate::parse_ops(&array).expect("a block");
+        assert_eq!(crate::parse_ops(&ops_to_json(&ops)), Some(ops));
+    }
+
+    #[test]
+    fn real_atlas_blocks_survive_ops_to_json() {
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/uw-staging/atlas.json");
+        if !std::path::Path::new(path).exists() {
+            eprintln!("skipped: no atlas at {path}");
+            return;
+        }
+        let atlas = Atlas::from_path(path).expect("full atlas loads");
+        let blocks = crate::extract::all(&atlas);
+        assert!(!blocks.is_empty());
+        for block in &blocks {
+            assert_eq!(
+                crate::parse_ops(&ops_to_json(&block.ops)),
+                Some(block.ops.clone()),
+                "{}",
+                block.label
+            );
+        }
     }
 }
