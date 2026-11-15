@@ -132,7 +132,9 @@ Kaynak: `docs/VISION.md` > Sahibinin kararları. Buraya yalnız meclisin bilmesi
 ### Tuşlar
 - **[KİT]** `header_triggers.py:206` `key_f12 = 0x58`, `:226` `key_left_control = 0x1d`. Oyunun varsayılan kısayollarıyla (Warband kontrol ayarları) çakışma **motor deneyi gerekir** (D7 sondasına ekle). İlk mekanik (sprint) için Ctrl, hata ayıklama menüsü için F12 önerildi.
 
-## BÜYÜK MECLİS — Yön 2: proje modeli ve DSL (2026-11-15, sahibinin isteği; açılırsa önce bunu konuş)
+## BÜYÜK MECLİS — Yön 2: proje modeli ve DSL (2026-11-15) — KAPANDI
+
+**Karar:** `docs/meclis/YON2-KARAR.md` (2026-11-15, 4 koltuk). Aşağısı tarihçe.
 
 **Girdi belgesi:** `docs/meclis/yon-2-proje-modeli.md` (muhakeme, model, riskler, fazlar). Sahibinin sözü o belgenin 1. bölümünde, ham hâliyle. Sahibi: "projenin gidişatını büyük ölçüde değiştiriyoruz; meclis de düşünsün."
 

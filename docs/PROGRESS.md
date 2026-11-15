@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · Yön 2 büyük meclisi: karar (Claude + 4 koltuk)
+Koltuklar: mimari (Sonnet), UX (DeepSeek, $0.003), risk ve maliyet (Haiku). Karar `docs/meclis/YON2-KARAR.md`: tek kayıt biçimi (iki tur: ham sonra okunaklı), `base = native|project`, tombstone + aralık kilidi, `require`/`attempt` (`try` ret), sıra P1→P3a→P2→P3b. KARARNAMELER, ARCHITECTURE, ROADMAP güncellendi; tarifler T-030..T-034 hazır, başlatılmadı. Bulgu: atlas büyük tamsayıları `serde_json` f64'e düşürüyor (T-030 düzeltir). Sıradaki: `cv delegate run T-030`.
+
 ## 2026-11-15 · Gidiş-dönüş: yapılı oran %94,9 → %100 (Claude, tur 6)
 Ölçüm ham kalış nedenini gruplar (`uw roundtrip` özeti + `raw.txt`). Üç neden, hepsi küçük düzeltme (DeepSeek'e iş çıkmadı, $0): `lt/le/neq` takma adları atlas'ta yok (333 blok), tek başına saf `or` bayrakla derleniyordu (173), `A and (B or C)` parantezsiz basılıyordu + parser koşulda parantezi tanımıyordu (77). Temiz olmayan `try` bloklarının içi artık yapılı. Sonuç: 9113/9113 yapılı, 0 hata; satır düzeyinde Native kalan %7,3 (5518/75165). Testler 188/188. Sıradaki: "önce hesapla sonra sına" kollarının sözdizimi (sözdizimi kararı), sonra veri kayıtları meclisi.
 

@@ -4,17 +4,20 @@
 
 ## Sıra
 
-**YÖN 2 (2026-11-15 akşam, sahibinin isteği, büyük meclis bekliyor):** proje iskeleti (`uw new`: Native → okunaklı UW dosyaları, ya da boş) + yüksek seviyeli dil (L0 ham işlem / L1 çekirdek / L2 `lib/` kütüphanesi). Gerekçe ve ayrıntı `docs/meclis/yon-2-proje-modeli.md`. Bu bölüm aşağıdaki eski sıranın önüne geçer; eski maddeler (harita, D5-D10, kit-meta) Y fazlarının parçası olarak sürer.
+**YÖN 2 (büyük meclis kararı 2026-11-15, `docs/meclis/YON2-KARAR.md`):** sıra P1 → P3a → P2 → P3b → P5 → P6 → Y5-Y8. Eski maddeler (harita, D5-D10, kit-meta) bu fazların parçası olarak sürer.
 
-- [ ] **Y0** Büyük meclis: proje modeli, dil katmanları, zorunlu/isteğe bağlı (`docs/MECLIS_GUNDEMI.md` > BÜYÜK MECLİS — Yön 2).
-- [ ] **Y1** Oyun deneyleri (CHECKUP kuyruğuna): D8 boş taban (oyun en az neyle açılıyor); özel menüden karakter yaratma / yüz editörü açılır mı; tetik "check interval"ın birimi ve 0'ın anlamı.
-- [x] **Y1b** (2026-11-15, `uw roundtrip`: menülerin 1325 bloğu %100 gidiş-dönüş, %97 yapılı; bütün tablolar 9113 blok) Ölçüm prototipi (salt okuma): atlas'taki 216 Native menünün kaçı bugünkü dille `.uw` olarak yazılabiliyor; yazılamayanların nedeni → meclise kanıt.
-- [ ] **Y2** `uw new --from native` v1: yalnız menüler → `menus/*.uw`, dosya başı açıklamaları (`kit-meta/aciklama`); gidiş-dönüş testi (menüler: Native → UW → .txt = Native .txt).
-- [ ] **Y3** Çekirdek dil eklemeleri: kendi adla `menu`, `goto`, metinde `@` kendiliğinden, `fn`, nesne alanı (`player.gold`).
-- [ ] **Y4** `lib/` standart kütüphane v1 (20-30 okunaklı fonksiyon: menü, harita, para, eşya, birlik); `menu_demo` yeni dilde; kılavuz bölümü.
+- [x] **Y0** Büyük meclis (2026-11-15; karar `docs/meclis/YON2-KARAR.md`, kararname "Yön 2").
+- [x] **Y1b** (2026-11-15, `uw roundtrip`: 9113 blok %100 birebir, %100 yapılı; satırların %7,3'ü Native biçimli) Ölçüm prototipi.
+- [ ] **P1** Kayıt biçimi tur 1 (ham, kayıpsız): `uw_decomp::records` yazıcı/ayrıştırıcı + 27 tablo şeması `kit-meta/records/` + `uw roundtrip` kayıt raporu. Tarifler T-030..T-034 (hazır, başlatılmadı). Kabul: 27 tablo atlas birebir.
+- [ ] **P3a** `uw new <ad> --from native`: Native'in tamamı klasörlere (dosya adı = Native kimliği, başında görünen ad + açıklama); yalnız dışa aktarma. İlk görünür teslim.
+- [ ] **P2** `require` / `attempt` (gramer + IR Claude) + yazmaç (`reg0`, `pos1`) ve slot adları; Native biçimli satır oranı raporu.
+- [ ] **P3b** `base = "project"` derleme: tam liste üretimi, `uw.lock`, tombstone, aralık kilidi, ters dizin silme hatası (Türkçe). Kabul: 27 tablo kit `.txt` bayt eşit + kayıtlı oyun yükleme deneyi (CHECKUP).
+- [ ] **P5** Kayıt tur 2: `ref`/`flags`/`packed` alanlarını okunaklı aç (kit adlarıyla, bilinmeyen bit açık `raw`).
+- [ ] **P6** L2 `lib/*.uw` v1 + `fn` + nesne alanı; kendi adla `menu`, `goto`, metinde `@` kendiliğinden; `menu_demo` yeni dilde (eski Y3-Y4).
+- [ ] **Y1** Oyun deneyleri (paralel, CHECKUP kuyruğu): D8 boş taban; özel menüden karakter yaratma / yüz editörü; tetik aralığının birimi ve 0'ın anlamı.
 - [ ] **Y5** Diyaloglar ve karakterler (`lords/`, `companions/`, `ladies/`): "ilk karşılaşma diyaloğu" örneği.
 - [ ] **Y6** Olaylar ve bölgeler (`areas/`): `on enter area`, `every … hour`, poligon içi kontrol, yoğunluk (Native spawn noktalarına ek).
-- [ ] **Y7** Harita içe aktarma + yerleşimler kodla (`towns/`).
+- [ ] **Y7** Harita içe aktarma + yerleşimler kodla; aralık içine ekleme (sahne ofsetleri), yeni kayıt için `init { }` (kayıt + slot).
 - [ ] **Y8** Sahneler ve kamp (konuma göre sahne, askerler).
 - [ ] `kit-meta/hardwired.toml`: motor zorunlusu kayıtlar (D4, D8, D10 bulguları) — zorunlu/isteğe bağlı ayrımının veri kaynağı.
 

@@ -144,6 +144,19 @@ mymod/
 
 UW mekanik vermez, mekanik yapmayı kolaylaştıran ilkeller verir (önem sırasıyla): zaman içinde akan kod (`wait`), alanlar (otomatik slot), olaylar, seçicili enjeksiyon (aynı trigger'ı 14-21 şablona elle kopyalamak yerine), bildirimsel UI + değer bağlama, kamera/efekt, etkileşimli sahne nesnesi, varlık hattı, `raw:` kaçış kapısı. Ölçü: L&D ekran görüntülerindeki her şey bu ilkellerle modcunun kendi tasarımıyla yazılabilmeli.
 
+## Yön 2: proje modeli ve kayıt biçimi — KESİN (büyük meclis 2026-11-15, `docs/meclis/YON2-KARAR.md`)
+
+- **İki kip** (`uw.toml` > `base`): `"native"` = yukarıdaki "Native + fark" yama modeli (değişmedi);
+  `"project"` = proje bütün tabloların sahibidir, derleyici listeleri baştan üretir. Aynı projede karışmaz.
+- **`uw new <ad> --from native`** (`uw_decomp`): Native'in tamamını klasörlere yazar (`menus/`, `scripts/`,
+  `dialogs/`, `troops/`, `items/`, `parties/towns/` …); dosya adı Native kimliği, başında görünen ad ve açıklama.
+- **Kayıt biçimi:** `<tür> <kimlik> { <alan> <değer> … }`; şema `kit-meta/records/<tablo>.toml`. P1'de yazıcı/
+  ayrıştırıcı `uw_decomp::records` içinde (yalnız ölçüm), P3b'de `uw_syntax` öğesi olur.
+- **Güvenceler:** işlem blokları ve kayıtlar için bellekte gidiş-dönüş (`uw roundtrip`); iskelet kipi için 27
+  tablonun kit `.txt` çıktısı Native'le bayt eşit (CI kapısı). Sıra `uw.lock`'tan; silme = tombstone; aralık
+  tablolarına (şehir/kale/köy/lord ve sahne ofsetleri) ekleme Y7'ye kadar hata.
+- **Dil katmanları:** L0 ham işlem · L1 çekirdek (+ `require`, `attempt`) · L2 `lib/*.uw` (UW kaynağı) · L3 iskelet.
+
 ## Araçlar (sıra önemli)
 
 1. `uw explain <şey>`: atlas üstünde; Native'de ya da modda bir şey nerede tanımlı/kullanılıyor, kaynak satırı.

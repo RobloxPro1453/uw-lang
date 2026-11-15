@@ -1,5 +1,13 @@
 # Devir: sonraki oturum buradan başlar
 
+## 000000. YÖN 2 MECLİSİ BİTTİ (2026-11-15) — sıradaki: P1 paketi
+
+Karar `docs/meclis/YON2-KARAR.md`, sıra ROADMAP (P1 → P3a → P2 → P3b → P5 → P6). İlk paket tarifleri hazır,
+**başlatılmadı**: T-030 (kayıt çekirdeği + `arbitrary_precision` + factions pilotu) önce; birleşince paralel
+T-031/T-032/T-033 (27 tablonun şemaları) ve T-034 (`uw roundtrip` kayıt raporu). Başlatma:
+`cv delegate run T-030`, birleşince `cv delegate batch --lanes 4 T-031 T-032 T-033 T-034`. Denetimde dikkat:
+`arbitrary_precision` işlem gidiş-dönüşünü (9113/0) bozmamalı; şemalarda kitte olmayan alan adı olmamalı.
+
 ## 00000. KALDIRAÇ PLANI — sahibi "hemen başla" dedi (2026-11-15 gece); yeni oturumun İLK İŞİ
 
 Sorun: DeepSeek ucuz (~14$), darboğaz Claude'un tarif yazması + kod okuması; Claude kotası az (haftalık
