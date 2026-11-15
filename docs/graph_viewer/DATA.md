@@ -1,8 +1,9 @@
 # graph_viewer data format: `uw-flow/1`
 
-One UTF-8 JSON object, exact rules in `schema.json`. Produced today by `py/flow_export.py` (menus with
-their options; every arrow target that is not a menu is a small `stub` node); later by the compiler
-(`uw graph --json`) with more node kinds.
+One UTF-8 JSON object, exact rules in `schema.json`. Produced by the compiler: `uw graph --json flow.json`
+(menus with their options; every arrow target that is not a menu is a small `stub` node). Later with
+more node kinds (dialogs) and mod differences. `py/flow_export.py` is the older script that writes the
+identical file.
 
 **Compatibility promise:** inside `uw-flow/1` fields are only added, never renamed, removed or
 retyped. Every listed field is always present (empty string / empty list / null when there is nothing).
@@ -11,7 +12,7 @@ A viewer ignores fields it does not know and draws unknown `kind` / `op` values 
 ```json
 {
   "format": "uw-flow/1",
-  "generator": "py/flow_export.py",
+  "generator": "uw graph --json",
   "kit_hash": "9f56b9fd...",
   "roots": [
     {"id": "menu_start_game_0", "why": "menu #0: the engine opens it on New Game"},

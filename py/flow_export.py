@@ -7,6 +7,9 @@ come from operations inside menu bodies and options: jump_to_menu (to a menu), c
 (to a screen), call_script / start_presentation / jump_to_scene / set_jump_mission (to that thing).
 Operation codes are taken from the atlas' own op list, never typed in.
 
+Superseded by `uw graph --json flow.json` (crates/uw_cli/src/flow_json.rs), which writes the identical
+file; kept as a cross-check.
+
 Usage: python py/flow_export.py [--atlas target/uw-staging/atlas.json] [--out flow.json]
 """
 import argparse

@@ -10,6 +10,7 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 - Native atlası (`py/atlas_dump.py` + `uw_atlas`): Native'deki her kaydın adı, sırası, değeri ve kaynak satırı; `p_town_6` → Praven, `module_parties.py:82`.
 - Hata mesajı altyapısı (`uw_diag`): satır/sütun, işaret ve "did you mean" önerisi.
 - `uw explain <şey>`: Native'de bir kayıt, global değişken (`$g_...`), işlem ya da sabit nerede tanımlı ve hangi script/menü/diyalogda hangi işlemle kullanılıyor; kısa liste, `--all` ile tamamı. Yanlış yazınca en yakın adı önerir.
+- `uw graph --json flow.json`: oyunun bütün menü akışını (her menü, butonları, her butonun nereye götürdüğü) graph_viewer'ın okuduğu `uw-flow/1` dosyası olarak yazar; sona bir ad eklersen (`start_phase_2`) başlangıç o olur.
 - `uw graph <şey>`: bir menünün/script'in nereye götürdüğünü ağaç olarak gösterir; `--html dosya.html` aynı akışı tarayıcıda çizer, `--mermaid` çizim metnini verir.
 - `uw build` artık etki raporu verir: değişikliğin yüzünden Native'de artık hiçbir yerden açılmayacak menü/görev/sahne listesi (praven_start için prolog zincirini kendisi buldu).
 - `uw browse`'da `g` tuşu: "kim kullanıyor" ile "nereye götürüyor" arasında geçiş; `uw explain` da "leads to" bölümünü gösterir.

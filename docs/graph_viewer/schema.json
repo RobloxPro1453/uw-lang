@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "uw-flow/1",
   "title": "uw-flow/1 — Warband mod flow for graph_viewer",
-  "description": "Produced by universal_warband (py/flow_export.py, later `uw graph --json`). Compatibility: within uw-flow/1 fields are only ADDED, never renamed, removed or retyped; a viewer must ignore unknown fields and render unknown `kind` / `op` values generically. A breaking change gets a new format string (uw-flow/2).",
+  "description": "Produced by universal_warband (`uw graph --json`; py/flow_export.py writes the same). Compatibility: within uw-flow/1 fields are only ADDED, never renamed, removed or retyped; a viewer must ignore unknown fields and render unknown `kind` / `op` values generically. A breaking change gets a new format string (uw-flow/2).",
   "type": "object",
   "required": ["format", "roots", "nodes", "edges"],
   "properties": {

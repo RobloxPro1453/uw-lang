@@ -2,6 +2,7 @@
 
 mod build;
 mod explain;
+mod flow_json;
 mod graph;
 mod graph_export;
 mod impact;
@@ -18,6 +19,9 @@ const USAGE: &str = "usage:
       --debug: in game every menu prints its id, so you see what to override
   uw graph <thing> [--depth N] [--mermaid] [--html <file.html>]
       what <thing> leads to, as a tree (or a Mermaid chart / an HTML page with the drawing)
+  uw graph --json <flow.json> [<thing>]
+      the whole menu flow for graph_viewer (format uw-flow/1, docs/graph_viewer/DATA.md);
+      <thing> (optional) becomes the starting point, otherwise the game's own starts
   uw browse [--atlas <atlas.json>] [search]
       look around Native in a window: type to search, Enter to follow who uses what
   uw explain [--all] [--atlas <atlas.json>] <thing>
@@ -171,6 +175,7 @@ fn cmd_graph(args: &[String]) -> ExitCode {
     let mut depth = 4usize;
     let mut mermaid = false;
     let mut html: Option<PathBuf> = None;
+    let mut json: Option<PathBuf> = None;
     let mut atlas = None;
     let mut words = Vec::new();
     let mut it = args.iter();
@@ -185,9 +190,16 @@ fn cmd_graph(args: &[String]) -> ExitCode {
                 Some(p) => html = Some(PathBuf::from(p)),
                 None => return fail("--html needs a file name"),
             },
+            "--json" => match it.next() {
+                Some(p) => json = Some(PathBuf::from(p)),
+                None => return fail("--json needs a file name (for example flow.json)"),
+            },
             "--atlas" => atlas = it.next().map(PathBuf::from),
             _ => words.push(arg.clone()),
         }
+    }
+    if let Some(path) = json {
+        return graph_json(atlas, &words, &path);
     }
     if words.is_empty() {
         return fail(&format!("what should I draw?\n{USAGE}"));
@@ -219,6 +231,49 @@ fn cmd_graph(args: &[String]) -> ExitCode {
     } else {
         print!("{}", graph::render_text(&graph::tree(&model, &root, depth)));
     }
+    ExitCode::SUCCESS
+}
+
+/// `uw graph --json <file> [<thing>]`: writes the uw-flow/1 document for graph_viewer.
+fn graph_json(atlas: Option<PathBuf>, words: &[String], path: &Path) -> ExitCode {
+    let model = match load(atlas) {
+        Ok(model) => model,
+        Err(message) => return fail(&message),
+    };
+    let mut roots = Vec::new();
+    if !words.is_empty() {
+        let query = words.join(" ");
+        // A bare menu name (`start_phase_2`) is accepted too: the viewer only starts from menus.
+        let found = model.resolve(&query).or_else(|| model.resolve(&format!("menu_{query}")));
+        let Some(root) = found else {
+            return fail(&format!("no single thing is called \"{query}\"; try `uw explain {query}`"));
+        };
+        let id = model.label(&root);
+        roots.push(flow_json::Root { id, why: "chosen on the command line".into() });
+    }
+    let doc = flow_json::flow(&model.atlas, roots, "uw graph --json");
+    let missing: Vec<&str> = doc["roots"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(|r| r["id"].as_str())
+        .filter(|id| !doc["nodes"].as_array().is_some_and(|ns| ns.iter().any(|n| n["id"] == *id)))
+        .collect();
+    if !missing.is_empty() {
+        return fail(&format!(
+            "{} is not on the menu flow (graph_viewer starts from menus); try a menu_... name",
+            missing.join(", ")
+        ));
+    }
+    let text = match serde_json::to_string_pretty(&doc) {
+        Ok(text) => text,
+        Err(err) => return fail(&err.to_string()),
+    };
+    if let Err(err) = std::fs::write(path, text + "
+") {
+        return fail(&format!("{}: {err}", path.display()));
+    }
+    println!("{} -> {} (open it in graph_viewer)", flow_json::summary(&doc), path.display());
     ExitCode::SUCCESS
 }
 

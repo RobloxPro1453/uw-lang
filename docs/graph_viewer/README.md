@@ -71,6 +71,6 @@ Look and feel like Obsidian's canvas / graph views: a large dark (or light) work
 
 ## Where the data comes from
 
-universal_warband repo: `python py/flow_export.py --out flow.json` (reads the local atlas
-`target/uw-staging/atlas.json`). Later the compiler writes the same format (`uw graph --json`), also
-for a mod.
+universal_warband repo: `uw graph --json flow.json` (reads the local atlas
+`target/uw-staging/atlas.json`; `uw graph --json flow.json start_phase_2` makes that menu the start).
+Later the same command also writes a mod's flow with its differences.

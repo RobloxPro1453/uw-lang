@@ -41,10 +41,10 @@ Bitince sample_flow.json ile aç ve "menu_start_game_0" kökünden başlayan ak�
 Craft Anything tek seferde yazar; veri biçimi sonradan değişirse viewer bozulur. Bu yüzden:
 `uw-flow/1` içinde alanlar yalnız **eklenir** (silinmez, adı/türü değişmez), viewer bilinmeyen alanı
 yok sayar. Biçimi bozan bir değişiklik gerekirse `uw-flow/2` olur ve viewer "yeni biçim" uyarısı verir.
-UW tarafında bu söz `schema.json` ile korunur; `py/flow_export.py` (ve ileride `uw graph --json`) her
+UW tarafında bu söz `schema.json` ile korunur; `uw graph --json` (ve eski `py/flow_export.py`) her
 değişiklikte bu şemaya karşı denetlenir.
 
-## Benzer örnekler (ilham, kopya değil)
+## Benzer örnekler
 
 - **Obsidian Canvas / Graph view**: sonsuz tuval, kartlar, oklar (görsel örnek).
 - **JSON Canvas** (Obsidian'ın açık tuval biçimi, MIT): ileride `uw-flow` → JSON Canvas dönüştürücü

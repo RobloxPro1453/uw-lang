@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · `uw graph --json` (Claude)
+graph_viewer'ın verisi artık derleyiciden: `uw graph --json flow.json [menü]` (`crates/uw_cli/src/flow_json.rs`). Gerçek atlasta `py/flow_export.py` ile birebir aynı (409 düğüm, 554 seçenek, 949 ok); çıplak `start_phase_2` kabul. Testler: `tests/flow_json.rs` 4/4. Sıradaki: diyaloglar ve mod farkı alanları.
+
 ## 2026-11-15 · Sahibinin notları belgelendi, graph_viewer brief'i (Claude)
 `--debug` oyunda doğrulandı (`_` boşluk görünüyor, CHECKUP). Akış şeması okunaksız → ayrı proje `graph_viewer` için `docs/graph_viewer/README.md` + `DATA.md` (`uw-flow/1`) ve `py/flow_export.py` (217 menü, 554 seçenek, 949 bağlantı). ROADMAP: graph arayüzü, ad tutarlılığı, menü dili istek listesi. Kod: yalnız dışa aktarma betiği (kota).
 
