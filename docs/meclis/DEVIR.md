@@ -2,7 +2,9 @@
 
 ## 00. DURUM RAPORU (2026-11-15, tur 3 sonrası) — önce bunu oku
 
-**TUR 4 AÇIK (önce bunu bitir):** DeepSeek şeritleri T-004 (graph.rs akış ağacı), T-005 (graph_export.rs Mermaid/HTML), T-006 (impact.rs etki raporu), T-008 (tui.rs leads-to), T-009 (explain.rs leads-to) çalışıyordu. Yapılacak: `cv delegate status` → her dal için `cv delegate verify` + diff oku → `git merge --no-ff` → sonra Claude bağlar: `uw graph <şey> [--depth N] [--mermaid|--html <dosya>]` (main.rs), etki raporunu `uw build` çıktısına (`impact::unreachable_after` + kesilen girdiler: override edilen menüler), `tr::load_dir(default_dir)` ile resmî Türkçe metni browse/explain ipucuna. Birleşmiş: T-007, T-010 (D2 tamam). `uw build --debug` (menüler) yapıldı, oyunda denenmedi (CHECKUP). Sonra `cv round end`.
+**TUR 4 KAPANDI (2026-11-15):** 7 DeepSeek dalı birleşti; `uw graph` (ağaç, `--mermaid`, `--html`), etki raporu `uw build`'de, browse/explain "leads to", `uw build --debug` (menüler; oyunda denenmedi, CHECKUP), D2 tamam. Açık: `tr.rs` (resmî TR metin) henüz browse/explain'e bağlı değil; `--debug` diyaloglar; modun kendi akış şeması. Testler 81. Aşağıdaki eski not tarihçedir.
+
+**(eski) TUR 4 AÇIK:** DeepSeek şeritleri T-004 (graph.rs akış ağacı), T-005 (graph_export.rs Mermaid/HTML), T-006 (impact.rs etki raporu), T-008 (tui.rs leads-to), T-009 (explain.rs leads-to) çalışıyordu. Yapılacak: `cv delegate status` → her dal için `cv delegate verify` + diff oku → `git merge --no-ff` → sonra Claude bağlar: `uw graph <şey> [--depth N] [--mermaid|--html <dosya>]` (main.rs), etki raporunu `uw build` çıktısına (`impact::unreachable_after` + kesilen girdiler: override edilen menüler), `tr::load_dir(default_dir)` ile resmî Türkçe metni browse/explain ipucuna. Birleşmiş: T-007, T-010 (D2 tamam). `uw build --debug` (menüler) yapıldı, oyunda denenmedi (CHECKUP). Sonra `cv round end`.
 
 **Bir cümlede:** UW ile yazılmış ilk mod (`examples/praven_start`) tek komutla derlenip oyuna kuruldu ve sahibi oyunda çalıştığını doğruladı (karakter yaratma Native, prolog yok, Praven yanında harita).
 

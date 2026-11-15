@@ -7,9 +7,10 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
-## 2026-11-15 · Tur 4 (açık): keşif araçları, DeepSeek şeritleri (Claude orkestra)
+## 2026-11-15 · Tur 4 (kapandı): keşif araçları, DeepSeek şeritleri (Claude orkestra)
 Sahibi DeepSeek'e izin verdi (8-10 işçi). Claude: model ileri dizini + `engine_roots`, `uw build --debug` (217 menü kodunu oyunda yazar). 7 tarif (T-004..T-010) 7 şeritte; birleşenler: T-007 (`tr.rs`, resmî TR metin yükleyici), T-010 (D2 a/d/e, Claude çalıştırdı: 3/3 ok). Çalışan: T-004 akış ağacı, T-005 Mermaid/HTML, T-006 etki raporu, T-008 browse leads-to, T-009 explain leads-to.
-Sıradaki: kalan dalları gözden geçir + birleştir, `uw graph` komutu ve etki raporunu `uw build`'e bağla, TR metni browse/explain'e, turu kapat.
+Sonra: 7 dalın 7'si verify PASS, birleşti; Claude `uw graph` ve etki raporunu bağladı (praven_start: prolog zinciri + gizli CHEAT seçeneğinin eşyaları). DeepSeek 0,21 $. Testler 81/81.
+Sıradaki: resmî TR metni browse/explain'e (`tr.rs` hazır, bağlanmadı); `--debug` diyaloglar; modun kendi akış şeması.
 
 ## 2026-11-15 · praven_start oyunda doğrulandı, akış şeması fikri (sahibi + Claude)
 Sahibi `praven_start`'ı oyunda denedi: karakter yaratma Native gibi geldi, prolog gelmedi, Praven yanında harita (bilgi/baslangic-akisi.md [DENEY]). Sahibinin fikri: ters dizinden olay örgüsü / akış şeması (VISION, ROADMAP); ajan da karar öncesi kullanım verisine bakar (KARARNAMELER). DEVIR durum raporu yeniden yazıldı.

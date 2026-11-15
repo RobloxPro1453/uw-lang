@@ -16,6 +16,8 @@ const USAGE: &str = "usage:
   uw build <mod folder> [--debug] [--no-install] [--modules <Warband/Modules>] [--kit <kit>] [--python <python27.exe>]
       check the .uw files, build them with the Module System kit and install the mod;
       --debug: in game every menu prints its id, so you see what to override
+  uw graph <thing> [--depth N] [--mermaid] [--html <file.html>]
+      what <thing> leads to, as a tree (or a Mermaid chart / an HTML page with the drawing)
   uw browse [--atlas <atlas.json>] [search]
       look around Native in a window: type to search, Enter to follow who uses what
   uw explain [--all] [--atlas <atlas.json>] <thing>
@@ -36,6 +38,7 @@ fn main() -> ExitCode {
         Some("explain") => cmd_explain(&args[1..]),
         Some("browse") => cmd_browse(&args[1..]),
         Some("build") => cmd_build(&args[1..]),
+        Some("graph") => cmd_graph(&args[1..]),
         _ => {
             println!("uw {}", env!("CARGO_PKG_VERSION"));
             println!("{USAGE}");
@@ -162,6 +165,61 @@ fn cmd_build(args: &[String]) -> ExitCode {
         Ok(()) => ExitCode::SUCCESS,
         Err(message) => fail(&message),
     }
+}
+
+fn cmd_graph(args: &[String]) -> ExitCode {
+    let mut depth = 4usize;
+    let mut mermaid = false;
+    let mut html: Option<PathBuf> = None;
+    let mut atlas = None;
+    let mut words = Vec::new();
+    let mut it = args.iter();
+    while let Some(arg) = it.next() {
+        match arg.as_str() {
+            "--depth" => match it.next().and_then(|d| d.parse().ok()) {
+                Some(d) => depth = d,
+                None => return fail("--depth needs a number"),
+            },
+            "--mermaid" => mermaid = true,
+            "--html" => match it.next() {
+                Some(p) => html = Some(PathBuf::from(p)),
+                None => return fail("--html needs a file name"),
+            },
+            "--atlas" => atlas = it.next().map(PathBuf::from),
+            _ => words.push(arg.clone()),
+        }
+    }
+    if words.is_empty() {
+        return fail(&format!("what should I draw?\n{USAGE}"));
+    }
+    let model = match load(atlas) {
+        Ok(model) => model,
+        Err(message) => return fail(&message),
+    };
+    let query = words.join(" ");
+    let Some(root) = model.resolve(&query) else {
+        // Not exact: the same match list as `uw explain`.
+        return match explain::explain(&model, &query, false) {
+            Ok(text) => {
+                print!("{text}");
+                ExitCode::SUCCESS
+            }
+            Err(message) => fail(&message),
+        };
+    };
+    const MAX_NODES: usize = 120;
+    if let Some(path) = html {
+        let page = graph_export::html(&model, &root, depth, MAX_NODES);
+        if let Err(err) = std::fs::write(&path, page) {
+            return fail(&format!("{}: {err}", path.display()));
+        }
+        println!("wrote {} (open it in a browser)", path.display());
+    } else if mermaid {
+        print!("{}", graph_export::mermaid(&model, &root, depth, MAX_NODES));
+    } else {
+        print!("{}", graph::render_text(&graph::tree(&model, &root, depth)));
+    }
+    ExitCode::SUCCESS
 }
 
 fn find_atlas() -> Option<PathBuf> {

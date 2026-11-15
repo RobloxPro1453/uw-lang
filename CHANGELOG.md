@@ -10,6 +10,9 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 - Native atlası (`py/atlas_dump.py` + `uw_atlas`): Native'deki her kaydın adı, sırası, değeri ve kaynak satırı; `p_town_6` → Praven, `module_parties.py:82`.
 - Hata mesajı altyapısı (`uw_diag`): satır/sütun, işaret ve "did you mean" önerisi.
 - `uw explain <şey>`: Native'de bir kayıt, global değişken (`$g_...`), işlem ya da sabit nerede tanımlı ve hangi script/menü/diyalogda hangi işlemle kullanılıyor; kısa liste, `--all` ile tamamı. Yanlış yazınca en yakın adı önerir.
+- `uw graph <şey>`: bir menünün/script'in nereye götürdüğünü ağaç olarak gösterir; `--html dosya.html` aynı akışı tarayıcıda çizer, `--mermaid` çizim metnini verir.
+- `uw build` artık etki raporu verir: değişikliğin yüzünden Native'de artık hiçbir yerden açılmayacak menü/görev/sahne listesi (praven_start için prolog zincirini kendisi buldu).
+- `uw browse`'da `g` tuşu: "kim kullanıyor" ile "nereye götürüyor" arasında geçiş; `uw explain` da "leads to" bölümünü gösterir.
 - `uw build --debug`: oyunda her menü açılınca sol altta kendi kodunu yazar (`uw: menu_start_phase_2`); değiştirmek istediğin ekranın adını oynarken görürsün.
 - **`uw build <mod klasörü>`**: `.uw` dosyalarını okur, her adı Native'de denetler (yanlış yazıma "şunu mu demek istedin" der, kapanmamış `{`'nin satırını gösterir), Module System kitiyle derler ve modu Warband'ın `Modules` klasörüne kurar (yalnız kendi kurduğu klasörün üzerine yazar).
 - UW dili, ilk hali: süslü parantezli bloklar; `mod <ad>`, `override menu <menü> { on enter { ... } }`, `on game.start { ... }`; Native işlemleri adıyla çağrılır: `party_relocate_near_party(p_main_party, p_town_6, 3)`.

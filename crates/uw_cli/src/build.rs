@@ -82,6 +82,10 @@ pub fn run(opts: Options) -> Result<(), String> {
         return Err(format!("mod name '{}' may only use letters, digits and _", checked.name));
     }
     println!("checked   {} file(s), {} change(s) to Native", sources.len(), checked.patches.len());
+    let report = impact_report(&model, &checked);
+    if !report.is_empty() {
+        print!("{report}");
+    }
 
     // 3. Emit the overlay.
     let kit = opts
@@ -145,6 +149,48 @@ pub fn run(opts: Options) -> Result<(), String> {
     println!("installed {}", dest.display());
     println!("done      pick '{}' in the Warband launcher", checked.name);
     Ok(())
+}
+
+/// What the mod makes unreachable in Native. A replaced menu body that leaves the menu
+/// (`change_screen_*`, `jump_to_menu`) means the menu's own options never show, so all of that
+/// menu's Native edges are cut; whatever the new code itself mentions still counts as reached.
+pub fn impact_report(model: &crate::model::Model, checked: &uw_check::Checked) -> String {
+    use crate::model::Target;
+    let mut cut = Vec::new();
+    let mut new_refs = Vec::new();
+    for patch in &checked.patches {
+        for op in &patch.ops {
+            for arg in &op.args {
+                if let uw_check::Value::Ref(text) = arg {
+                    if let Some((table, entry)) = model.atlas.resolve_ref(text) {
+                        new_refs.push(Target::Entry { table: table.to_owned(), index: entry.index });
+                    }
+                }
+            }
+        }
+        let leaves = patch.ops.iter().any(|op| op.name.starts_with("change_screen_") || op.name == "jump_to_menu");
+        if patch.module == "module_game_menus" && patch.action == uw_check::Action::ReplaceBody && leaves {
+            let base = patch.entry.split('#').next().unwrap_or(&patch.entry);
+            if let Some((table, entry)) = model.atlas.resolve_ref(&format!("mnu_{base}")) {
+                cut.push(Target::Entry { table: table.to_owned(), index: entry.index });
+            }
+        }
+    }
+    let mut lost = crate::impact::unreachable_after(model, &cut);
+    // Still reached through the new code.
+    let mut seen = std::collections::BTreeSet::new();
+    let mut queue = new_refs;
+    while let Some(node) = queue.pop() {
+        if seen.insert(node.clone()) {
+            for (next, _) in model.outgoing(&node) {
+                if matches!(next, Target::Entry { .. }) {
+                    queue.push(next.clone());
+                }
+            }
+        }
+    }
+    lost.retain(|t| !seen.contains(t));
+    crate::impact::render(model, &lost)
 }
 
 fn write(path: &Path, text: &str) -> Result<(), String> {
@@ -306,5 +352,47 @@ mod tests {
         reset_dir(&ours, OVERLAY_MARKER).unwrap();
         assert!(!ours.join("old.py").exists() && ours.join(OVERLAY_MARKER).is_file());
         let _ = fs::remove_dir_all(&root);
+    }
+}
+
+#[cfg(test)]
+mod impact_tests {
+    use uw_check::{Action, Checked, Op, Patch, Value};
+
+    fn model() -> crate::model::Model {
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/atlas_impact.json");
+        crate::model::Model::new(uw_atlas::Atlas::from_path(path).unwrap())
+    }
+
+    fn menu_patch(ops: Vec<Op>) -> Checked {
+        Checked {
+            name: "t".into(),
+            patches: vec![Patch {
+                module: "module_game_menus".into(),
+                var: "game_menus".into(),
+                entry: "a".into(),
+                path: vec![4],
+                action: Action::ReplaceBody,
+                ops,
+                origin: "t.uw:1".into(),
+            }],
+        }
+    }
+
+    fn op(name: &str, args: Vec<Value>) -> Op {
+        Op { name: name.into(), args, origin: "t.uw:2".into() }
+    }
+
+    #[test]
+    fn leaving_a_menu_reports_what_it_no_longer_reaches() {
+        let m = model();
+        let report = super::impact_report(&m, &menu_patch(vec![op("change_screen_map", vec![])]));
+        assert!(report.starts_with("impact: 2 Native entries"), "{report}");
+        // The new code jumps to c itself: only b is lost.
+        let report = super::impact_report(&m, &menu_patch(vec![op("jump_to_menu", vec![Value::Ref("mnu_c".into())])]));
+        assert!(report.starts_with("impact: 1 Native entries"), "{report}");
+        assert!(report.contains("menu_b") && !report.contains("menu_c"), "{report}");
+        // A body that stays in the menu cuts nothing.
+        assert_eq!(super::impact_report(&m, &menu_patch(vec![op("display_message", vec![Value::Text("@x".into())])])), "");
     }
 }
