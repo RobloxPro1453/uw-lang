@@ -1,0 +1,26 @@
+# Animation records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_animations.py
+# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "animations"
+kind = "animation"
+id_prefix = "anim_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_animations.py:6"
+
+[[fields]]
+name = "animation_flags"
+ty = "raw"
+source = "module_animations.py:7"
+
+[[fields]]
+name = "animation_master_flags"
+ty = "raw"
+source = "module_animations.py:8"
+
+[[fields]]
+name = "animation_sequences"
+ty = "raw"
+source = "module_animations.py:9"
