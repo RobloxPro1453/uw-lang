@@ -3,9 +3,10 @@
 //! Short by default (owner: long output tires); `--all` lists every use and the raw value. When
 //! the name is not exact, the closest matches are listed instead (part of a name works).
 
+use std::collections::BTreeMap;
 use std::fmt::Write as _;
 
-use crate::model::{short, Detail, Model};
+use crate::model::{entry_hint, entry_label, short, Detail, Model, Target, UseGroup, UseSite};
 
 /// Uses shown per group in the short form.
 const SHORT_SITES: usize = 5;
@@ -17,7 +18,7 @@ const MATCHES: usize = 12;
 /// Explains `query`; a partial name lists what matches. `Err` only when nothing matches.
 pub fn explain(model: &Model, query: &str, all: bool) -> Result<String, String> {
     match model.resolve(query) {
-        Some(target) => Ok(render(&model.describe(&target), all)),
+        Some(target) => Ok(render(model, &target, &model.describe(&target), all)),
         None => matches(model, query),
     }
 }
@@ -51,8 +52,16 @@ fn matches(model: &Model, query: &str) -> Result<String, String> {
     Ok(out)
 }
 
-/// Plain-text form of a detail (also the CLI test surface).
-pub fn render(detail: &Detail, all: bool) -> String {
+/// Plain-text form of a detail (also the CLI test surface): where it is used, then what it leads
+/// to (the entries it mentions).
+pub fn render(model: &Model, target: &Target, detail: &Detail, all: bool) -> String {
+    let mut out = used_by(detail, all);
+    out.push_str(&leads_to(model, target, all));
+    out
+}
+
+/// The "used by" part: the entries that mention `detail`, grouped by table.
+fn used_by(detail: &Detail, all: bool) -> String {
     let mut out = String::new();
     match &detail.hint {
         Some(hint) => {
@@ -86,7 +95,18 @@ pub fn render(detail: &Detail, all: bool) -> String {
         detail.total_mentions
     );
     let groups = if all { detail.uses.len() } else { SHORT_GROUPS.min(detail.uses.len()) };
-    for group in detail.uses.iter().take(groups) {
+    out.push_str(&groups_text(&detail.uses, all));
+    if !all && (groups < detail.uses.len() || detail.uses.iter().any(|g| g.sites.len() > SHORT_SITES)) {
+        out.push_str("\n  (uw explain --all for everything, uw browse to click through)\n");
+    }
+    out
+}
+
+/// Groups of places: a table and its rows (the form under `used by` and `leads to`).
+fn groups_text(groups: &[UseGroup], all: bool) -> String {
+    let mut out = String::new();
+    let shown_groups = if all { groups.len() } else { SHORT_GROUPS.min(groups.len()) };
+    for group in groups.iter().take(shown_groups) {
         let _ = writeln!(out, "\n  {} ({})", group.table, group.sites.len());
         let shown = if all { group.sites.len() } else { SHORT_SITES.min(group.sites.len()) };
         let width = group.sites.iter().take(shown).map(|s| s.label.chars().count()).max().unwrap_or(0).min(44);
@@ -101,15 +121,58 @@ pub fn render(detail: &Detail, all: bool) -> String {
             let _ = writeln!(out, "    … {} more", group.sites.len() - shown);
         }
     }
-    if groups < detail.uses.len() {
-        let rest: Vec<String> = detail.uses[groups..]
-            .iter()
-            .map(|g| format!("{} {}", g.sites.len(), g.table))
-            .collect();
+    if shown_groups < groups.len() {
+        let rest: Vec<String> =
+            groups[shown_groups..].iter().map(|g| format!("{} {}", g.sites.len(), g.table)).collect();
         let _ = writeln!(out, "\n  … and {}", rest.join(", "));
     }
-    if !all && (groups < detail.uses.len() || detail.uses.iter().any(|g| g.sites.len() > SHORT_SITES)) {
-        out.push_str("\n  (uw explain --all for everything, uw browse to click through)\n");
+    out
+}
+
+/// The "leads to" part: the entries `target` mentions, grouped by table (the other direction).
+/// Nothing when it mentions no entry: globals and operations are not places.
+fn leads_to(model: &Model, target: &Target, all: bool) -> String {
+    // table -> index -> op -> count, in the order the entry mentions them.
+    let mut by_table: BTreeMap<&str, BTreeMap<usize, BTreeMap<&str, usize>>> = BTreeMap::new();
+    for (mentioned, op) in model.outgoing(target) {
+        let Target::Entry { table, index } = mentioned else { continue };
+        *by_table
+            .entry(table.as_str())
+            .or_default()
+            .entry(*index)
+            .or_default()
+            .entry(op.as_deref().unwrap_or("data"))
+            .or_default() += 1;
     }
+    let mut groups: Vec<UseGroup> = by_table
+        .into_iter()
+        .map(|(table, sites)| UseGroup {
+            table: table.to_owned(),
+            sites: sites
+                .into_iter()
+                .map(|(index, ops)| {
+                    let t = &model.atlas.tables[table];
+                    let entry = &t.entries[index];
+                    UseSite {
+                        target: Target::Entry { table: table.to_owned(), index },
+                        label: entry_label(&model.atlas, table, entry),
+                        hint: entry_hint(table, entry),
+                        place: match entry.line {
+                            Some(line) => format!("{}.py:{line}", t.module),
+                            None => format!("{}.py", t.module),
+                        },
+                        ops: ops.into_iter().map(|(op, n)| (op.to_owned(), n)).collect(),
+                    }
+                })
+                .collect(),
+        })
+        .collect();
+    if groups.is_empty() {
+        return String::new();
+    }
+    groups.sort_by(|a, b| b.sites.len().cmp(&a.sites.len()).then(a.table.cmp(&b.table)));
+    let sites: usize = groups.iter().map(|g| g.sites.len()).sum();
+    let mut out = format!("\n  leads to: {sites} {}\n", if sites == 1 { "place" } else { "places" });
+    out.push_str(&groups_text(&groups, all));
     out
 }
