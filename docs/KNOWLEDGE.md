@@ -21,6 +21,7 @@ Koddan bakarak görülemeyen şeyler: tuzaklar, denenip bırakılan yollar, orta
 - **D1:** kit staging kopyasında 29 adım, ~27 s, 0 hata/uyarı satırı, 32 çıktı dosyası; iki derleme bayt bayt aynı. `ID_*.py`'siz kopyada 29 adımın 18'i `ImportError` (bootstrap şart). Kitin yeniden yazdığı `ID_*.py`'ler kittekilerle aynı. Taban: `kit-meta/native.baseline.json`.
 - **Atlas:** 1060 op satırı (`ad = sayı`, hizalama boşluklu olanlar dahil; meclisin 1053'ü sıkı grep'ti), 49 `game_*` kanca, 238 `*_begin/_end`, 27 tablo, 12815 kayıt; çift adlı: items 15, strings 31 gölgeli kayıt. Kaynak satırı bulunamayan tek kayıt: menü `garden`.
 - **D2 (ana test):** 29 `module_*.py` → `native_module_*.py` + `from native_X import *` sarmalayıcı → 32 çıktı D1 ile bayt bayt eşit. Alt testler (b) paylaşılan nesne ve (c) `ad#n` `uw_runtime` ile geçti (`py/d2_runtime.py`, 13/13): 21 şablonda ortak trigger'a tek şablonda op eklenince `mission_templates.txt`'te yalnız o şablonun satırı, `item_kinds1.txt`'te yalnız #1'in satırı değişti; diğer 20 şablon aynı Python nesnesini tutuyor.
+- **D2 (a/d/e, `py/d2_extra.py`):** 29 sarmalayıcının her biri tek başına import ediliyor; aynı boş yama iki kez derlenince 32 çıktı bayt bayt aynı; kit hash'i `kit-meta/native.baseline.json` ile eşit.
 - **D3 (tam kapsam):** 27 tablonun bütün değerleri atlastan yazıcıyla yeniden basıldı → 32 çıktı eşit. Kit girdisi = atlas değerleri; metin gerekmez.
 
 ## Denenip bırakılan yollar

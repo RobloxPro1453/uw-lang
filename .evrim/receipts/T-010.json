@@ -1,11 +1,11 @@
 {
   "taskId": "T-010",
   "branch": "cv/T-010",
-  "headSha": "c95b9b0baf8b5b0917056c6dd4cd4ba2af0bbcf9",
-  "treeSha": "38573c8a9cb99862e3562661c564472db408e553",
+  "headSha": "0c2a84f83eda0ab39f4eb26f6d1b25b2f0eed584",
+  "treeSha": "f5ceda7e2c65fe3dae5412318e2bfbb05dedba30",
   "buildOk": true,
   "testOk": true,
-  "status": "blocked",
-  "testsBy": "runner",
-  "timestamp": "2026-11-15T10:20:42.706Z"
+  "status": "done",
+  "testsBy": "agent",
+  "timestamp": "2026-11-15T10:22:57.266Z"
 }

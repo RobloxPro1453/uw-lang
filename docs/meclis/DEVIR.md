@@ -2,6 +2,8 @@
 
 ## 00. DURUM RAPORU (2026-11-15, tur 3 sonrası) — önce bunu oku
 
+**TUR 4 AÇIK (önce bunu bitir):** DeepSeek şeritleri T-004 (graph.rs akış ağacı), T-005 (graph_export.rs Mermaid/HTML), T-006 (impact.rs etki raporu), T-008 (tui.rs leads-to), T-009 (explain.rs leads-to) çalışıyordu. Yapılacak: `cv delegate status` → her dal için `cv delegate verify` + diff oku → `git merge --no-ff` → sonra Claude bağlar: `uw graph <şey> [--depth N] [--mermaid|--html <dosya>]` (main.rs), etki raporunu `uw build` çıktısına (`impact::unreachable_after` + kesilen girdiler: override edilen menüler), `tr::load_dir(default_dir)` ile resmî Türkçe metni browse/explain ipucuna. Birleşmiş: T-007, T-010 (D2 tamam). `uw build --debug` (menüler) yapıldı, oyunda denenmedi (CHECKUP). Sonra `cv round end`.
+
 **Bir cümlede:** UW ile yazılmış ilk mod (`examples/praven_start`) tek komutla derlenip oyuna kuruldu ve sahibi oyunda çalıştığını doğruladı (karakter yaratma Native, prolog yok, Praven yanında harita).
 
 **Çalışan komutlar** (`target/release/uw.exe`; atlas `target/uw-staging/atlas.json` gerekir, yoksa `docs/DEVELOPMENT.md` > Atlas üretimi):

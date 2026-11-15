@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T10:19:30.862Z",
+  "updatedAt": "2026-11-15T10:22:57.333Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -41,30 +41,46 @@
     },
     "T-004": {
       "task": "T-004",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-004",
-      "updatedAt": "2026-11-15T10:17:59.628Z"
+      "updatedAt": "2026-11-15T10:20:47.923Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/graph.rs +202 -0",
+        "crates/uw_cli/src/main.rs +1 -0"
+      ]
     },
     "T-005": {
       "task": "T-005",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-005",
-      "updatedAt": "2026-11-15T10:17:59.639Z"
+      "updatedAt": "2026-11-15T10:22:15.525Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/graph_export.rs +193 -0",
+        "crates/uw_cli/src/main.rs +1 -0"
+      ]
     },
     "T-006": {
       "task": "T-006",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-006",
-      "updatedAt": "2026-11-15T10:17:59.650Z"
+      "updatedAt": "2026-11-15T10:21:44.184Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/impact.rs +114 -0",
+        "crates/uw_cli/src/main.rs +1 -0",
+        "crates/uw_cli/tests/fixtures/atlas_impact.json +22 -0"
+      ]
     },
     "T-007": {
       "task": "T-007",
@@ -82,30 +98,43 @@
     },
     "T-008": {
       "task": "T-008",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-008",
-      "updatedAt": "2026-11-15T10:17:59.686Z"
+      "updatedAt": "2026-11-15T10:22:39.978Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/tui.rs +179 -16"
+      ]
     },
     "T-009": {
       "task": "T-009",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-009",
-      "updatedAt": "2026-11-15T10:17:59.718Z"
+      "updatedAt": "2026-11-15T10:22:19.782Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/explain.rs +75 -12",
+        "crates/uw_cli/tests/explain.rs +16 -0"
+      ]
     },
     "T-010": {
       "task": "T-010",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-010",
-      "updatedAt": "2026-11-15T10:17:59.731Z"
+      "updatedAt": "2026-11-15T10:22:57.333Z",
+      "summary": "status=done",
+      "files": [
+        "py/d2_extra.py +1 -1"
+      ]
     }
   }
 }
