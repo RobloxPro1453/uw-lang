@@ -87,7 +87,7 @@ def main(argv=None):
     with open(os.path.join(work, "d2-extra-result.json"), "w", encoding="utf-8") as fh:
         json.dump(result, fh, indent=1)
     for name, good in sorted(checks.items()):
-        print("  %-32s %s" % (name, "ok" if good else "FAIL"))
+        print("%s %s" % ("ok  " if good else "FAIL", name))
     for m in failed_imports:
         print("  import %s failed: %s" % (m, imports[m]["stderr"]))
     for name in differing:
