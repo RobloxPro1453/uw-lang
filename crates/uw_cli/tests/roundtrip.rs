@@ -62,6 +62,8 @@ fn measures_records_of_every_table_with_a_schema() {
     );
     // ... and its own TOTAL line.
     assert_eq!(words(records, "TOTAL"), ["TOTAL", "2", "records,", "exact", "2,", "failed", "0"]);
+    // Every table's line shows how much is typed and how many values still print raw.
+    assert!(records.contains("typed 0/4 fields, raw-rest 8 values"), "{records}");
 
     // Every record's text is written, one file per schema table.
     let text = std::fs::read_to_string(root.join("out/records/factions.uw")).expect("records file");
@@ -110,6 +112,8 @@ fn real_atlas_menus_and_scripts_records_show_their_blocks() {
     assert_eq!(words(records, "menus"), ["menus", "217", "records,", "exact", "217,", "failed", "0"]);
     assert_eq!(words(records, "scripts"), ["scripts", "610", "records,", "exact", "610,", "failed", "0"]);
     assert_eq!(words(records, "TOTAL"), ["TOTAL", "12815", "records,", "exact", "12815,", "failed", "0"]);
+    // The pilot troop fields count as typed; the rest of the troop record is still raw.
+    assert!(records.contains("typed 2/14 fields, raw-rest "), "{records}");
 
     // T-054: loops, guards and unclean tries print structured, so no `neg|` / `this_or_next|` /
     // compute-then-test line is left (T-050's classes 1-3 stay empty; loops whose body has a

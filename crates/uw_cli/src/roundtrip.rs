@@ -76,6 +76,10 @@ impl Records {
                     total.exact += r.exact;
                     total.failed += r.failed;
                     out.push_str(&line(name, r));
+                    out.push_str(&format!(
+                        "{name:<20} typed {}/{} fields, raw-rest {} values\n",
+                        r.typed_fields, r.fields, r.raw_rest
+                    ));
                 }
                 None => out.push_str(&format!("{name:<20} no schema\n")),
             }
@@ -133,7 +137,7 @@ fn measure_records(atlas: &uw_atlas::Atlas, schemas: &[Schema]) -> Records {
             .iter()
             .map(|entry| {
                 let paths = paths.get(&(schema.table.as_str(), entry.index)).map(Vec::as_slice).unwrap_or(&[]);
-                print_with_blocks(schema, entry, paths, &mut |block| block_text(atlas, block))
+                print_with_blocks(atlas, schema, entry, paths, &mut |block| block_text(atlas, block))
             })
             .collect::<Vec<_>>()
             .join("\n");

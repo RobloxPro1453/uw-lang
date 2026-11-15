@@ -221,7 +221,7 @@ fn build_project(dir: &Path, args: &Args) -> ExitCode {
         Err(message) => return crate::fail(&message),
     };
     let mut compile = |text: &str| crate::roundtrip::compile(&atlas, text).map(|ops| records::ops_to_json(&ops));
-    let mut parse = |schema: &Schema, text: &str| records::parse_with_blocks(schema, text, &mut compile);
+    let mut parse = |schema: &Schema, text: &str| records::parse_with_blocks(&atlas, schema, text, &mut compile);
     let records = match uw_decomp::project::load::load(&atlas, &schemas, dir, &mut parse) {
         Ok(records) => records,
         Err(errors) => {
