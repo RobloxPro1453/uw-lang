@@ -104,6 +104,16 @@ pub enum Stmt {
     Assign { target: Arg, op: AssignOp, value: Expr, span: Span },
     /// `if c { } else if c { } else { }`: `arms` in order, `otherwise` the final `else`.
     If { arms: Vec<(Cond, Block)>, otherwise: Option<Block>, span: Span },
+    /// `require c`: if `c` fails, the rest of the enclosing arm/block does not run (Native: a condition
+    /// operation in the middle of a block). docs/meclis/YON2-KARAR.md §4.2.
+    Require { cond: Cond, span: Span },
+    /// `attempt { } else attempt { } else { }`: Native `try_begin / else_try / try_end`; the first arm
+    /// whose `require`s all hold runs. A final `else { }` is one more arm. §4.3.
+    Attempt { arms: Vec<Block>, span: Span },
+    /// `for :i in range(0, 10) { }` = `try_for_range(:i, 0, 10)` … `try_end`. `kind` is the kit op name
+    /// without `try_for_` (`range`, `range_backwards`, `parties`, `agents`, `prop_instances`, `players`);
+    /// `args` follow the loop variable. P2 (2026-11-15).
+    For { var: Arg, kind: Ident, args: Vec<Arg>, body: Block, span: Span },
 }
 
 impl Stmt {
@@ -118,7 +128,11 @@ impl Stmt {
     pub fn span(&self) -> Span {
         match self {
             Stmt::Call(call) => call.span,
-            Stmt::Assign { span, .. } | Stmt::If { span, .. } => *span,
+            Stmt::Assign { span, .. }
+            | Stmt::If { span, .. }
+            | Stmt::Require { span, .. }
+            | Stmt::Attempt { span, .. }
+            | Stmt::For { span, .. } => *span,
         }
     }
 }

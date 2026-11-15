@@ -213,6 +213,18 @@ impl Ctx<'_> {
                         out.push(uw_lower::Stmt::If { arms: checked_arms, otherwise, origin: self.origin(*span) });
                     }
                 }
+                Stmt::Require { cond, span } => {
+                    if let Some(cond) = self.cond(cond) {
+                        out.push(uw_lower::Stmt::Require { cond, origin: self.origin(*span) });
+                    }
+                }
+                Stmt::Attempt { arms, span } => {
+                    let arms = arms.iter().map(|body| self.stmts(&body.stmts)).collect();
+                    out.push(uw_lower::Stmt::Attempt { arms, origin: self.origin(*span) });
+                }
+                Stmt::For { .. } => {
+                    unimplemented!("for loop checking: T-053")
+                }
             }
         }
         out

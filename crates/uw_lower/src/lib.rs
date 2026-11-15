@@ -83,6 +83,12 @@ pub enum Stmt {
     /// `target` is a `Value::Ref` (`$g`, `:l`) or a register `Value::Const`.
     Assign { target: Value, op: AssignOp, value: Expr, origin: String },
     If { arms: Vec<(Cond, Vec<Stmt>)>, otherwise: Option<Vec<Stmt>>, origin: String },
+    /// `require c`: the condition's operations, inline (a failing one ends the arm/block).
+    Require { cond: Cond, origin: String },
+    /// `try_begin`, arm 1, `else_try`, arm 2 …, `try_end`.
+    Attempt { arms: Vec<Vec<Stmt>>, origin: String },
+    /// `<op>(var, args…)`, body, `try_end`; `op` is the full kit name (`try_for_range`).
+    For { op: String, var: Value, args: Vec<Value>, body: Vec<Stmt>, origin: String },
 }
 
 /// Prefix of the temporaries lowering creates (`:_uw0`, `:_uw1`, …). The checker rejects user
@@ -127,6 +133,9 @@ impl Lower {
                     AssignOp::Mod => self.val("val_mod", target, value, origin),
                 },
                 Stmt::If { arms, otherwise, origin } => self.if_stmt(arms, otherwise, origin),
+                Stmt::Require { .. } | Stmt::Attempt { .. } | Stmt::For { .. } => {
+                    unimplemented!("require / attempt / for lowering: T-053")
+                }
             }
         }
     }

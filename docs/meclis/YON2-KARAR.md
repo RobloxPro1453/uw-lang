@@ -126,3 +126,13 @@ Paralel: Y1 oyun deneyleri (D8 boş taban vb.) CHECKUP kuyruğunda; sahibinin i�
 - Gemini kanıtlarındaki sayılar (256 aralık sabiti, 416 ofset hesabı, ad tekilliği) bu oturumda yalnız
   örneklemle doğrulandı; P3b'den önce kendi ölçümümüzle teyit edilir.
 - Kayıtlı oyun deneyi tarifi P3b ile CHECKUP'a yazılır.
+
+## 8. P2 eki: döngü (2026-11-15, mimar; ölçüme dayanır)
+
+T-050 dökümü: Native biçimli 5518 satırın 2500'ü "diğer"; bunların çoğu döngü kapanışı (`try_end`: 2113 satır,
+543'ü `try_begin` bloklarının, ~1570'i döngülerin; `try_for_range` 1360, `try_for_agents` 152,
+`try_for_parties` 33, `try_for_range_backwards` 25 [ÖLÇÜ]). Karar: L1'e `for <$g|:l> in <tür>(<arg>…) { … }`.
+`<tür>` kit işleminin `try_for_` öneki atılmış adıdır (`range`, `range_backwards`, `parties`, `agents`,
+`prop_instances`, `players` [KİT: header_operations.py:21-29]); listede olmayan tür hata, liste op
+tablosundan gelir (gömülü liste yok, ad uydurma yok). Gövdesinde `else_try` olan döngü (77 satır) L0 kalır.
+AST düğümleri: `uw_syntax::Stmt::{Require, Attempt, For}`, `uw_lower::Stmt::{Require, Attempt, For}`.
