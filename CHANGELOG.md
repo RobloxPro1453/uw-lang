@@ -10,6 +10,9 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 - Native atlası (`py/atlas_dump.py` + `uw_atlas`): Native'deki her kaydın adı, sırası, değeri ve kaynak satırı; `p_town_6` → Praven, `module_parties.py:82`.
 - Hata mesajı altyapısı (`uw_diag`): satır/sütun, işaret ve "did you mean" önerisi.
 - `uw explain <şey>`: Native'de bir kayıt, global değişken (`$g_...`), işlem ya da sabit nerede tanımlı ve hangi script/menü/diyalogda hangi işlemle kullanılıyor; kısa liste, `--all` ile tamamı. Yanlış yazınca en yakın adı önerir.
+- **`uw build <mod klasörü>`**: `.uw` dosyalarını okur, her adı Native'de denetler (yanlış yazıma "şunu mu demek istedin" der, kapanmamış `{`'nin satırını gösterir), Module System kitiyle derler ve modu Warband'ın `Modules` klasörüne kurar (yalnız kendi kurduğu klasörün üzerine yazar).
+- UW dili, ilk hali: süslü parantezli bloklar; `mod <ad>`, `override menu <menü> { on enter { ... } }`, `on game.start { ... }`; Native işlemleri adıyla çağrılır: `party_relocate_near_party(p_main_party, p_town_6, 3)`.
+- `examples/praven_start`: karakter yaratma Native gibi, prolog yok, Praven'in yanında başla.
 - `uw browse`: terminalde arama ekranı. Yazdıkça Native'de arar (adın bir parçası ya da oyundaki metin: `praven`, `merchant`), sağda seçilenin ne olduğunu, nerede tanımlandığını ve kimin kullandığını gösterir; Enter ile kullanan yere geçilir, Esc ile geri dönülür.
 - `uw explain` okunaklı hale geldi: oyundaki adı ("Praven") gösterir, kullananları türüne göre gruplar, diyalogları kendi kimliği (`dlga_start:...`) ve metniyle gösterir; tam ad bilinmiyorsa eşleşenleri listeler, `Praven` gibi oyundaki adla da bulur.
 - `uw_runtime.py`: üretilecek sarmalayıcıların Native kaydını adla (`ad#n` ile) bulup yalnız onu değiştiren yardımcıları; paylaşılan Native nesnelerine dokunmaz.

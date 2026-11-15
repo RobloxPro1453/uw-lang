@@ -71,7 +71,7 @@ Bağımlılık tek yönlü: `uw_diag` en dipte; `syntax → check → lower → 
 | `uw_check` | HIR: ad çözümleme, tip, katman, referans grafiği, katılık tanıları |
 | `uw_lower` | LIR: ifade → op, `if/for`, `on <kanca>`, menü override (sonra `wait/when/in/ui`) |
 | `uw_plan` | Numaralama, kilit, kapalı dünya |
-| `uw_emit` | Saf yazıcı |
+| `uw_emit` | Saf yazıcı. **Faz 1 dilimi (2026-11-15):** yeni kayıt olmadığı için `uw_lower`/`uw_plan` henüz boş; `uw_emit` yamaları doğrudan `uw_check`'ten alır. Yeni kayıt (ID/numara) gelince zincir aslına döner. |
 | `uw_kitrun` | Staging, 29 adımı tek tek koşturma, çıktı ayrıştırma, export kopyası |
 | `uw_verify` | Gidiş-dönüş, yeniden yazdırma testi, ID karşılaştırma, `native.baseline` |
 | `uw_cli` | `uw build / check / explain / verify`; git kayıt noktası sarmalayıcısı |

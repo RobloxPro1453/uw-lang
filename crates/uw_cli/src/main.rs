@@ -1,5 +1,6 @@
 //! The `uw` command line tool.
 
+mod build;
 mod explain;
 mod model;
 mod tui;
@@ -8,6 +9,8 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 const USAGE: &str = "usage:
+  uw build <mod folder> [--no-install] [--modules <Warband/Modules>] [--kit <kit>] [--python <python27.exe>]
+      check the .uw files, build them with the Module System kit and install the mod
   uw browse [--atlas <atlas.json>] [search]
       look around Native in a window: type to search, Enter to follow who uses what
   uw explain [--all] [--atlas <atlas.json>] <thing>
@@ -16,7 +19,7 @@ const USAGE: &str = "usage:
   uw --version";
 
 /// Where the atlas lives unless `--atlas` / `UW_ATLAS` says otherwise (docs/DEVELOPMENT.md).
-const ATLAS_REL: &str = "target/uw-staging/atlas.json";
+pub const ATLAS_REL: &str = "target/uw-staging/atlas.json";
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -27,6 +30,7 @@ fn main() -> ExitCode {
         }
         Some("explain") => cmd_explain(&args[1..]),
         Some("browse") => cmd_browse(&args[1..]),
+        Some("build") => cmd_build(&args[1..]),
         _ => {
             println!("uw {}", env!("CARGO_PKG_VERSION"));
             println!("{USAGE}");
@@ -57,7 +61,7 @@ fn parse(args: &[String]) -> Result<Common, String> {
     Ok(common)
 }
 
-fn load(path: Option<PathBuf>) -> Result<model::Model, String> {
+pub fn load(path: Option<PathBuf>) -> Result<model::Model, String> {
     let path = path
         .or_else(|| std::env::var_os("UW_ATLAS").map(PathBuf::from))
         .or_else(find_atlas)
@@ -105,6 +109,48 @@ fn cmd_browse(args: &[String]) -> ExitCode {
     match tui::run(&model, &common.words.join(" ")) {
         Ok(()) => ExitCode::SUCCESS,
         Err(err) => fail(&format!("terminal: {err}")),
+    }
+}
+
+fn cmd_build(args: &[String]) -> ExitCode {
+    let mut opts = build::Options {
+        dir: PathBuf::new(),
+        atlas: None,
+        kit: None,
+        python: None,
+        modules: None,
+        install: true,
+    };
+    let mut dir = None;
+    let mut it = args.iter();
+    while let Some(arg) = it.next() {
+        let mut value = |flag: &str| it.next().map(PathBuf::from).ok_or(format!("{flag} needs a path"));
+        let result = match arg.as_str() {
+            "--no-install" => {
+                opts.install = false;
+                Ok(())
+            }
+            "--atlas" => value("--atlas").map(|p| opts.atlas = Some(p)),
+            "--kit" => value("--kit").map(|p| opts.kit = Some(p)),
+            "--python" => value("--python").map(|p| opts.python = Some(p)),
+            "--modules" => value("--modules").map(|p| opts.modules = Some(p)),
+            _ if dir.is_none() => {
+                dir = Some(PathBuf::from(arg));
+                Ok(())
+            }
+            _ => Err(format!("unexpected argument '{arg}'\n{USAGE}")),
+        };
+        if let Err(message) = result {
+            return fail(&message);
+        }
+    }
+    let Some(dir) = dir else {
+        return fail(&format!("which mod folder should I build?\n{USAGE}"));
+    };
+    opts.dir = dir;
+    match build::run(opts) {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(message) => fail(&message),
     }
 }
 

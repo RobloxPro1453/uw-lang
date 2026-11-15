@@ -2,6 +2,10 @@
 
 ## 00. EN GÜNCEL (2026-11-15, tur 2 sonrası)
 
+- Tur 2 sonrası ek iş (sahibinin isteği): `uw browse` terminal arayüzü + okunaklı `uw explain` (ortak model `crates/uw_cli/src/model.rs`); atlas diyaloglara kitin `dlga_` kimliğini ve metin satırını veriyor. D4 bitti (`docs/bilgi/baslangic-akisi.md`).
+- **Tur 3 sonucu:** dil (süslü parantez) + `uw build` çalışıyor; `examples/praven_start` derlenip `Modules/praven_start`'a kuruldu; oyunda sahibinin denemesi CHECKUP'ta bekliyor. Sıradaki: ifadeler/`if`, `override` türleri (script, dialog), yeni kayıt (ID/PLAN zinciri), `uw new`, resmî TR metinleri browse'a.
+- **Tur 3 (plan):** sözdizimi meclisi → Faz 1 dikey dilim: `uw_syntax` (ayrıştırıcı) → `uw_check` (atlas ad denetimi) → wrapper üretimi (`uw_runtime`) → `uw build` (kitrun + `Modules/<mod>` kurulumu) → `examples/praven_start` = D4 c varyantı UW ile. Sahibinin kabulü: birkaç satır yaz, `uw build`, oyunda prolog'suz Praven başlangıcı.
+
 - Tur 2 bitti (tamamı Opus): `uw explain`, `py/uw_runtime.py` + D2 (b)(c), D4 test modları kuruldu (`Modules/uw_sonda_a/b/c`, adımlar `docs/CHECKUP.md`), `kit-meta/hooks.toml`. Testler 38. Ayrıntı `docs/PROGRESS.md` en üst.
 - D4 sonucu geldi: `docs/bilgi/baslangic-akisi.md`. `game_start` menü 0'dan önce koşar; prolog'suz başlangıç = menü 1 (`start_phase_2`) override; konum `game_start`'ta değil zincir sonunda ayarlanmalı (KARAR §5 varsayımı düzeltilecek).
 - Sıradaki tur (3): sözdizimi meclisi (Faz 1 gramerinden önce, `docs/MECLIS_GUNDEMI.md` sonu), D2 (a/d/e), diyalog kaynak satırları + `uw find "<metin>"`, `kit-meta/` kalanları (slots, hardwired, optypes).

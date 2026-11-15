@@ -135,3 +135,9 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 - **Oyun deneyi:** oyunu açmayı gerektiren her şey `docs/CHECKUP.md` > "Oyun deneyi kuyruğu"na tek tek, adım adım yazılır; döngü onu beklemeden deney gerektirmeyen işe geçer. Deney sonucu gelmeden ona dayanan karar kesinleşmez.
 - **Meclis:** mimariyi/sözdizimini kesinleştirecek bir noktaya gelinince (ör. Faz 1 gramerinden önce `docs/MECLIS_GUNDEMI.md` > Sözdizimi) döngü meclisi **kendisi** toplar (`MECLIS_GUNDEMI` talimatıyla, kota kurallarıyla), kararı işler, sahibine raporda anlatır.
 - **DeepSeek bütçesi:** toplam tavan `delegate.totalBudget` (15$). Döngü harcamayı `delegate.stateDir` kayıtlarından toplar; tavanın %80'inde yeni şerit açmaz, kalan işi Claude'a ya da sonraya bırakır ve raporda söyler. `dailyBudget` (başlangıç 2$) kabul oranına göre kendisi ayarlanır.
+
+## [2026-11-15] [mimari] Sözdizimi: süslü parantez (sözdizimi meclisi, hafif: mimar + risk koltuğu, oybirliği)
+- **Bulgu:** Sahibi ve modcular UW'yi çoğunlukla LLM/forum çıktısı yapıştırarak yazacak; yapıştırmada girinti bozulur, parantez bozulmaz. Sahibi C biliyor ve parantezi kendisi önerdi.
+- **Karar:** Bloklar `{ }`. Ayırıcı satır sonu ya da `;` (ikisi de serbest; parantez/virgül açıkken satır sonu bitirmez). Yorum `//`, `/* */`; yapıştırma dostu olsun diye `#` da kabul. Native işlemleri `ad(a, b)` biçiminde, adlar kitteki gibi (`p_town_6`, `$global`, `:yerel`, `"metin"`). Faz 1 yapıları: `mod <ad>`, `override menu <menü> { on enter { ... } }` (giriş gövdesini değiştirir), `on game.<kanca> { ... }` (Native kanca script'inin sonuna ekler).
+- **Risk koltuğunun şartı (bağlayıcı):** ayrıştırıcı asla yalnız "beklenmedik dosya sonu" demez; kapanmamış `{`'nin satırını gösterir; Python/JS tarzına (`:` ile blok, `if (x) {`) tek satırlık düzeltme önerir; sekme/CRLF/akıllı tırnak yapıştırması aynı sonucu verir.
+- **Beklenen etki:** yapıştırılan kod çalışır ya da hatası tek satırda anlaşılır.

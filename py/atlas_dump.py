@@ -11,6 +11,7 @@ duplicate names resolved "last wins" exactly like the kit's ID writer).
 Output JSON (schema 1):
   ops:     [{name, code, line, signature, lhs, can_fail, global_lhs}]   from header_operations.py
   hooks:   ["game_start", ...]                                          scripts named game_*
+  constants: [{name, value, module, line}]                              ints of header_*.py (not ops) + module_constants.py
   ranges:  [{name, value, line}]                                        *_begin / *_end in module_constants.py
   tables:  {table: {module, var, id_prefix, id_file, ref_tag, entries: [{index, name, id, dup, line, value}]}}
            ref_tag: the tag operations use for this table ("mnu" for menus), from process_operations.py;
@@ -109,6 +110,28 @@ def dump_ranges():
         if m:
             import module_constants as mc
             out.append({"name": m.group(1), "value": getattr(mc, m.group(1)), "line": no})
+    return out
+
+
+CONST_RE = re.compile(r"^([A-Za-z_]\w*)\s*=")
+
+
+def dump_constants():
+    """Every module-level integer a UW call may pass by name: header_*.py (except
+    header_operations.py, whose names are the ops) and module_constants.py. [{name, value, module,
+    line}], in file then line order; a name assigned twice in a file keeps its last line."""
+    import glob
+    out = []
+    files = sorted(f for f in glob.glob("header_*.py") if f != "header_operations.py")
+    for path in files + ["module_constants.py"]:
+        mod = __import__(path[:-3])
+        seen = {}
+        for no, line in enumerate(read_lines(path), 1):
+            m = CONST_RE.match(line)
+            if m and isinstance(getattr(mod, m.group(1), None), (int, long))                     and not isinstance(getattr(mod, m.group(1)), bool):
+                seen[m.group(1)] = no
+        for name, no in sorted(seen.items(), key=lambda kv: kv[1]):
+            out.append({"name": name, "value": getattr(mod, name), "module": path[:-3], "line": no})
     return out
 
 
@@ -254,7 +277,7 @@ def main():
         tables[t[0]]["ref_tag"] = ref_tags.get(t[2])
     hooks = [e["name"] for e in tables["scripts"]["entries"] if e["name"].startswith("game_")]
     atlas = {"schema": 1, "kit_hash": kit_hash, "ops": dump_ops(), "hooks": hooks,
-             "ranges": dump_ranges(), "tables": tables}
+             "ranges": dump_ranges(), "constants": dump_constants(), "tables": tables}
     with io.open(out_path, "w", encoding="utf-8") as fh:
         fh.write(unicode(json.dumps(atlas, ensure_ascii=False, sort_keys=True, separators=(",", ":"))))
     print("ops %d, hooks %d, ranges %d, tables %d, entries %d" % (

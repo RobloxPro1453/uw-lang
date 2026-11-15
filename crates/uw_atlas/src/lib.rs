@@ -40,6 +40,16 @@ pub struct Range {
     pub line: Option<u32>,
 }
 
+/// A named integer from `header_*.py` (not ops) or `module_constants.py`.
+#[derive(Debug, Clone, Deserialize)]
+pub struct Constant {
+    pub name: String,
+    pub value: serde_json::Value,
+    /// Python module that defines it (`header_common`, `module_constants`, ...).
+    pub module: String,
+    pub line: Option<u32>,
+}
+
 /// One entry of a Native table list.
 #[derive(Debug, Clone, Deserialize)]
 pub struct Entry {
@@ -89,6 +99,9 @@ pub struct Atlas {
     /// Bare script names (`game_start`, ...) — not `script_`-prefixed ids.
     pub hooks: Vec<String>,
     pub ranges: Vec<Range>,
+    /// Empty for atlases dumped before the field existed.
+    #[serde(default)]
+    pub constants: Vec<Constant>,
     /// Keyed by table name; ordered so `all_ids` is deterministic.
     pub tables: BTreeMap<String, Table>,
     #[serde(skip)]
@@ -98,6 +111,8 @@ pub struct Atlas {
     id_index: HashMap<String, (String, usize)>,
     #[serde(skip)]
     hook_set: HashSet<String>,
+    #[serde(skip)]
+    const_index: HashMap<String, usize>,
     /// `ref_tag` -> table name.
     #[serde(skip)]
     tag_index: HashMap<String, String>,
@@ -202,6 +217,12 @@ impl Atlas {
             .iter()
             .filter_map(|name| op_index.get(*name).map(|&pos| self.ops[pos].code))
             .fold(0, |mask, code| mask | code);
+        self.const_index = self
+            .constants
+            .iter()
+            .enumerate()
+            .map(|(pos, c)| (c.name.clone(), pos))
+            .collect();
         self.tag_index = tag_index;
         self.code_index = code_index;
         self.op_index = op_index;
@@ -238,6 +259,11 @@ impl Atlas {
     /// True when `name` is a script hook (`game_start`, ...).
     pub fn is_hook(&self, name: &str) -> bool {
         self.hook_set.contains(name)
+    }
+
+    /// A named constant (the last module defining it wins, as with `from X import *` in order).
+    pub fn constant(&self, name: &str) -> Option<&Constant> {
+        self.constants.get(*self.const_index.get(name)?)
     }
 
     /// The table operations reach with `tag` (`"mnu"` -> `"menus"`).

@@ -36,7 +36,7 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 
 ## 1. Çekirdek (finalForm)
 
-- [ ] Gramer + parser: girinti, ifadeler, `if/for/while`, `script`, `on <olay>`, blok tanımları; hata mesajında satır/sütun.
+- [ ] (ilk dilim 2026-11-15: `uw_syntax` süslü parantez, `mod`/`override menu`/`on game.x`/op çağrısı; ifadeler, `if/for/while` yok) Gramer + parser: ~~girinti~~ süslü parantez (meclis 2026-11-15), ifadeler, `if/for/while`, `script`, `on <olay>`, blok tanımları; hata mesajında satır/sütun.
 - [ ] Kat 0: tablodaki her operasyon UW'den isimli fonksiyon olarak çağrılabiliyor (tablo üstünde dönen otomatik test).
 - [ ] Operasyon tablosundan otomatik ifade çevirisi: `a = b + c*2` → `store_*`; `if` → `try_begin`; `or` → `this_or_next|`; `not` → `neg|`; `return` → `reg0`.
 - [ ] Sıra (meclis): gramer + CST → `uw_atlas` Rust tarafı → HIR (ad, tip, override) → LIR (ifade/`if`/`for`/`on`/menü) → PLAN → EMIT → `uw_kitrun` → `uw_verify`.
@@ -45,7 +45,7 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 - [ ] Genel `override` / `disable` mekanizması (her Native menü/script/trigger için aynı; amaca özel kısayol yok). Kabul testi: karakter yaratma A (soru zinciri → menüler) ve B (statları doğrudan koy) = menü 0 override + `disable menu start_phase_2` (giriş kesme; Native zincir ulaşılamaz kalır, silinmez).
 - [ ] İsim denetimi + "şunu mu demek istedin?" önerisi; çift adlı hedefte `ad#n` zorunlu.
 - [ ] Altın testler: `.uw` → beklenen `module_*.py` parçası; uçtan uca test: kit build'i geçiyor + `.txt` içinde beklenen kayıt var; gidiş-dönüş (D2) ve yeniden yazdırma testi (D3) CI'de, sahte mini Module System fixture ile.
-- [ ] `examples/praven_start` ve `uw build` / `uw check` komutları.
+- [ ] `examples/praven_start` ve `uw build` / `uw check` komutları. (`uw build` + praven_start derleniyor ve kuruluyor 2026-11-15; oyunda sahibinin denemesi bekleniyor; `uw check` ayrı komut değil, build'in ilk adımı)
 
 ## 1b. Zaman ve olay ilkelleri (Faz 1'den hemen sonra, pilot: babayla veda sahnesi)
 
