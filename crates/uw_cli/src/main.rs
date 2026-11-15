@@ -4,6 +4,7 @@ mod build;
 mod explain;
 mod graph;
 mod graph_export;
+mod impact;
 mod model;
 mod tr;
 mod tui;
