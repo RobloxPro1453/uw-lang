@@ -1,0 +1,31 @@
+# Skill records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_skills.py
+# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "skills"
+kind = "skill"
+id_prefix = "skl_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_skills.py:6"
+
+[[fields]]
+name = "name"
+ty = "raw"
+source = "module_skills.py:7"
+
+[[fields]]
+name = "skill_flags"
+ty = "raw"
+source = "module_skills.py:8"
+
+[[fields]]
+name = "maximum_level"
+ty = "raw"
+source = "module_skills.py:9"
+
+[[fields]]
+name = "description"
+ty = "raw"
+source = "module_skills.py:10"
