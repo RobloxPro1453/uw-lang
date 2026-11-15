@@ -1,0 +1,78 @@
+# Troop records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_troops.py
+# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "troops"
+kind = "troop"
+id_prefix = "trp_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_troops.py:13"
+
+[[fields]]
+name = "name"
+ty = "raw"
+source = "module_troops.py:14"
+
+[[fields]]
+name = "plural_name"
+ty = "raw"
+source = "module_troops.py:15"
+
+[[fields]]
+name = "troop_flags"
+ty = "raw"
+source = "module_troops.py:16"
+
+[[fields]]
+name = "scene"
+ty = "raw"
+source = "module_troops.py:17"
+
+[[fields]]
+name = "reserved"
+ty = "raw"
+source = "module_troops.py:18"
+
+[[fields]]
+name = "faction"
+ty = "raw"
+source = "module_troops.py:19"
+
+[[fields]]
+name = "inventory"
+ty = "raw"
+source = "module_troops.py:20"
+
+[[fields]]
+name = "attributes"
+ty = "raw"
+source = "module_troops.py:21"
+
+[[fields]]
+name = "weapon_proficiencies"
+ty = "raw"
+source = "module_troops.py:23"
+
+[[fields]]
+name = "skills"
+ty = "raw"
+source = "module_troops.py:28"
+
+[[fields]]
+name = "face_code"
+ty = "raw"
+source = "module_troops.py:30"
+
+[[fields]]
+name = "face_code_2"
+ty = "raw"
+optional = true
+source = "module_troops.py:31"
+
+[[fields]]
+name = "troop_image"
+ty = "raw"
+optional = true
+source = "module_troops.py:33"
