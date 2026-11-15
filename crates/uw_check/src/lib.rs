@@ -222,8 +222,10 @@ impl Ctx<'_> {
                     let arms = arms.iter().map(|body| self.stmts(&body.stmts)).collect();
                     out.push(uw_lower::Stmt::Attempt { arms, origin: self.origin(*span) });
                 }
-                Stmt::For { .. } => {
-                    unimplemented!("for loop checking: T-053")
+                Stmt::For { var, kind, args, body, span } => {
+                    if let Some(stmt) = self.for_stmt(var, kind, args, body, *span) {
+                        out.push(stmt);
+                    }
                 }
             }
         }
@@ -723,6 +725,83 @@ impl Ctx<'_> {
             }
         }
         Some(Op { name, args, origin: self.origin(stmt.span) })
+    }
+
+    /// Checks a `for` loop: the operation is `try_for_<kind>` (it must be in the atlas), the loop
+    /// variable is a `$global` or a `:local`, and the values are checked like the values of a call.
+    fn for_stmt(
+        &mut self,
+        var: &Arg,
+        kind: &Ident,
+        args: &[Arg],
+        body: &Block,
+        span: Span,
+    ) -> Option<uw_lower::Stmt> {
+        let name = format!("try_for_{}", kind.text);
+        let body = self.stmts(&body.stmts);
+        let var = match var {
+            Arg::Global(g) | Arg::Local(g) => self.local(g),
+            Arg::Name(name) => {
+                self.error(diag(
+                    E0212_ASSIGN_TARGET,
+                    format!("'{}' cannot be a loop variable", name.text),
+                    name.span,
+                    Some("the loop variable must be a $global or a :local".into()),
+                ));
+                None
+            }
+            Arg::Int(_, span) | Arg::Str(_, span) => {
+                self.error(diag(
+                    E0212_ASSIGN_TARGET,
+                    "the loop variable must be a $global or a :local".into(),
+                    *span,
+                    None,
+                ));
+                None
+            }
+        };
+        let mut values = Vec::new();
+        for arg in args {
+            if let Some(value) = self.value(arg) {
+                values.push(value);
+            }
+        }
+        let op = match self.atlas.op(&name) {
+            Some(op) => op,
+            None => {
+                let kinds: Vec<&str> = self
+                    .atlas
+                    .ops
+                    .iter()
+                    .filter(|o| o.name.starts_with("try_for_"))
+                    .map(|o| o.name.as_str())
+                    .collect();
+                self.error(diag(
+                    E0001_UNKNOWN_NAME,
+                    format!("'{name}' is not a Native operation"),
+                    kind.span,
+                    Some(format!("the loop kinds are: {}", kinds.join(", "))),
+                ));
+                return None;
+            }
+        };
+        // The operation takes the loop variable first, so the values count is one more than `args`.
+        let given = 1 + args.len();
+        if let Some(min) = min_args(op) {
+            if given < min {
+                let mut d = diag(
+                    E0203_TOO_FEW,
+                    format!("'{name}' needs at least {min} values, got {given}"),
+                    span,
+                    Some(format!("Native: {}", op.signature.trim())),
+                );
+                if let Some(line) = op.line {
+                    d.notes.push(format!("header_operations.py:{line}"));
+                }
+                self.error(d);
+            }
+        }
+        Some(uw_lower::Stmt::For { op: name, var: var?, args: values, body, origin: self.origin(span) })
     }
 }
 
@@ -1285,7 +1364,7 @@ mod tests {
             {"name":"assign","code":2133,"line":40,"signature":"had to put this here","lhs":true,"can_fail":false,"global_lhs":false},
             {"name":"try_end","code":3,"line":16,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
             {"name":"try_begin","code":4,"line":17,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
-            {"name":"try_for_range","code":6,"line":null,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+            {"name":"try_for_range","code":6,"line":19,"signature":"(try_for_range,<destination>,<lower_bound>,<upper_bound>),","lhs":true,"can_fail":false,"global_lhs":false},
             {"name":"eq","code":31,"line":41,"signature":"","lhs":false,"can_fail":true,"global_lhs":false},
             {"name":"neg","code":2147483648,"line":440,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
             {"name":"this_or_next","code":1073741824,"line":441,"signature":"","lhs":false,"can_fail":false,"global_lhs":false}
@@ -1452,6 +1531,10 @@ mod tests {
         Cond::Cmp { op, left, right, span: line_span(1) }
     }
 
+    fn for_stmt(var: Arg, kind: &str, args: Vec<Arg>, body: Vec<Stmt>) -> Stmt {
+        Stmt::For { var, kind: ident(kind, 1), args, body: block(body), span: line_span(1) }
+    }
+
     fn run_block(stmts: Vec<Stmt>) -> Result<Vec<Op>, Vec<String>> {
         let file = SourceFile::new("start.uw", SOURCE);
         check_block(&atlas(), &file, &stmts).map_err(|errs| errs.iter().map(|e| e.render(&file)).collect())
@@ -1592,6 +1675,85 @@ mod tests {
         assert!(bad(Arg::Local(ident(":_x", 1)))[0].contains("`:_`"));
         let errs = run_stmts(vec![op_call("display_message", vec![Arg::Local(ident(":_bad", 1))])]).unwrap_err();
         assert!(errs[0].contains("`:_`"), "{errs:?}");
+    }
+
+    #[test]
+    fn for_becomes_a_loop_statement_that_lowers_to_the_kit_operation() {
+        let tree = run_stmts(vec![for_stmt(
+            Arg::Local(ident(":i", 1)),
+            "range",
+            vec![int(0), int(10)],
+            vec![op_call("change_screen_map", vec![])],
+        )])
+        .unwrap();
+        assert_eq!(
+            tree,
+            vec![uw_lower::Stmt::For {
+                op: "try_for_range".into(),
+                var: Value::Ref(":i".into()),
+                args: vec![Value::Int(0), Value::Int(10)],
+                body: vec![uw_lower::Stmt::Op(Op {
+                    name: "change_screen_map".into(),
+                    args: Vec::new(),
+                    origin: "start.uw:1".into(),
+                })],
+                origin: "start.uw:1".into(),
+            }]
+        );
+        let ops = uw_lower::lower(&tree);
+        let names: Vec<&str> = ops.iter().map(|o| o.name.as_str()).collect();
+        assert_eq!(names, ["try_for_range", "change_screen_map", "try_end"]);
+        assert_eq!(ops[0].args, [Value::Ref(":i".into()), Value::Int(0), Value::Int(10)]);
+    }
+
+    #[test]
+    fn for_loop_variable_must_be_a_global_or_a_local() {
+        for bad in [Arg::Name(ident("i", 1)), Arg::Int(1, line_span(1))] {
+            let errs =
+                run_stmts(vec![for_stmt(bad, "range", vec![int(0), int(3)], vec![])]).unwrap_err();
+            assert!(errs[0].contains("loop variable"), "{errs:?}");
+        }
+        let tree = run_stmts(vec![for_stmt(
+            Arg::Global(ident("$i", 1)),
+            "range",
+            vec![int(0), int(3)],
+            vec![],
+        )])
+        .unwrap();
+        assert!(
+            matches!(&tree[0], uw_lower::Stmt::For { var, .. } if var == &Value::Ref("$i".into())),
+            "{tree:?}"
+        );
+    }
+
+    #[test]
+    fn unknown_for_kind_lists_the_loop_operations() {
+        let errs =
+            run_stmts(vec![for_stmt(Arg::Local(ident(":i", 1)), "rang", vec![int(0), int(3)], vec![])])
+                .unwrap_err();
+        assert!(errs[0].contains("'try_for_rang' is not a Native operation"), "{errs:?}");
+        assert!(errs[0].contains("try_for_range"), "{errs:?}");
+        // The bare operation name is not a loop kind: the `try_for_` name must exist.
+        let errs = run_stmts(vec![for_stmt(Arg::Local(ident(":i", 1)), "begin", vec![], vec![])])
+            .unwrap_err();
+        assert!(errs[0].contains("'try_for_begin' is not a Native operation"), "{errs:?}");
+    }
+
+    #[test]
+    fn for_values_are_counted_like_call_values() {
+        let errs = run_stmts(vec![for_stmt(Arg::Local(ident(":i", 1)), "range", vec![int(3)], vec![])])
+            .unwrap_err();
+        assert!(errs[0].contains("'try_for_range' needs at least 3 values, got 2"), "{errs:?}");
+        assert!(errs[0].contains("header_operations.py:19"), "{errs:?}");
+        // A value that does not resolve is an error, like any other value.
+        let errs = run_stmts(vec![for_stmt(
+            Arg::Local(ident(":i", 1)),
+            "range",
+            vec![int(0), Arg::Name(ident("no_such_name", 1))],
+            vec![],
+        )])
+        .unwrap_err();
+        assert!(errs[0].contains("'no_such_name'"), "{errs:?}");
     }
 
     #[test]

@@ -133,8 +133,11 @@ impl Lower {
                     AssignOp::Mod => self.val("val_mod", target, value, origin),
                 },
                 Stmt::If { arms, otherwise, origin } => self.if_stmt(arms, otherwise, origin),
-                Stmt::Require { .. } | Stmt::Attempt { .. } | Stmt::For { .. } => {
-                    unimplemented!("require / attempt / for lowering: T-053")
+                // `require c`: the condition's operations, exactly as an `if` head writes them.
+                Stmt::Require { cond, origin } => self.cond(cond, origin),
+                Stmt::Attempt { arms, origin } => self.attempt(arms, origin),
+                Stmt::For { op, var, args, body, origin } => {
+                    self.for_stmt(op, var, args, body, origin)
                 }
             }
         }
@@ -190,6 +193,27 @@ impl Lower {
             self.op("else_try", Vec::new(), origin);
             self.stmts(body);
         }
+        self.op("try_end", Vec::new(), origin);
+    }
+
+    /// `attempt`: `try_begin`, arm 1, `else_try`, arm 2, … , `try_end` (§4.3).
+    fn attempt(&mut self, arms: &[Vec<Stmt>], origin: &str) {
+        self.op("try_begin", Vec::new(), origin);
+        for (i, body) in arms.iter().enumerate() {
+            if i > 0 {
+                self.op("else_try", Vec::new(), origin);
+            }
+            self.stmts(body);
+        }
+        self.op("try_end", Vec::new(), origin);
+    }
+
+    /// `for`: the loop operation with the variable first, the body, then `try_end`.
+    fn for_stmt(&mut self, op: &str, var: &Value, args: &[Value], body: &[Stmt], origin: &str) {
+        let mut all = vec![var.clone()];
+        all.extend(args.iter().cloned());
+        self.op(op, all, origin);
+        self.stmts(body);
         self.op("try_end", Vec::new(), origin);
     }
 
@@ -671,5 +695,122 @@ mod tests {
         for _ in 0..2 {
             assert_eq!(lower(&block), expected);
         }
+    }
+
+    fn require(cond: Cond) -> Stmt {
+        Stmt::Require { cond, origin: ORIGIN.into() }
+    }
+
+    fn op_stmt(name: &str) -> Stmt {
+        Stmt::Op(Op { name: name.into(), args: Vec::new(), origin: ORIGIN.into() })
+    }
+
+    #[test]
+    fn require_writes_the_condition_and_nothing_else() {
+        let cond = compare(CmpOp::Gt, value("$a"), int(1));
+        // The same operations the head of an `if` with that condition writes.
+        assert_eq!(lower(&[require(cond.clone())]), cond_ops(cond));
+        assert_eq!(
+            lower(&[require(compare(CmpOp::Gt, value("$a"), int(1)))]),
+            vec![native("gt", vec![global("$a"), Value::Int(1)])]
+        );
+    }
+
+    #[test]
+    fn require_or_uses_this_or_next_and_not_uses_the_neg_flag() {
+        let or = Cond::Or(vec![
+            compare(CmpOp::Eq, value("$x"), int(1)),
+            compare(CmpOp::Eq, value("$y"), int(2)),
+        ]);
+        assert_eq!(
+            lower(&[require(or)]),
+            vec![
+                native("this_or_next|eq", vec![global("$x"), Value::Int(1)]),
+                native("eq", vec![global("$y"), Value::Int(2)]),
+            ]
+        );
+        let not =
+            Cond::Not(Box::new(Cond::Op(native("party_is_active", vec![global("p_town_6")]))));
+        assert_eq!(
+            lower(&[require(not)]),
+            vec![native("neg|party_is_active", vec![global("p_town_6")])]
+        );
+    }
+
+    #[test]
+    fn attempt_brackets_each_arm_with_try_begin_else_try_and_try_end() {
+        let stmt = Stmt::Attempt {
+            arms: vec![vec![op_stmt("change_screen_map")], vec![op_stmt("change_screen_notes")]],
+            origin: ORIGIN.into(),
+        };
+        assert_eq!(
+            lower(&[stmt]),
+            vec![
+                native("try_begin", vec![]),
+                native("change_screen_map", vec![]),
+                native("else_try", vec![]),
+                native("change_screen_notes", vec![]),
+                native("try_end", vec![]),
+            ]
+        );
+    }
+
+    #[test]
+    fn attempt_with_one_arm_has_no_else_try() {
+        let stmt = Stmt::Attempt { arms: vec![vec![op_stmt("change_screen_map")]], origin: ORIGIN.into() };
+        assert_eq!(
+            lower(&[stmt]),
+            vec![
+                native("try_begin", vec![]),
+                native("change_screen_map", vec![]),
+                native("try_end", vec![]),
+            ]
+        );
+    }
+
+    #[test]
+    fn for_is_the_loop_operation_with_the_variable_first_then_body_then_try_end() {
+        let stmt = Stmt::For {
+            op: "try_for_range".into(),
+            var: global(":i"),
+            args: vec![Value::Int(0), Value::Int(10)],
+            body: vec![assign(global("$gold"), AssignOp::Add, int(1))],
+            origin: ORIGIN.into(),
+        };
+        assert_eq!(
+            lower(&[stmt]),
+            vec![
+                native("try_for_range", vec![global(":i"), Value::Int(0), Value::Int(10)]),
+                native("val_add", vec![global("$gold"), Value::Int(1)]),
+                native("try_end", vec![]),
+            ]
+        );
+    }
+
+    #[test]
+    fn for_inside_attempt_closes_its_own_try_block_first() {
+        let inner = Stmt::For {
+            op: "try_for_parties".into(),
+            var: global(":p"),
+            args: Vec::new(),
+            body: vec![op_stmt("change_screen_map")],
+            origin: ORIGIN.into(),
+        };
+        let stmt = Stmt::Attempt {
+            arms: vec![vec![inner], vec![op_stmt("change_screen_notes")]],
+            origin: ORIGIN.into(),
+        };
+        assert_eq!(
+            lower(&[stmt]),
+            vec![
+                native("try_begin", vec![]),
+                native("try_for_parties", vec![global(":p")]),
+                native("change_screen_map", vec![]),
+                native("try_end", vec![]),
+                native("else_try", vec![]),
+                native("change_screen_notes", vec![]),
+                native("try_end", vec![]),
+            ]
+        );
     }
 }
