@@ -1,0 +1,10 @@
+[package]
+name = "uw_check"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+uw_diag = { path = "../uw_diag" }
+uw_syntax = { path = "../uw_syntax" }
+uw_atlas = { path = "../uw_atlas" }

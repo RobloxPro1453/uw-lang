@@ -1,0 +1,166 @@
+{
+ "_comment": "D1 baseline: clean Module System 1.171 build in a staging copy (py/kitrun.py). Native prints no error/warning lines; any new problem line after a UW build is an error.",
+ "kit_hash": "9f56b9fdb6914fbfaca462c02b7fb0e933dcceb977283ee014b9afd3092b7057",
+ "steps": [
+  "process_init.py",
+  "process_global_variables.py",
+  "process_strings.py",
+  "process_skills.py",
+  "process_music.py",
+  "process_animations.py",
+  "process_meshes.py",
+  "process_sounds.py",
+  "process_skins.py",
+  "process_map_icons.py",
+  "process_factions.py",
+  "process_items.py",
+  "process_scenes.py",
+  "process_troops.py",
+  "process_particle_sys.py",
+  "process_scene_props.py",
+  "process_tableau_materials.py",
+  "process_presentations.py",
+  "process_party_tmps.py",
+  "process_parties.py",
+  "process_quests.py",
+  "process_info_pages.py",
+  "process_scripts.py",
+  "process_mission_tmps.py",
+  "process_game_menus.py",
+  "process_simple_triggers.py",
+  "process_dialogs.py",
+  "process_global_variables_unused.py",
+  "process_postfx.py"
+ ],
+ "problems": {},
+ "outputs": {
+  "actions.txt": {
+   "bytes": 68690,
+   "sha256": "52717207c88a04067b3fd02a25470fbb18826b88c302f5014df277b8cb498d3e"
+  },
+  "conversation.txt": {
+   "bytes": 863921,
+   "sha256": "8750ab3b92bceb3a72b284a3b3c72d6f9de35f90cc14d25ed5c11a143456e1df"
+  },
+  "dialog_states.txt": {
+   "bytes": 37720,
+   "sha256": "e0700f889d5e64057ec17f568ceb922b4680b0d3c8c6c3b0a6de423cb15ed933"
+  },
+  "factions.txt": {
+   "bytes": 13301,
+   "sha256": "9e4723b64a58498ab0c3335798ed076a804510f073b359ce7f1d821c4d25ba2b"
+  },
+  "info_pages.txt": {
+   "bytes": 13780,
+   "sha256": "d65ab66e496d3370a23f4c3609b84b98cbac738896f365eb11ce6fa6b1332ef6"
+  },
+  "item_kinds1.txt": {
+   "bytes": 99103,
+   "sha256": "ea25347d0ea80be6bce6cb5c6283d1d02a3a3ad73b17fd8b9dcdcf4bbd9be183"
+  },
+  "map_icons.txt": {
+   "bytes": 10444,
+   "sha256": "125f42eab804c0eb1f168d6b718112ef3ceeb9d676ba088660b2c60b795909a7"
+  },
+  "menus.txt": {
+   "bytes": 301236,
+   "sha256": "f9eafdb33df9692a4947be742cf9a1df8278c4b1fe16454506013aad342b236a"
+  },
+  "meshes.txt": {
+   "bytes": 66955,
+   "sha256": "06557bc8ae51fb20772786bdd42ca4fcb34db172b6218ae5e86ec9d993a3c4c9"
+  },
+  "mission_templates.txt": {
+   "bytes": 367329,
+   "sha256": "1b683db77d6d7e6c4162434cb0f97adcf7225754150dcb11c6fa926db7deb316"
+  },
+  "music.txt": {
+   "bytes": 2508,
+   "sha256": "2528025af0df65a5b4bd97c03476d31bfa069881efead23688b5bd9f1532d1dd"
+  },
+  "particle_systems.txt": {
+   "bytes": 22828,
+   "sha256": "2502ed06ae13cfe0d15b3ce7f5d087af5e8b04001dd1c5e6dcafd96a329eaccf"
+  },
+  "parties.txt": {
+   "bytes": 33181,
+   "sha256": "0c195e1d237e944c2b49026404cf8d34426ea88abd9ec1e462776e8b9a977cf4"
+  },
+  "party_templates.txt": {
+   "bytes": 5491,
+   "sha256": "267e83bf88546b0ca120e9e3121cb357316c448fe00e997ee8f88ce99eb7383f"
+  },
+  "postfx.txt": {
+   "bytes": 1210,
+   "sha256": "54c8e1b08c0b03d82aea17128cc99cbddb513046050bd7892a46c5805a8c00d2"
+  },
+  "presentations.txt": {
+   "bytes": 316262,
+   "sha256": "6ac95682003303a6b37fe4db3c5152c34fe1803090bea5068f62b3429af8b074"
+  },
+  "quests.txt": {
+   "bytes": 8887,
+   "sha256": "bb39c8bdc9a4e9c63a3ae880b499a00845844ad4ed2a2502c69d198eed80daab"
+  },
+  "quick_strings.txt": {
+   "bytes": 58772,
+   "sha256": "0594afd51a92f30e0d462ead3b123930c1fc582f02b92ae66dfdd5f2c5b655f4"
+  },
+  "scene_props.txt": {
+   "bytes": 99661,
+   "sha256": "af65c345e0b7c1f0cb2bc1b02db6109c76b2c6fe78a8bd49ba3340520ff96d40"
+  },
+  "scenes.txt": {
+   "bytes": 98571,
+   "sha256": "dc9aa3e20a14ba945b0b82bb3c1e847b69dd83c6708466b32bd8ad2c18febcb6"
+  },
+  "scripts.txt": {
+   "bytes": 1163507,
+   "sha256": "4ebf34ca89b17f66e8569fe22aa1070a1d548c9e0a0c33fddd933d9448ea2aa8"
+  },
+  "simple_triggers.txt": {
+   "bytes": 85129,
+   "sha256": "cbaf7da184d5490fbd48116f722c957f7321620c4d3e1b6e06f618609119fb06"
+  },
+  "skills.txt": {
+   "bytes": 4412,
+   "sha256": "3a55a6ef774c51b3d24fc580a8b5956c5653637778af24443dc6cf10b1da5743"
+  },
+  "skins.txt": {
+   "bytes": 5792,
+   "sha256": "0f49db16952bf1d3df99013be48d99010dd3a594bd13aec1190aa08c0c354e11"
+  },
+  "sounds.txt": {
+   "bytes": 18493,
+   "sha256": "322285c2e000321212be8f8b51f8ff61752503587b2ddfc2a8280e83f1507823"
+  },
+  "strings.txt": {
+   "bytes": 477268,
+   "sha256": "727dadc890aa419fe884f16811cbf149f746d694fd601223e3ac80aed06188e3"
+  },
+  "tableau_materials.txt": {
+   "bytes": 16819,
+   "sha256": "40b4570746d3d2cf3fd0aead6bfa46c1a6bd0d1781f278de1523f41c942a987e"
+  },
+  "tag_uses.txt": {
+   "bytes": 52,
+   "sha256": "bcfa7a8d9d793fcccdf5179afb5d666a52c4c031fcb08b227046c870b66842c7"
+  },
+  "triggers.txt": {
+   "bytes": 15166,
+   "sha256": "89f540d1232c341609e7d79eb8c29aba36afc160b24173d97b30cd2bcd0dc2ae"
+  },
+  "troops.txt": {
+   "bytes": 569489,
+   "sha256": "88759beb3d38c1eeb288388231d448eed96dca0a5c657af007a06e0a906310fe"
+  },
+  "variable_uses.txt": {
+   "bytes": 4023,
+   "sha256": "59df441bbb0dc1bed9797ec3e5d7c8e004632dc1acfbf2f24ac3e8794767370c"
+  },
+  "variables.txt": {
+   "bytes": 36885,
+   "sha256": "cf20276d03e374a5c84c02c59d9b16797402a6b5fffb852020a708787310e0db"
+  }
+ }
+}

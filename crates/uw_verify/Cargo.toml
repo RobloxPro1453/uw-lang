@@ -1,0 +1,10 @@
+[package]
+name = "uw_verify"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+uw_diag = { path = "../uw_diag" }
+uw_kitrun = { path = "../uw_kitrun" }
+uw_atlas = { path = "../uw_atlas" }

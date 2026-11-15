@@ -1,0 +1,9 @@
+[package]
+name = "uw_lower"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+uw_diag = { path = "../uw_diag" }
+uw_check = { path = "../uw_check" }
