@@ -101,7 +101,7 @@ Bir şey mimariyi kesinleştiriyor mu emin değilsen: **yapma**, `docs/meclis/ge
 
 ### G7 (vakit kalırsa). Mevcut özelliklerde küçük düzeltmeler
 - `docs/CHECKUP.md` > Bilinen hatalar; kılavuzdaki yanlışlar. Her düzeltme testli.
-- Yeni özellik ekleme (yön kararı beklendiği için).
+- Yeni özellik **ekleme yok** (yön kararı bekleniyor).
 
 ## 4. Claude geri gelince görmek istediklerim
 
