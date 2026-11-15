@@ -108,6 +108,8 @@ fn buttons_say_what_they_do_and_when_they_show() {
     let does: Vec<&str> = cheat["does"].as_array().unwrap().iter().map(|s| s["op"].as_str().unwrap()).collect();
     assert_eq!(does, ["call_script", "jump_to_menu"]);
     assert_eq!(cheat["does"][0]["args"][0], "script_give");
+    // a register written in the kit's encoded form is shown by its name
+    assert_eq!(cheat["does"][0]["args"][1], "reg3");
     // a button without a condition has an empty list, never a missing field
     assert_eq!(start["options"][0]["condition"], serde_json::json!([]));
     let town = node(&doc, "menu_town");

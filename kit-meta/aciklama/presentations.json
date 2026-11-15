@@ -1,0 +1,345 @@
+{
+ "prsnt_arena_training": {
+  "kisa": "Arena antrenmanında devrilen ve kalan rakip sayacı",
+  "uzun": "Arena antrenmanı sırasında ekranın sol üst köşesinde iki satır yazı gösterir: oyuncunun devirdiği adam sayısı ve kalan rakip sayısı. Bu yazılar her an güncellenir; kalan rakip sayısı, oyuncu dışındaki canlı olmayan insan birimlerinin sayılmasıyla bulunur. Ekran yalnız okunur ve elle kapatılamaz şekilde ayarlanmıştır, yani oyuncu sadece sayıları izler. Sayfanın ilk açılışında yazılar bir an 'devrilen adam' ve 'kalan adam' biçiminde görünür, ardından rakip sayacına döner.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:11627",
+  "bilinmeyen": []
+ },
+ "prsnt_banner_background_selection": {
+  "kisa": "Sancak arka planı seçme ekranı",
+  "uzun": "Sancak düzenlemede arka plan seçenekleri, tıklanabilir görsel düğmeler halinde gösterilir. Seçenekler ekrana ızgara düzeninde yerleştirilir. Bir arka plana tıklanınca seçim oyuncunun sancak arka planı ayarına yazılır; ardından varsa sonraki ekran açılır, yoksa ekran kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:9371",
+  "bilinmeyen": []
+ },
+ "prsnt_banner_charge_positioning": {
+  "kisa": "Sancak düzenleme: şeklin konumunu seçme ekranı",
+  "uzun": "Sancak düzenlemeyle ilgili bu ekran açıldığında, oyuncuya konum seçmesi için tıklanabilir önizlemeler gösterilir. Önizleme sayısı oyuncunun sahip olduğu konum seçeneklerine göre hesaplanır ve düğmeler ekrana yerleştirilir. Bir önizlemeye tıklanınca seçilen konum oyuncunun sancak ayarına yazılır; sıradaki ekran varsa ona geçilir, yoksa ekran kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:9275",
+  "bilinmeyen": []
+ },
+ "prsnt_banner_charge_selection": {
+  "kisa": "Sancak için şekil/motif seçme ekranı",
+  "uzun": "Bu ekran, sancak için kullanılabilir şekilleri küçük resim düğmeleri olarak gösterir. Düğmeler satır satır dizilir ve her biri bir seçeneğe karşılık gelir. Bir düğmeye tıklanınca seçim, oyuncunun sancağında kullanılacak ilgili ayara yazılır; sıradaki ekran varsa açılır, yoksa bu ekran kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:9321",
+  "bilinmeyen": []
+ },
+ "prsnt_banner_flag_map_type_selection": {
+  "kisa": "Harita sancağı türü seçme ekranı: bayrak biçimlerini gösterir",
+  "uzun": "Bu özel ekran, oyuncunun haritada kullanacağı sancak/bayrak türünü seçmesi için açılır. Üstte seçim metni görünür; altında kare, kısa ve uzun bayrak görselleri düğme olarak yan yana dizilir. Bir görsele tıklanınca seçim oyuncunun ilgili kayıt alanına yazılır ve varsa sıradaki ekran açılır, yoksa ekran kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:9463",
+  "bilinmeyen": []
+ },
+ "prsnt_banner_flag_type_selection": {
+  "kisa": "Sancak bayrak türü seçme ekranı",
+  "uzun": "Bu ekran, sancak için farklı bayrak türlerini tıklanabilir önizlemeler olarak sunar. Önizlemeler oluşturulurken oyuncunun sancağındaki bayrak türü geçici olarak her seçeneğe göre ayarlanır. Bir önizlemeye tıklanınca seçilen bayrak türü oyuncunun sancak ayarına kaydedilir; sıradaki ekran varsa ona geçilir, yoksa ekran kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:9417",
+  "bilinmeyen": []
+ },
+ "prsnt_banner_selection": {
+  "kisa": "Sancak seçme ekranı: sayfa sayfa sancak ızgarası",
+  "uzun": "Oyuncunun kendi sancağını seçtiği ekrandır; sancaklar on altışarlı gruplar halinde kare bir ızgara olarak gösterilir ve alttaki düğme ile sayfalar arasında dönülür. Listeye NPC krallıkların sancakları bilerek dahil edilmez, yani onlar seçilemez. Bir sancak seçildiğinde oyuncunun partisinin simgesi ve sancak kaydı güncellenir; aynı sancağı kullanan bir NPC varsa onun sancağı ve partisi değiştirilir, ayrıca oyuncunun ve o NPC'nin yönettiği kalelerin simgeleri yenilenir. Boşluk, Enter, Escape gibi tuşlara basılınca ekran kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:8631",
+  "bilinmeyen": []
+ },
+ "prsnt_battle": {
+  "kisa": "Savaş emir ekranı: birlik grupları, eylem, binme ve saldırı türü",
+  "uzun": "Bu özel ekran, savaşta birlikleri gruplara ayırıp komut vermek için hazırlanan bir arayüzdür. Açılışta formasyon seçimlerini sıfırlar ve partideki askerleri sınıflarına göre tarayarak hangi gruplarda asker bulunduğunu belirler. Ekranda Action, Mount ve Attack Type başlıklı sütunlar ile dolu gruplar için onay kutuları ve metin alanları oluşturulur; oyuncu bu grupları seçip ilgili ayarları yapar.",
+  "guven": "orta",
+  "kaynak": "module_presentations.py:9796",
+  "bilinmeyen": []
+ },
+ "prsnt_budget_report": {
+  "kisa": "Haftalık bütçe raporu: gelir, gider ve merkezlerin listesi",
+  "uzun": "Haftalık gelir-gider hesabını gösteren, kaydırılabilir bir rapor ekranıdır. İşletmeler, oyuncunun sahip olduğu kasaba ve kaleler, garnizonlar ve varsa borç gibi kalemler burada listelenir. Zorluk ayarına göre vergi verimliliğindeki düşüş de hesaba katılır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:12358",
+  "bilinmeyen": []
+ },
+ "prsnt_color_selection": {
+  "kisa": "Renk seçme ekranı: 42 renklik palet, seçimi kaydeder",
+  "uzun": "Bu ekran, oyuncunun bir renk paletinden renk seçmesini sağlar; 42 renk küçük düğmeler halinde yedişerli satırlar olarak dizilir. Bir renge tıklanınca seçilen renk, o an hangi amaç için açıldıysa ona yazılır; kodda bu hedef bir oyun değişkeniyle belirlenir. Ardından varsa sıradaki ekran açılır, yoksa ekran kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:9518",
+  "bilinmeyen": []
+ },
+ "prsnt_coop_assign_drop_to_group_member": {
+  "kisa": "Coop: düşen eşyayı kendine, grup üyesine veya kimseye atama ekranı",
+  "uzun": "Bu özel ekran, coop modunda düşen bir eşyanın kime verileceğini seçmek için kullanılır. Ekranda eşya simgesi, adı ve açıklamasıyla birlikte bir sandık görseli yer alır. Oyuncu kendi karakteri, hayatta olan grup üyeleri veya 'kimse' seçeneklerinden birini tıklayarak atamayı yapar.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:13243",
+  "bilinmeyen": []
+ },
+ "prsnt_custom_banner": {
+  "kisa": "Özel sancak düzenleme ekranı: renkler, simgeler ve harita bayrağı",
+  "uzun": "Bu ekran, oyuncunun kendi sancağını düzenlemesi için açılan özel bir arayüzdür. Üzerinde arka plan renk seçicileri, değiştirme ve rastgele düğmeleri, sancak ile harita bayrağı örnekleri ve sembol sayısını artırıp azaltma alanları bulunur. Ekran yüklenirken oyuncunun sancak ayarları okunup örnek görseller ve seçenekler buna göre hazırlanır; oyuncu kabul düğmesiyle değişiklikleri onaylayabilir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:8733",
+  "bilinmeyen": []
+ },
+ "prsnt_game_before_quit": {
+  "kisa": "Deneme sürümü çıkış ekranı: iki adımda kapanan görsel",
+  "uzun": "Yalnızca deneme sürümünde, oyundan çıkmadan önce tam ekran bir görsel gösterir. İlk tuş veya tıklamada görsel değişir; ikinci tuş veya tıklamada ekran kapanır. Deneme sürümü değilse bu ekranın içeriği oluşturulmaz.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:12987",
+  "bilinmeyen": []
+ },
+ "prsnt_game_credits": {
+  "kisa": "Jenerik ekranı: metinler sırayla belirip kaybolur",
+  "uzun": "Salt okunur bir jenerik ekranıdır; metin katmanları zamanla sırayla görünür ve solar. Ekran açıkken boşluk, Enter, Esc, geri silme, fare tuşları veya Xbox tetikleriyle kapatılabilir. Kodda bu ekranın hangi menüden açıldığı gösterilmiyor.",
+  "guven": "orta",
+  "kaynak": "module_presentations.py:19",
+  "bilinmeyen": []
+ },
+ "prsnt_game_custom_battle_designer": {
+  "kisa": "Özel savaş tasarımcısı: birlik, biyografi ve harita seçimi",
+  "uzun": "Bu özel ekran, özel savaş hazırlığı için kullanılan tasarımcı arayüzüdür. Yükleme sırasında oyuncu ve düşman için birlik seçim listeleri, portre görselleri, kaydırılabilir biyografi metni ve temel harita seçimi oluşturur. Seçilen oyun türüne göre normal savaş ya da kuşatma haritaları listelenir ve seçilen haritanın görseli gösterilir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:366",
+  "bilinmeyen": []
+ },
+ "prsnt_game_multiplayer_admin_panel": {
+  "kisa": "Çok oyunculu yönetici paneli: seçili harita görseli ve panel arka planı",
+  "uzun": "Çok oyunculu bir yönetici (admin) panelidir. Açılırken paneldeki birçok nesne numarasını -1 yapar ve seçili haritaya göre harita görselini seçer. Harita görseli ile ana panel arka planı ekrana yerleştirilir; oyuncu seçili haritanın resmini ve panel arayüzünü görür. Kodda bu ekranın kim tarafından veya hangi koşulda açıldığı gösterilmiyor; tanımındaki ayar yalnız elle kapatılabilen bir ekran olduğunu gösterir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:1743",
+  "bilinmeyen": []
+ },
+ "prsnt_game_profile_banner_selection": {
+  "kisa": "Profil sancağı seçme ekranı: sayfa geçişi, varsayılan ve sancak ızgarası",
+  "uzun": "Oyuncunun profilinde kullanacağı sancağı seçtiği özel bir ekrandır. Sancak görselleri ızgara halinde gösterilir; NPC krallıklarına atanmış sancaklar listede yer almaz. Sonraki sayfa düğmesiyle sayfalar arasında geçiş yapılır; varsayılan sancak düğmesi seçimi sıfırlar. Bir sancak görseline tıklanınca o sancak profil için seçilir ve ekran kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:278",
+  "bilinmeyen": []
+ },
+ "prsnt_marshall_selection": {
+  "kisa": "Krallık mareşal seçimi: iki aday, lord oyları ve oyuncu desteği",
+  "uzun": "Bu özel ekran, oyuncunun krallığında yeni bir mareşal seçilirken açılır. Kral, vassalları görüşmeye çağırır ve en yüksek itibara sahip iki aday gösterilir. Oyuncu esir değilse kimi destekleyeceği sorulur; diğer lordlar da adaylardan birine destek verir. Ekranda adayların temsili görselleri, destek metinleri ve devam/destek düğmeleri görünür.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:9575",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_ccoop_next_wave_time_counter": {
+  "kisa": "Co-op dalga sayacı: sonraki dalganın geliş süresi ve ipuçları",
+  "uzun": "Bu ekran, çok oyunculu co-op modunda oyuncuya bir sonraki düşman dalgasının kaç saniye sonra geleceğini gösteren bir sayaç ve altında bir ipucu satırı çizer. Ekran açıldığında üç metin katmanı oluşturulur ve süre çok uzun tutulur; her karede kalan süre hesaplanıp yazı güncellenir. Gelen dalganın lideri bir lord, kral ya da seçkin dalga ise buna göre farklı bir bilgi satırı gösterilir. Oyuncu ölmüşse sayaç yerine yeniden doğmak için yardım isteme veya sıranın gelmesini bekleme uyarısı görünür; uygun durum yoksa ekran kendini kapatır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:13464",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_ccoop_victory_message": {
+  "kisa": "Co-op zafer mesajı: düşman yenildi bildirimi",
+  "uzun": "Bu ekran, co-op modunda bir dalga temizlendiğinde ortaya çıkan bir kutlama mesajıdır: büyük yeşil bir zafer yazısı ve altında düşmanın yenildiğini, hangi taraf olduğunu ve zorluk bilgisini anlatan bir alt yazı gösterir. Zorluk bilgisi mevcutsa farklı, yoksa sonsuz moda uygun bir metin kullanılır. Ekran yalnızca kısa bir süre görünür ve sonra kendiliğinden kapanır. Çalışırken dalga sayacı ekranı hâlâ açıksa onu hemen kapatır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:13567",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_destructible_targets_display": {
+  "kisa": "Çok oyunculu: yıkılabilir hedefleri bayrakla işaretler",
+  "uzun": "Bu özel ekran, çok oyunculu bir turda iki yıkılabilir hedefin üstüne bayrak simgesi yerleştirir. Simge yalnızca hedef ekranda görünüyorsa ve başlangıç konumuna yakınsa gösterilir; aksi halde gizlenir. Tur bitince ekran kapanır. Oyuncu, hedeflerin yerini gösteren bayrak işaretlerini görür.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:6127",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_duel_start_counter": {
+  "kisa": "Çok oyunculu düelloda 3 saniyelik geri sayım yazısı",
+  "uzun": "Ekranın üst-orta kısmına, düellonun başlamasına kaç saniye kaldığını gösteren beyaz, konturlu bir yazı koyar. Düello başlarken açılır; sayaç 3'ten geriye sayar ve süre bitince ekran kendiliğinden kapanır. Bu ekran yalnızca gösterim amaçlıdır, oyuncu tarafından elle kapatılamaz ve oyunun akışını değiştirmez.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:13035",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_escape_menu": {
+  "kisa": "Çok oyunculu kaçış menüsü: takım, asker, eşya, oylama ve çıkış",
+  "uzun": "Bu ekran, çok oyunculu oyunda kaçış menüsü olarak açılan özel bir arayüzdür. Oyuncuya takım, asker ve eşya seçme; seçenekler, tuş atama, oyun kurallarını gösterme ve çıkış gibi düğmeler sunar. Sunucu ayarlarına göre oylama gönderme düğmesi, yönetici oyuncular için yönetici paneli ile oyuncu atma/yasaklama, ayrıca susturma ve susturmayı kaldırma düğmeleri de eklenir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:7621",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_flag_projection_display": {
+  "kisa": "Çok oyunculu bayrak işaretçileri: takım bayraklarının ekran üstü konumu",
+  "uzun": "Bu özel ekran, çok oyunculu maçta takım bayraklarının yerini ekranda işaretçi olarak göstermek için kullanılır. Açıldığında bayrak modelleri için görsel katmanlar oluşturur; çalışırken bayrakların sahnedeki konumunu ekran koordinatına çevirip işaretçileri oraya taşır. Bayrak çalındığında ilgili işaretçi takımın üs noktasına yönelir; oyuncunun takımına göre bazı işaretçiler gösterilir veya gizlenir. Bayrak ekranın görünür alanı dışındaysa işaretçiler gizlenir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:5886",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_flag_projection_display_bt": {
+  "kisa": "Çok oyunculu: takım bayraklarını ekranda işaretler",
+  "uzun": "Bu özel ekran, çok oyunculu bir turda iki takımın bayrak nesnelerinin üstüne ekranda bayrak simgesi yerleştirir. Simgeler, bayrakların dünya konumundan ekran konumuna çevrilerek yerleştirilir; bayrak ekran dışındaysa simge gizlenir. Tur bitince ekran kapanır. Oyuncu, bayrakların yerini gösteren işaretleri görür.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:6056",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_flag_projection_display_ccoop": {
+  "kisa": "Hapishane arabasının kapıları üstünde beliren işaret",
+  "uzun": "İki hapishane arabası kapısının ortalama konumunun biraz üstüne küçük bir 3B işaret (bayrak) yerleştirir ve bunu ekran koordinatına çevirir. Hapishane arabası noktası sıfırdan büyükse çalışır; işaret yalnızca ekranın görünen alanındaysa gösterilir, değilse gizlenir. Konum her karede yeniden hesaplandığı için oyuncu kamerayı çevirdikçe işaret arabayı takip eder.",
+  "guven": "orta",
+  "kaynak": "module_presentations.py:13074",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_flag_projection_display_ccoop_wave": {
+  "kisa": "Dalga düşmanlarının doğacağı noktalar üstünde gelen düşman işareti",
+  "uzun": "Coop dalga modunda, düşmanların doğacağı en fazla iki giriş noktasının üstüne 'gelen düşman' simgesi koyar; simgeler sadece ekranın görünen alanındayken gösterilir. Hangi noktaların işaretleneceği, doğacak bot sayıları ve giriş noktası verilerinden hesaplanır. İşaretlenecek uygun nokta kalmazsa ekran kendini kapatır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:13130",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_item_select": {
+  "kisa": "Çok oyunculu eşya seçme ekranı: ekipman yuvaları",
+  "uzun": "Bu, çok oyunculu oyunda eşya seçmek için kullanılan özel bir ekrandır. Açıldığında oyuncunun seçili eşya yuvalarını okur ve her yuva için boş ya da eşya görseli yerleştirir. Ekran kendiliğinden kapanmaz; elle kapatılması gerekir. Kodda ayrıca INVASION MODE için ek bir yuva hazırlığı yapılır ve açık eşya detay penceresi varsa kapatılır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:3533",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_message_1": {
+  "kisa": "Çok oyunculu maç mesajları: tur sonucu ve bayrak olayları",
+  "uzun": "Bu özel ekran, çok oyunculu maçlarda tur sonucu, bayrakla puan kazanma, bayrağın geri dönmesi ve bayrağın çalınması gibi olaylarda kısa bir bilgi metni gösterir. Metin ekranın ortasına yerleştirilir; kazanan veya olayı yapan takıma göre rengi değişir, bazı durumlarda ses efekti çalınır. Ekran okunur ve elle kapatılır; belirli bir süre sonra kendiliğinden kaybolur. Oyun tarafından, ilgili çok oyunculu mesaj türü tetiklendiğinde açılır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:5121",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_message_2": {
+  "kisa": "Çok oyunculu: otomatik takım dengesi mesajı",
+  "uzun": "Çok oyunculu oyunda otomatik takım dengelemesi yapıldığında ya da yaklaşan dengeleme hakkında ekranın ortasında beyaz, konturlu bir yazı gösterir. Oyun türüne göre '20 saniye içinde' veya 'sonraki tur' gibi farklı metinler seçilir. Sadece bilgi amaçlıdır; oyuncu bir şey yapmaz ve kısa süre sonra kendiliğinden kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:5665",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_message_3": {
+  "kisa": "Çok oyunculu: anket sonucu mesajı",
+  "uzun": "Çok oyunculu oyunda bir oylama bittiğinde sonucu ekranın ortasında kısa bir yazı olarak gösterir. Sonuç değerine göre olumlu ya da olumsuz metin seçilir. Bilgilendirme amaçlıdır; oyuncudan işlem beklemez ve kısa sürede kaybolur.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:5713",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_poll": {
+  "kisa": "Çok oyunculu oylama paneli: oy metni, kalan süre, kabul/ret",
+  "uzun": "Çok oyunculu oyunda bir oylama (oyuncu atma, yasaklama, harita değiştirme, bot sayısı değiştirme gibi) başlatıldığında ekranın üst kısmında yarı saydam siyah bir şerit açılır. Şeritte oylanacak konu ve sağ tarafta kalan süre yazısı görünür; oyuncu 1 tuşuyla kabul, 2 veya Esc tuşuyla ret cevabı verir ve cevap sunucuya gönderilir. Süre bitince ya da cevap verilince panel kendiliğinden kapanır; panel yalnız okunur olduğu için başka yolla kapatılamaz.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:8424",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_poll_menu": {
+  "kisa": "Çok oyunculu anket menüsü: harita, bot ve oyuncu oylamaları",
+  "uzun": "Bu ekran, çok oyunculu oyunda bir oylama başlatmak için hangi tür oylama yapılacağını seçtirir. Yalnızca sunucu ayarlarında izin verilen seçenekler düğme olarak gösterilir; örneğin harita değiştirme, harita ve taraf değiştirme, bot sayısı değiştirme, oyuncu atma veya yasaklama. Bir düğmeye basıldığında bu menü kapanır ve seçime göre harita listesi, oyuncu listesi veya bot sayısı listesi ekranı açılır. Menü, Escape tuşuna basıldığında da kapatılabilir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:7872",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_respawn_time_counter": {
+  "kisa": "Çok oyunculu: yeniden doğma geri sayımı ve kalan hakları gösterir",
+  "uzun": "Bu özel ekran, çok oyunculu oyunda yeniden doğmayı beklerken ekranda geri sayım gösterir. Kalan doğma hakkı varsa bunu da yazar; hak kalmadıysa tur beklemesi gerektiğini belirtir. Oyuncu seyirci olursa, süre biterse veya tur bitti/bayrak hazır değil durumları oluşursa ekran kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:6208",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_round_time_counter": {
+  "kisa": "Çok oyunculu: turun kalan süresi sayacı",
+  "uzun": "Çok oyunculu turlu oyunlarda ekranın sağ üst köşesinde turun bitmesine kalan süreyi dakika ve saniye olarak gösteren bir sayaç açar. Sayaç sürekli güncellenir ve kalan süre sıfırın altına inmesin diye sınırlanır. Oyun boyunca görünür kalır; oyuncu bir şey yapmaz.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:5743",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_show_factions_list": {
+  "kisa": "Çok oyunculu fraksiyon seçme listesi: takım için krallık seçtirir",
+  "uzun": "Kaydırılabilir bir menü içinde krallıkların (npc_kingdoms aralığı) adlarını düğme olarak listeler; başlıkta hangi takım için seçim yapıldığı yazar. İlk seçim birinci takım içindir; ardından ekran yeniden açılarak ikinci takım için seçim istenir ve ilk seçilen krallık listeden çıkarılır. İkinci seçim tamamlanınca seçilen harita ve iki krallıkla birlikte sunucuya oylama isteği gönderilir ve oyuncunun oy verme zamanlayıcısı kilitlenir. ESC ya da Xbox start tuşuyla kapatılabilir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:8224",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_show_maps_list": {
+  "kisa": "Çok oyunculu harita seçme listesi: oyun türüne göre kaydırılabilir harita menüsü",
+  "uzun": "Ekranın ortasında oyun içi menü görseli ve kaydırılabilir bir liste açar; liste, seçili oyun türü için geçerli haritaların adlarından oluşan düğmelerdir (script_multiplayer_fill_map_game_types çağrılarak doldurulur). Bir haritaya tıklandığında ekran kapanır; oyuncu modundaysa harita oylaması için sunucuya istek gönderilir ve oyuncunun oy verme zamanlayıcısı bir süre kilitlenir. Oyuncu 'harita ve fraksiyon' seçimi yapıyorsa bunun yerine fraksiyon listesi ekranı açılır. ESC ya da Xbox start tuşuyla da kapatılabilir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:8132",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_show_number_of_bots_list": {
+  "kisa": "Çok oyunculu: bot sayısı oylaması için sayı seçme ekranı",
+  "uzun": "Çok oyunculu oyunda, bir takım için kaç bot olacağını seçmek üzere açılan kaydırılabilir bir menüdür. Ekranda 0'dan başlayarak belli sayılar (0-9 ve sonrasında beşer beşer artan değerler) düğme olarak listelenir. Oyuncu ilk seçimi yaptığında bu değer birinci takım için saklanır ve ekran ikinci takım için yeniden açılır; ikinci seçimden sonra sunucuya oylama başlatma isteği gönderilir. Esc ya da Xbox start tuşuyla kapatılabilir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:8319",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_show_players_list": {
+  "kisa": "Çok oyunculu oyuncu listesi: oyuncu seçip işlem yapma menüsü",
+  "uzun": "Çok oyunculu oyunda, sunucu dışındaki aktif oyuncuların adlarını düğme olarak gösteren bir liste ekranıdır. Hangi işlemin yapılacağı önceden ayarlanan bir değere göre belirlenir; buna göre oylamayla atma/banlama, yönetici atması/banlaması ya da sessize alma/sessizden çıkarma seçenekleri sunulur. Bir oyuncuya tıklanınca ilgili istek sunucuya gönderilir veya sessize alma durumu değiştirilir ve ekran kapanır. Escape tuşuyla da kapatılabilir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:7991",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_stats_chart": {
+  "kisa": "Çok oyunculu maç için kaydırılabilir takım ve oyuncu istatistik tablosu",
+  "uzun": "Bu özel ekran, çok oyunculu bir maçta takımların ve oyuncuların durumunu gösteren kaydırılabilir bir pano çizer. Takım adları ve renkleri, takım puanları ile oyuncu satırları yerleştirilir; Headquarters oyun türünde takım bayrak sayıları da hesaplanır. Ekran yalnız okunur ve elle kapatılır; oyuncu listeyi kaydırarak görür ve tablo belirli aralıklarla güncellenir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:6325",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_stats_chart_deathmatch": {
+  "kisa": "Deathmatch çok oyunculu istatistik tablosu: oyuncu/skor listesi",
+  "uzun": "Çok oyunculu oyun içinde açılan bu özel ekran, deathmatch için bir istatistik/skor tablosu çizer. Ekran yüklendiğinde kaydırılabilir bir alan oluşturulur; aktif oyuncular takım veya izleyici satırlarına göre listelenir ve bot varsa takım satırı sayısı buna göre artırılır. Kod yorumu bu tablonun yalnızca deathmatch'te kullanıldığını söyler; ayrıca captain coop modunda dalga numarası, kalan süre ve gelen düşman sayısı gibi ek bilgiler de eklenir. Oyuncu kaydırılabilir bir tablo/panel görür; satır sayısına göre güncelleme sıklığı değişir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:6984",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_team_score_display": {
+  "kisa": "Çok oyunculu takım skoru: iki takımın puanı ve kalkan simgeleri",
+  "uzun": "Bu özel ekran, çok oyunculu bir takım maçında iki takımın skorunu sol tarafta gösterir. Açılırken skor yazıları ve takım fraksiyonlarına göre kalkan simgeleri hazırlanır; iki takım aynı fraksiyondaysa ayrı bir kalkan kullanılır. Ekran açık kaldığı sürece takım puanlarını okur ve puan değişince yazıları günceller. Kodda ekranın kim tarafından ve tam olarak ne zaman açıldığı görünmüyor; yalnızca elle kapatılana kadar sürdüğü anlaşılıyor.",
+  "guven": "orta",
+  "kaynak": "module_presentations.py:5777",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_team_select": {
+  "kisa": "Çok oyunculu takım seçimi: fraksiyon ve seyirci seçenekleri",
+  "uzun": "Çok oyunculu oyunda oyuncunun takım/fraksiyon seçmesi için açılan özel arayüzdür. Ekranda oyun içi menü görseli, kaydırılabilir bir alan, fraksiyon adlarından oluşan düğmeler ve seyirci seçeneği gösterilir. Uygun takımlar açık renk ve yeşil vurguyla, uygun olmayanlar gri görünür. Bir takım düğmesine basıldığında uygunluk kontrol edilir; bazı oyun türlerinde onay beklenir ve ardından takım değiştirme isteği gönderilip asker seçim ekranına geçilir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:3154",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_troop_select": {
+  "kisa": "Çok oyunculu asker seçme ekranı: takım fraksiyonundan asker listesi",
+  "uzun": "Çok oyunculu oyunda oyuncunun kendi takımının fraksiyonuna ait askerleri kaydırılabilir bir listede düğme olarak gösterir. Bir askere tıklanınca seçim sunucuya bildirilir, varsayılan eşyalar ayarlanır ve eşya seçme ekranı açılır. Escape veya Xbox start ile çıkılırsa uygun asker yoksa oyuncu seyirciye alınır; istila modu yorumlarına göre birlik satın alınabiliyorsa birlik paneli varsayılan olarak açılabilir.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:3409",
+  "bilinmeyen": []
+ },
+ "prsnt_multiplayer_welcome_message": {
+  "kisa": "Çok oyunculu karşılama ve sunucu kuralları ekranı",
+  "uzun": "Çok oyunculu sunucuya girişte, hoş geldin mesajı varsa onu kaydırılabilir bir panelde gösterir. Sunucu kuralları açıksa sunucu adı, oyun türü, harita, kalan süre ve sunucu seçeneklerini alt alta listeler. Kodda bu ekranın uzun süre açık kaldığı; mesaj boşsa veya daha önce gösterildiyse ve kurallar açık değilse kapatılıp takım seçme ekranının başlatılabildiği görülür.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:2969",
+  "bilinmeyen": []
+ },
+ "prsnt_name_kingdom": {
+  "kisa": "Krallık isim ekranı: metin kutusu ve devam düğmesi",
+  "uzun": "Oyuncunun kendi krallığına isim verdiği ekrandır. Ekranda ortada bir açıklama yazısı, içi önceden doldurulmuş bir yazı kutusu ve bir devam düğmesi görünür; kutu, isim daha önce belirlenmediyse varsayılan isimle, belirlendiyse krallığın mevcut adıyla dolu gelir. Kutuya yazılan metin devam düğmesine basıldığında krallığın adı olarak kaydedilir, krallığın rengi kırmızıya ayarlanır, ismin belirlendiğini tutan bir değişken işaretlenir ve ekran kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:8587",
+  "bilinmeyen": []
+ },
+ "prsnt_retirement": {
+  "kisa": "Emeklilik ekranı: kalma veya maceraya dönme seçenekleri",
+  "uzun": "Oyuncu emekli olmayı seçtiğinde açılan özel bir arayüz; iki düğme sunar: emeklilikte kalmak veya maceraya geri dönmek. Arka planda oyuncunun serveti, sahip olduğu şehir/kale/köyler, ilişkileri, envanter değeri, ünü, dost/düşman sayısı, gün, zafer/yenilgi, tamamlanan görevler, tecrübe puanı ve yol arkadaşları gibi verilerden bir toplam etki puanı hesaplar. Bu puanın emeklilik sonucunu/skorunu belirlemek için kullanıldığı anlaşılıyor, ancak kodun devamı verilmediği için kesin kullanım yeri görülmüyor. Ekran, oyuncuya emeklilik durumunu ve seçenekleri gösterir.",
+  "guven": "orta",
+  "kaynak": "module_presentations.py:11665",
+  "bilinmeyen": []
+ },
+ "prsnt_sliders": {
+  "kisa": "Dört kaydırıcılı deneme ekranı: toplam hep 100'de kalır",
+  "uzun": "Ekranda alt alta dört kaydırıcı ve her birinin yanında sayısal değerini gösteren bir yazı çıkar; hepsi 25 değeriyle başlar. Oyuncu bir kaydırıcıyı çektiğinde, toplam 100 kalacak şekilde diğer üç kaydırıcı rastgele aşağı ya da yukarı kaydırılır ve tüm değerler yeniden yazılır. Dördüncü kaydırıcının boyu diğerlerinden farklı ayarlanmıştır. Kodda bu ekranın oyun içinde nereden açıldığı görünmüyor; mod geliştiriciler için örnek/deneme ekranı gibi duruyor. Güven: orta.",
+  "guven": "orta",
+  "kaynak": "module_presentations.py:11471",
+  "bilinmeyen": []
+ },
+ "prsnt_tutorial_show_mouse_movement": {
+  "kisa": "Eğitim ipucu: fare yönü ve tıklama göstergesi",
+  "uzun": "Eğitim sırasında oyuncuya farenin hangi yöne hareket ettirileceğini ve sol/sağ tuştan hangisine basılacağını gösteren küçük simgeler çizer; ok ve tıklama simgesi ekranın ortasına yerleştirilir. Gösterilen yön veya tuş bilgisi değiştiğinde panel kapanır ve gerekiyorsa aynı ekran yeniden başlatılır; bilgiler geçersizse (eksi değer) hiç açılmaz. Oyuncu bu ekranda yalnızca görsel bir yönlendirme görür, herhangi bir işlem yapması gerekmez.",
+  "guven": "yuksek",
+  "kaynak": "module_presentations.py:8531",
+  "bilinmeyen": []
+ }
+}

@@ -153,6 +153,7 @@ fn statements(atlas: &Atlas, ops: &Value, desc: &Descriptions) -> Value {
             .iter()
             .map(|a| Value::String(match a {
                 Value::String(s) => s.clone(),
+                Value::Number(n) => n.as_u64().and_then(|n| decode_tagged(atlas, n)).unwrap_or_else(|| n.to_string()),
                 other => other.to_string(),
             }))
             .collect();
@@ -166,6 +167,32 @@ fn statements(atlas: &Atlas, ops: &Value, desc: &Descriptions) -> Value {
         }));
     }
     Value::Array(out)
+}
+
+/// A number the kit encoded with a type tag in its high bits (`reg3` is written as
+/// `tag_register << op_num_value_bits | 3`), decoded with the kit's own constants from
+/// header_common: `reg3`, `:local#2`, `troop#5`... `None` = a plain number.
+fn decode_tagged(atlas: &Atlas, n: u64) -> Option<String> {
+    let bits = atlas.constant("op_num_value_bits")?.value.as_u64()?;
+    if bits == 0 || bits >= 64 {
+        return None;
+    }
+    let tag = n >> bits;
+    if tag == 0 {
+        return None;
+    }
+    let value = n & ((1u64 << bits) - 1);
+    let name = atlas
+        .constants
+        .iter()
+        .find(|c| c.name.starts_with("tag_") && c.value.as_u64() == Some(tag))?
+        .name
+        .clone();
+    Some(match name.as_str() {
+        "tag_register" => format!("reg{value}"),
+        "tag_local_variable" => format!(":local#{value}"),
+        other => format!("{}#{value}", &other["tag_".len()..]),
+    })
 }
 
 /// The description fields every node carries (empty strings when unknown).

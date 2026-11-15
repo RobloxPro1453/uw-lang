@@ -9,13 +9,17 @@
     {"name":"this_or_next","code":1073741824,"line":2,"signature":"","lhs":false,"can_fail":false,"global_lhs":false}
   ],
   "hooks": [],
+  "constants": [
+    {"name":"op_num_value_bits","value":56,"module":"header_common","line":1},
+    {"name":"tag_register","value":1,"module":"header_common","line":2}
+  ],
   "ranges": [],
   "tables": {
     "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","ref_tag":"mnu",
       "entries": [
         {"index":0,"name":"start","id":"menu_start","dup":null,"line":10,"value":["start",0,"Start here^{s10}","none",{"list":[]},{"list":[
           ["go",{"list":[]},"Go",{"list":[[2060,"mnu_town"]]}],
-          ["cheat",{"list":[[31,1,0]]},"Cheat",{"list":[[1,"script_give"],[2060,"mnu_town"]]}],
+          ["cheat",{"list":[[31,1,0]]},"Cheat",{"list":[[1,"script_give",72057594037927939],[2060,"mnu_town"]]}],
           ["go",{"list":[]},"Go again",{"list":[[2060,"mnu_town"]]}]
         ]}]},
         {"index":1,"name":"town","id":"menu_town","dup":null,"line":20,"value":["town",0,"A town","none",{"list":[[2052]]},{"list":[
