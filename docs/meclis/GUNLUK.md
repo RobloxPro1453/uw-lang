@@ -28,3 +28,4 @@ Biçim: `[saat] tur N · üye · durum · çıktı dosyası`. Devam protokolü: 
 - [01:44] tur 5 · moderatör · işleme başladı (ARCHITECTURE, KARARNAMELER, ROADMAP, GUNDEM); kota 5s %43 · —
 - [01:46] tur 5 · moderatör · ARCHITECTURE, KARARNAMELER, ROADMAP, GUNDEM, SORULAR, PROGRESS, KNOWLEDGE güncellendi · —
 - [01:46] tur 5 · moderatör · işleme bitti; meclis kapandı · KARAR.md, ARCHITECTURE.md
+- [10:15] ek · moderatör · Manus'un meclise cevabı değerlendirildi (kitte doğrulandı; kite bırakılmış 47 .pyc silindi) · manus-cevabi-degerlendirme.md
