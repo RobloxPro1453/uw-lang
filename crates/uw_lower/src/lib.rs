@@ -292,8 +292,12 @@ fn int_literal(e: &Expr) -> Option<i64> {
 /// True when the condition is exactly one Native operation.
 fn is_single(c: &Cond) -> bool {
     match c {
-        Cond::Cmp { .. } | Cond::Op(_) => true,
-        Cond::Not(inner) => matches!(&**inner, Cond::Cmp { .. } | Cond::Op(_)),
+        // A comparison counts only when both sides are leaves: temporaries computed between two
+        // `this_or_next|` conditions would be ORed instead of the next condition (store_* always
+        // succeeds, so the whole group would always hold).
+        Cond::Cmp { left, right, .. } => leaf(left).is_some() && leaf(right).is_some(),
+        Cond::Op(_) => true,
+        Cond::Not(inner) => !matches!(&**inner, Cond::Not(_)) && is_single(inner),
         Cond::And(_) | Cond::Or(_) => false,
     }
 }
@@ -515,6 +519,19 @@ mod tests {
                 native("party_is_active", vec![global("p_town_6")]),
             ]
         );
+    }
+
+    #[test]
+    fn an_or_group_with_a_computed_side_uses_a_flag_not_this_or_next() {
+        // `$x + 1 > 2 or $y == 3`: the temporary for `$x + 1` must not sit between two
+        // this_or_next conditions (it would be ORed and always succeed).
+        let cond = Cond::And(vec![Cond::Or(vec![
+            compare(CmpOp::Gt, binary(BinOp::Add, value("$x"), int(1)), int(2)),
+            compare(CmpOp::Eq, value("$y"), int(3)),
+        ])]);
+        let ops = cond_ops(cond);
+        assert!(ops.iter().all(|op| !op.name.starts_with("this_or_next|")), "{ops:?}");
+        assert_eq!(ops.last().unwrap(), &native("eq", vec![global(":_uw0"), Value::Int(1)]));
     }
 
     #[test]
