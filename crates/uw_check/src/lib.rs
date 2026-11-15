@@ -154,6 +154,9 @@ struct Ctx<'a> {
     source: &'a SourceFile,
     /// Next `:_uwN` temporary, numbered from 0 per option condition.
     temp: usize,
+    /// Native mode ([`check_block`]): names and shapes are taken as Native wrote them, so flagged
+    /// names (`neg|eq`) are allowed, the header signature is not counted and text is not checked.
+    native: bool,
 }
 
 impl Ctx<'_> {
@@ -267,7 +270,9 @@ impl Ctx<'_> {
             Arg::Int(n, _) => Some(Value::Int(*n)),
             Arg::Global(g) | Arg::Local(g) => self.local(g),
             Arg::Str(text, span) => {
-                self.check_text(text, *span);
+                if !self.native {
+                    self.check_text(text, *span);
+                }
                 Some(Value::Text(text.clone()))
             }
             Arg::Name(name) => {
@@ -659,30 +664,44 @@ impl Ctx<'_> {
     }
 
     /// Checks one operation call: the operation exists, has enough values, every value resolves.
+    /// In Native mode (`check_block`) a flagged name (`neg|this_or_next|eq`) is one operation when
+    /// every `|`-separated part is, the name is kept as written, and the header signature count is
+    /// not enforced.
     fn call(&mut self, stmt: &Call) -> Option<Op> {
-        let Some(op) = self.atlas.op(&stmt.op.text) else {
-            let help = suggest(&stmt.op.text, self.atlas.ops.iter().map(|o| o.name.as_str()))
-                .map(|s| format!("did you mean '{s}'? (`uw browse` lists every operation)"));
-            self.error(diag(
-                E0001_UNKNOWN_NAME,
-                format!("'{}' is not a Native operation", stmt.op.text),
-                stmt.op.span,
-                help,
-            ));
-            return None;
+        let text = stmt.op.text.as_str();
+        let missing = if self.native { missing_op_part(self.atlas, text) } else { None };
+        let op = match self.atlas.op(text) {
+            Some(op) => Some(op),
+            None if self.native && missing.is_none() => None,
+            None => {
+                let (message, wanted) = match missing {
+                    Some(part) => (format!("'{part}' in '{text}' is not a Native operation"), part),
+                    None => (format!("'{text}' is not a Native operation"), text),
+                };
+                let help = suggest(wanted, self.atlas.ops.iter().map(|o| o.name.as_str()))
+                    .map(|s| format!("did you mean '{s}'? (`uw browse` lists every operation)"));
+                self.error(diag(E0001_UNKNOWN_NAME, message, stmt.op.span, help));
+                return None;
+            }
         };
-        if let Some(min) = min_args(op) {
-            if stmt.args.len() < min {
-                let mut d = diag(
-                    E0203_TOO_FEW,
-                    format!("'{}' needs at least {min} values, got {}", op.name, stmt.args.len()),
-                    stmt.span,
-                    Some(format!("Native: {}", op.signature.trim())),
-                );
-                if let Some(line) = op.line {
-                    d.notes.push(format!("header_operations.py:{line}"));
+        let name = match op {
+            Some(op) if !self.native => op.name.clone(),
+            _ => text.to_string(),
+        };
+        if let Some(op) = op.filter(|_| !self.native) {
+            if let Some(min) = min_args(op) {
+                if stmt.args.len() < min {
+                    let mut d = diag(
+                        E0203_TOO_FEW,
+                        format!("'{name}' needs at least {min} values, got {}", stmt.args.len()),
+                        stmt.span,
+                        Some(format!("Native: {}", op.signature.trim())),
+                    );
+                    if let Some(line) = op.line {
+                        d.notes.push(format!("header_operations.py:{line}"));
+                    }
+                    self.error(d);
                 }
-                self.error(d);
             }
         }
         let mut args = Vec::new();
@@ -691,8 +710,14 @@ impl Ctx<'_> {
                 args.push(value);
             }
         }
-        Some(Op { name: op.name.clone(), args, origin: self.origin(stmt.span) })
+        Some(Op { name, args, origin: self.origin(stmt.span) })
     }
+}
+
+/// The first `|`-separated part of a Native operation name that is not an operation; `None` when
+/// every part is one (`uw_decomp::to_raw` splits flagged names the same way).
+fn missing_op_part<'t>(atlas: &Atlas, text: &'t str) -> Option<&'t str> {
+    text.split('|').find(|part| atlas.op(part).is_none())
 }
 
 /// A register the kit defines as a constant: `reg0`, `reg1`, ... (not `tf_male` or other constants).
@@ -838,7 +863,7 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
     let mut overridden: BTreeMap<String, String> = BTreeMap::new();
 
     for (index, source) in sources.iter().enumerate() {
-        let mut ctx = Ctx { atlas, errors: Vec::new(), file: index, source: &source.file, temp: 0 };
+        let mut ctx = Ctx { atlas, errors: Vec::new(), file: index, source: &source.file, temp: 0, native: false };
         if let Some(m) = &source.tree.module {
             match &name {
                 Some(existing) if existing != &m.text => ctx.error(diag(
@@ -1214,6 +1239,25 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
     }
 }
 
+/// Checks and lowers one statement block exactly as Native wrote it (raw mode): a decompiled block
+/// can be checked with the same rules and compared with the original operations.
+///
+/// `atlas` resolves every operation and name, `file` only names the block's source (its `name` and
+/// lines go into each operation's `origin` and into the errors) and `stmts` is one parsed block (a
+/// body, an option condition or consequence), so no module header is needed. Unlike [`check`]: a
+/// flagged operation name (`neg|this_or_next|eq`) is accepted when every part is a Native operation
+/// and is kept as written, the header signature count is not enforced (Native is the reference) and
+/// non-ASCII text is allowed. Names still resolve in the atlas.
+pub fn check_block(atlas: &Atlas, file: &SourceFile, stmts: &[Stmt]) -> Result<Vec<Op>, Vec<Diagnostic>> {
+    let mut ctx = Ctx { atlas, errors: Vec::new(), file: 0, source: file, temp: 0, native: true };
+    let ops = ctx.ops(stmts);
+    if ctx.errors.is_empty() {
+        Ok(ops)
+    } else {
+        Err(ctx.errors.into_iter().map(|e| e.diag).collect())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1226,7 +1270,13 @@ mod tests {
             {"name":"change_screen_map","code":2052,"line":1093,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
             {"name":"display_message","code":1106,"line":482,"signature":"(display_message,<string_id>,[hex_colour_code]),","lhs":false,"can_fail":false,"global_lhs":false},
             {"name":"party_is_active","code":2243,"line":7000,"signature":"(party_is_active,<party_id>),","lhs":false,"can_fail":true,"global_lhs":false},
-            {"name":"assign","code":2133,"line":40,"signature":"had to put this here","lhs":true,"can_fail":false,"global_lhs":false}
+            {"name":"assign","code":2133,"line":40,"signature":"had to put this here","lhs":true,"can_fail":false,"global_lhs":false},
+            {"name":"try_end","code":3,"line":16,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+            {"name":"try_begin","code":4,"line":17,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+            {"name":"try_for_range","code":6,"line":null,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+            {"name":"eq","code":31,"line":41,"signature":"","lhs":false,"can_fail":true,"global_lhs":false},
+            {"name":"neg","code":2147483648,"line":440,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+            {"name":"this_or_next","code":1073741824,"line":441,"signature":"","lhs":false,"can_fail":false,"global_lhs":false}
           ],
           "hooks": ["game_start"],
           "ranges": [],
@@ -1373,7 +1423,7 @@ mod tests {
     fn run_stmts(stmts: Vec<Stmt>) -> Result<Vec<uw_lower::Stmt>, Vec<String>> {
         let file = SourceFile::new("start.uw", SOURCE);
         let a = atlas();
-        let mut ctx = Ctx { atlas: &a, errors: Vec::new(), file: 0, source: &file, temp: 0 };
+        let mut ctx = Ctx { atlas: &a, errors: Vec::new(), file: 0, source: &file, temp: 0, native: false };
         let tree = ctx.stmts(&stmts);
         if ctx.errors.is_empty() {
             Ok(tree)
@@ -1388,6 +1438,77 @@ mod tests {
 
     fn cmp(op: uw_syntax::CmpOp, left: Expr, right: Expr) -> Cond {
         Cond::Cmp { op, left, right, span: line_span(1) }
+    }
+
+    fn run_block(stmts: Vec<Stmt>) -> Result<Vec<Op>, Vec<String>> {
+        let file = SourceFile::new("start.uw", SOURCE);
+        check_block(&atlas(), &file, &stmts).map_err(|errs| errs.iter().map(|e| e.render(&file)).collect())
+    }
+
+    #[test]
+    fn check_block_keeps_flags() {
+        let ops = run_block(vec![op_call(
+            "neg|this_or_next|eq",
+            vec![Arg::Global(ident("$x", 1)), int(1)],
+        )])
+        .unwrap();
+        assert_eq!(ops.len(), 1, "{ops:?}");
+        assert_eq!(ops[0].name, "neg|this_or_next|eq");
+        assert_eq!(ops[0].args, [Value::Ref("$x".into()), Value::Int(1)]);
+        // Every flagged part must still be a Native operation.
+        let errs = run_block(vec![op_call("neg|change_screan_map", vec![])]).unwrap_err();
+        assert!(errs[0].contains("'change_screan_map' in 'neg|change_screan_map' is not a Native operation"), "{errs:?}");
+    }
+
+    #[test]
+    fn check_block_accepts_control_ops() {
+        let ops = run_block(vec![
+            op_call("try_begin", vec![]),
+            op_call("try_for_range", vec![Arg::Local(ident(":i", 1)), int(0), int(3)]),
+            op_call("try_end", vec![]),
+        ])
+        .unwrap();
+        let names: Vec<&str> = ops.iter().map(|o| o.name.as_str()).collect();
+        assert_eq!(names, ["try_begin", "try_for_range", "try_end"]);
+        assert_eq!(ops[1].args, [Value::Ref(":i".into()), Value::Int(0), Value::Int(3)]);
+        // Native is the reference: the header signature count is not enforced here.
+        assert!(run_block(vec![op_call("display_message", vec![])]).is_ok());
+        assert!(run("on game.start { display_message() }").is_err());
+    }
+
+    #[test]
+    fn check_block_native_text_ok() {
+        let ops = run_block(vec![op_call("display_message", vec![Arg::Str("@Ağa".into(), line_span(1))])]).unwrap();
+        assert_eq!(ops[0].args, [Value::Text("@Ağa".into())]);
+        // The same text in a user file is still E0204.
+        let errs = run("on game.start { display_message(\"@Ağa\") }").unwrap_err();
+        assert!(errs[0].contains("non-ASCII"), "{errs:?}");
+    }
+
+    #[test]
+    fn check_block_if_matches_lowering() {
+        let ops = run_block(vec![Stmt::If {
+            arms: vec![(
+                cmp(
+                    uw_syntax::CmpOp::Gt,
+                    Expr::Value(Arg::Global(ident("$x", 1))),
+                    Expr::Value(int(1)),
+                ),
+                block(vec![op_call("change_screen_map", vec![])]),
+            )],
+            otherwise: Some(block(vec![op_call("display_message", vec![Arg::Str("@hi".into(), line_span(1))])])),
+            span: line_span(1),
+        }])
+        .unwrap();
+        let names: Vec<&str> = ops.iter().map(|o| o.name.as_str()).collect();
+        assert_eq!(
+            names,
+            ["try_begin", "gt", "change_screen_map", "else_try", "display_message", "try_end"]
+        );
+        assert_eq!(ops[1].args, [Value::Ref("$x".into()), Value::Int(1)]);
+        // A plain comparison needs no temporary (§7.6).
+        let temp = |v: &Value| matches!(v, Value::Ref(name) if name.starts_with(uw_lower::TEMP_PREFIX));
+        assert!(ops.iter().flat_map(|o| &o.args).all(|v| !temp(v)), "{ops:?}");
     }
 
     #[test]
