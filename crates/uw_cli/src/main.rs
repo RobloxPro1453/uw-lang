@@ -2,6 +2,7 @@
 
 mod build;
 mod explain;
+mod graph;
 mod model;
 mod tr;
 mod tui;
