@@ -3,7 +3,7 @@
 ## 000000. YÖN 2 MECLİSİ BİTTİ (2026-11-15) — sıradaki: P1 paketi
 
 Karar `docs/meclis/YON2-KARAR.md`, sıra ROADMAP (P1 → P3a → P2 → P3b → P5 → P6). İlk paket tarifleri hazır,
-**başlatılmadı**: T-030 (kayıt çekirdeği + `arbitrary_precision` + factions pilotu) önce; birleşince paralel
+T-030 birleşti ve ölçüldü (factions 34/34, işlem 9113/0). **2026-11-15: 12 şerit başlatıldı** (T-031..T-042; sonraki oturum `cv delegate status` → her dal için `cv delegate verify` + şema adlarını kit açıklamasıyla karşılaştır + `uw roundtrip`). Eski not: T-030 (kayıt çekirdeği + `arbitrary_precision` + factions pilotu) önce; birleşince paralel
 T-031/T-032/T-033 (27 tablonun şemaları) ve T-034 (`uw roundtrip` kayıt raporu). Başlatma:
 `cv delegate run T-030`, birleşince `cv delegate batch --lanes 12 T-031 T-032 T-033 T-034 T-035 T-036 T-037 T-038 T-039 T-040 T-041 T-042` (11 şema şeridi + rapor). Denetimde dikkat:
 `arbitrary_precision` işlem gidiş-dönüşünü (9113/0) bozmamalı; şemalarda kitte olmayan alan adı olmamalı.
