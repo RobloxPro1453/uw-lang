@@ -1,4 +1,5 @@
-# Skill records, round 1 (raw): every field is the atlas value as it is.
+# Skill records: `skill_flags` is `flags:` with the 2-bit base-attribute enum and the
+# party/inactive bits; every other field is still the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_skills.py
 # (`source` points at it); docs/meclis/YON2-KARAR.md §2.
 table = "skills"
@@ -17,8 +18,15 @@ source = "module_skills.py:7"
 
 [[fields]]
 name = "skill_flags"
-ty = "raw"
+ty = "flags:sf_base_att_,sf_effects_party,sf_inactive"
 source = "module_skills.py:8"
+zero = "sf_base_att_str"
+
+# header_skills.py:1-4: the base attribute is a 2-bit enum (str/agi/int/cha); the kit states no
+# mask constant, so the group mask is the integer 3.
+[[fields.enums]]
+mask = 3
+prefix = "sf_base_att_"
 
 [[fields]]
 name = "maximum_level"

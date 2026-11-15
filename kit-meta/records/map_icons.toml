@@ -1,4 +1,5 @@
-# Map icon records, round 1 (raw): every field is the atlas value as it is.
+# Map icon records: `map_icon_flags` is `flags:mcn_` and `sound` a `ref:sounds`; every other field
+# is still the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_map_icons.py
 # (`source` points at it); docs/meclis/YON2-KARAR.md §2.
 table = "map_icons"
@@ -12,7 +13,7 @@ source = "module_map_icons.py:9"
 
 [[fields]]
 name = "map_icon_flags"
-ty = "raw"
+ty = "flags:mcn_"
 source = "module_map_icons.py:11"
 
 [[fields]]
@@ -27,7 +28,7 @@ source = "module_map_icons.py:13"
 
 [[fields]]
 name = "sound"
-ty = "raw"
+ty = "ref:sounds"
 source = "module_map_icons.py:14"
 
 [[fields]]
