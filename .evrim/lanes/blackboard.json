@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T08:52:41.238Z",
+  "updatedAt": "2026-11-15T10:19:30.862Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -38,6 +38,74 @@
         "crates/uw_atlas/src/lib.rs +242 -0",
         "crates/uw_atlas/tests/atlas.rs +129 -0"
       ]
+    },
+    "T-004": {
+      "task": "T-004",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-004",
+      "updatedAt": "2026-11-15T10:17:59.628Z"
+    },
+    "T-005": {
+      "task": "T-005",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-005",
+      "updatedAt": "2026-11-15T10:17:59.639Z"
+    },
+    "T-006": {
+      "task": "T-006",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-006",
+      "updatedAt": "2026-11-15T10:17:59.650Z"
+    },
+    "T-007": {
+      "task": "T-007",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-007",
+      "updatedAt": "2026-11-15T10:19:30.862Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/main.rs +1 -0",
+        "crates/uw_cli/src/tr.rs +92 -0"
+      ]
+    },
+    "T-008": {
+      "task": "T-008",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-008",
+      "updatedAt": "2026-11-15T10:17:59.686Z"
+    },
+    "T-009": {
+      "task": "T-009",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-009",
+      "updatedAt": "2026-11-15T10:17:59.718Z"
+    },
+    "T-010": {
+      "task": "T-010",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-010",
+      "updatedAt": "2026-11-15T10:17:59.731Z"
     }
   }
 }

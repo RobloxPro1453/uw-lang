@@ -138,6 +138,26 @@ def extend(lst, entries, key=None):
     return out
 
 
+def tag_all(lst, path, make_ops):
+    """Debug builds only: every entry whose `path` is an operation block gets make_ops(entry) in
+    front of it (deep copy of that entry); entries without such a block stay the same object."""
+    out = []
+    for e in lst:
+        try:
+            node = e
+            for i in _path(path):
+                node = node[i]
+        except (IndexError, TypeError, KeyError):
+            out.append(e)
+            continue
+        if not isinstance(node, list):
+            out.append(e)
+            continue
+        ops = make_ops(e)
+        out.append(_set_in(copy.deepcopy(e), _path(path), lambda old: _block(old, ops, "prepend")))
+    return out
+
+
 # Unnamed tables (dialogs, triggers, simple_triggers): the plan gives list indices.
 
 def insert_before(lst, index, entries):

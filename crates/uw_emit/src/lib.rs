@@ -51,7 +51,14 @@ fn value(v: &Value) -> String {
     }
 }
 
-fn wrapper(name: &str, module: &str, patches: &[&Patch]) -> String {
+/// Debug builds: a line after the patches that makes every menu print its own id when it opens
+/// (`uw: menu_start_phase_2`), so the owner sees in game which menu to override.
+const DEBUG_MENUS: &str = "
+# uw --debug: every menu shows its id when it opens
+game_menus = _uw.tag_all(game_menus, 4, lambda e: [(display_message, \"@uw: menu_\" + e[0])])
+";
+
+fn wrapper(name: &str, module: &str, patches: &[&Patch], debug: bool) -> String {
     let mut headers: BTreeSet<&str> = BTreeSet::new();
     for patch in patches {
         for op in &patch.ops {
@@ -99,18 +106,26 @@ fn wrapper(name: &str, module: &str, patches: &[&Patch]) -> String {
         }
         let _ = writeln!(out, "])");
     }
+    if debug && module == "module_game_menus" {
+        out.push_str(DEBUG_MENUS);
+    }
     out
 }
 
-pub fn emit(checked: &Checked) -> Emitted {
-    // Module -> its patches, modules in first-use order is not needed: sorted is deterministic.
+/// `debug`: also tag every menu with its id (see [`DEBUG_MENUS`]); the menus wrapper is written
+/// even when the mod does not change a menu.
+pub fn emit(checked: &Checked, debug: bool) -> Emitted {
+    // Module -> its patches; sorted, so the output is deterministic.
     let mut by_module: BTreeMap<&str, Vec<&Patch>> = BTreeMap::new();
     for patch in &checked.patches {
         by_module.entry(patch.module.as_str()).or_default().push(patch);
     }
+    if debug {
+        by_module.entry("module_game_menus").or_default();
+    }
     let mut files = Vec::new();
     for (module, patches) in &by_module {
-        files.push(OutFile { name: format!("{module}.py"), text: wrapper(&checked.name, module, patches) });
+        files.push(OutFile { name: format!("{module}.py"), text: wrapper(&checked.name, module, patches, debug) });
     }
     files.push(OutFile { name: "uw_runtime.py".into(), text: UW_RUNTIME.to_owned() });
     Emitted { files, native_modules: by_module.keys().map(|m| (*m).to_owned()).collect() }
@@ -164,7 +179,7 @@ mod tests {
                 },
             ],
         };
-        let out = emit(&checked);
+        let out = emit(&checked, false);
         assert_eq!(out.native_modules, ["module_game_menus", "module_scripts"]);
         let names: Vec<&str> = out.files.iter().map(|f| f.name.as_str()).collect();
         assert_eq!(names, ["module_game_menus.py", "module_scripts.py", "uw_runtime.py"]);
@@ -190,5 +205,16 @@ mod tests {
         assert!(scripts.contains("(troop_set_type, \"trp_player\", tf_male),  # start.uw:9"), "{scripts}");
         assert!(scripts.contains("(display_message, \"@say \\\"hi\\\"\"),"), "{scripts}");
         assert!(out.files[2].text.contains("def replace_body("));
+        assert!(!out.files[0].text.contains("tag_all"));
+    }
+
+    #[test]
+    fn debug_tags_menus_even_without_menu_patches() {
+        let checked = Checked { name: "m".into(), patches: vec![] };
+        let out = emit(&checked, true);
+        assert_eq!(out.native_modules, ["module_game_menus"]);
+        let menus = &out.files[0].text;
+        assert!(menus.contains("game_menus = _uw.tag_all(game_menus, 4, lambda e: [(display_message, \"@uw: menu_\" + e[0])])"), "{menus}");
+        assert!(emit(&checked, false).files.iter().all(|f| f.name != "module_game_menus.py"));
     }
 }

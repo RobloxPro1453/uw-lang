@@ -9,8 +9,9 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 const USAGE: &str = "usage:
-  uw build <mod folder> [--no-install] [--modules <Warband/Modules>] [--kit <kit>] [--python <python27.exe>]
-      check the .uw files, build them with the Module System kit and install the mod
+  uw build <mod folder> [--debug] [--no-install] [--modules <Warband/Modules>] [--kit <kit>] [--python <python27.exe>]
+      check the .uw files, build them with the Module System kit and install the mod;
+      --debug: in game every menu prints its id, so you see what to override
   uw browse [--atlas <atlas.json>] [search]
       look around Native in a window: type to search, Enter to follow who uses what
   uw explain [--all] [--atlas <atlas.json>] <thing>
@@ -120,12 +121,17 @@ fn cmd_build(args: &[String]) -> ExitCode {
         python: None,
         modules: None,
         install: true,
+        debug: false,
     };
     let mut dir = None;
     let mut it = args.iter();
     while let Some(arg) = it.next() {
         let mut value = |flag: &str| it.next().map(PathBuf::from).ok_or(format!("{flag} needs a path"));
         let result = match arg.as_str() {
+            "--debug" => {
+                opts.debug = true;
+                Ok(())
+            }
             "--no-install" => {
                 opts.install = false;
                 Ok(())

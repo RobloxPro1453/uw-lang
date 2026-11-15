@@ -86,6 +86,14 @@ class Runtime(unittest.TestCase):
         self.assertRaises(uw.UwRuntimeError, uw.extend, self.lst, [("d", 1), ("D", 2)], KEY)
         self.unchanged()
 
+    def test_tag_all_prepends_to_every_block(self):
+        lst = [("a", [], [(1,)]), ("b", 0, "not a block"), ("c", 0)]
+        out = uw.tag_all(lst, 2, lambda e: [(9, e[0])])
+        self.assertEqual(out[0], ("a", [], [(9, "a"), (1,)]))
+        self.assertIs(out[1], lst[1])
+        self.assertIs(out[2], lst[2])
+        self.assertEqual(lst[0], ("a", [], [(1,)]))
+
     def test_unnamed_table_helpers(self):
         lst = ["a", "b", "c"]
         self.assertEqual(uw.insert_before(lst, 0, ["x"]), ["x", "a", "b", "c"])

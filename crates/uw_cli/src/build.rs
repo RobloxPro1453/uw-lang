@@ -21,6 +21,8 @@ pub struct Options {
     pub python: Option<PathBuf>,
     pub modules: Option<PathBuf>,
     pub install: bool,
+    /// Every menu prints its id in game (`uw: menu_x`).
+    pub debug: bool,
 }
 
 /// Runs the build, printing progress. `Err` is the message for the user.
@@ -93,7 +95,10 @@ pub fn run(opts: Options) -> Result<(), String> {
     let work = root.join("target").join("uw-build").join(&checked.name);
     let overlay = work.join("overlay");
     reset_dir(&overlay, OVERLAY_MARKER)?;
-    let emitted = uw_emit::emit(&checked);
+    let emitted = uw_emit::emit(&checked, opts.debug);
+    if opts.debug {
+        println!("debug     every menu will print its id in game (uw: menu_...)");
+    }
     for file in &emitted.files {
         write(&overlay.join(&file.name), &file.text)?;
     }
