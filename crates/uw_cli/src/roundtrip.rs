@@ -23,7 +23,7 @@ pub fn measure(atlas: &uw_atlas::Atlas) -> Report {
 }
 
 /// The record schemas: every `kit-meta/records/*.toml` of `dir`.
-fn load_schemas(dir: &Path) -> Result<Vec<Schema>, String> {
+pub(crate) fn load_schemas(dir: &Path) -> Result<Vec<Schema>, String> {
     let entries = std::fs::read_dir(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     let mut paths: Vec<PathBuf> = entries
         .filter_map(|entry| entry.ok().map(|entry| entry.path()))
@@ -38,7 +38,7 @@ fn load_schemas(dir: &Path) -> Result<Vec<Schema>, String> {
 }
 
 /// The schema folder of this or a parent folder, like the atlas and `kit-meta/aciklama`.
-fn find_schemas() -> Option<PathBuf> {
+pub(crate) fn find_schemas() -> Option<PathBuf> {
     let cwd = std::env::current_dir().ok()?;
     cwd.ancestors().map(|dir| dir.join(SCHEMA_REL)).find(|path| path.is_dir())
 }
