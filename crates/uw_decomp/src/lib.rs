@@ -6,6 +6,7 @@
 
 pub mod decompile;
 pub mod extract;
+pub mod project;
 pub mod records;
 pub mod roundtrip;
 
