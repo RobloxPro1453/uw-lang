@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · P2 bitti: `require` / `attempt` / `for` — Native biçimli satır 5518 → 28 (Claude + DeepSeek)
+Döküm "diğer"in döngü kapanışı olduğunu gösterdi; `for <değişken> in <tür>(…)` eklendi (tür = kitin `try_for_<tür>`'ü, YON2-KARAR §8). Claude AST düğümleri + require/attempt denetimi; DeepSeek T-052 ayrıştırıcı, T-053 indirgeme + for denetimi, T-054 çevirici, T-055 kılavuz §11 (~$0.2). Ölçü: 9113/9113 blok, 12815/12815 kayıt, satır 72303, Native biçimli 28 (hepsi gövdesinde `else_try` olan döngü, kararla L0); `uw new --check` 12815/12815; testler 287/287. Sıradaki: P3b (`base = "project"` derleme, `.txt` bayt eşitliği).
+
 ## 2026-11-15 · P3a bitti: `uw new --from native` Native'i okunaklı proje klasörüne döküyor (Claude + DeepSeek)
 7 şerit (T-043..T-051, ~$0.45): kayıtlarda kod blokları `ops { … }`, klasör düzeni (22 şehir, 48 kale, 110 köy, 120 lord, 121 leydi kitin aralıklarından), `uw new`/`--check`, `reg0`/`pos1`/slot adları, ham satır dökümü (bekçi `neg|` 1865, ara hesaplı kol 527, `this_or_next` 549, döngü-else 77, diğer 2500), sıra bağları yeniden ölçüldü (`docs/bilgi/sira-baglari.md`: 238 aralık, 48 zincir, 586 ofset sitesi; Gemini'nin 256/416'sı geçersiz), kılavuz bölümü. Claude: iki parçayı bağladı, `--check` blokları işlem olarak karşılaştırır (atlas `1262` ile `(1262,)` aynı işlem; kesin ölçü P3b'nin `.txt` eşitliği). Ölçü: 6194 dosya, 12815/12815; testler 259/259. Sıradaki: P2 `require`/`attempt` gramer + IR (Claude).
 

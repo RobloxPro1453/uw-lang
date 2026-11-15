@@ -10,7 +10,7 @@
 - [x] **Y1b** (2026-11-15, `uw roundtrip`: 9113 blok %100 birebir, %100 yapılı; satırların %7,3'ü Native biçimli) Ölçüm prototipi.
 - [x] **P1** (2026-11-15: 27 tablo, 12815/12815 kayıt birebir; 201 alan adı kitle denetlendi) Kayıt biçimi tur 1 (ham, kayıpsız): `uw_decomp::records` yazıcı/ayrıştırıcı + 27 tablo şeması `kit-meta/records/` + `uw roundtrip` kayıt raporu. Tarifler T-030..T-034 (hazır, başlatılmadı). Kabul: 27 tablo atlas birebir.
 - [x] **P3a** (2026-11-15: 6194 dosya, `uw new --check` 12815/12815; kod blokları `ops { }`, `reg0`/slot adları) `uw new <ad> --from native`: Native'in tamamı klasörlere (dosya adı = Native kimliği, başında görünen ad + açıklama); yalnız dışa aktarma. İlk görünür teslim.
-- [ ] **P2** `require` / `attempt` (gramer + IR Claude) + yazmaç (`reg0`, `pos1`) ve slot adları; Native biçimli satır oranı raporu.
+- [x] **P2** (2026-11-15: Native biçimli satır 5518 → 28, yalnız gövdesinde else olan döngüler; + `for … in …`) `require` / `attempt` (gramer + IR Claude) + yazmaç (`reg0`, `pos1`) ve slot adları; Native biçimli satır oranı raporu.
 - [ ] **P3b** `base = "project"` derleme: tam liste üretimi, `uw.lock`, tombstone, aralık kilidi, ters dizin silme hatası (Türkçe). Kabul: 27 tablo kit `.txt` bayt eşit + kayıtlı oyun yükleme deneyi (CHECKUP).
 - [ ] **P5** Kayıt tur 2: `ref`/`flags`/`packed` alanlarını okunaklı aç (kit adlarıyla, bilinmeyen bit açık `raw`).
 - [ ] **P6** L2 `lib/*.uw` v1 + `fn` + nesne alanı; kendi adla `menu`, `goto`, metinde `@` kendiliğinden; `menu_demo` yeni dilde (eski Y3-Y4).

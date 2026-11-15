@@ -1,6 +1,6 @@
 # Devir: sonraki oturum buradan başlar
 
-## 000000. P3a BİTTİ (`uw new --from native`, 12815/12815) — sıradaki: P2 `require`/`attempt` (gramer + IR Claude'da; ham satır dökümü PROGRESS'te), sonra P3b
+## 000000. P2 BİTTİ (Native biçimli satır 28) — sıradaki: P3b `base = "project"` derleme (tam liste üretimi, `uw.lock`, tombstone, `.txt` bayt eşitliği; sıra bağları `docs/bilgi/sira-baglari.md`)
 
 ## 00000a. YÖN 2 MECLİSİ BİTTİ (2026-11-15)
 
