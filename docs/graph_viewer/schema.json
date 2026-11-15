@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "uw-flow/1",
+  "title": "uw-flow/1 — Warband mod flow for graph_viewer",
+  "description": "Produced by universal_warband (py/flow_export.py, later `uw graph --json`). Compatibility: within uw-flow/1 fields are only ADDED, never renamed, removed or retyped; a viewer must ignore unknown fields and render unknown `kind` / `op` values generically. A breaking change gets a new format string (uw-flow/2).",
+  "type": "object",
+  "required": ["format", "roots", "nodes", "edges"],
+  "properties": {
+    "format": {"const": "uw-flow/1"},
+    "generator": {"type": "string", "description": "What wrote the file."},
+    "kit_hash": {"type": ["string", "null"]},
+    "roots": {
+      "type": "array",
+      "description": "Default starting points of the view (where the game itself starts a flow).",
+      "items": {
+        "type": "object",
+        "required": ["id", "why"],
+        "properties": {
+          "id": {"type": "string", "description": "A node id that exists in `nodes`."},
+          "why": {"type": "string"}
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "description": "Every node id is unique. Every edge's `from` and `to` is a node id.",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "index", "text", "source", "on_enter_goes_to", "options", "stub"],
+        "properties": {
+          "id": {"type": "string", "description": "Unique; what a modder writes (menu_x, script_x, screen:map)."},
+          "kind": {"type": "string", "description": "menu | script | mission_template | scene | presentation | screen | other (more later)."},
+          "index": {"type": "integer", "description": "Position in its game table; -1 for stubs."},
+          "text": {"type": "string", "description": "In-game text; may be empty. `^` = line break, `{s10}` `{reg0}` `{!}` are game markup."},
+          "source": {"type": "string", "description": "file:line in the Module System; may be empty."},
+          "stub": {"type": "boolean", "description": "true = only an arrow target, no details yet (draw small)."},
+          "on_enter_goes_to": {"type": "array", "items": {"$ref": "#/$defs/goes"}},
+          "options": {
+            "type": "array",
+            "description": "Buttons in display order.",
+            "items": {
+              "type": "object",
+              "required": ["index", "id", "text", "conditional", "goes_to"],
+              "properties": {
+                "index": {"type": "integer", "description": "0-based order inside the node; unique within the node (ids may repeat)."},
+                "id": {"type": "string"},
+                "text": {"type": "string"},
+                "conditional": {"type": "boolean", "description": "Shown only when a condition holds."},
+                "goes_to": {"type": "array", "items": {"$ref": "#/$defs/goes"}}
+              }
+            }
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to", "op", "via_option", "option_index"],
+        "properties": {
+          "from": {"type": "string"},
+          "to": {"type": "string"},
+          "op": {"type": "string"},
+          "via_option": {"type": ["string", "null"], "description": "Button id, null = the node's opening code."},
+          "option_index": {"type": ["integer", "null"], "description": "Index of that button in the from-node's options; null = opening code."}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "goes": {
+      "type": "object",
+      "required": ["op", "to"],
+      "properties": {"op": {"type": "string"}, "to": {"type": "string"}}
+    }
+  }
+}

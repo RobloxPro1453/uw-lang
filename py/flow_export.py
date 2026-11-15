@@ -72,16 +72,19 @@ def main():
                 continue
             option_edges = edges_of(opt[3])
             options.append({
+                "index": len(options),
                 "id": "mno_" + str(opt[0]),
                 "text": opt[2],
                 "conditional": bool(block(opt[1])),
                 "goes_to": option_edges,
             })
             for ed in option_edges:
-                edges.append({"from": label, "to": ed["to"], "op": ed["op"], "via_option": "mno_" + str(opt[0])})
+                edges.append({"from": label, "to": ed["to"], "op": ed["op"], "via_option": "mno_" + str(opt[0]),
+                              "option_index": len(options) - 1})
         on_enter = edges_of(v[4]) if len(v) > 4 else []
         for ed in on_enter:
-            edges.append({"from": label, "to": ed["to"], "op": ed["op"], "via_option": None})
+            edges.append({"from": label, "to": ed["to"], "op": ed["op"], "via_option": None,
+                          "option_index": None})
         nodes.append({
             "id": label,
             "kind": "menu",
@@ -90,14 +93,27 @@ def main():
             "source": "module_game_menus.py:%s" % e["line"] if e["line"] else "module_game_menus.py",
             "on_enter_goes_to": on_enter,
             "options": options,
+            "stub": False,
         })
+    # Every arrow target gets a node: things that are not menus become small "stub" nodes.
+    KINDS = {"script": "script", "mst": "mission_template", "scn": "scene", "prsnt": "presentation",
+             "screen": "screen"}
+    known = set(n["id"] for n in nodes)
+    for ed in edges:
+        t = ed["to"]
+        if t in known:
+            continue
+        known.add(t)
+        prefix = "screen" if t.startswith("screen:") else t.split("_", 1)[0]
+        nodes.append({"id": t, "kind": KINDS.get(prefix, "other"), "index": -1, "text": "",
+                      "source": "", "on_enter_goes_to": [], "options": [], "stub": True})
     roots = [{"id": nodes[0]["id"], "why": "menu #0: the engine opens it on New Game"},
              {"id": "menu_start_phase_2", "why": "the engine opens it after character creation (D4)"}]
-    out = {"format": "uw-flow/1", "kit_hash": atlas.get("kit_hash"), "roots": roots,
+    out = {"format": "uw-flow/1", "generator": "py/flow_export.py", "kit_hash": atlas.get("kit_hash"), "roots": roots,
            "nodes": nodes, "edges": edges}
     with open(a.out, "w", encoding="utf-8") as fh:
         json.dump(out, fh, ensure_ascii=False, indent=1)
-    print("menus %d, options %d, edges %d -> %s" % (
+    print("nodes %d, options %d, edges %d -> %s" % (
         len(nodes), sum(len(n["options"]) for n in nodes), len(edges), a.out))
 
 
