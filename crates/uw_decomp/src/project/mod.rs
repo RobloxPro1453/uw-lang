@@ -83,7 +83,7 @@ pub fn export(
         summary.files += 1;
         summary.records += records.len();
     }
-    write_metadata(atlas, out)?;
+    write_metadata(atlas, schemas, out)?;
     Ok(summary)
 }
 
@@ -282,8 +282,9 @@ fn descriptions() -> HashMap<String, String> {
     map
 }
 
-/// `uw.toml` (the folder is an export, not a compiled project yet) and the Turkish `README.md`.
-fn write_metadata(atlas: &Atlas, out: &Path) -> Result<(), String> {
+/// `uw.lock` (the record order), `uw.toml` (the folder is an export, not a compiled project yet)
+/// and the Turkish `README.md`.
+fn write_metadata(atlas: &Atlas, schemas: &[Schema], out: &Path) -> Result<(), String> {
     let mut toml_text = String::from(
         "# uw new --from native (P3a): every Native record as UW text. Not compiled yet (P3b).\n\
          # base = \"native-export\": this folder is an export of Native, not a project build.\n\
@@ -293,6 +294,7 @@ fn write_metadata(atlas: &Atlas, out: &Path) -> Result<(), String> {
         toml_text.push_str(&format!("kit_hash = \"{hash}\"\n"));
     }
     std::fs::write(out.join("uw.toml"), toml_text).map_err(|e| format!("{}: {e}", out.join("uw.toml").display()))?;
+    load::write_lock(atlas, schemas, out)?;
     std::fs::write(out.join("README.md"), README).map_err(|e| format!("{}: {e}", out.join("README.md").display()))?;
     Ok(())
 }
