@@ -1,0 +1,41 @@
+# Party template records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_party_templates.py
+# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "party_templates"
+kind = "party_template"
+id_prefix = "pt_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_party_templates.py:11"
+
+[[fields]]
+name = "name"
+ty = "raw"
+source = "module_party_templates.py:13"
+
+[[fields]]
+name = "party_flags"
+ty = "raw"
+source = "module_party_templates.py:14"
+
+[[fields]]
+name = "menu"
+ty = "raw"
+source = "module_party_templates.py:15"
+
+[[fields]]
+name = "faction"
+ty = "raw"
+source = "module_party_templates.py:16"
+
+[[fields]]
+name = "personality"
+ty = "raw"
+source = "module_party_templates.py:17"
+
+[[fields]]
+name = "stacks"
+ty = "raw"
+source = "module_party_templates.py:18"
