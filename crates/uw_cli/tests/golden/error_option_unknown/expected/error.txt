@@ -1,0 +1,7 @@
+error[E0207]: menu 'start_phase_2' has no option 'town_9'
+ --> input.uw:6:19
+  |
+6 |     change option town_9 {
+  |                   ^^^^^^
+  |
+  = help: did you mean 'town_1'?

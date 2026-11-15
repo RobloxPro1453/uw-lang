@@ -1,0 +1,6 @@
+// Grammar 2, guide 3.5: locals that start with `:_` belong to UW's own lowering (E0210).
+mod golden_bad_local
+
+on game.start {
+    :_uw0 = 1
+}

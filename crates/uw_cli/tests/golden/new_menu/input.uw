@@ -1,0 +1,20 @@
+// Grammar 2, guide 3.8: a brand new menu record, appended to `game_menus` with flags 0 and mesh
+// "none". Another .uw file opens it with `jump_to_menu(mnu_uw_ask)`; a new menu cannot be jumped
+// to from the file that adds it.
+mod golden_new_menu
+
+new menu_uw_ask "Where are you from?" {
+    on enter {
+        $g_uw_asked = 1
+        display_message("@UW: a new menu opened.")
+    }
+
+    option north "From the north." when $g_uw_north == 0 {
+        troop_add_gold(trp_player, 100)
+        display_message("@UW: the north is cold.")
+    }
+
+    option south "From the south." before north {
+        display_message("@UW: the south is warm.")
+    }
+}

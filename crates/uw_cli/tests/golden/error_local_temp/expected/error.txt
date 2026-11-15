@@ -1,0 +1,7 @@
+error[E0210]: ':_uw0' starts with `:_`, which lowering uses for temporaries
+ --> input.uw:5:5
+  |
+5 |     :_uw0 = 1
+  |     ^^^^^
+  |
+  = help: user locals may not start with `:_`

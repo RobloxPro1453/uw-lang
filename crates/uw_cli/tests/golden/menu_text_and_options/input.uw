@@ -1,0 +1,33 @@
+// Grammar 2, guide 3.7: change a Native menu's text and options. `start_phase_2` is Native's
+// "where do you want to start" menu (module_game_menus.py:55) with the options town_1 ... town_6.
+mod golden_menu
+
+override menu_start_phase_2 {
+    text "UW golden: where do you want to start your journey?"
+
+    // only the fields written here change; the rest stays as Native wrote it
+    change option town_1 {
+        text "join a caravan to Praven (changed by UW)."
+    }
+
+    change option town_2 {
+        text "sail to Shariz (changed by UW)."
+        when $g_uw_town_open == 1
+        do {
+            display_message("@UW: the changed option was chosen.")
+        }
+    }
+
+    remove option town_6
+
+    // new option: shown only while the flag is 0, placed right after town_1
+    option uw_rich "Start rich: 1000 denars." when $g_uw_rich == 0 after town_1 {
+        troop_add_gold(trp_player, 1000)
+        $g_uw_rich = 1
+    }
+
+    // `when { ... }` form: the block's operations are the show condition
+    option uw_gate "Only while the main party is on the map." when { party_is_active(p_main_party) } {
+        display_message("@UW: the gate opened.")
+    }
+}

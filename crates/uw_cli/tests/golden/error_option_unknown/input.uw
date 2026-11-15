@@ -1,0 +1,9 @@
+// Grammar 2, guide 3.7: `change option` on an option the Native menu does not have (E0207). The
+// near miss gets a "did you mean" suggestion.
+mod golden_bad_change
+
+override menu_start_phase_2 {
+    change option town_9 {
+        text "There is no such option."
+    }
+}
