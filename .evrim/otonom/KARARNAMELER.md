@@ -146,3 +146,7 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 - **Bulgu:** `uw explain` / `uw browse` her Native kaydının nerede tanımlandığını ve hangi işlemle kimin kullandığını veriyor (ör. `menu_start_phase_2`: Native'de hiçbir yerden çağrılmıyor → motor açıyor; D4 bunu doğruladı).
 - **Karar:** Ajan bir Native kaydını değiştirmeyi, kesmeyi ya da bir motor davranışını varsaymayı önermeden önce `uw explain <ad>` (ya da modeldeki ters dizin) ile kullanım yerlerini kontrol eder ve önerisinde bunu anar. Akış şeması (ROADMAP) gelince aynı kontrol şemadan yapılır.
 - **Beklenen etki:** "bunu kapatırsam ne bozulur" sorusu tahminle değil veriyle cevaplanır.
+
+## Kullanıcı kılavuzu (sahibi, 2026-11-15)
+- **Karar:** `docs/kilavuz/UW_KILAVUZU.md` sahibinin okuduğu Türkçe UW kılavuzudur. Dile ya da `uw` komutlarına görünür bir şey eklenen her turda kılavuzun ilgili bölümü aynı turda güncellenir (yalnız yeni olan; baştan yazma yok). Her yeni dil özelliğinin tarifi "kılavuza şu bölümü ekle" adımını ve bir altın testi (`crates/uw_cli/tests/golden/`) içerir.
+- **Beklenen etki:** belge kodla aynı anda büyür; sahibi Module System bilmeden kılavuzdan mod yazar.

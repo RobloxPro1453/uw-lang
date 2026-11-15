@@ -106,21 +106,21 @@
     "worktreeRoot": "~/cv-calisma/{project}",
     "branchPrefix": "cv/",
     "linkDirs": [],
-    "lanes": 3,
+    "lanes": 12,
     "slots": {
       "test": 2,
       "build": 2
     },
     "defaultSteps": 200,
     "defaultBudget": 1,
-    "dailyBudget": 2,
+    "dailyBudget": 5,
     "minBalanceNote": "Bakiye API'den okunamaz; günlük harcama stateDir kayıtlarından toplanır ve dailyBudget aşılınca yeni iş başlamaz.",
     "stateDir": ".evrim/state/delegate",
     "commitTrailer": "Co-Authored-By: delegate-agent <noreply@example.invalid>",
     "plugins": [
       "builtin:crlf"
     ],
-    "_comment_totalBudget": "Sahibinin DeepSeek kredisi toplam ~15$ (2026-11-15). Döngü harcamayı stateDir kayıtlarından izler, dailyBudget'ı kendisi frenler/artırır; toplam tavanı aşamaz (KARARNAMELER).",
+    "_comment_totalBudget": "Sahibinin DeepSeek kredisi 2026-11-15 itibarıyla ~14$ (önbellek açık). Sahibi: bol kullan, darboğaz yoksa ~20 paralel işçiye kadar. Toplam tavanı aşılamaz (KARARNAMELER).",
     "totalBudget": 15
   },
   "metrics": {
