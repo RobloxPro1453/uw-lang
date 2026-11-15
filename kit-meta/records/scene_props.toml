@@ -1,4 +1,5 @@
-# Scene prop records, round 1 (raw): every field is the atlas value as it is.
+# Scene prop records: `scene_prop_flags` is a `flags:sokf_` set whose low byte holds one
+# `sokf_type_*` value; every other field is the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_scene_props.py
 # (`source` points at it); docs/meclis/YON2-KARAR.md §2.
 table = "scene_props"
@@ -10,9 +11,13 @@ name = "id"
 ty = "raw"
 source = "module_scene_props.py:12"
 
+# Single bits sokf_add_fire .. sokf_static_movement (header_scene_props.py:16-31), plus one type
+# value in the low byte chosen by sokf_type_mask (:7-15: container, ai_limiter, barrier, ...).
+# The packed hit points (:34-37) and use time (:39-49) are not flag bits; they print in `rest`.
 [[fields]]
 name = "scene_prop_flags"
-ty = "raw"
+ty = "flags:sokf_"
+enums = [{ mask = "sokf_type_mask", prefix = "sokf_type_" }]
 source = "module_scene_props.py:13"
 
 [[fields]]
