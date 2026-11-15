@@ -1,0 +1,36 @@
+# Mission-template records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's
+# module_mission_templates.py (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "mission_templates"
+kind = "mission_template"
+id_prefix = "mst_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_mission_templates.py:12"
+
+[[fields]]
+name = "mission_template_flags"
+ty = "raw"
+source = "module_mission_templates.py:15"
+
+[[fields]]
+name = "mission_type"
+ty = "raw"
+source = "module_mission_templates.py:16"
+
+[[fields]]
+name = "description"
+ty = "raw"
+source = "module_mission_templates.py:20"
+
+[[fields]]
+name = "spawn_records"
+ty = "raw"
+source = "module_mission_templates.py:21"
+
+[[fields]]
+name = "triggers"
+ty = "raw"
+source = "module_mission_templates.py:28"

@@ -1,0 +1,26 @@
+# Presentation records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's
+# module_presentations.py (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "presentations"
+kind = "presentation"
+id_prefix = "prsnt_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_presentations.py:12"
+
+[[fields]]
+name = "presentation_flags"
+ty = "raw"
+source = "module_presentations.py:13"
+
+[[fields]]
+name = "background_mesh"
+ty = "raw"
+source = "module_presentations.py:14"
+
+[[fields]]
+name = "triggers"
+ty = "raw"
+source = "module_presentations.py:15"
