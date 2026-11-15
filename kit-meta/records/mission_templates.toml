@@ -1,4 +1,5 @@
-# Mission-template records, round 1 (raw): every field is the atlas value as it is.
+# Mission-template records: the flags field prints its `mtf_*` bits by name; every other field is
+# still the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's
 # module_mission_templates.py (`source` points at it); docs/meclis/YON2-KARAR.md §2.
 table = "mission_templates"
@@ -10,9 +11,14 @@ name = "id"
 ty = "raw"
 source = "module_mission_templates.py:12"
 
+# header_mission_templates.py:141-146 defines these flags. The full names keep header_music.py's
+# mtf_culture_*/mtf_sit_* constants (same mtf_ prefix, overlapping values) out of the group.
+# Line 140 says the lower 12 bits are flags and xsize()/ysize() (:150-157) use the upper 20, but
+# mtf_synch_inventory (0x10000) lies above bit 11 and the module calls neither xsize() nor ysize();
+# the whole int is the flag set.
 [[fields]]
 name = "mission_template_flags"
-ty = "raw"
+ty = "flags:mtf_arena_fight,mtf_team_fight,mtf_battle_mode,mtf_commit_casualties,mtf_no_blood,mtf_synch_inventory"
 source = "module_mission_templates.py:15"
 
 [[fields]]

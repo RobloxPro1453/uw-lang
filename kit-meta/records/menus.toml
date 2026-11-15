@@ -1,4 +1,5 @@
-# Menu records, round 1 (raw): every field is the atlas value as it is.
+# Menu records: the flags field prints as a packed value (the `mnf_*` menu flags and the optional
+# text color); every other field is still the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_game_menus.py
 # (`source` points at it); docs/meclis/YON2-KARAR.md §2.
 table = "menus"
@@ -10,10 +11,26 @@ name = "id"
 ty = "raw"
 source = "module_game_menus.py:15"
 
+# module_game_menus.py:18-19: the int holds the game-menu flags (`mnf_*`,
+# header_game_menus.py:14-18) and an optional text color that menu_text_color() shifts into the
+# upper 32 bits (header_game_menus.py:20-21).
 [[fields]]
 name = "flags"
-ty = "raw"
+ty = "bits"
 source = "module_game_menus.py:18"
+
+[[fields.parts]]
+name = "menu_flags"
+shift = 0
+width = 32
+ty = "flags:mnf_"
+source = "header_game_menus.py:14"
+
+[[fields.parts]]
+name = "text_color"
+shift = 32
+width = 32
+source = "header_game_menus.py:20"
 
 [[fields]]
 name = "text"
