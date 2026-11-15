@@ -1,0 +1,42 @@
+# Faction records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_factions.py
+# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "factions"
+kind = "faction"
+id_prefix = "fac_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_factions.py:7"
+
+[[fields]]
+name = "name"
+ty = "raw"
+source = "module_factions.py:7"
+
+[[fields]]
+name = "faction_flags"
+ty = "raw"
+source = "module_factions.py:7"
+
+[[fields]]
+name = "coherence"
+ty = "raw"
+source = "module_factions.py:7"
+
+[[fields]]
+name = "relations"
+ty = "raw"
+source = "module_factions.py:7"
+
+[[fields]]
+name = "ranks"
+ty = "raw"
+source = "module_factions.py:7"
+
+[[fields]]
+name = "faction_color"
+ty = "raw"
+optional = true
+source = "module_factions.py:7"
