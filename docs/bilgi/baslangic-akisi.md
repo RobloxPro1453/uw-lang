@@ -17,3 +17,4 @@ Yeni Oyun'a basınca motorun ne yaptığı ve UW'nin bu zinciri nereden kesebile
 - Başlangıç konumunu `game_start`'ta değiştirmek, zincir sürdükçe kalıcı değildir; konum zincirin **sonunda** (c'de menü 1'de) ayarlanmalı. KARAR §5'teki "son söz `game_start`'ta" varsayımı bu yüzden düzeltilmeli.
 - Karakter yaratmayı tamamen atlamak (b) mümkün; o zaman ad, yüz, eşya ve istatistik UW kodunda verilmeli.
 - Görülmedi / sorulmadı: varyantların "UW sonda ..." mesajı (a'da göründü), `rgl_log.txt`.
+- **[DENEY]** menu_demo (gramer 2), 2026-11-15, sahibi oyunda denedi: "sorunsuz çalışıyor". Menü metni değiştirme, seçenek ekleme/değiştirme/kaldırma (`option`, `change option`, `remove option`), `$x = …` hesap ve `if` oyunda beklendiği gibi çalışıyor (`examples/menu_demo`).
