@@ -9,6 +9,7 @@ mod graph_export;
 mod impact;
 mod model;
 mod new;
+mod build_project;
 mod tr;
 mod tui;
 
@@ -58,6 +59,7 @@ fn main() -> ExitCode {
         Some("graph") => cmd_graph(&args[1..]),
         Some("roundtrip") => roundtrip::cmd(&args[1..]),
         Some("new") => new::cmd(&args[1..]),
+        Some("build-project") => build_project::cmd(&args[1..]),
         _ => {
             println!("uw {}", env!("CARGO_PKG_VERSION"));
             println!("{USAGE}");

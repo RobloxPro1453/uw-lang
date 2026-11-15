@@ -3,6 +3,8 @@
 //! Export only: the folder is not compiled yet (that is P3b).
 
 pub mod layout;
+pub mod load;
+pub mod pymodule;
 
 use std::collections::{BTreeMap, HashMap};
 use std::path::Path;

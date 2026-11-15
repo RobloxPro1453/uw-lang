@@ -198,7 +198,7 @@ fn write(path: &Path, text: &str) -> Result<(), String> {
 }
 
 /// Empties `dir` for reuse; refuses a non-empty folder without `marker`.
-fn reset_dir(dir: &Path, marker: &str) -> Result<(), String> {
+pub(crate) fn reset_dir(dir: &Path, marker: &str) -> Result<(), String> {
     if dir.exists() {
         let empty = fs::read_dir(dir).map_err(|e| e.to_string())?.next().is_none();
         if !empty && !dir.join(marker).is_file() {
@@ -261,7 +261,7 @@ fn find_up(dir: &Path, rel: &str) -> Option<PathBuf> {
 }
 
 /// A `Module_system*` folder with `build_module.bat` next to `dir` or one of its parents.
-fn find_kit(dir: &Path) -> Option<PathBuf> {
+pub(crate) fn find_kit(dir: &Path) -> Option<PathBuf> {
     for ancestor in dir.ancestors() {
         let Ok(entries) = fs::read_dir(ancestor) else { continue };
         for entry in entries.flatten() {
