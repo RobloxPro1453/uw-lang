@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T13:30:11.004Z",
+  "updatedAt": "2026-11-15T13:34:38.155Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -220,12 +220,16 @@
     },
     "T-017": {
       "task": "T-017",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-017",
-      "updatedAt": "2026-11-15T13:22:00.283Z"
+      "updatedAt": "2026-11-15T13:32:49.078Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_check/src/lib.rs +1438 -102"
+      ]
     },
     "T-018": {
       "task": "T-018",
@@ -242,12 +246,16 @@
     },
     "T-015": {
       "task": "T-015",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-015",
-      "updatedAt": "2026-11-15T13:30:11.003Z"
+      "updatedAt": "2026-11-15T13:34:38.155Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_syntax/src/lib.rs +346 -49"
+      ]
     }
   }
 }
