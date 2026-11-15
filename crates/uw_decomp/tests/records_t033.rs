@@ -43,7 +43,8 @@ fn schemas_follow_the_kit_layout_comments() {
             "direction",
         ]
     );
-    assert!(parties.fields.iter().all(|f| f.ty == "raw" && f.source.starts_with("module_parties.py:")));
+    // Since P5 (T-061) some party fields are typed; every field still cites a kit file.
+    assert!(parties.fields.iter().all(|f| f.source.contains(".py:")));
     // 12) Party direction in degrees [optional].
     let optional: Vec<&str> =
         parties.fields.iter().filter(|f| f.optional).map(|f| f.name.as_str()).collect();
@@ -58,9 +59,8 @@ fn schemas_follow_the_kit_layout_comments() {
         field_names(&templates),
         ["id", "name", "party_flags", "menu", "faction", "personality", "stacks"]
     );
-    assert!(templates.fields.iter().all(|f| f.ty == "raw"
-        && !f.optional
-        && f.source.starts_with("module_party_templates.py:")));
+    // Since P5 (T-061) some template fields are typed; none optional, every field cites a kit file.
+    assert!(templates.fields.iter().all(|f| !f.optional && f.source.contains(".py:")));
 }
 
 #[test]

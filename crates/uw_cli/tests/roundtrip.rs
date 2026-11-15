@@ -112,8 +112,8 @@ fn real_atlas_menus_and_scripts_records_show_their_blocks() {
     assert_eq!(words(records, "menus"), ["menus", "217", "records,", "exact", "217,", "failed", "0"]);
     assert_eq!(words(records, "scripts"), ["scripts", "610", "records,", "exact", "610,", "failed", "0"]);
     assert_eq!(words(records, "TOTAL"), ["TOTAL", "12815", "records,", "exact", "12815,", "failed", "0"]);
-    // The pilot troop fields count as typed; the rest of the troop record is still raw.
-    assert!(records.contains("typed 2/14 fields, raw-rest "), "{records}");
+    // Troop fields are typed (P5); the coverage line is printed.
+    assert!(records.lines().any(|l| l.starts_with("troops") && l.contains(" typed ")), "{records}");
 
     // T-054: loops, guards and unclean tries print structured, so no `neg|` / `this_or_next|` /
     // compute-then-test line is left (T-050's classes 1-3 stay empty; loops whose body has a

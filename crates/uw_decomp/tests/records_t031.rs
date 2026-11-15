@@ -39,12 +39,8 @@ fn troops_schema_follows_the_kit_layout_comment() {
     };
     assert_eq!(ty("faction"), Some("ref:factions"));
     assert_eq!(ty("attributes"), Some("bits"));
-    assert!(schema
-        .fields
-        .iter()
-        .filter(|field| field.name != "faction" && field.name != "attributes")
-        .all(|field| field.ty == "raw"));
-    assert!(schema.fields.iter().all(|field| field.source.starts_with("module_troops.py:")));
+    // Since P5 (T-059) more troop fields are typed; every field still cites a kit file.
+    assert!(schema.fields.iter().all(|field| field.source.contains(".py:")));
     let attributes = schema.fields.iter().find(|field| field.name == "attributes").expect("attributes");
     let parts: Vec<(&str, u32, u32)> =
         attributes.parts.iter().map(|part| (part.name.as_str(), part.shift, part.width)).collect();

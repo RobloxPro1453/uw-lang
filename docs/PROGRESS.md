@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-16 · P5 (okunaklı alanlar) ilk tur + odak değişikliği (Claude + DeepSeek)
+T-058 çekirdek (`ref`, `flags`, `bits`, `list` türleri; çözülemeyen bit `rest`), T-059..T-066 tablo şemaları (~$0.8). Ölçü: 12815/12815, 9113/9113, kit 32/32; kapsam: 58 alan türlü (ör. troops 7/14, items 5/10, parties 5/12). Şeritlerin durduğu 4 eski "hep ham" testi Claude güncelledi. Testler 339/339. Sahibi: kolaylığa odaklan → `docs/meclis/kolay-dil-taslak.md`, kararname "önce temel, sözdizimi en son". Oyun deneyi: TR çeviri dosyası adı eziyor (`docs/bilgi/proje-kipi-deneyi.md`). Gece: anlam kütüphanesi araştırması T-067..T-074. Sıradaki: araştırmaları birleştir, P5b ad katmanı.
+
 ## 2026-11-15 · P3b v1: `uw new` klasörü derleniyor, 32/32 çıktı Native'le bayt bayt aynı (Claude + DeepSeek)
 Claude: tam tablo modül yazıcı (`project::pymodule`; metin latin-1 baytı kaçışlı, ondalık Python repr), `uw build-project --native-check` (kitin modülü `native_module_X.py` olarak yanında: yardımcı adlar `find_troop`, `level_bits` için şart). DeepSeek: T-056 `uw.lock` + `project::load` (silme = açık hata, yeni kayıt sona), T-057 `uw build-project <dir> [--compare-native] [--no-install]` (~$0.08). Ölçü: `uw new` → `build-project --compare-native` 32/32; Praven adı değişince yalnız parties.txt farklı (31/32). Testler 301/301. Kalan P3b: tombstone silme, aralık kilidi, ters dizin hatası; oyun deneyi CHECKUP'ta.
 
