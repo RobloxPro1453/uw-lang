@@ -361,7 +361,9 @@ fn lex(text: &str) -> Result<Vec<Token>, Diagnostic> {
                 out.push(Token { tok: Tok::Str(value), span: Span { start, end: end_of(j + 1) } });
                 i = j + 1;
             }
-            '$' | ':' if chars.get(i + 1).is_some_and(|p| is_ident_start(p.1)) => {
+            // Native names may start with a digit after the sigil (`:400_plus_random_200`,
+            // `:2ary_inputs_taken_from_market`); the kit takes any text after `$` / `:`.
+            '$' | ':' if chars.get(i + 1).is_some_and(|p| is_ident(p.1)) => {
                 let mut j = i + 1;
                 while j < chars.len() && is_ident(chars[j].1) {
                     j += 1;
@@ -1695,6 +1697,14 @@ on game.start {
         let (d, r) = error("override menu_x {\n  change option a {\n    when\n  }\n}");
         assert_eq!(d.code, E0100_UNEXPECTED);
         assert!(r.contains("after `when`"), "{r}");
+    }
+
+    #[test]
+    fn locals_and_globals_may_start_with_a_digit() {
+        let stmts = parse_block("store_add(:400_plus_random_200, 400, :r)
+$2ary = 1").expect("parses");
+        assert!(matches!(&stmts[0].as_call().expect("a call").args[0], Arg::Local(l) if l.text == ":400_plus_random_200"));
+        assert!(matches!(&stmts[1], Stmt::Assign { target: Arg::Global(g), .. } if g.text == "$2ary"));
     }
 
     #[test]

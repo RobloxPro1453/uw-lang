@@ -8,7 +8,7 @@
 
 - [ ] **Y0** Büyük meclis: proje modeli, dil katmanları, zorunlu/isteğe bağlı (`docs/MECLIS_GUNDEMI.md` > BÜYÜK MECLİS — Yön 2).
 - [ ] **Y1** Oyun deneyleri (CHECKUP kuyruğuna): D8 boş taban (oyun en az neyle açılıyor); özel menüden karakter yaratma / yüz editörü açılır mı; tetik "check interval"ın birimi ve 0'ın anlamı.
-- [ ] **Y1b** Ölçüm prototipi (salt okuma): atlas'taki 216 Native menünün kaçı bugünkü dille `.uw` olarak yazılabiliyor; yazılamayanların nedeni → meclise kanıt.
+- [x] **Y1b** (2026-11-15, `uw roundtrip`: menülerin 1325 bloğu %100 gidiş-dönüş, %97 yapılı; bütün tablolar 9113 blok) Ölçüm prototipi (salt okuma): atlas'taki 216 Native menünün kaçı bugünkü dille `.uw` olarak yazılabiliyor; yazılamayanların nedeni → meclise kanıt.
 - [ ] **Y2** `uw new --from native` v1: yalnız menüler → `menus/*.uw`, dosya başı açıklamaları (`kit-meta/aciklama`); gidiş-dönüş testi (menüler: Native → UW → .txt = Native .txt).
 - [ ] **Y3** Çekirdek dil eklemeleri: kendi adla `menu`, `goto`, metinde `@` kendiliğinden, `fn`, nesne alanı (`player.gold`).
 - [ ] **Y4** `lib/` standart kütüphane v1 (20-30 okunaklı fonksiyon: menü, harita, para, eşya, birlik); `menu_demo` yeni dilde; kılavuz bölümü.

@@ -5,6 +5,8 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
+- `uw roundtrip`: Native'in bütün işlem blokları (9113 blok: scripts, menüler, diyaloglar, tetikler, görev şablonları, sunumlar, eşya/sahne nesnesi/tableau tetikleri) UW'ye çevrilir, geri derlenir ve karşılaştırılır; %100'ü birebir geri dönüyor, %94,9'u `if`/`or`/`not`/atama ile okunaklı. Metin `target/uw-native/` altına yazılır.
+- Dil: kit yazımıyla bayraklı işlem adları (`neg|eq(…)`, `this_or_next|…`), rakamla başlayan yerel/global adlar (`:2ary_…`).
 - Dil: atama ve hesap (`$x = $y + 2 * :z`, `+= -= *= /= %=`), `if / else if / else`, `and / or / not`.
 - Dil: menü metni (`text`), yeni seçenek (`option … when … after …`), `change option`, `remove option`, yeni menü (`new menu_…`); `override menu_x` tam kimlikle.
 - Örnek mod `examples/menu_demo` (hepsi bir arada; kılavuz 3.5-3.8).

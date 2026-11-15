@@ -51,28 +51,39 @@ pub fn items(v: &Json) -> Option<&Vec<Json>> {
 /// Reads an operation block: a list whose statements are a bare code (`4`) or `[code, args…]`.
 /// `None` when anything else is inside (a float operand, a nested list), so callers can tell a
 /// field that is not an operation block.
+///
+/// Two Native spellings are read as what the kit writes to the .txt (process_operations.py
+/// `save_statement`), since the round-trip measure compares compiled output:
+/// - a statement written as a Python list `[op, …]` instead of a tuple (atlas `{"list": […]}`);
+/// - an operand that is a one-element tuple (`ACHIEVEMENT_X = 56,` in module_constants.py gives
+///   `(56,)`): `"%d " % (56,)` writes `56`, so it is `Int(56)`.
 pub fn parse_ops(v: &Json) -> Option<Vec<RawOp>> {
     let mut out = Vec::new();
     for stmt in items(v)? {
         match stmt {
             Json::Number(n) => out.push(RawOp { code: n.as_u64()?, args: Vec::new() }),
-            Json::Array(parts) => {
-                let (head, rest) = parts.split_first()?;
+            Json::Array(_) | Json::Object(_) => {
+                let (head, rest) = items(stmt)?.split_first()?;
                 let code = head.as_u64()?;
-                let args = rest
-                    .iter()
-                    .map(|a| match a {
-                        Json::Number(n) => n.as_i64().map(RawArg::Int),
-                        Json::String(s) => Some(RawArg::Str(s.clone())),
-                        _ => None,
-                    })
-                    .collect::<Option<Vec<_>>>()?;
+                let args = rest.iter().map(operand).collect::<Option<Vec<_>>>()?;
                 out.push(RawOp { code, args });
             }
             _ => return None,
         }
     }
     Some(out)
+}
+
+fn operand(a: &Json) -> Option<RawArg> {
+    match a {
+        Json::Number(n) => n.as_i64().map(RawArg::Int),
+        Json::String(s) => Some(RawArg::Str(s.clone())),
+        Json::Array(_) | Json::Object(_) => match items(a)?.as_slice() {
+            [one] => one.as_i64().map(RawArg::Int),
+            _ => None,
+        },
+        _ => None,
+    }
 }
 
 /// Turns lowered operations back into codes and operands. Op names may carry flag prefixes
@@ -114,6 +125,17 @@ mod tests {
         assert_eq!(ops[0], RawOp { code: 4, args: vec![] });
         assert_eq!(ops[2].code, 2147483679);
         assert_eq!(ops[2].args, vec![RawArg::Str(":a".into()), RawArg::Str("trp_player".into())]);
+    }
+
+    #[test]
+    fn parse_ops_reads_list_statements_and_one_tuples_as_the_kit_writes_them() {
+        let v: Json = serde_json::from_str(r#"{"list": [{"list": [2048]}, [372, [56]], [370, ":s", {"list": [57]}, 0]]}"#).unwrap();
+        let ops = parse_ops(&v).unwrap();
+        assert_eq!(ops[0], RawOp { code: 2048, args: vec![] });
+        assert_eq!(ops[1], RawOp { code: 372, args: vec![RawArg::Int(56)] });
+        assert_eq!(ops[2].args, vec![RawArg::Str(":s".into()), RawArg::Int(57), RawArg::Int(0)]);
+        let two: Json = serde_json::from_str(r#"{"list": [[372, [56, 57]]]}"#).unwrap();
+        assert!(parse_ops(&two).is_none());
     }
 
     #[test]

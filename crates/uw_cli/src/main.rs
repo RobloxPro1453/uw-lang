@@ -3,6 +3,7 @@
 mod build;
 mod explain;
 mod flow_json;
+mod roundtrip;
 mod graph;
 mod graph_export;
 mod impact;
@@ -29,6 +30,9 @@ const USAGE: &str = "usage:
       ($g_player_luck), an operation (call_script) or a constant
       --tr: the official Turkish csv folder (Modules/Native/languages/tr), to show the
       Turkish in-game text too (the default install is used when it is not given)
+  uw roundtrip [--atlas <atlas.json>] [--out <dir>] [--failures N]
+      decompile every Native operation block to UW, compile it back and compare;
+      prints the share that comes back identical, writes the text to target/uw-native
   uw --version";
 
 /// Where the atlas lives unless `--atlas` / `UW_ATLAS` says otherwise (docs/DEVELOPMENT.md).
@@ -45,6 +49,7 @@ fn main() -> ExitCode {
         Some("browse") => cmd_browse(&args[1..]),
         Some("build") => cmd_build(&args[1..]),
         Some("graph") => cmd_graph(&args[1..]),
+        Some("roundtrip") => roundtrip::cmd(&args[1..]),
         _ => {
             println!("uw {}", env!("CARGO_PKG_VERSION"));
             println!("{USAGE}");
@@ -310,14 +315,14 @@ fn graph_json(atlas: Option<PathBuf>, tr_dir: Option<PathBuf>, words: &[String],
     ExitCode::SUCCESS
 }
 
-fn find_atlas() -> Option<PathBuf> {
+pub(crate) fn find_atlas() -> Option<PathBuf> {
     let cwd = std::env::current_dir().ok()?;
     cwd.ancestors()
         .map(|dir: &Path| dir.join(ATLAS_REL))
         .find(|path| path.is_file())
 }
 
-fn fail(message: &str) -> ExitCode {
+pub(crate) fn fail(message: &str) -> ExitCode {
     eprintln!("error: {message}");
     ExitCode::FAILURE
 }

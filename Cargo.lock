@@ -622,6 +622,7 @@ dependencies = [
  "serde_json",
  "uw_atlas",
  "uw_check",
+ "uw_decomp",
  "uw_diag",
  "uw_emit",
  "uw_kitrun",

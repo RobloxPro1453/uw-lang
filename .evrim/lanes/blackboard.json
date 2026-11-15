@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T13:57:42.869Z",
+  "updatedAt": "2026-11-15T17:22:22.651Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -285,6 +285,136 @@
         "crates/uw_cli/tests/golden/menu_text_and_options/input.uw +33 -0",
         "crates/uw_cli/tests/golden/new_menu/expected/module_game_menus.py +40 -0",
         "crates/uw_cli/tests/golden/new_menu/input.uw +20 -0"
+      ]
+    },
+    "T-020": {
+      "task": "T-020",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-020",
+      "updatedAt": "2026-11-15T17:18:12.186Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/decompile.rs +565 -3"
+      ]
+    },
+    "T-021": {
+      "task": "T-021",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-021",
+      "updatedAt": "2026-11-15T17:16:02.016Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_syntax/src/lib.rs +114 -2"
+      ]
+    },
+    "T-022": {
+      "task": "T-022",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-022",
+      "updatedAt": "2026-11-15T17:18:08.818Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_check/src/lib.rs +147 -26"
+      ]
+    },
+    "T-023": {
+      "task": "T-023",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-023",
+      "updatedAt": "2026-11-15T17:15:14.824Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/extract/scripts.rs +109 -5"
+      ]
+    },
+    "T-024": {
+      "task": "T-024",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-024",
+      "updatedAt": "2026-11-15T17:16:37.756Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/extract/menus.rs +190 -3"
+      ]
+    },
+    "T-025": {
+      "task": "T-025",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-025",
+      "updatedAt": "2026-11-15T17:16:05.115Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/extract/dialogs.rs +143 -4"
+      ]
+    },
+    "T-026": {
+      "task": "T-026",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-026",
+      "updatedAt": "2026-11-15T17:15:58.093Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/extract/triggers.rs +155 -4"
+      ]
+    },
+    "T-027": {
+      "task": "T-027",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-027",
+      "updatedAt": "2026-11-15T17:16:07.278Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/extract/mission_templates.rs +156 -4"
+      ]
+    },
+    "T-028": {
+      "task": "T-028",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-028",
+      "updatedAt": "2026-11-15T17:20:50.818Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/extract/presentations.rs +135 -3"
+      ]
+    },
+    "T-029": {
+      "task": "T-029",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-029",
+      "updatedAt": "2026-11-15T17:22:22.651Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/extract/other.rs +196 -6"
       ]
     }
   }

@@ -31,7 +31,8 @@ fn walk(atlas: &Atlas) -> (Vec<Block>, usize) {
         let name = entry.name.clone().unwrap_or_else(|| entry.index.to_string());
         for (pos, trigger) in triggers.iter().enumerate() {
             let Some(trigger) = items(trigger) else { continue };
-            let Some(event) = trigger.first().and_then(Json::as_i64) else { continue };
+            // The kit writes events as floats (`ti_on_presentation_load = -60.0`).
+            let Some(event) = trigger.first().and_then(Json::as_f64).map(|e| e as i64) else { continue };
             let Some(body) = trigger.get(1) else { continue };
             match parse_ops(body) {
                 Some(ops) => blocks.push(Block {
