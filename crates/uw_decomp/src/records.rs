@@ -1870,7 +1870,8 @@ source = "module_factions.py:7"
             names,
             ["id", "name", "faction_flags", "coherence", "relations", "ranks", "faction_color"]
         );
-        assert!(schema.fields.iter().all(|f| f.ty == "raw" && f.source.starts_with("module_factions.py:")));
+        // Since P5 (T-062) some fields are typed; every field still cites the kit.
+        assert!(schema.fields.iter().all(|f| f.source.contains(".py:")));
         assert!(schema.fields.last().expect("color").optional);
     }
 
