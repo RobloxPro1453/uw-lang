@@ -5,7 +5,9 @@
         {"name":"change_screen_map","code":2052,"line":1093,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"display_message","code":1106,"line":482,"signature":"(display_message,<string_id>,[hex_colour_code]),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"assign","code":2133,"line":40,"signature":"","lhs":true,"can_fail":false,"global_lhs":false},
-        {"name":"troop_set_type","code":1509,"line":600,"signature":"(troop_set_type,<troop_id>,<type_no>),","lhs":false,"can_fail":false,"global_lhs":false}
+        {"name":"troop_set_type","code":1509,"line":600,"signature":"(troop_set_type,<troop_id>,<type_no>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"party_is_active","code":132,"line":94,"signature":"(party_is_active,<party_id>),","lhs":false,"can_fail":true,"global_lhs":false},
+        {"name":"troop_add_gold","code":1528,"line":611,"signature":"(troop_add_gold,<troop_id>,<value>),","lhs":false,"can_fail":false,"global_lhs":false}
       ],
       "hooks": ["game_start"],
       "ranges": [],
@@ -17,7 +19,15 @@
         "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","ref_tag":"mnu",
           "entries": [
             {"index":0,"name":"start_game_0","id":"menu_start_game_0","dup":null,"line":39,"value":[]},
-            {"index":1,"name":"start_phase_2","id":"menu_start_phase_2","dup":null,"line":55,"value":[]}
+            {"index":1,"name":"start_phase_2","id":"menu_start_phase_2","dup":null,"line":55,
+              "value":[null,null,null,null,[],{"list":[
+                ["town_1",[],null,[]],
+                ["town_2",[],null,[]],
+                ["town_3",[],null,[]],
+                ["town_4",[],null,[]],
+                ["town_5",[],null,[]],
+                ["town_6",[],null,[]]
+              ]}]}
           ]},
         "parties": {"module":"module_parties","var":"parties","id_file":"ID_parties","id_prefix":"p_","ref_tag":"p",
           "entries": [
