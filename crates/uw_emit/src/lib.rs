@@ -52,10 +52,12 @@ fn value(v: &Value) -> String {
 }
 
 /// Debug builds: a line after the patches that makes every menu print its own id when it opens
-/// (`uw: menu_start_phase_2`), so the owner sees in game which menu to override.
+/// (`uw: menu-start-phase-2`), so the owner sees in game which menu to override. The game shows
+/// `_` as a space, so the id is written with `-`; `display_log_message` keeps the line in the log
+/// window too (plain `display_message` scrolled away before it could be read).
 const DEBUG_MENUS: &str = "
-# uw --debug: every menu shows its id when it opens
-game_menus = _uw.tag_all(game_menus, 4, lambda e: [(display_message, \"@uw: menu_\" + e[0])])
+# uw --debug: every menu shows its id when it opens (game shows _ as space, so - is used)
+game_menus = _uw.tag_all(game_menus, 4, lambda e: [(display_log_message, \"@uw: menu-\" + e[0].replace(\"_\", \"-\"), 0xFFFF00)])
 ";
 
 fn wrapper(name: &str, module: &str, patches: &[&Patch], debug: bool) -> String {
@@ -214,7 +216,7 @@ mod tests {
         let out = emit(&checked, true);
         assert_eq!(out.native_modules, ["module_game_menus"]);
         let menus = &out.files[0].text;
-        assert!(menus.contains("game_menus = _uw.tag_all(game_menus, 4, lambda e: [(display_message, \"@uw: menu_\" + e[0])])"), "{menus}");
+        assert!(menus.contains("game_menus = _uw.tag_all(game_menus, 4, lambda e: [(display_log_message, \"@uw: menu-\" + e[0].replace(\"_\", \"-\"), 0xFFFF00)])"), "{menus}");
         assert!(emit(&checked, false).files.iter().all(|f| f.name != "module_game_menus.py"));
     }
 }

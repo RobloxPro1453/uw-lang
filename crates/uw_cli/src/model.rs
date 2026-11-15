@@ -267,6 +267,15 @@ impl Model {
         if let Some(row) = self.rows.iter().find(|row| row.label == query || row.alts.iter().any(|alt| alt == query)) {
             return Some(row.target.clone());
         }
+        // A bare name without its id prefix ("start_phase_2" -> menu_start_phase_2), when exactly
+        // one table has an entry with that id.
+        let mut bare = self.atlas.tables.values().filter_map(|table| {
+            let id = format!("{}{query}", table.id_prefix.as_deref()?);
+            self.atlas.entry_by_id(&id)
+        });
+        if let (Some((table, entry)), None) = (bare.next(), bare.next()) {
+            return Some(Target::Entry { table: table.to_owned(), index: entry.index });
+        }
         // An in-game name that belongs to exactly one thing ("Praven" -> p_town_6).
         let q = query.to_lowercase();
         let mut named = self.rows.iter().filter(|row| !row.hint_lc.is_empty() && row.hint_lc == q);

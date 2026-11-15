@@ -14,7 +14,7 @@ Otomatik testin göremediği, sahibinin bir kez gözle bakması gereken şeyler.
 
 Biçim: belirti · nasıl tekrarlanır · tahmin edilen neden · önem (yüksek/orta/düşük).
 
-- **`--debug` kodu okunaksız:** oyunda `uw: menu_start_phase_2` yerine "menu start phase 2" görünüyor (alt çizgiler boşluk olur) ve mesaj birkaç saniyede kaybolur · `uw build --debug` · Warband hızlı metinde `_`'yi boşluğa çeviriyor (kit metni `_` ile saklar) · orta. Çözüm adayları: ayırıcı olarak `-` ya da `.` kullanmak, mesajı kalıcı log penceresine de yazmak (`display_log_message`).
+- **`--debug` kodu okunaksız (düzeltildi 2026-11-15, oyunda denenecek):** artık `uw: menu-start-phase-2` (sarı) yazmalı ve log penceresinde (L tuşu) kalmalı. Dene: `uw build examples/praven_start --debug`, oyunda yeni oyun aç, menüde sarı satırı ve log penceresini kontrol et.
 
 ## Sınırlar
 

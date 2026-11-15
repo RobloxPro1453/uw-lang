@@ -128,3 +128,12 @@ fn real_atlas_short_form_caps_and_all_lists_everything() {
     let merchant = uw_real(&["merchant_quest"]).unwrap();
     assert!(merchant.contains("Things that match"), "{merchant}");
 }
+
+#[test]
+fn bare_name_without_prefix_is_the_exact_entry() {
+    // `.uw` writes `override menu camp`; the tools accept the same bare name.
+    let (ok, out, _) = uw(&["camp"]);
+    assert!(ok);
+    assert!(out.starts_with("menu_camp"), "{out}");
+    assert!(!out.contains("is not an exact name"), "{out}");
+}
