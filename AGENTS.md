@@ -14,7 +14,7 @@ Bu proje **claudevolution** düzeniyle çalışır (`Claude`, `Codex`, `Antigrav
 - `cv` = `.evrim\cv.cmd` (Windows) ya da `.evrim/cv`. Ayarlar `.evrim/config.json` (`licensePolicy`, `finalForm`, `delegate`, `autonomy`), otonom hafıza `.evrim/otonom/` (`KARARNAMELER.md` dahil).
 - Beceriler (`.claude/skills/`, `.codex/skills/`, `.agent/skills/`): `durum` ("neredeyiz"), `calis` ("çalış": bir tur iş), `otonom` (gözetimsiz tek çevrim; `TEMPO`, `OFIS_MUHAKEMESI`, `KARAR: BITTI`), `damit` ("damıt"), `cv-init` (kurulum, VISION). Zor kararlar ve maliyet tartımı için `cv council` (Meclis) kullanılabilir.
 - **Ders ve kararname kuralı, her oturumda (döngü dışında da):** tekrar eden ya da pahalıya patlayan bir şey öğrendiğin an tek satır yaz. Yalnız bu projeye özgüyse `cv lesson "<ders>"` (`.evrim/otonom/DERSLER.md`); projeye özgü kalıcı yöntem/mimari kuralı için `.evrim/otonom/KARARNAMELER.md`. Proje adı çıkınca da doğruysa `cv lesson "<genelleştirilmiş ders>" --evrensel`: ders hemen bütün projelere gider (geliştirici makinesinde pakete: ölçülür, GitHub'a push edilir; diğer makinelerde bu makinenin evrensel katmanına, `~/.claudevrim/evrensel/`); damıtmayı bekleme. Bu projenin gördüğü evrensel dersler (paket + bu makine, birleşik): `.evrim/evrensel.md`. Ciddi hata kalıbı: `--hata`.
-- **Push:** bu projenin deposunda yok (sahibi istemedikçe). Paketin push'unu yalnız `cv lesson --evrensel` ve `cv evolve` yapar. Paket yeni sürüm aldıysa: `claudevrim guncelle` (ya da `cv update --apply`).
+- **Push (sahibi, 2026-11-15):** proje deposu GitHub'da: `origin` = github.com/RobloxPro1453/uw-lang, yerel `master` → uzak `main`. Derleme ve testler yeşilken, anlamlı bir iş bitince `git push origin master:main` yapılır (anahtar, kişisel bilgi ve TaleWorlds dosyası asla gitmez; `.gitignore`). Paketin push'unu yalnız `cv lesson --evrensel` ve `cv evolve` yapar. Paket yeni sürüm aldıysa: `claudevrim guncelle` (ya da `cv update --apply`).
 
 ## Nereye bakmalı
 
@@ -67,7 +67,7 @@ Claude düşünür, planlar, denetler ve belgeler; kod emeği ucuz modele gider 
 Sahibi her adımı tarif etmek istemiyor; hedef `docs/VISION.md` içindedir, kararı siz verin.
 
 - Belirli bir görev verildiyse önce onu yapın. "Çalış", "devam et" gibi genel sözde `docs/WORKER.md` uygulanır.
-- İşler `master` dalına commit edilir. Uzak depo eklenmez, push yapılmaz (sahibi açıkça istemedikçe).
+- İşler `master` dalına commit edilir ve testler yeşilken `origin`'e (`master:main`) push edilir. Başka uzak depo eklenmez.
 - Yanından geçtiğiniz küçük hatayı düzeltin; büyükse `docs/CHECKUP.md`'ye yazıp göreve devam edin.
 - Yol haritasının sırası kanıta göre değişebilir; nedenini kayda yazın.
 
