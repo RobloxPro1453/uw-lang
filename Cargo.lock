@@ -609,6 +609,7 @@ version = "0.0.1"
 dependencies = [
  "uw_atlas",
  "uw_diag",
+ "uw_lower",
  "uw_syntax",
 ]
 
@@ -653,7 +654,6 @@ dependencies = [
 name = "uw_lower"
 version = "0.0.1"
 dependencies = [
- "uw_check",
  "uw_diag",
 ]
 
