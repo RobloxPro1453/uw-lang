@@ -25,7 +25,7 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 - **Beklenen etki:** Her turda çalışan bir şey kalır; büyük ama yarım derleyici riski yok.
 
 ## [2026-11-14] [arac] Doğrulama = altın test + kit build'i
-- **Karar:** Her derleyici değişikliğinden sonra: birim/altın testler (`.uw` → beklenen `module_*.py`) ve örneklerin kit build'i (`Modules/universalwarband/`'a, hatasız). Oyunu açmak doğrulama değildir (sahibinin kararı). Meclis önerisi (ONAY BEKLİYOR): Faz 0'da tek seferlik oyun sondası (D4 başlangıç akışı, D5 Türkçe, D6 birimler, D7 log) — motor davranışını kanıtlamak için, rutin doğrulama olarak değil.
+- **Karar:** Her derleyici değişikliğinden sonra: birim/altın testler (`.uw` → beklenen `module_*.py`) ve örneklerin kit build'i (`Modules/universalwarband/`'a, hatasız). Oyunu açmak **nihai** doğrulama değildir: küçük sessiz hata oyunda görünmez. Ama sahibi 2026-11-15'te netleştirdi: oyuna girip bakmak küçük şeyler için tamamlayıcı doğrulama sayılır. Faz 0 oyun sondaları (D4 başlangıç akışı, D5 Türkçe, D6 birimler, D7 log) onaylandı; ayrı test modu klasöründe yapılır, sonuç `docs/KNOWLEDGE.md`'ye.
 
 ## [2026-11-14] [strateji] Hazır kod önce
 - **Karar:** Her yeni alt sistemden önce 10 dakikalık "hazırı var mı" taraması; MIT/Apache/BSD/ISC ise lisans başlığı korunarak kullanılır. Lisansı belirsiz kod yalnız fikir için okunur, kopyalanmaz.
@@ -81,7 +81,25 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
   8. Süre birimsiz yazılamaz; `when` aralıksız yazılamaz.
   9. Python 2.7 her koşuda `-B -E -s` ile, her derlemede yeniden kurulan temiz staging'de çalışır (`.pyc` ve kit `ID_*.py` kopyalanmaz); sarmalayıcılar import anında hesap yapmaz; kit klasörüne yazılmaz; `process_line_correction.py` asla çalıştırılmaz.
   10. Gidiş-dönüş testi tek başına yeterli sayılmaz; yazıcı Native verisiyle yeniden yazdırma testinden geçer.
+  11. (Manus değerlendirmesi) İki staging: atlas kitin kendi `ID_*.py`'leriyle okunur; build staging'de `ID_*.py`'leri UW önyazar. Native modüller import anında `ID_*` okuduğu için bu sıra zorunludur.
+  12. UW'nin yeni girdisi Native adıyla çakışamaz (hata); "Native'i yamala" ile "yeni kayıt" ayrı eylemlerdir.
+  13. `uw_runtime` yalnız değişen yolu kopyalar (liste sığ, hedef girdi derin); diğer girdilerdeki paylaşılan nesnelere dokunulmaz.
+  14. Native taban hash'i değişirse derleme durur; `ad#n`/`pin` otomatik yeniden eşlenmez, göç raporu verilir.
+  15. Alt ajan kitte Python çalıştırırsa `-B` ile ve kit klasörüne yazmadan çalıştırır (bir kanıtçı kite 47 `.pyc` bırakmıştı).
 - **Beklenen etki:** Native davranışı bozulmadan üstüne eklenir; numara çakışması ve bayat ID sessiz bozulmaları derlemede yakalanır.
+
+## [2026-11-15] [strateji] Evrensel derleyici: amaca özel yerleşik özellik yok (sahibinin düzeltmesi)
+- **Bulgu:** Meclis praven_start için `disable native.prologue` gibi amaca özel bir kısayol önermişti. Sahibi: "Hâlâ benim farazi hikâyeme göre yapıyorsun; prolog silici, sprint ekleyici gibi built-in fonksiyonlar yapmıyoruz, evrensel bir derleyici yapıyoruz; istenen her mod yapılabilmeli."
+- **Karar:** Native'in her girdisi aynı genel mekanizmayla değiştirilir (`override <tür> <ad>`, `disable <tür> <ad>`, başa/sona ekleme). Amaca özel küme/komut (`native.prologue`, `native_features.toml`) yok. praven_start ve pilot mod yalnız **kabul testleridir**; derleyicide onlara özel kod olamaz.
+- **Test:** Yeni bir özellik önerilince sor: "Bu, sahibinin örneğindeki tek bir duruma mı hizmet ediyor, yoksa her moda mı?" Tek duruma hizmet ediyorsa reddedilir; genel hali aranır.
+
+## [2026-11-15] [strateji] Öncelik mimari; kurulum ve topluluk işleri en son
+- **Karar (sahibi):** Bütün iş yükü mimariyi doğru ve kapsamlı kurmaya gider. Python 2.7 gerekliliği şimdilik kabul; `uw`'nin Python kurması, Python'dan kurtulma (Rust'a taşınmış `process_*`), paket ekosistemi, paylaşım gibi işler sonraki sürümlere.
+
+## [2026-11-15] [yontem] Kümülatif bilgi tabanı: süz, biriktir
+- **Bulgu:** Sahibi: "Bir milyon şeyin yüz binini, onun da en önemli on binini al; bu süreç on bin kez olunca inanılmaz, süzülmüş, uygulamaya hazır bilgi birikir." Dış raporlar (Manus, Perplexity) da bu amaçla verildi; onlara cevap yazılmaz.
+- **Karar:** Her rapor/araştırma/muhakeme turunun sonunda kalıcı, kitte doğrulanmış, uygulanabilir bulgular `docs/KNOWLEDGE.md`'ye süzülür (kaynak dosya:satırla); doğrulanmamış iddialar ayrı işaretlenir ya da alınmaz. Ham rapor arşivde kalır, bilgi tabanına yalnız "kemik" girer. Aynı iddianın birkaç raporda tekrarı bağımsız kanıt sayılmaz.
+- **Beklenen etki:** Her yeni oturum sıfırdan değil, birikmiş ve elenmiş bilgiden başlar.
 
 ## [2026-11-15] [strateji] LLM dostu dil ve LLM'e hazır hata çıktısı
 - **Bulgu:** Sahibi Module System'i 12 LLM'le bile öğrenemedi; LLM'ler de Module System'de zayıf. UW büyük ölçüde LLM yardımıyla yazılacak.

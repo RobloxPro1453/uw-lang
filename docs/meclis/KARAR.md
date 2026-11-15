@@ -1,5 +1,7 @@
 # Meclis kararı (O1, başmimar) — tur 4
 
+> **Sonradan düzeltmeler (2026-11-15, bu belgenin önüne geçer):** (1) Sahibinin cevapları: giriş kesme kabul, oyun sondaları onaylı, Faz 1 yalnız `base native`, Python 2.7 şimdilik kabul; 5. soru sade dille yeniden soruldu. (2) Sahibi amaca özel kısayolu reddetti: `disable native.prologue` ve `kit-meta/native_features.toml` **kaldırıldı**, yerine genel `disable menu start_phase_2`. (3) Manus değerlendirmesinden: iki staging (ID bootstrap), D3 küçük prototip D2'nin hemen arkasında, ad çakışması = hata, yalnız değişen yol kopyalanır, taban hash değişince göç raporu, D4 ayrı test modu klasöründe. Güncel hal: `docs/ARCHITECTURE.md`, `.evrim/otonom/KARARNAMELER.md`, `docs/meclis/manus-cevabi-degerlendirme.md`.
+
 Girdi: gündem (A–V), VISION, ARCHITECTURE (taslak), KARARNAMELER, kanit-H1/H2/H3, denetim-H1, tasarim-S1/S2, elestiri-S1/S2. Kit yalnız okundu. Etiketler: **KESİN** = motor davranışına dayanmayan mühendislik kararı ya da kitte kanıtlı; **KANITLANACAK** = motor (exe) davranışına ya da henüz yapılmamış ölçüme bağlı, deney adı yazılı. `K/` = `Module_system 1.171/`.
 
 O1'in bu turda kitte kendisinin doğruladıkları (yeni kanıt):

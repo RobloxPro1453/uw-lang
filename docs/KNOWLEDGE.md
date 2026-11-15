@@ -34,3 +34,7 @@ Koddan bakarak görülemeyen şeyler: tuzaklar, denenip bırakılan yollar, orta
 - **Paylaşılan trigger nesneleri:** aynı trigger gövdesi 14 mission template'te kopya, `common_battle_init_banner` 21 şablonda aynı Python nesnesi → yerinde değiştirmek hepsini değiştirir; derin kopya şart.
 - **Python 2.7:** kitte yok; makinede `C:\Python27` var. `build_module.bat` hata denetimi yapmaz, 29 adım.
 - **LLM raporları:** Manus'un yapısal iddiaları büyük ölçüde doğru; somut örnek değerleri, yollar ve `module.ini` iddiaları hatalı. Perplexity ince, çoğu doğru. Kanıt olarak yalnız kitle doğrulanmışı kullan.
+- **ID bootstrap (kitte doğrulandı, 2026-11-15):** Native'in 12 modül dosyası ve `header_mission_templates.py` import anında `ID_*.py` okuyor (`module_constants.py:1-3`, `module_troops.py:7-9`, `header_mission_templates.py:11-13`); `module_constants.py:478` ID'lerle aritmetik yapıyor. `ID_*.py` yoksa Native hiç yüklenmez → atlas kitin kendi ID'leriyle, build UW'nin önyazdığı ID'lerle.
+- **Kitin ID dosyaları verisiyle tutarlı:** troops 1072/1072, scripts 610/610, parties 240/240, menus 217/217; items 620 girdi/605 ad, strings 3399/3368 (farklar = çift adlar). Python 2.7.18 ile `-B` kontrol edildi.
+- **Bat her adımı ayrı süreçte koşar** (`C:\Python27\python.exe process_X.py`, 29 satır) ve sonda `@del *.pyc` yapar. `-B` var olan `.pyc`'yi silmez; alt ajan `-B`'siz Python koşunca kite 47 `.pyc` bırakmıştı (temizlendi).
+

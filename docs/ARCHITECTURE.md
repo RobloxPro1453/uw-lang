@@ -1,6 +1,8 @@
 # Mimari
 
-Durum: 2026-11-15 büyük meclisinin kararıyla belirlendi (`docs/meclis/KARAR.md`; kanıtlar `docs/meclis/kanit-*.md`). Etiketler: **KESİN** = mühendislik kararı ya da kitte kanıtlı; **KANITLANACAK** = motor davranışına bağlı, Faz 0 deneyi (D1–D10, bkz. KARAR §6) bitmeden kesin sayılmaz. **ONAY BEKLİYOR** = sahibinin onayına sunuldu (KARAR §9).
+Durum: 2026-11-15 büyük meclisinin kararıyla belirlendi (`docs/meclis/KARAR.md`; kanıtlar `docs/meclis/kanit-*.md`), sonra sahibinin cevapları ve Manus değerlendirmesiyle (`docs/meclis/manus-cevabi-degerlendirme.md`) düzeltildi. Etiketler: **KESİN** = mühendislik kararı ya da kitte kanıtlı; **KANITLANACAK** = motor davranışına bağlı, Faz 0 deneyi (D1–D10, bkz. KARAR §6) bitmeden kesin sayılmaz; **SORULDU** = sahibine sade dille yeniden soruldu (`.evrim/otonom/SORULAR.md`).
+
+**Değişmez ilke (sahibi):** UW'nin belli bir amacı yok. Amaca özel yerleşik özellik (prolog silici, sprint ekleyici…) yapılmaz; Native'in her girdisi aynı genel mekanizmayla değiştirilir. Örneklerdeki praven/prolog yalnız kabul testidir.
 
 ## Büyük resim
 
@@ -8,7 +10,7 @@ Durum: 2026-11-15 büyük meclisinin kararıyla belirlendi (`docs/meclis/KARAR.m
 |---|---|---|
 | Kullanıcının modu | `mymod/` klasörü: `.uw` dosyaları + varlıklar | Modcu |
 | Paketler (isteğe bağlı) | Modcunun/topluluğun mekanik paketleri; `std.*` yalnız örnek | Modcu / topluluk |
-| Taban (base) | Faz 1: yalnız `base native` (ONAY BEKLİYOR); `base empty` D8 deneyinden sonra | Biz |
+| Taban (base) | Faz 1: yalnız `base native` (sahibi onayladı); `base empty` D8 deneyinden sonra | Biz |
 | Çekirdek | `uw` derleyicisi (Rust): ayrıştır → denetle → indir → planla → yaz → kiti koştur → doğrula | Biz |
 | Kit | Module System 1.171 (Python 2.7, dokunulmaz) → `.txt` | TaleWorlds |
 | Motor | Warband 1.174 exe | TaleWorlds |
@@ -17,19 +19,23 @@ Durum: 2026-11-15 büyük meclisinin kararıyla belirlendi (`docs/meclis/KARAR.m
 
 Native'i UW'ye çevirmiyoruz, metnini de kesip yeniden basmıyoruz. Her derlemede:
 
-1. Temiz bir **staging** klasörü kurulur: kitin kopyası (`.pyc` ve kitin `ID_*.py` dosyaları hariç).
+**İki ayrı staging (ID bootstrap'ı; Manus'un bulduğu boşluk, kitte doğrulandı):** Native'in 12 modül dosyası ve `header_mission_templates.py` import anında `ID_*.py` okuyor (`module_constants.py:1-3`, `module_troops.py:7-9` …), `module_constants.py:478` ID'lerle hesap yapıyor; ID dosyası yoksa Native yüklenemez.
+
+0. **Atlas staging** (kit hash'i başına bir kez, önbellekli): kitin kendi `ID_*.py`'leriyle Native okunur → atlas (ad, indeks, değer). Kitin ID dosyaları verisiyle tutarlı (troops 1072/1072, scripts 610/610, parties 240/240, menus 217/217; items 620/605 ve strings 3399/3368 farkı = çift adlar).
+1. **Build staging** her derlemede sıfırdan: kitin kopyası (`.pyc` ve kitin `ID_*.py` dosyaları hariç).
 2. Native `module_X.py` dosyaları değişmeden `native_module_X.py` adıyla konur (hash denetimi).
-3. Derleyici aynı adlı ince **sarmalayıcı** `module_X.py` üretir: `from native_module_X import *`, sonra `uw_runtime` ile adla bulunan girdide değişiklik (gövde değiştir, başa/sona op ekle) ve yeni girdileri listenin sonuna ekleme.
-4. Kitin 29 `process_*` adımı (bat'tan okunur, bat çağrılmaz) Python 2.7 `-B -E -s` ile tek tek koşar; çıkış kodu ve çıktı denetlenir.
+3. UW, PLAN'dan `ID_*.py`'leri **önyazar** (Native indeksleri aynen + UW girdileri sonda; çift adda "sonuncu kazanır" aynen). Yan kazanç: Native'deki "kayıt ekleyince iki kez derle" sorunu UW'de yok.
+4. Derleyici aynı adlı ince **sarmalayıcı** `module_X.py` üretir: `from native_module_X import *`, sonra `uw_runtime` ile adla bulunan girdide değişiklik (gövde değiştir, başa/sona op ekle) ve yeni girdileri listenin sonuna ekleme.
+5. Kitin 29 `process_*` adımı (bat'tan okunur, bat çağrılmaz; bat da her adımı ayrı süreçte koşar) Python 2.7.18 `-B -E -s` ile tek tek koşar; çıkış kodu ve çıktı denetlenir. `-B` var olan `.pyc`'yi silmez; temizliği taze staging sağlar.
 
 Neden: kitin bütün işlemcileri modülleri yalnız `from module_X import *` ile **değer** olarak alıyor; modül metnini okuyan tek dosya bat'ta çağrılmayan `process_line_correction.py` (kanit-H1; KARAR §başı). Böylece Native'in dosya düzeyi Python durumu (paylaşılan trigger listeleri, `wp()`, import'lar) olduğu gibi çalışır. Boş yamada çıktı = Native'in kendisi (gidiş-dönüş, D2).
 
 Reddedilenler: "Tek kaynak" (Native → UW çevirisi; ikinci bir derleyici olurdu, Native sırasını depoya sokardı) Faz 1'de reddedildi, Faz 6'da yalnız ölçü amaçlı `uw lift`. Kaynak metin kesme ve varsayılan mezar taşı reddedildi.
 
-Bedeli (sahibine söylendi, ONAY BEKLİYOR): Native'in kendi kodu UW'ye çevrilmez, içi eskisi kadar zor okunur kalır; ona `uw explain` ile bakılır.
+Bedeli (SORULDU, sade anlatımla): Native'in kendi kodu UW'ye toplu çevrilmez, içi eskisi kadar zor okunur kalır; ona `uw explain` ile bakılır. Tek tek Native parçalarını UW'de baştan yazıp yerine koymak serbest.
 
-### Faz 1 kuralı: Native girdisi silinmez, yeri değişmez
-ID taşıyan tablolarda yalnız gövde değişir, yeni girdi sona eklenir. "Kaldırmak" = **girişi kesmek** (ör. `disable native.prologue` menü 1'in gövdesini değiştirir; zincir ulaşılamaz kalır, derleyici bunu bilgi olarak raporlar). Bu sayede hardwired sınırları, kancaların ad/indeks bağı ve aralık kayması Faz 1'in kritik yolundan çıkar. Adsız sıralı tablolarda (diyalog, trigger) çapalı ekleme/çıkarma serbesttir (API imzası Faz 1, gövdesi Faz 2-3).
+### Faz 1 kuralı: Native girdisi silinmez, yeri değişmez (sahibi onayladı)
+ID taşıyan tablolarda yalnız gövde değişir, yeni girdi sona eklenir. "Kaldırmak" = **girişi kesmek**, genel mekanizmayla: `disable menu start_phase_2` (herhangi bir menü/script/trigger için aynı) girdinin gövdesini etkisiz yapar; ona giden zincir ulaşılamaz kalır, derleyici referans grafiğinden bunu bilgi olarak raporlar. Amaca özel küme adları (`native.prologue` gibi) yok; isteyen modcu kendi `.uw` dosyasında birkaç `disable` satırını gruplar. Bu sayede hardwired sınırları, kancaların ad/indeks bağı ve aralık kayması Faz 1'in kritik yolundan çıkar. Adsız sıralı tablolarda (diyalog, trigger) çapalı ekleme/çıkarma serbesttir (API imzası Faz 1, gövdesi Faz 2-3).
 
 ## IR katmanları — KESİN
 
@@ -49,6 +55,9 @@ ID taşıyan tablolarda yalnız gövde değişir, yeni girdi sona eklenir. "Kald
 - **Yazmaç/yerel:** fonksiyon başına; Faz 1'de "her `call_script` bütün `reg`/`s`'i ezer" varsayımı; `reg64` atlanır; yerel > 128 hata.
 - **`uw.lock`:** yalnız UW deltası + Native taban hash'i + kullanıcının dokunduğu Native girdileri için `pin`. TaleWorlds adları/sırası depoya girmez.
 - **Hedef gösterimi:** ad tekse `ad`; çift adlı girdilerde (Native'de 15 item, 31 string) `ad#n` zorunlu, yoksa hata. Adsız tablolarda kararlı anahtar (tablo + etiket + metin hash'i).
+- **Ad çakışması:** UW'nin yeni girdisi Native'deki bir adla aynı olamaz (hata). "Native'i yamala" (`override`/`disable`) ile "yeni kayıt" ayrı eylem türleridir.
+- **Taban değişirse:** Native hash'i `uw.lock`'takinden farklıysa derleme durur; `ad#n` ve `pin`'ler otomatik yeniden eşlenmez, eski/yeni indeksi gösteren göç raporu verilir (ileride `base: module_system("başka mod")` için şart).
+- **Kopyalama sınırı:** `uw_runtime` yalnız değişen yolu kopyalar (liste sığ kopya, hedef girdi derin kopya); diğer girdilerdeki paylaşılan nesneler (ör. 21 şablondaki `common_battle_init_banner`) olduğu gibi kalır. Bir mekaniği "her yere" koymak paylaşılan nesneyi değiştirerek değil, UW'de seçicili enjeksiyonla (`in battle missions`) yapılır.
 
 ## Crate'ler (Faz 1: 10 crate + `py/`) — KESİN
 
@@ -69,7 +78,9 @@ Bağımlılık tek yönlü: `uw_diag` en dipte; `syntax → check → lower → 
 
 `py/` (MIT, ikiliye gömülür): `atlas_dump.py`, `uw_runtime.py` (`replace_entry`, `replace_body`, `prepend_ops`, `append_ops`, `extend`; adsız tablolar için `insert_before/insert_after/remove_where`). Her işlem **derin kopya** üstünde, yerinde mutasyon yok; sarmalayıcı import anında hesap yapmaz, yalnız `header_*`/`ID_*`/kendi Native'ini import eder.
 
-`kit-meta/` (depoda, elle gözden geçirilmiş, kanıt satırlı): `optypes.toml`, `slots.toml`, `hooks.toml` (dönüş kanalları), `hardwired.toml`, `native_features.toml` (`disable` kümeleri).
+`kit-meta/` (depoda, elle gözden geçirilmiş, kanıt satırlı): `optypes.toml`, `slots.toml`, `hooks.toml` (dönüş kanalları), `hardwired.toml`. (Amaca özel `native_features.toml` kaldırıldı; sahibinin "built-in yok" ilkesi.)
+
+**Crate listesi bir yöndür, dondurulmuş API değil:** Faz 0 deneyleri Python betikleriyle yapılır; crate sözleşmeleri D2 ve D3 geçince dondurulur (Manus önerisi, "önce dikey dilim" kararnamesiyle aynı).
 
 Sonraya: `uw_pkg` (Faz 2), `uw_assets` (Faz 0b/4), `uw_lsp` (Faz 2 sonrası), `uw_lift` (Faz 6). Artımlı derleme yok; atlas hash'i + PLAN hash'i aynıysa kit zinciri atlanır.
 
@@ -88,11 +99,11 @@ override menu start_game_0:
     on enter:
         player.gender = male
         leave menu
-disable native.prologue
+disable menu start_phase_2      # genel mekanizma: Native prologunun girişi (menü 1)
 on game.start:
     player.spawn_at(near(praven, 3))
 ```
-Üretilen `module_scripts.py`: `scripts = _uw.append_ops(scripts, "game_start", [(party_relocate_near_party, "p_main_party", "p_town_6", 3)])` — Native'in rastgele eğitim alanı taşımasından **sonra** çalışır (Praven = `p_town_6`, `module_parties.py:82`). Menü 0'ın ve menü 1'in (`start_phase_2`) motor tarafındaki davranışı **KANITLANACAK** (D4, oyun sondası; ONAY BEKLİYOR).
+Üretilen `module_scripts.py`: `scripts = _uw.append_ops(scripts, "game_start", [(party_relocate_near_party, "p_main_party", "p_town_6", 3)])` — Native'in rastgele eğitim alanı taşımasından **sonra** çalışır (Praven = `p_town_6`, `module_parties.py:82`). Menü 0'ın ve menü 1'in (`start_phase_2`) motor tarafındaki davranışı **KANITLANACAK** (D4, oyun sondası; sahibi onayladı, ayrı test modu klasöründe yapılır). Bu örnek yalnız kabul testidir; dilin hiçbir parçası praven'e ya da prologa özel değildir.
 
 ## Dil kararları
 

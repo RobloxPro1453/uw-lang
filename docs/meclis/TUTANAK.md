@@ -34,3 +34,9 @@ Manus dağıtımı: H1 → 03 + 01 (derleme zinciri); H2 → 02 + 04 + 08 (düny
 - S1 (`itiraz-S1.md`): yaklaşım kitte çalışır; 3 itiraz: döngüsel import (yalnız sabit), bayat `.pyc` (temiz staging, `-B`), adsız tablolar (kural 2 yalnız ID'li tablolara).
 - S2 (`itiraz-S2.md`): karara karşı değil; 3 itiraz: `uw explain` için kaynak aralığı + `disable` kısayolu, çift ad `ad#n`, `pin` + derin kopya.
 - O1 son söz: altı itirazın tamamı kabul edildi, `KARAR.md`'ye işlendi (229 satır); D2 deneyi beş alt testle genişledi.
+
+## Ek · Meclis sonrası (2026-11-15)
+- Manus'un meclise cevabı (`llm-raporlari/perplexity/meclise-cevap/`) kitte değerlendirildi → `manus-cevabi-degerlendirme.md`; 11 düzeltme ARCHITECTURE/ROADMAP/KARARNAMELER'e işlendi.
+- Sahibinin cevapları: built-in yok (genel `override`/`disable`), oyun sondaları onaylı, önce `base native`, Python 2.7 şimdilik kabul; 5. soru yeniden soruldu.
+- Devir belgesi: `DEVIR.md`.
+

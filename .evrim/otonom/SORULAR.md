@@ -4,13 +4,11 @@ Ajan bir kararda emin değilse burada sorar ve **güvenli varsayılanla** yoluna
 
 ## Açık
 
-### 2026-11-15 · Meclis: sahibinin onayı gereken 5 karar (`docs/meclis/KARAR.md` §9)
-Şimdilik yaptığım (güvenli varsayılan): beşini de meclisin önerdiği gibi kabul edip Faz 0'ı buna göre sıraladım; oyunu açma (D4) senin "evet"in olmadan yapılmaz.
-1. Native'in karakter yaratma ve prolog kodu Faz 1'de silinmiyor, yalnız girişleri kesiliyor (oyunda görünmez, dosyada durur). Uygun mu?
-2. Faz 0'da bir kez oyunu açıp 3-4 şeye bakmak (karakter ekranı atlanıyor mu, Praven'de mi başlıyorsun, Türkçe harfler, log dosyası). "Oyunu açmak doğrulama değil" kuralına tek seferlik istisna; kabul mü?
-3. İlk sürüm yalnız `base: native`; tamamen boş dünya (`base: empty`) deneyle kanıtlanınca Faz 1'den sonra. Uygun mu?
-4. Derleme Python 2.7 gerektiriyor. Modculara "Python 2.7 kur" demek kabul mü, yoksa ileride kurulumu `uw` mu halletsin?
-5. Üretilen dosyalar "Native + fark": Native'in kendi kodu UW'ye çevrilmiyor, içi eskisi kadar zor okunur kalır; ona `uw explain` ile bakarsın. Kabul mü?
+### 2026-11-15 · (5. soru, sade anlatım) Native'in kodu UW'ye çevrilsin mi, olduğu gibi mi kalsın?
+Neden soruyorum: Sahibi ilk sorulduğunda "anlamadım" dedi; sade hali şu. Native Warband'ın kendi kodu (lordlar, ekonomi, karakter yaratma… on binlerce satır) bugün Python dosyalarında duruyor. İki yol var:
+- A) **Olduğu gibi bırak** (meclisin seçimi). Sen yalnız *kendi değişikliklerini* UW ile yazarsın; UW Native'in dosyasına dokunmaz, yanına "şunu değiştir, şunu ekle" diye kısa bir fark dosyası koyar. Native'in içini merak edersen `uw explain lord_ai` gibi bir komut "bu nerede tanımlı, kim kullanıyor, kaynağı şu satır" diye gösterir. Artısı: güvenli ve hızlı kurulur, Native'i bozma riski en düşük. Eksisi: Native'in kendi kodu yine eski, zor okunan Python olarak kalır.
+- B) **Native'in tamamını UW diline çevir.** Artısı: her şey tek dilde, Native'i de UW gibi okursun. Eksisi: on binlerce satırı hatasız çeviren ikinci bir derleyici yazmak gerekir; aylar sürer ve çeviri hatası Native'i sessizce bozabilir.
+Şimdilik yaptığım (güvenli varsayılan): A ile başlamak; B'yi ileride yalnız "ölçmek için" (`uw lift`, ör. eşyalar gibi basit veriler) açık tutmak. A seçilse bile istediğin Native parçasını (ör. bir menüyü, bir script'i) UW'de baştan yazıp Native'inkinin yerine koyabilirsin; yasak olan yalnız toplu çeviri.
 **Cevap:**
 
 ### 2026-11-14 · `base: empty` gerçekten ne kadar boş olabilir?
@@ -28,3 +26,10 @@ Neden soruyorum: ... Şimdilik yaptığım (güvenli varsayılan): ... Seçenekl
 -->
 
 ## Kapananlar
+
+### 2026-11-15 · Meclis: sahibinin onayı gereken 5 karar — KAPANDI (5. soru yeniden soruldu)
+1. **Giriş kesme, silme yok:** Kabul. Sahibinin düzeltmesi: "Modlamak zaten sistemi istediğin gibi bükmek. Ama hâlâ benim farazi hikâyeme göre yapıyorsun; prolog silici, sprint ekleyici gibi built-in fonksiyonlar yapmıyoruz, evrensel bir derleyici yapıyoruz; Module System için belli bir amacı yok, istenen her mod yapılabilmeli." → Uygulandı: `disable native.prologue` gibi amaca özel kısayollar kaldırıldı; yerine genel mekanizma (herhangi bir Native girdisini `override`/`disable` etmek). praven_start yalnız kabul testi, dilin özelliği değil (KARARNAMELER).
+2. **Oyunu açmak:** "Nihai doğrulama olmamalı, oyunda küçük sessiz hatayı göremezsin; ama genel olarak oyuna girip bakmak küçük şeyler için doğrulama sayılabilir." → D4-D7 oyun sondaları onaylandı; oyunda bakmak tamamlayıcı kanıt, otomatik testlerin yerini tutmaz (KARARNAMELER güncellendi).
+3. **Önce `base: native`:** "Evet." → Faz 1 yalnız `base: native`; `base: empty` D8 sonrası.
+4. **Python 2.7:** "Şu an gerek yok, ileriki sürümlerde ekleriz. Bütün iş yükümüz mimariyi doğru ve kapsamlı kurmak; topluluk işleri en son." → Python 2.7 gerekliliği şimdilik kabul; kurulum kolaylığı/Python'dan kurtulma sonraki sürümlere.
+5. Sahibi anlamadı → sade anlatımla "Açık"ta yeniden soruldu.

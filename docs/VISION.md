@@ -8,6 +8,12 @@ universal_warband bir mod değil, **Mount & Blade: Warband için bir programlama
 
 ## Sahibinin kararları
 
+- 2026-11-15 (meclis sonrası): **UW'nin belli bir amacı yok, evrensel derleyicidir.** "Prolog silici, sprint ekleyici gibi built-in fonksiyonlar yapmıyoruz; istenen her mod yapılabilmeli." Praven/prolog/sprint örnekleri sahibinin farazi hikâyesinden gelen **kabul testleridir**, dilin özelliği değil. Native'den bir şeyi çıkarmak/değiştirmek genel mekanizmayla (herhangi bir Native girdisini `override`/`disable`) yapılır; "modlamak sistemi istediğin gibi bükmektir".
+- 2026-11-15: **Öncelik mimaridir:** bütün iş yükü mimariyi doğru ve kapsamlı kurmaya gider. Kurulum kolaylığı (ör. Python 2.7'yi `uw`'nin kurması), topluluk ve paylaşım işleri en sona.
+- 2026-11-15: **Oyunda bakmak** küçük şeyler için doğrulama sayılır ama nihai doğrulama değildir (küçük sessiz hata oyunda görünmez); asıl güvence otomatik testler.
+- 2026-11-15: İlk sürüm yalnız `base: native`; `base: empty` deneyle kanıtlanınca sonra.
+- 2026-11-15: **Kümülatif bilgi tabanı:** her rapor, araştırma ve muhakemeden bilgi "sökülür": bir milyon şeyin yüz binini al, onun da en önemli on binini; bu süzme binlerce kez tekrarlanınca süzülmüş, elenmiş, uygulamaya hazır bilgi birikir. Dış raporlar (Manus, Perplexity…) otorite değil, ham maddedir; onlara cevap yazılmaz, onlardan öğrenilir.
+
 - 2026-11-15: **Kimlikler (adlar) yalnız ASCII İngilizce** (`village_square`, `farewell_father`); Türkçe karakterli ad yasak, derleyici hata verir — sessiz çeviri riskli (sahibinin düzeltmesi; Claude'un "Türkçe ad + otomatik çeviri" önerisi reddedildi). Oyunda görünen metinler ve yorumlar her dilde olabilir.
 - 2026-11-15: **Derleyici katı:** "geç geç" yok. Şüpheli her şey derlemeyi durdurur (Rust gibi); oyunda fark edilen hata en pahalı hatadır (Warband açılışı ~1 dk). Katılık Module System'i bozmamanın da güvencesi.
 - 2026-11-15: **İlk "oh be" ölçüsü:** Native'in karakter yaratma ekranlarını (geçmiş soruları, yüz editörü, şehir seçimi) ve prolog'u (Praven tüccarı görevi) kaldırıp kendi sorularını/hikâyesini koymak ve doğrudan haritada başlamak — sahibi bunun için 2 hafta uğraştı; UW ile **5 dakikada** yapılabilmeli. Faz 1'in kabulüne eklendi.
@@ -56,7 +62,7 @@ Bu, döngünün ilk sözleşmesidir (`finalForm`). Sonraki fazlar için sözleş
 - [ ] `uw build examples/praven_start` tek komutla (derleyici Rust, `cargo test --workspace` yeşil) `.uw` → `module_*.py` → kit build → `.txt` zincirini çalıştırıyor, hata yok.
 - [ ] Örnek modda karakter yaratma iki biçimde de tanımlanabiliyor: oyuncuya soru sorarak (A) ve statları doğrudan koyarak (B).
 - [ ] `on game.start: player.spawn_at(near(praven, 3))` üretilen `scripts.txt`'de ana partiyi Praven yakınına taşıyor (test betiği doğruluyor).
-- [ ] `base: native` üzerinde: Native karakter yaratma zinciri ve prolog kaldırılıp kendi soruları konuyor, oyuncu doğrudan haritada başlıyor — örnek `.uw` dosyası kısa ve okunur ("5 dakika" ölçüsü).
+- [ ] `base: native` üzerinde: Native karakter yaratma zinciri ve prolog kaldırılıp kendi soruları konuyor, oyuncu doğrudan haritada başlıyor — örnek `.uw` dosyası kısa ve okunur ("5 dakika" ölçüsü). Bu, genel `override`/`disable` mekanizmasıyla yapılır; prologa özel komut yok (sahibi, 2026-11-15).
 - [ ] Yanlış yazılan bir isimde derleyici satır numarası ve "şunu mu demek istedin?" önerisiyle duruyor.
 - [ ] Aynı olay (`on game.start`) birden çok dosyada yazılınca bağlayıcı hepsini doğru sırayla birleştiriyor.
 
