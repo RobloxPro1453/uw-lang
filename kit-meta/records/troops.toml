@@ -1,8 +1,9 @@
-# Troop records: the pilot of the readable field types (docs/meclis/YON2-KARAR.md §2).
-# `faction` is a `ref:factions` and `attributes` a `bits` value (header_troops.py positions);
-# every other field is still the atlas value as it is.
-# Field names and order follow the layout comment at the top of the kit's module_troops.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# Troop records: readable fields (T-059). Field names and order follow the layout comment at the top
+# of the kit's module_troops.py (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# Typed: troop_flags (a flag set), scene (site/entry packed number), faction (a faction ref),
+# inventory (item refs), attributes, weapon_proficiencies and skills (packed numbers).
+# The face codes (module_troops.py:30-32 says only "from the face generator") and the upgrade
+# targets that upgrade() appends past position 14 (header_troops.py:266-273) stay raw.
 table = "troops"
 kind = "troop"
 id_prefix = "trp_"
@@ -23,15 +24,34 @@ name = "plural_name"
 ty = "raw"
 source = "module_troops.py:15"
 
+# header_troops.py:10-31 lists the troop flag bits. The plain `tf_` prefix would also name the
+# presentation text flags (header_presentations.py:9-17, same bit values: tf_center_justify is
+# tf_hero), so the prefixes below spell the troop constants. tf_male is 0, hence `zero`.
 [[fields]]
 name = "troop_flags"
-ty = "raw"
+ty = "flags:tf_male,tf_female,tf_undead,tf_hero,tf_inactive,tf_unkillable,tf_allways_fall_dead,tf_no_capture_alive,tf_mounted,tf_is_merchant,tf_randomize_face,tf_guarantee_,tf_unmoveable_in_party_window"
+zero = "tf_male"
 source = "module_troops.py:16"
 
+# `scn_reyvadin_castle|entry(1)` (module_troops.py:17): the site id is the low 16 bits and the entry
+# point bits 16..23 (header_troops.py:82-87). The site stays a number: no_scene is 0
+# (module_troops.py:133) but scenes index 0 is scn_random_scene (ID_scenes.py:1).
 [[fields]]
 name = "scene"
-ty = "raw"
+ty = "bits"
 source = "module_troops.py:17"
+
+[[fields.parts]]
+name = "site"
+shift = 0
+width = 16
+source = "header_troops.py:82"
+
+[[fields.parts]]
+name = "entry"
+shift = 16
+width = 8
+source = "header_troops.py:83"
 
 [[fields]]
 name = "reserved"
@@ -45,7 +65,7 @@ source = "module_troops.py:19"
 
 [[fields]]
 name = "inventory"
-ty = "raw"
+ty = "list:ref:items"
 source = "module_troops.py:20"
 
 [[fields]]
@@ -85,15 +105,314 @@ shift = 32
 width = 8
 source = "header_troops.py:208"
 
+# Seven 10-bit fields (process_troops.py:53-58); the shifts are header_troops.py:218-224 and the
+# 0x3FF mask is in every wp_* function (header_troops.py:227-240).
 [[fields]]
 name = "weapon_proficiencies"
-ty = "raw"
+ty = "bits"
 source = "module_troops.py:23"
 
+[[fields.parts]]
+name = "one_handed"
+shift = 0
+width = 10
+source = "header_troops.py:218"
+
+[[fields.parts]]
+name = "two_handed"
+shift = 10
+width = 10
+source = "header_troops.py:219"
+
+[[fields.parts]]
+name = "polearm"
+shift = 20
+width = 10
+source = "header_troops.py:220"
+
+[[fields.parts]]
+name = "archery"
+shift = 30
+width = 10
+source = "header_troops.py:221"
+
+[[fields.parts]]
+name = "crossbow"
+shift = 40
+width = 10
+source = "header_troops.py:222"
+
+[[fields.parts]]
+name = "throwing"
+shift = 50
+width = 10
+source = "header_troops.py:223"
+
+[[fields.parts]]
+name = "firearm"
+shift = 60
+width = 10
+source = "header_troops.py:224"
+
+# header_skills.py:9-50 gives every skill index (`skl_ride = 24`); knows_X_n is n << (4 * index),
+# so skill k is the 4 bits at 4k (42 skills, num_skill_words 6 at header_skills.py:474;
+# process_troops.py:60-62).
 [[fields]]
 name = "skills"
-ty = "raw"
+ty = "bits"
 source = "module_troops.py:28"
+
+[[fields.parts]]
+name = "trade"
+shift = 0
+width = 4
+source = "header_skills.py:9"
+
+[[fields.parts]]
+name = "leadership"
+shift = 4
+width = 4
+source = "header_skills.py:10"
+
+[[fields.parts]]
+name = "prisoner_management"
+shift = 8
+width = 4
+source = "header_skills.py:11"
+
+[[fields.parts]]
+name = "reserved_1"
+shift = 12
+width = 4
+source = "header_skills.py:12"
+
+[[fields.parts]]
+name = "reserved_2"
+shift = 16
+width = 4
+source = "header_skills.py:13"
+
+[[fields.parts]]
+name = "reserved_3"
+shift = 20
+width = 4
+source = "header_skills.py:14"
+
+[[fields.parts]]
+name = "reserved_4"
+shift = 24
+width = 4
+source = "header_skills.py:15"
+
+[[fields.parts]]
+name = "persuasion"
+shift = 28
+width = 4
+source = "header_skills.py:16"
+
+[[fields.parts]]
+name = "engineer"
+shift = 32
+width = 4
+source = "header_skills.py:17"
+
+[[fields.parts]]
+name = "first_aid"
+shift = 36
+width = 4
+source = "header_skills.py:18"
+
+[[fields.parts]]
+name = "surgery"
+shift = 40
+width = 4
+source = "header_skills.py:19"
+
+[[fields.parts]]
+name = "wound_treatment"
+shift = 44
+width = 4
+source = "header_skills.py:20"
+
+[[fields.parts]]
+name = "inventory_management"
+shift = 48
+width = 4
+source = "header_skills.py:21"
+
+[[fields.parts]]
+name = "spotting"
+shift = 52
+width = 4
+source = "header_skills.py:22"
+
+[[fields.parts]]
+name = "pathfinding"
+shift = 56
+width = 4
+source = "header_skills.py:23"
+
+[[fields.parts]]
+name = "tactics"
+shift = 60
+width = 4
+source = "header_skills.py:24"
+
+[[fields.parts]]
+name = "tracking"
+shift = 64
+width = 4
+source = "header_skills.py:25"
+
+[[fields.parts]]
+name = "trainer"
+shift = 68
+width = 4
+source = "header_skills.py:26"
+
+[[fields.parts]]
+name = "reserved_5"
+shift = 72
+width = 4
+source = "header_skills.py:27"
+
+[[fields.parts]]
+name = "reserved_6"
+shift = 76
+width = 4
+source = "header_skills.py:28"
+
+[[fields.parts]]
+name = "reserved_7"
+shift = 80
+width = 4
+source = "header_skills.py:29"
+
+[[fields.parts]]
+name = "reserved_8"
+shift = 84
+width = 4
+source = "header_skills.py:30"
+
+[[fields.parts]]
+name = "looting"
+shift = 88
+width = 4
+source = "header_skills.py:31"
+
+[[fields.parts]]
+name = "horse_archery"
+shift = 92
+width = 4
+source = "header_skills.py:32"
+
+[[fields.parts]]
+name = "riding"
+shift = 96
+width = 4
+source = "header_skills.py:33"
+
+[[fields.parts]]
+name = "athletics"
+shift = 100
+width = 4
+source = "header_skills.py:34"
+
+[[fields.parts]]
+name = "shield"
+shift = 104
+width = 4
+source = "header_skills.py:35"
+
+[[fields.parts]]
+name = "weapon_master"
+shift = 108
+width = 4
+source = "header_skills.py:36"
+
+[[fields.parts]]
+name = "reserved_9"
+shift = 112
+width = 4
+source = "header_skills.py:37"
+
+[[fields.parts]]
+name = "reserved_10"
+shift = 116
+width = 4
+source = "header_skills.py:38"
+
+[[fields.parts]]
+name = "reserved_11"
+shift = 120
+width = 4
+source = "header_skills.py:39"
+
+[[fields.parts]]
+name = "reserved_12"
+shift = 124
+width = 4
+source = "header_skills.py:40"
+
+[[fields.parts]]
+name = "reserved_13"
+shift = 128
+width = 4
+source = "header_skills.py:41"
+
+[[fields.parts]]
+name = "power_draw"
+shift = 132
+width = 4
+source = "header_skills.py:42"
+
+[[fields.parts]]
+name = "power_throw"
+shift = 136
+width = 4
+source = "header_skills.py:43"
+
+[[fields.parts]]
+name = "power_strike"
+shift = 140
+width = 4
+source = "header_skills.py:44"
+
+[[fields.parts]]
+name = "ironflesh"
+shift = 144
+width = 4
+source = "header_skills.py:45"
+
+[[fields.parts]]
+name = "reserved_14"
+shift = 148
+width = 4
+source = "header_skills.py:46"
+
+[[fields.parts]]
+name = "reserved_15"
+shift = 152
+width = 4
+source = "header_skills.py:47"
+
+[[fields.parts]]
+name = "reserved_16"
+shift = 156
+width = 4
+source = "header_skills.py:48"
+
+[[fields.parts]]
+name = "reserved_17"
+shift = 160
+width = 4
+source = "header_skills.py:49"
+
+[[fields.parts]]
+name = "reserved_18"
+shift = 164
+width = 4
+source = "header_skills.py:50"
 
 [[fields]]
 name = "face_code"
