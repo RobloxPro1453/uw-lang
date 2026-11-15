@@ -907,3 +907,121 @@ Yeni bir özellik geldiğinde:
    - Rehberde geçen her komut ve bayrak `crates/uw_cli/src/main.rs` içinde bulunmalı.
    - Rehberde geçen her hata kodu crates içinde bulunmalı (`E0001`, `E01xx`, `E02xx`).
    - Yeni bir `.uw` yapısı anlatıyorsanız, gerçekten derlenen bir örnek verin.
+
+---
+
+## 10. Kayıt dosyaları ve `uw new` (dışa aktarma)
+
+Native'in veri tabloları (birlikler, eşyalar, partiler, krallıklar ...) UW metni olarak da yazılır.
+Bugün bu metinler **yalnız dışa aktarılır**: `uw roundtrip` onları ölçmek için
+`target/uw-native/records/<tablo>.uw` altına yazar; `uw new --from native` ise aynı biçimde bir
+proje klasörü üretir. Üretilen klasör henüz `uw build` ile derlenmez (bkz. 10.5).
+
+### 10.1. Bir kayıt nasıl yazılır?
+
+Bir kayıt üç parçadır: tür, kimlik ve süslü parantez içinde alanlar.
+
+```uw
+<tür> <kimlik> {
+  <alan> <değer>
+  <alan> <değer>
+}
+```
+
+- **tür**: kaydın tablosu; şemadaki `kind` değeri (`faction`, `party`, `troop`, `item` ...).
+- **kimlik**: Native kimliğinin öneksiz hâli. Kit `fac_commoners` diyorsa burada `commoners`,
+  `p_town_1` diyorsa `town_1` yazar. Proje klasöründeki dosya adı da bu kimliktir.
+- **alan**: şemadaki (`kit-meta/records/<tablo>.toml`) alan adı. Alanlar **şemadaki sırayla**
+  gelir; isteğe bağlı son alan (örneğin `faction_color`) yoksa hiç yazılmaz.
+
+Aynı dosyada birden çok kayıt olabilir; kayıtlar arasında bir boş satır vardır.
+
+### 10.2. Bir kayıt nasıl okunur?
+
+Değerler dört biçimde gelir:
+
+| Biçim | Örnek | Anlamı |
+|---|---|---|
+| sayı | `coherence 0.1`, `party_flags 4219916` | Ham değer. Bayraklar ve paketlenmiş sayılar bu ilk turda sayı kalır. |
+| metin | `name "Sargoth"` | Çift tırnak içinde oyun metni. |
+| ad | `none`, `player_faction` | Kitin/atlasın adı: bir sabit ya da başka bir kaydın kimliği. |
+| liste / demet | `stacks []`, `relations [(player_faction, 0.1)]` | `[ ]` liste, `( )` demet; ikisi ayrı şeydir. |
+
+İlk turda her alan "ham"dır: bir yabancı anahtar bazen adla (`player_faction`), bazen sayıyla
+(`faction 3`) görünebilir. Alanın anlamını ve sırasını `kit-meta/records/` altındaki şema dosyası
+söyler.
+
+**`ops { … }`** işlem bloğu tutan alanlar içindir: bir menünün `operations` alanı, bir script'in
+gövdesi, bir diyaloğun kodu gibi. O alan sayı listesi yerine 3.4'teki işlem çağrıları olarak
+yazılır:
+
+```uw
+operations ops {
+    <işlemler>
+}
+```
+
+Böylece kayıt metni, `.uw` dosyalarındaki işlemleri aynı biçimde okur.
+
+### 10.3. Gerçek örnekler
+
+Bir krallık kaydı (`factions.uw`):
+
+```uw
+faction commoners {
+  id commoners
+  name "Commoners"
+  faction_flags 0
+  coherence 0.1
+  relations [(player_faction, 0.1)]
+  ranks []
+}
+```
+
+Bir şehir kaydı (`parties.uw`; şehirler `party` tablosundadır):
+
+```uw
+party town_1 {
+  id town_1
+  name "Sargoth"
+  party_flags 4219916
+  menu 0
+  party_template 0
+  faction 3
+  personality 0
+  ai_behavior 0
+  ai_target 0
+  initial_coordinates (-17.6, 79.7)
+  stacks []
+  direction 170
+}
+```
+
+### 10.4. `uw new --from native` ve `uw new --check`
+
+```
+uw new <klasör> --from native
+uw new --check <klasör>
+```
+
+`--from native` Native'in bütün kayıtlarını bu biçimde bir proje klasörüne yazar. Hedef klasör boş
+değilse UW onu **ezmez**. `--check` aynı klasörü geri okur, her kaydı atlastaki değerle
+karşılaştırır ve kaçının birebir aynı olduğunu söyler.
+
+Proje klasörü `uw.toml` (taban kipi `base = "native-export"` ve atlasın `kit_hash` değeri) ve kısa
+bir `README.md` ile başlar; altında kayıtlar dosya düzenine göre dağılır. Dosya adı **Native
+kimliğidir** (`parties/towns/town_6.uw`), görünen ad değil (`praven`).
+
+| Yer | İçindekiler |
+|---|---|
+| `parties/towns/<kimlik>.uw`, `parties/castles/<kimlik>.uw`, `parties/villages/<kimlik>.uw` | Şehirler, kaleler ve köyler; diğer partiler `parties/<kimlik>.uw`. |
+| `troops/kings/<kimlik>.uw`, `troops/lords/…`, `troops/ladies/…`, `troops/companions/…`, `troops/pretenders/…` | Krallar, lordlar, leydiler, yol arkadaşları ve taht talipleri; diğer birlikler `troops/<kimlik>.uw`. |
+| `factions/`, `items/`, `party_templates/`, `quests/`, `scenes/`, `scene_props/`, `menus/`, `scripts/`, `mission_templates/`, `presentations/`, `map_icons/` | Kayıt başına bir dosya: `<tablo>/<kimlik>.uw`. |
+| `dialogs/<durum>.uw` | Diyaloglar başlangıç durumuna göre gruplanır. |
+| `strings.uw`, `sounds.uw`, `meshes.uw`, `animations.uw`, `music.uw`, `skills.uw`, `skins.uw`, `postfx_params.uw`, `particle_systems.uw`, `info_pages.uw`, `tableau_materials.uw`, `triggers.uw`, `simple_triggers.uw` | Küçük arama tabloları: tablo başına tek dosya. |
+
+### 10.5. Bugün sınır: yalnız dışa aktarma
+
+`uw new` bir proje klasörü **yazar ve geri okur**; o klasörü `uw build` ile derlemez. Derleme
+geldiğinde bu bölüm güncellenecek. Bugüne kadar `uw build` yalnız yama kipinde çalışır: `.uw`
+dosyaları Native'in üzerine değişiklik koyar.
