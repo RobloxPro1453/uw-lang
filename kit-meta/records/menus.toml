@@ -1,0 +1,36 @@
+# Menu records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_game_menus.py
+# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "menus"
+kind = "menu"
+id_prefix = "menu_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_game_menus.py:15"
+
+[[fields]]
+name = "flags"
+ty = "raw"
+source = "module_game_menus.py:18"
+
+[[fields]]
+name = "text"
+ty = "raw"
+source = "module_game_menus.py:20"
+
+[[fields]]
+name = "mesh_name"
+ty = "raw"
+source = "module_game_menus.py:21"
+
+[[fields]]
+name = "operations"
+ty = "raw"
+source = "module_game_menus.py:22"
+
+[[fields]]
+name = "options"
+ty = "raw"
+source = "module_game_menus.py:24"

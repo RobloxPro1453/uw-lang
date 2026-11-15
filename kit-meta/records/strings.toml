@@ -1,0 +1,16 @@
+# String records, round 1 (raw): every field is the atlas value as it is.
+# module_strings.py has no layout comment, so the two positions keep positional names (no invented
+# names); `source` points at the kit writer that reads both positions of the tuple.
+table = "strings"
+kind = "string"
+id_prefix = "str_"
+
+[[fields]]
+name = "field_1"
+ty = "raw"
+source = "process_strings.py:14"
+
+[[fields]]
+name = "field_2"
+ty = "raw"
+source = "process_strings.py:14"
