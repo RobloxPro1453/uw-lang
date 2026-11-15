@@ -1,0 +1,99 @@
+# Skin records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_skins.py
+# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "skins"
+kind = "skin"
+# The atlas gives this table no id_prefix (there is no ID_skins.py), so the id is written as it is.
+id_prefix = ""
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_skins.py:5"
+
+[[fields]]
+name = "skin_flags"
+ty = "raw"
+source = "module_skins.py:6"
+
+[[fields]]
+name = "body_mesh"
+ty = "raw"
+source = "module_skins.py:7"
+
+[[fields]]
+name = "calf_mesh"
+ty = "raw"
+source = "module_skins.py:8"
+
+[[fields]]
+name = "hand_mesh"
+ty = "raw"
+source = "module_skins.py:9"
+
+[[fields]]
+name = "head_mesh"
+ty = "raw"
+source = "module_skins.py:10"
+
+[[fields]]
+name = "face_keys"
+ty = "raw"
+source = "module_skins.py:11"
+
+[[fields]]
+name = "hair_meshes"
+ty = "raw"
+source = "module_skins.py:12"
+
+[[fields]]
+name = "beard_meshes"
+ty = "raw"
+source = "module_skins.py:13"
+
+[[fields]]
+name = "hair_textures"
+ty = "raw"
+source = "module_skins.py:14"
+
+[[fields]]
+name = "beard_textures"
+ty = "raw"
+source = "module_skins.py:15"
+
+[[fields]]
+name = "face_textures"
+ty = "raw"
+source = "module_skins.py:16"
+
+[[fields]]
+name = "voices"
+ty = "raw"
+source = "module_skins.py:17"
+
+[[fields]]
+name = "skeleton_name"
+ty = "raw"
+source = "module_skins.py:18"
+
+[[fields]]
+name = "scale"
+ty = "raw"
+source = "module_skins.py:19"
+
+[[fields]]
+name = "blood_particles_1"
+ty = "raw"
+source = "module_skins.py:20"
+
+[[fields]]
+name = "blood_particles_2"
+ty = "raw"
+source = "module_skins.py:21"
+
+# Commented "17)" a second time in the kit; `woman` (module_skins.py:166-185) stops before it.
+[[fields]]
+name = "face_key_constraints"
+ty = "raw"
+optional = true
+source = "module_skins.py:22"
