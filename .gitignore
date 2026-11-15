@@ -20,3 +20,6 @@ target/
 docs/graph_viewer/sample_flow.json
 flow.json
 akis.html
+
+# graph_viewer uygulaması: kendi git deposu var (docs/graph_viewer/program/app/.git), Craft Anything artıkları yerel
+docs/graph_viewer/program/

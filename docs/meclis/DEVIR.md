@@ -1,5 +1,30 @@
 # Devir: sonraki oturum buradan başlar
 
+## 000. EKSİKLER RAPORU VE TUR 5 PLANI (2026-11-15 akşam) — önce bunu oku
+
+**Sahibinin sözü:** "5 saatlik limitlerin %230'u bitti, düzgün kod yok, yalnız menüyü atlıyoruz. Sağlam ama hızlı ilerleyelim. Yeni oturumda `/loop` ile başlatacağım; DeepSeek'i yüklen, darboğaz yoksa 20 işçi bile olur." graph_viewer ayrı oturumda (bu oturumda) bitiyor: `docs/graph_viewer/program/app` (Rust/egui; artık proje Claude'da). **Yeni oturum graph_viewer'a dokunmaz.**
+
+**Dürüst durum.** Çalışan tek dil yeteneği: `override menu <m> { on enter { op(...) } }` (menünün giriş gövdesini değiştir) ve `on game.<kanca> { op(...) }` (kancanın sonuna ekle). Araçlar (explain, browse, graph, `--json`, `--debug`, etki raporu) iyi; ama modcu henüz **hiçbir şey yazamıyor**: ne seçenek, ne koşul, ne değişken hesabı, ne yeni menü, ne metin değişikliği. `uw_lower` ve `uw_plan` boş. finalForm ölçütlerinden yalnız "yanlış isimde öneri" ve "praven_start" tamam.
+
+**Eksikler (öncelik sırasıyla):**
+1. **İfadeler ve `if`** (dilin omurgası): `$x = $y + 2`, `if $x > 3 { } else { }`, `and/or/not` → `store_*`, `try_begin/else_try/try_end`, `this_or_next|`, `neg|` (op tablosundan; ad uydurma yok).
+2. **Menü dili** (sahibinin listesi): metni değiştir (`text "..."`, alan 2), seçenek ekle/değiştir/gizle (`option <id> "metin" { ... }`, `remove option`, `uw_runtime.insert_after/remove_where` hazır), seçeneğe koşul, başka menüye geç.
+3. **Yeni kayıt** (yeni menü vb.): ID/PLAN zinciri canlanır (`uw_plan`: yeni girdiler listenin sonuna, ID sırası; KARARNAMELER).
+4. **Bağlayıcı sırası:** birden çok dosyada `on game.start` → alfabetik dosya + açık `before/after` (finalForm ölçütü, testle).
+5. **finalForm kabul örnekleri:** karakter yaratma A (soru zinciri, yeni menüler) ve B (statları doğrudan), `player.spawn_at(near(...))` seviyesi kısayollar *yok* (built-in yasağı); yerine Native op ile yazılan örnek + test.
+6. Küçükler: ad tutarlılığı (çıplak `start_phase_2` her araçta; `override menu_start_phase_2` biçimi kısa meclis), `--debug` hatası (`_` boşluk görünüyor, mesaj kayboluyor → ayırıcı `-`, `display_log_message`; diyaloglara da), `tr.rs` resmî Türkçe metni browse/explain'e bağlamak, ASCII dışı metin (D5 deneyi), `uw graph --json`'a diyaloglar ve mod farkı (`changed`/`impact`, `uw build --graph`).
+7. **Release ikilisi:** her kod değişikliğinden sonra `cargo build --release` (sahibi `target/release/uw` kullanır; ders kaydı).
+
+**Tur 5 yöntemi (Claude orkestra, DeepSeek emek):**
+- **Önce Claude, kısa ve tek başına (darboğaz bu):** (a) gramer kararı: ifade, `if/else`, `option`, `text`, `remove option`, `menu <yeni> { }` sözdizimi → KARARNAMELER'e örneklerle (gerekirse 1 tur kısa meclis); (b) `uw_check` IR'ını genişlet: `Stmt = Op | Assign | If | ...`, `Patch` türleri (`ReplaceField`, `InsertOption`, `RemoveOption`, `NewEntry`); (c) her şerit için `docs/tasks/T-0NN.md` tarifi (girdi/çıktı türleri sabit, örnek + beklenen çıktı ile). Tarifler bitmeden işçi başlatılmaz.
+- **Sonra paralel DeepSeek şeritleri** (her biri ayrı dosya/fonksiyon, çakışmasız; `cv delegate batch`):
+  1. lexer/parser: ifade ve öncelik (uw_syntax, yeni modül) 2. parser: `if/else`, `option`, `text`, `remove option`, `menu` blokları 3. ifade indirgeme → `store_*` (op tablosundan, `uw_lower`) 4. `if` indirgeme → `try_*`, `this_or_next`/`neg` 5. menü yamaları emit'i (`replace_field`, `insert_after`, `remove_where`) 6. yeni kayıt / `uw_plan` ID sırası 7. bağlayıcı sırası + test 8. altın testler düzeni (`.uw` → beklenen `module_*.py` parçası) 9. çıplak ad kabulü (explain/graph/browse) 10. `--debug` düzeltmesi + diyaloglar 11. `tr.rs` bağlama 12. `flow_json` diyaloglar 13. `flow_json` mod farkı 14. örnek modlar: menü metni, seçenek ekleme, koşullu seçenek, karakter yaratma A/B (her biri `examples/` + uçtan uca test).
+  1-2 ve 3-4 gramere bağlı; 9-13 hemen başlayabilir.
+- **Claude denetler:** her dal `cv delegate verify` + diff okuma + `cargo test --workspace` + `cargo build --release`; uçtan uca `uw build examples/<x> --no-install`; oyunda denenecekler CHECKUP'a.
+- DeepSeek ayarı: sahibi ortam değişkenini ve önbelleği güncelledi; turun başında `cv delegate` ile küçük bir iş çalıştırıp maliyet/önbellek satırına bak (anahtarı okuma). Bütçe: `.evrim/config.json` > `delegate` (toplam 15$ tavan).
+
+**graph_viewer (bu oturum, ayrı):** veri `uw graph --json flow.json` (409 düğüm/949 ok, Python betiğiyle aynı). Uygulama `docs/graph_viewer/program/app` (Craft Anything yazdı; Rust + eframe/egui; kendi `target/`'ı depoya girmez).
+
 ## 00. DURUM RAPORU (2026-11-15, tur 3 sonrası) — önce bunu oku
 
 **SAHİBİNİN SON NOTLARI (2026-11-15, kota bitti, kod yazılmadı):** (1) `--debug` oyunda çalıştı ama `_` boşluk görünüyor ve mesaj kayboluyor (CHECKUP bilinen hata). (2) Akış şeması okunmuyor; sahibi `graph_viewer`'ı ayrı projede yaptıracak: brief `docs/graph_viewer/` (README, DATA), veri `py/flow_export.py` (örnek dosya yerel, depoda değil). (3) Ad tutarlılığı: `start_phase_2` vs `menu_start_phase_2` (ROADMAP, kısa meclis). (4) Menü dili istek listesi (ROADMAP). (5) DeepSeek: sahibi ortamdaki anahtarı güncelledi ve önbellek ayarı yaptı; `delegate.providers.deepseek` (`keyEnv: DEEPSEEK_API_KEY`, `apiBase`, `model`) ile uyumunu sonraki turun başında kontrol et (anahtar değerini okuma; kısa bir iş çalıştırıp maliyet/önbellek satırına bak).
