@@ -276,7 +276,7 @@ pub(crate) fn find_kit(dir: &Path) -> Option<PathBuf> {
 }
 
 /// Warband's Modules folder in the default Steam library, if present.
-fn find_modules() -> Option<PathBuf> {
+pub(crate) fn find_modules() -> Option<PathBuf> {
     let candidates = [
         r"C:\Program Files (x86)\Steam\steamapps\common\MountBlade Warband\Modules",
         r"C:\Program Files\Steam\steamapps\common\MountBlade Warband\Modules",
