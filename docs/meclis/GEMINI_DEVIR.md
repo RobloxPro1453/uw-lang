@@ -27,6 +27,23 @@ konuşur, teknik bilmeyebilir; sade anlat. **OHAL:** şu an yalnız bu proje gel
 - Kullanıcı kılavuzu: `docs/kilavuz/UW_KILAVUZU.md` (Türkçe). **Kural:** dile/komutlara görünür bir
   şey eklersen aynı işte kılavuzun ilgili bölümünü güncelle (yalnız yeni olanı ekle).
 
+## 2b. YÖN DEĞİŞTİ (2026-11-15 akşam) — önce bunu oku
+
+Sahibi projenin yönünü büyük ölçüde değiştirdi: Native'e yama yerine **`uw new` ile Native'in tamamı
+okunaklı UW dosyalarına çevrilmiş bir proje iskeleti** ve **alt seviye Native işlemleri yerine yüksek
+seviyeli dil (DSL)**. Muhakeme, model ve fazlar: `docs/meclis/yon-2-proje-modeli.md` (oku). Bu bir
+mimari değişiklik ve **büyük meclis bekliyor** (`docs/MECLIS_GUNDEMI.md` > BÜYÜK MECLİS — Yön 2).
+
+Senin için kural: **mimariyi kesinleştiren kodu yazma** (yeni sözdizimi, `uw new`, `lib/` adları,
+emit'in tam liste kipi). Meclisten bağımsız ve güvenli olanları yapabilirsin:
+- `docs/ROADMAP.md` > Y1: oyun deneylerinin adım adım tariflerini `docs/CHECKUP.md` kuyruğuna yaz
+  (D8 boş taban; özel menüden karakter yaratma açılır mı; tetik "check interval" birimi).
+- Y1b: salt okuma ölçüm prototipi — atlas'taki (`target/uw-staging/atlas.json`) Native menülerinin kaçı
+  bugünkü dille `.uw` olarak yazılabiliyor, yazılamayanlar neden. Sonucu `docs/meclis/` altına kısa bir
+  kanıt notu olarak yaz. Derleyiciye bağlama.
+- `kit-meta/hardwired.toml` taslağı: yalnız [KİT]/[DENEY] kanıtlı maddeler, her biri kaynak satırıyla.
+- Aşağıdaki 3. bölümdeki yarım işler.
+
 ## 3. Yarım kalanlar (öncelik sırası)
 
 1. **`cv/T-019` dalı (DeepSeek, altın testler) gözden geçirilmedi.** Yapılacak: dalın diff'ini oku

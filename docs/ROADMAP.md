@@ -4,6 +4,20 @@
 
 ## Sıra
 
+**YÖN 2 (2026-11-15 akşam, sahibinin isteği, büyük meclis bekliyor):** proje iskeleti (`uw new`: Native → okunaklı UW dosyaları, ya da boş) + yüksek seviyeli dil (L0 ham işlem / L1 çekirdek / L2 `lib/` kütüphanesi). Gerekçe ve ayrıntı `docs/meclis/yon-2-proje-modeli.md`. Bu bölüm aşağıdaki eski sıranın önüne geçer; eski maddeler (harita, D5-D10, kit-meta) Y fazlarının parçası olarak sürer.
+
+- [ ] **Y0** Büyük meclis: proje modeli, dil katmanları, zorunlu/isteğe bağlı (`docs/MECLIS_GUNDEMI.md` > BÜYÜK MECLİS — Yön 2).
+- [ ] **Y1** Oyun deneyleri (CHECKUP kuyruğuna): D8 boş taban (oyun en az neyle açılıyor); özel menüden karakter yaratma / yüz editörü açılır mı; tetik "check interval"ın birimi ve 0'ın anlamı.
+- [ ] **Y1b** Ölçüm prototipi (salt okuma): atlas'taki 216 Native menünün kaçı bugünkü dille `.uw` olarak yazılabiliyor; yazılamayanların nedeni → meclise kanıt.
+- [ ] **Y2** `uw new --from native` v1: yalnız menüler → `menus/*.uw`, dosya başı açıklamaları (`kit-meta/aciklama`); gidiş-dönüş testi (menüler: Native → UW → .txt = Native .txt).
+- [ ] **Y3** Çekirdek dil eklemeleri: kendi adla `menu`, `goto`, metinde `@` kendiliğinden, `fn`, nesne alanı (`player.gold`).
+- [ ] **Y4** `lib/` standart kütüphane v1 (20-30 okunaklı fonksiyon: menü, harita, para, eşya, birlik); `menu_demo` yeni dilde; kılavuz bölümü.
+- [ ] **Y5** Diyaloglar ve karakterler (`lords/`, `companions/`, `ladies/`): "ilk karşılaşma diyaloğu" örneği.
+- [ ] **Y6** Olaylar ve bölgeler (`areas/`): `on enter area`, `every … hour`, poligon içi kontrol, yoğunluk (Native spawn noktalarına ek).
+- [ ] **Y7** Harita içe aktarma + yerleşimler kodla (`towns/`).
+- [ ] **Y8** Sahneler ve kamp (konuma göre sahne, askerler).
+- [ ] `kit-meta/hardwired.toml`: motor zorunlusu kayıtlar (D4, D8, D10 bulguları) — zorunlu/isteğe bağlı ayrımının veri kaynağı.
+
 **Durum 2026-11-15:** tasarım haftası bitti, kodlama Faz 0 D1'den başlıyor (sahibinin kararı). Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Oyun gerektiren deneyler (D4-D8) `docs/CHECKUP.md` kuyruğuna tek tek yazılır, döngü onları beklemeden sıradaki işe geçer. Faz 1 gramerinden önce sözdizimi meclisi (`docs/MECLIS_GUNDEMI.md` > Sonraki meclisler için girdiler). Önce araştırma (hazır ne var, lisansı ne), sonra kitin temiz build'i, sonra en ince uçtan uca dikey dilim (praven_start), sonra genişletme.
 
 ## 0. Araştırma ve kurulum (kod öncesi)

@@ -131,3 +131,25 @@ Kaynak: `docs/VISION.md` > Sahibinin kararları. Buraya yalnız meclisin bilmesi
 
 ### Tuşlar
 - **[KİT]** `header_triggers.py:206` `key_f12 = 0x58`, `:226` `key_left_control = 0x1d`. Oyunun varsayılan kısayollarıyla (Warband kontrol ayarları) çakışma **motor deneyi gerekir** (D7 sondasına ekle). İlk mekanik (sprint) için Ctrl, hata ayıklama menüsü için F12 önerildi.
+
+## BÜYÜK MECLİS — Yön 2: proje modeli ve DSL (2026-11-15, sahibinin isteği; açılırsa önce bunu konuş)
+
+**Girdi belgesi:** `docs/meclis/yon-2-proje-modeli.md` (muhakeme, model, riskler, fazlar). Sahibinin sözü o belgenin 1. bölümünde, ham hâliyle. Sahibi: "projenin gidişatını büyük ölçüde değiştiriyoruz; meclis de düşünsün."
+
+**Sahibinin iki ana isteği:**
+1. **Native'e yama değil, Native'in kendisi UW olsun:** `uw new` → klasörlere ayrılmış okunaklı iskelet (`menus/camp.uw`, `towns/`, `lords/king_harlaus.uw` …), istemediğini sil, istediğini değiştir; ya da boş başla (`main.uw`). Zincir Module System → UW → Module System. Zorunlu / isteğe bağlı ayrımı (grup morali raporu zorunlu ama kapatılabilir; başlangıç soruları isteğe bağlı).
+2. **Alt seviyeden kurtul, kendi DSL'imiz:** `party_relocate_near_party`, `change_screen_map`, `"@metin"` gibi şeyler "inanılmaz gereksiz". Okunaklı, yüksek seviyeli dil.
+
+**Mimarın önerisi (tartışılacak):** dil katmanları L0 ham işlem (kaçış kapısı) / L1 çekirdek dil / L2 `lib/*.uw` standart kütüphane (derleyiciye gömülü değil, UW ile yazılmış, okunur) / L3 iskelet içeriği; gidiş-dönüş güvencesi (Native → UW → .txt = Native'in .txt'si) ana test; yama modu küçük modlar için kalır.
+
+**Cevaplanacak sorular (kısa):**
+1. Bu yön kabul mü? Yama modu ile iskelet modu birlikte mi yaşar?
+2. L2 kütüphanesi, "Evrensel derleyici: amaca özel yerleşik özellik yok" kararnamesiyle uyumlu mu (öneri: kütüphane = UW kaynağı, derleyici genel)?
+3. Okunaklı adlar: yukarıdaki "derleyici ad uydurmaz, okunaklılık editörde" kural adayı yeniden açılıyor. Öneri: dönüştürücü Native kaydının kendi adından (`Praven` → `praven`) ad üretir, çakışmada `#n`, her ad `uw explain` ile kimliğine bağlanır. Kabul mü?
+4. Fonksiyon ve nesne sözdizimi (`fn`, `player.gold`): satır içi açılım mı, script mi; dönüş kanalları (`reg0`, `trigger_result`).
+5. Kayıt sırası ve kimlik: dosya düzeninden bağımsız sıra (`uw_plan`), kayıtlı oyun uyumu, çeviri anahtarları (diyalog `.N`).
+6. Gidiş-dönüşün kırılgan yerleri: paylaşılan nesneler (D2b), çift adlar, tuple/liste, kit tuhaflıkları.
+7. Bölge (poligon) tetiklerinin maliyeti ve "her adım" kancasının yokluğu (aralıklı kontrol).
+8. Faz sırası (belgedeki Y0-Y8) doğru mu; ilk görünür teslim "menülerle `uw new`" mi olmalı?
+
+**Meclis kuralı hatırlatma:** sahibinin sözü ham girdidir; değişmeyen şey istenen sonuç. Karar KARARNAMELER'e, sahibine sade anlatım OZET'e.
