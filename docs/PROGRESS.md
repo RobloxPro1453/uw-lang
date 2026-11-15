@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · graph_viewer bitti, açıklamalar (Claude + DeepSeek)
+Viewer (`docs/graph_viewer/program/app`, kendi deposu): soldan sağa, geri oklar etiket, konsolsuz exe, açıklama ve buton kodu paneli. `py/describe.py`: DeepSeek kit kaynağından Türkçe açıklama (ops, menü, görev şablonu, sunum, sahne, script) → `kit-meta/aciklama/`; `uw graph --json` bunları ve `condition`/`does`/`on_enter_does` deyimlerini ekler (uw-flow/1'e yalnız yeni alan). Testler: flow_json 5/5.
+
 ## 2026-11-15 · `uw graph --json` (Claude)
 graph_viewer'ın verisi artık derleyiciden: `uw graph --json flow.json [menü]` (`crates/uw_cli/src/flow_json.rs`). Gerçek atlasta `py/flow_export.py` ile birebir aynı (409 düğüm, 554 seçenek, 949 ok); çıplak `start_phase_2` kabul. Testler: `tests/flow_json.rs` 4/4. Sıradaki: diyaloglar ve mod farkı alanları.
 

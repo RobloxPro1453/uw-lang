@@ -60,6 +60,14 @@ A viewer ignores fields it does not know and draws unknown `kind` / `op` values 
 | `to` values | A node id: `menu_...`, `script_...`, `prsnt_...`, `scn_...`, `mst_...` or a screen `screen:map`, `screen:return`, `screen:trade`, ... (from `change_screen_*`). Non-menu targets are `stub` nodes. |
 | `op` | The game operation behind the arrow. Plain words: `jump_to_menu` opens, `change_screen_map` goes to the world map, `change_screen_return` closes the menu, `call_script` runs code, `start_presentation` opens a custom screen, `jump_to_scene` / `set_jump_mission` start a scene. |
 
+## Added in uw-flow/1 (2026-11-15, optional; always written by `uw graph --json`)
+
+- `nodes[].summary_tr`, `detail_tr`, `confidence`: plain Turkish description (one line / 2-4 sentences /
+  `yuksek|orta|dusuk`), written by `py/describe.py` (DeepSeek, from the kit's source; every name it
+  mentions is checked against the atlas) and stored in `kit-meta/aciklama/`. Empty when unknown.
+- `nodes[].on_enter_does`, `options[].condition`, `options[].does`: the game code statement by
+  statement: `{op, args, not, or_next, text_tr}` (`text_tr` = the operation's plain meaning).
+
 ## Planned additions (same format version, optional fields)
 
 - `nodes[].text_tr`: official Turkish text (from `Modules/Native/languages/tr`).

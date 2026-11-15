@@ -96,6 +96,31 @@ fn every_arrow_ends_on_a_node_and_matches_goes_to() {
 }
 
 #[test]
+fn buttons_say_what_they_do_and_when_they_show() {
+    let (_, doc, _) = export("does", &[]);
+    let start = node(&doc, "menu_start");
+    let cheat = &start["options"][1];
+    // shown only when (eq, 1, 0) holds
+    assert_eq!(cheat["condition"][0]["op"], "eq");
+    assert_eq!(cheat["condition"][0]["args"], serde_json::json!(["1", "0"]));
+    assert_eq!(cheat["condition"][0]["not"], false);
+    // does: run the script, then open the town, in order
+    let does: Vec<&str> = cheat["does"].as_array().unwrap().iter().map(|s| s["op"].as_str().unwrap()).collect();
+    assert_eq!(does, ["call_script", "jump_to_menu"]);
+    assert_eq!(cheat["does"][0]["args"][0], "script_give");
+    // a button without a condition has an empty list, never a missing field
+    assert_eq!(start["options"][0]["condition"], serde_json::json!([]));
+    let town = node(&doc, "menu_town");
+    assert_eq!(town["on_enter_does"][0]["op"], "change_screen_map");
+    for n in doc["nodes"].as_array().unwrap() {
+        for key in ["summary_tr", "detail_tr", "confidence"] {
+            assert!(n[key].is_string(), "{} lacks {key}", n["id"]);
+        }
+        assert!(n["on_enter_does"].is_array());
+    }
+}
+
+#[test]
 fn roots_default_to_the_game_starts_and_accept_a_bare_menu_name() {
     let (_, doc, _) = export("roots", &[]);
     let roots: Vec<&str> = doc["roots"].as_array().unwrap().iter().map(|r| r["id"].as_str().unwrap()).collect();

@@ -251,7 +251,13 @@ fn graph_json(atlas: Option<PathBuf>, words: &[String], path: &Path) -> ExitCode
         let id = model.label(&root);
         roots.push(flow_json::Root { id, why: "chosen on the command line".into() });
     }
-    let doc = flow_json::flow(&model.atlas, roots, "uw graph --json");
+    // descriptions written by py/describe.py, found like the atlas (this or a parent folder)
+    let desc = std::env::current_dir()
+        .ok()
+        .and_then(|cwd| cwd.ancestors().map(|d| d.join("kit-meta/aciklama")).find(|p| p.is_dir()))
+        .map(|dir| flow_json::Descriptions::load(&dir))
+        .unwrap_or_default();
+    let doc = flow_json::flow(&model.atlas, roots, "uw graph --json", &desc);
     let missing: Vec<&str> = doc["roots"]
         .as_array()
         .into_iter()
