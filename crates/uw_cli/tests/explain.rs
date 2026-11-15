@@ -36,6 +36,22 @@ fn explains_entry_by_code_reference() {
 }
 
 #[test]
+fn leads_to_lists_what_a_thing_mentions() {
+    // The other direction: script_game_start jumps to a menu and calls a helper.
+    let (ok, out, _) = uw(&["script_game_start"]);
+    assert!(ok, "{out}");
+    let leads = &out[out.find("leads to:").expect("leads to line")..];
+    assert!(leads.starts_with("leads to: 3 places"), "{out}");
+    assert!(leads.contains("menu_camp#1"), "{out}");
+    assert!(leads.contains("module_game_menus.py:20"), "{out}");
+    assert!(leads.contains("script_helper"), "{out}");
+    // A menu that mentions nothing has no "leads to" part.
+    let (ok, out, _) = uw(&["menu_camp"]);
+    assert!(ok);
+    assert!(!out.contains("leads to"), "{out}");
+}
+
+#[test]
 fn shadowed_duplicate_is_flagged_unreachable() {
     let (ok, out, _) = uw(&["menu_camp"]);
     assert!(ok);
