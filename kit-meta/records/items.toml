@@ -4,6 +4,7 @@
 table = "items"
 kind = "item"
 id_prefix = "itm_"
+list = true
 
 [[fields]]
 name = "id"

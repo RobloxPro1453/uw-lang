@@ -4,6 +4,7 @@
 table = "animations"
 kind = "animation"
 id_prefix = "anim_"
+list = true
 
 [[fields]]
 name = "id"

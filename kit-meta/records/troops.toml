@@ -4,6 +4,7 @@
 table = "troops"
 kind = "troop"
 id_prefix = "trp_"
+list = true
 
 [[fields]]
 name = "id"

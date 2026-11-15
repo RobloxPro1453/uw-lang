@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · P1 bitti: 27 tablonun 12815 kaydı UW kayıt biçiminde birebir geri dönüyor (Claude + DeepSeek)
+T-030 çekirdek + 12 paralel şerit (T-031..T-042, ~$0.6). 6 şerit çekirdek hatası bildirip doğru durdu; Claude düzeltti (liste biçimli kayıt `list = true`, kimliksiz kayıt = sıra no, `:`/`=` içeren kimlik tırnaklı). `uw roundtrip`: kayıtlar 12815/12815, işlemler 9113/9113. 201 alan adı kit satırıyla denetlendi (1 şüpheli: `passages`, kitte var). Testler 228/228. Ders: şerit klasörlerine atlas + kit bağı gerekir. Sıradaki: P3a `uw new --from native`.
+
 ## 2026-11-15 · Yön 2 büyük meclisi: karar (Claude + 4 koltuk)
 Koltuklar: mimari (Sonnet), UX (DeepSeek, $0.003), risk ve maliyet (Haiku). Karar `docs/meclis/YON2-KARAR.md`: tek kayıt biçimi (iki tur: ham sonra okunaklı), `base = native|project`, tombstone + aralık kilidi, `require`/`attempt` (`try` ret), sıra P1→P3a→P2→P3b. KARARNAMELER, ARCHITECTURE, ROADMAP güncellendi; tarifler T-030..T-034 hazır, başlatılmadı. Bulgu: atlas büyük tamsayıları `serde_json` f64'e düşürüyor (T-030 düzeltir). Sıradaki: `cv delegate run T-030`.
 

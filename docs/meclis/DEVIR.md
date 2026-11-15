@@ -1,6 +1,8 @@
 # Devir: sonraki oturum buradan başlar
 
-## 000000. YÖN 2 MECLİSİ BİTTİ (2026-11-15) — sıradaki: P1 paketi
+## 000000. P1 BİTTİ (12815/12815 kayıt) — sıradaki: P3a `uw new --from native` tarifleri
+
+## 00000a. YÖN 2 MECLİSİ BİTTİ (2026-11-15)
 
 Karar `docs/meclis/YON2-KARAR.md`, sıra ROADMAP (P1 → P3a → P2 → P3b → P5 → P6). İlk paket tarifleri hazır,
 T-030 birleşti ve ölçüldü (factions 34/34, işlem 9113/0). **2026-11-15: 12 şerit başlatıldı** (T-031..T-042; sonraki oturum `cv delegate status` → her dal için `cv delegate verify` + şema adlarını kit açıklamasıyla karşılaştır + `uw roundtrip`). Eski not: T-030 (kayıt çekirdeği + `arbitrary_precision` + factions pilotu) önce; birleşince paralel

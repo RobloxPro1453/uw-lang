@@ -4,6 +4,7 @@
 table = "dialogs"
 kind = "dialog"
 id_prefix = ""
+list = true
 
 [[fields]]
 name = "dialogue_partner"

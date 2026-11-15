@@ -48,7 +48,7 @@ source = "module_scenes.py:16"
 [[fields]]
 name = "passages"
 ty = "raw"
-source = "module_scenes.py:17"
+source = "process_scenes.py:19"
 
 [[fields]]
 name = "chest_troops"
