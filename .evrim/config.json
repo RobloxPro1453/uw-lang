@@ -110,7 +110,7 @@
     ],
     "lanes": 12,
     "slots": {
-      "test": 2,
+      "test": 4,
       "build": 2
     },
     "defaultSteps": 200,
