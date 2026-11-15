@@ -3,7 +3,7 @@
 ## 00. EN GÜNCEL (2026-11-15, tur 2 sonrası)
 
 - Tur 2 bitti (tamamı Opus): `uw explain`, `py/uw_runtime.py` + D2 (b)(c), D4 test modları kuruldu (`Modules/uw_sonda_a/b/c`, adımlar `docs/CHECKUP.md`), `kit-meta/hooks.toml`. Testler 38. Ayrıntı `docs/PROGRESS.md` en üst.
-- **Bekleyen:** sahibinin D4 sonucu (CHECKUP). Gelince `docs/bilgi/`'ye [DENEY] ve KARAR §5'teki praven akışı kesinleşir.
+- D4 sonucu geldi: `docs/bilgi/baslangic-akisi.md`. `game_start` menü 0'dan önce koşar; prolog'suz başlangıç = menü 1 (`start_phase_2`) override; konum `game_start`'ta değil zincir sonunda ayarlanmalı (KARAR §5 varsayımı düzeltilecek).
 - Sıradaki tur (3): sözdizimi meclisi (Faz 1 gramerinden önce, `docs/MECLIS_GUNDEMI.md` sonu), D2 (a/d/e), diyalog kaynak satırları + `uw find "<metin>"`, `kit-meta/` kalanları (slots, hardwired, optypes).
 
 ### Tur 1 sonrası (eski)

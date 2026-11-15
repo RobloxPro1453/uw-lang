@@ -17,6 +17,7 @@ Neden konu başına dosya: ajan yalnız ilgili konuyu okur (token ve dikkat tasa
 |---|---|
 | [harita.md](harita.md) | Dünya haritası (`map.txt`) biçimi, arazi türleri, yükseklik haritası fikri |
 | [diyaloglar-ve-ceviri.md](diyaloglar-ve-ceviri.md) | Diyalog satır kimlikleri (`dlga_`), `start` durumu, resmî Türkçe çeviri dosyaları ve tuzakları |
+| [baslangic-akisi.md](baslangic-akisi.md) | Yeni oyunun başlangıç sırası (`game_start`, menü 0/1, karakter yaratma) ve nereden kesilir (D4) |
 | [ornek-modlar.md](ornek-modlar.md) | Kaynağı açık 6 mod: ne öğretir, lisans durumu |
 
 Eski `docs/KNOWLEDGE.md` tuzak/bulgu günlüğü olarak kalır; kalıcı konu bilgisi zamanla buraya taşınır.
