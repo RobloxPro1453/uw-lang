@@ -3,6 +3,7 @@
 mod build;
 mod explain;
 mod model;
+mod tr;
 mod tui;
 
 use std::path::{Path, PathBuf};
