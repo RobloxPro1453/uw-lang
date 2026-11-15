@@ -12,8 +12,9 @@ use crate::{Block, RawOp};
 pub enum Outcome {
     /// Structured text came back identical.
     Structured,
-    /// Only the raw text came back identical.
-    Raw,
+    /// Only the raw text came back identical. `structured_reason` is why the structured attempt
+    /// did not (compile error or first difference) and `structured_text` is what it printed.
+    Raw { structured_reason: String, structured_text: String },
     /// Neither did; `reason` is the compile error or the first difference (of the raw attempt).
     Failed { reason: String },
 }
@@ -41,7 +42,7 @@ impl Counts {
         self.blocks += 1;
         match outcome {
             Outcome::Structured => self.structured += 1,
-            Outcome::Raw => self.raw += 1,
+            Outcome::Raw { .. } => self.raw += 1,
             Outcome::Failed { .. } => self.failed += 1,
         }
     }
@@ -74,6 +75,19 @@ impl Report {
             out.push_str(&line(name, c));
         }
         out.push_str(&line("TOTAL", &self.total));
+        let (lines, raw_lines) = self.line_counts();
+        out.push_str(&format!(
+            "lines {lines}, still Native-shaped {raw_lines} ({:.1}%: try_begin/else_try/try_end, neg|, this_or_next|)\n",
+            pct(raw_lines, lines)
+        ));
+        let groups = self.raw_groups();
+        if !groups.is_empty() {
+            out.push_str(&format!("\nwhy {} blocks stayed raw (structured attempt), by group:\n", self.total.raw));
+            for (key, labels) in &groups {
+                let shown: Vec<&str> = labels.iter().take(3).map(String::as_str).collect();
+                out.push_str(&format!("  {:>5}  {key}  e.g. {}\n", labels.len(), shown.join(", ")));
+            }
+        }
         let failures: Vec<&Result1> =
             self.results.iter().filter(|r| matches!(r.outcome, Outcome::Failed { .. })).collect();
         if !failures.is_empty() {
@@ -86,6 +100,75 @@ impl Report {
         }
         out
     }
+
+    /// Non-empty lines of every accepted text, and how many of them still read like Native: a raw
+    /// `try_begin()` / `else_try()` / `try_end()` line or a `neg|` / `this_or_next|` flag.
+    pub fn line_counts(&self) -> (usize, usize) {
+        let mut lines = 0;
+        let mut raw = 0;
+        for line in self.results.iter().flat_map(|r| r.text.lines()).map(str::trim).filter(|l| !l.is_empty()) {
+            lines += 1;
+            if ["try_begin(", "else_try(", "try_end("].iter().any(|p| line.starts_with(p))
+                || line.contains("neg|")
+                || line.contains("this_or_next|")
+            {
+                raw += 1;
+            }
+        }
+        (lines, raw)
+    }
+
+    /// Raw blocks grouped by [`reason_group`] of their structured failure, largest group first.
+    pub fn raw_groups(&self) -> Vec<(String, Vec<String>)> {
+        let mut groups: BTreeMap<String, Vec<String>> = BTreeMap::new();
+        for r in &self.results {
+            if let Outcome::Raw { structured_reason, .. } = &r.outcome {
+                groups.entry(reason_group(structured_reason)).or_default().push(r.label.clone());
+            }
+        }
+        let mut groups: Vec<_> = groups.into_iter().collect();
+        groups.sort_by(|a, b| b.1.len().cmp(&a.1.len()).then_with(|| a.0.cmp(&b.0)));
+        groups
+    }
+}
+
+/// A short key that puts failures of the same kind together: for a difference the operation codes
+/// on both sides (`diff want 31 got 30`, `args of 2133`, `length`), for a compile error the message
+/// with every quoted name, number and position blanked.
+pub fn reason_group(reason: &str) -> String {
+    let code_after = |s: &str, tag: &str| {
+        s.find(tag).map(|i| s[i + tag.len()..].chars().take_while(|c| c.is_ascii_digit()).collect::<String>())
+    };
+    if reason.starts_with("op ") {
+        if let Some(rest) = reason.split_once(": want ").map(|(_, r)| r) {
+            let (want, got) = rest.split_once(", got ").unwrap_or((rest, ""));
+            let w = code_after(want, "code: ").unwrap_or_default();
+            let g = code_after(got, "code: ").unwrap_or_default();
+            return if w == g { format!("args of {w}") } else { format!("diff want {w} got {g}") };
+        }
+    }
+    if reason.starts_with("length:") {
+        return "length".into();
+    }
+    let mut out = String::new();
+    let mut quoted = false;
+    for c in reason.chars() {
+        if c == '`' {
+            if !quoted {
+                out.push_str("`…`");
+            }
+            quoted = !quoted;
+        } else if !quoted {
+            if c.is_ascii_digit() {
+                if !out.ends_with('#') {
+                    out.push('#');
+                }
+            } else {
+                out.push(c);
+            }
+        }
+    }
+    out.chars().take(100).collect()
 }
 
 /// First position where two blocks differ, described for a report.
@@ -117,8 +200,8 @@ pub fn run(
         };
         let (text, outcome) = match attempt(Mode::Structured) {
             (text, None) => (text, Outcome::Structured),
-            _ => match attempt(Mode::Raw) {
-                (text, None) => (text, Outcome::Raw),
+            (structured_text, Some(structured_reason)) => match attempt(Mode::Raw) {
+                (text, None) => (text, Outcome::Raw { structured_reason, structured_text }),
                 (text, Some(reason)) => (text, Outcome::Failed { reason }),
             },
         };
@@ -173,6 +256,18 @@ mod tests {
         let summary = report.summary(20);
         assert!(summary.contains("TOTAL"), "{summary}");
         assert!(summary.contains("  c: length: want 1, got 0"), "{summary}");
+        assert!(matches!(&report.results[1].outcome, Outcome::Raw { structured_reason, .. } if structured_reason.contains("length")));
+        assert_eq!(report.raw_groups(), vec![("length".to_string(), vec!["b".to_string()])]);
+        assert!(summary.contains("      1  length  e.g. b"), "{summary}");
+    }
+
+    #[test]
+    fn reasons_group_by_kind() {
+        let d = first_difference(&[op(1, 1)], &[op(2, 1)]).unwrap();
+        assert_eq!(reason_group(&d), "diff want 1 got 2");
+        let d = first_difference(&[op(5, 1)], &[op(5, 2)]).unwrap();
+        assert_eq!(reason_group(&d), "args of 5");
+        assert_eq!(reason_group("error[E0201]: unknown name `foo` at 3:4"), reason_group("error[E0201]: unknown name `bar` at 9:12"));
     }
 
     #[test]

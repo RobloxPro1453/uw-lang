@@ -1164,7 +1164,32 @@ impl Parser {
             let span = Span { start, end: cond_span(&inner).end };
             return Ok(Cond::Not(Box::new(inner), span));
         }
+        if self.peek().tok == Tok::LParen {
+            if let Some(grouped) = self.grouped_cond() {
+                return Ok(grouped);
+            }
+        }
         self.cmp_cond()
+    }
+
+    /// `( <condition> )`, e.g. `a and (b or c)`. Backtracks (returns `None`, position unchanged)
+    /// when the parentheses hold arithmetic instead: `(a + b) > 3`, `(a) == 1`.
+    fn grouped_cond(&mut self) -> Option<Cond> {
+        let saved = self.pos;
+        self.bump();
+        self.skip_newlines();
+        let inner = self.cond().ok();
+        self.skip_newlines();
+        if let Some(inner) = inner {
+            if self.peek().tok == Tok::RParen {
+                self.bump();
+                if !matches!(self.peek().tok, Tok::Bin(_) | Tok::Cmp(_)) {
+                    return Some(inner);
+                }
+            }
+        }
+        self.pos = saved;
+        None
     }
 
     fn cmp_cond(&mut self) -> Result<Cond, Diagnostic> {
@@ -1552,6 +1577,24 @@ on game.start {
         assert_eq!(inner.len(), 2);
         assert!(matches!(&inner[0], Cond::Call(c) if c.op.text == "b"));
         assert!(matches!(&inner[1], Cond::Call(c) if c.op.text == "c"));
+    }
+
+    #[test]
+    fn parentheses_group_a_condition() {
+        let stmts = parse_block("if $a == 1 and ($b == 2 or not party_is_active(p_x)) {\n}").unwrap();
+        let Stmt::If { arms, .. } = &stmts[0] else { panic!("{stmts:?}") };
+        let Cond::And(parts) = &arms[0].0 else { panic!("{:?}", arms[0].0) };
+        assert_eq!(parts.len(), 2);
+        let Cond::Or(branches) = &parts[1] else { panic!("{:?}", parts[1]) };
+        assert!(matches!(branches[1], Cond::Not(..)));
+    }
+
+    #[test]
+    fn parentheses_around_arithmetic_still_compare() {
+        let stmts = parse_block("if ($a + 1) * 2 > 3 and ($b) == 1 {\n}").unwrap();
+        let Stmt::If { arms, .. } = &stmts[0] else { panic!("{stmts:?}") };
+        let Cond::And(parts) = &arms[0].0 else { panic!("{:?}", arms[0].0) };
+        assert!(parts.iter().all(|p| matches!(p, Cond::Cmp { .. })), "{parts:?}");
     }
 
     #[test]

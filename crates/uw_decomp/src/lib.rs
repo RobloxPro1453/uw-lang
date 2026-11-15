@@ -86,13 +86,24 @@ fn operand(a: &Json) -> Option<RawArg> {
     }
 }
 
+/// The comparison aliases header_operations.py defines as expressions (lines 444-446:
+/// `lt = neg | ge`, `neq = neg | eq`, `le = neg | gt`), which the atlas does not list as ops.
+fn alias(name: &str) -> Option<&'static [&'static str]> {
+    Some(match name {
+        "lt" => &["neg", "ge"],
+        "neq" => &["neg", "eq"],
+        "le" => &["neg", "gt"],
+        _ => return None,
+    })
+}
+
 /// Turns lowered operations back into codes and operands. Op names may carry flag prefixes
 /// (`neg|this_or_next|eq`); each part is looked up in the atlas and the codes are OR-ed.
 pub fn to_raw(atlas: &Atlas, ops: &[uw_lower::Op]) -> Result<Vec<RawOp>, String> {
     ops.iter()
         .map(|op| {
             let mut code = 0;
-            for part in op.name.split('|') {
+            for part in op.name.split('|').flat_map(|part| alias(part).unwrap_or(&[part][..]).iter().copied().collect::<Vec<_>>()) {
                 code |= atlas.op(part).ok_or_else(|| format!("unknown operation `{part}`"))?.code;
             }
             let args = op

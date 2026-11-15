@@ -143,8 +143,9 @@ impl<'a> Printer<'a> {
             if let Some(end) = opened {
                 match self.if_arms(&ops[index + 1..end]) {
                     Some(arms) => self.if_into(&arms, depth, out),
-                    // Anything not clean stays raw for that whole try block.
-                    None => self.raw_into(&ops[index..=end], depth, out),
+                    // Not clean: the try_begin/else_try/try_end shell stays raw, each arm is
+                    // still printed structured inside it.
+                    None => self.raw_shell_into(&ops[index..=end], depth, out),
                 }
                 index = end + 1;
                 continue;
@@ -166,6 +167,29 @@ impl<'a> Printer<'a> {
             }
             index += 1;
         }
+    }
+
+    /// A whole `try_begin … try_end` block (`block` includes both) whose arms are not a clean `if`:
+    /// the opener, every top-level `else_try` and the closer as raw lines, the arms structured.
+    fn raw_shell_into(&self, block: &[RawOp], indent: usize, out: &mut Vec<String>) {
+        let last = block.len() - 1;
+        out.push(indented(indent, &self.raw_line(&block[0])));
+        let mut depth = 0usize;
+        let mut start = 1;
+        for (index, op) in block.iter().enumerate().take(last).skip(1) {
+            match self.kind(op.code) {
+                Kind::Open => depth += 1,
+                Kind::End => depth = depth.saturating_sub(1),
+                Kind::Else if depth == 0 => {
+                    self.structured_into(&block[start..index], indent + 1, out);
+                    out.push(indented(indent, &self.raw_line(op)));
+                    start = index + 1;
+                }
+                Kind::Else | Kind::Other => {}
+            }
+        }
+        self.structured_into(&block[start..last], indent + 1, out);
+        out.push(indented(indent, &self.raw_line(&block[last])));
     }
 
     /// `assign($x, v)` / `assign(:x, v)` as `x = v`; `None` for anything else.
@@ -230,6 +254,12 @@ impl<'a> Printer<'a> {
             if parts.is_empty() && (position < last || last == 0) {
                 return None;
             }
+            // `or` binds weaker than `and`: a group joined into a longer chain needs parentheses.
+            let parts: Vec<String> = if parts.len() > 1 {
+                parts.into_iter().map(|p| if p.contains(" or ") { format!("({p})") } else { p }).collect()
+            } else {
+                parts
+            };
             arms.push(Arm { cond: parts.join(" and "), body });
         }
         Some(arms)
@@ -537,15 +567,44 @@ mod tests {
 
     #[test]
     fn decompile_structured_keeps_unclean_and_nested_tries() {
-        // The first arm starts with an assignment, so the whole block stays raw.
+        // The first arm starts with an assignment, so the shell stays raw; the arms inside it
+        // are still structured (a clean nested `if`, `=`).
         let unclean = vec![
             op(4, vec![]),
             op(2133, vec![text("$g_x"), int(1)]),
+            op(4, vec![]),
+            op(30, vec![text("$g_x"), int(1)]),
+            op(2052, vec![]),
+            op(3, vec![]),
+            op(5, vec![]),
+            op(2133, vec![text(":y"), int(2)]),
             op(3, vec![]),
         ];
         assert_eq!(
             decompile(&atlas(), &unclean, Mode::Structured),
-            "try_begin()\n    assign($g_x, 1)\ntry_end()"
+            concat!(
+                "try_begin()\n",
+                "    $g_x = 1\n",
+                "    if $g_x >= 1 {\n",
+                "        change_screen_map()\n",
+                "    }\n",
+                "else_try()\n",
+                "    :y = 2\n",
+                "try_end()"
+            )
+        );
+        // An `or` group inside a longer `and` chain is parenthesised (`or` binds weaker).
+        let grouped = vec![
+            op(4, vec![]),
+            op(31, vec![text("$g_x"), int(0)]),
+            op(THIS_OR_NEXT_EQ, vec![text(":a"), int(1)]),
+            op(31, vec![text(":a"), int(2)]),
+            op(2052, vec![]),
+            op(3, vec![]),
+        ];
+        assert_eq!(
+            decompile(&atlas(), &grouped, Mode::Structured),
+            "if $g_x == 0 and (:a == 1 or :a == 2) {\n    change_screen_map()\n}"
         );
         // A nested clean block is printed inside the outer arm; a `try_for_*` stays raw but
         // still indents its body.

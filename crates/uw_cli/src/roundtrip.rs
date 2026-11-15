@@ -28,15 +28,19 @@ pub fn compile(atlas: &uw_atlas::Atlas, text: &str) -> Result<Vec<RawOp>, String
 }
 
 /// Writes one `<table>.uw` per table (every block under a `// label (outcome)` line) and
-/// `failures.txt`.
+/// `failures.txt`, and `raw.txt` (each raw block's structured attempt and why it failed).
 fn write_out(report: &Report, dir: &Path) -> std::io::Result<()> {
     std::fs::create_dir_all(dir)?;
     let mut per_table: std::collections::BTreeMap<&str, String> = Default::default();
     let mut failures = String::new();
+    let mut raw = String::new();
     for r in &report.results {
         let tag = match &r.outcome {
             Outcome::Structured => "structured".to_string(),
-            Outcome::Raw => "raw".to_string(),
+            Outcome::Raw { structured_reason, structured_text } => {
+                let _ = writeln!(raw, "{}: {structured_reason}\n{}\n", r.label, structured_text.trim_end());
+                "raw".to_string()
+            }
             Outcome::Failed { reason } => {
                 let _ = writeln!(failures, "{}: {reason}\n{}\n", r.label, r.text);
                 "FAILED".to_string()
@@ -49,6 +53,7 @@ fn write_out(report: &Report, dir: &Path) -> std::io::Result<()> {
         std::fs::write(dir.join(format!("{table}.uw")), text)?;
     }
     std::fs::write(dir.join("failures.txt"), failures)?;
+    std::fs::write(dir.join("raw.txt"), raw)?;
     std::fs::write(dir.join("summary.txt"), report.summary(usize::MAX))?;
     Ok(())
 }

@@ -5,8 +5,9 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
-- `uw roundtrip`: Native'in bütün işlem blokları (9113 blok: scripts, menüler, diyaloglar, tetikler, görev şablonları, sunumlar, eşya/sahne nesnesi/tableau tetikleri) UW'ye çevrilir, geri derlenir ve karşılaştırılır; %100'ü birebir geri dönüyor, %94,9'u `if`/`or`/`not`/atama ile okunaklı. Metin `target/uw-native/` altına yazılır.
+- `uw roundtrip`: Native'in bütün işlem blokları (9113 blok: scripts, menüler, diyaloglar, tetikler, görev şablonları, sunumlar, eşya/sahne nesnesi/tableau tetikleri) UW'ye çevrilir, geri derlenir ve karşılaştırılır; %100'ü birebir ve yapılı (`if`/`or`/`not`/atama) geri dönüyor; temiz `if` olmayan blokların içi de yapılı basılır. Özet, ham kalış nedenlerini gruplar ve satır düzeyinde Native kalan payı verir; ayrıntı `raw.txt`. Metin `target/uw-native/` altına yazılır.
 - Dil: kit yazımıyla bayraklı işlem adları (`neg|eq(…)`, `this_or_next|…`), rakamla başlayan yerel/global adlar (`:2ary_…`).
+- Dil: koşulda parantez (`if $a == 1 and ($b == 2 or not c(…)) {`).
 - Dil: atama ve hesap (`$x = $y + 2 * :z`, `+= -= *= /= %=`), `if / else if / else`, `and / or / not`.
 - Dil: menü metni (`text`), yeni seçenek (`option … when … after …`), `change option`, `remove option`, yeni menü (`new menu_…`); `override menu_x` tam kimlikle.
 - Örnek mod `examples/menu_demo` (hepsi bir arada; kılavuz 3.5-3.8).
@@ -35,4 +36,6 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 - D4 oyun denemesi: `uw_sonda_a/b/c` test modları (`py/d4_sonda.py`), adımlar `docs/CHECKUP.md`'de.
 
 ### Düzeldi
+- `<`, `<=`, `!=` karşılaştırmaları gidiş-dönüş ölçümünde "bilinmeyen işlem" sayılıyordu (kit `lt/le/neq` adlarını `neg|ge` vb. olarak tanımlar).
+- Tek başına saf `or` koşulu (`if a == 1 or b == 2`) artık geçici bayrak yerine Native gibi `this_or_next|` ile derlenir (daha kısa çıktı, aynı anlam).
 - <ör. "Uzun adlar artık başlığı taşırmıyor.">

@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · Gidiş-dönüş: yapılı oran %94,9 → %100 (Claude, tur 6)
+Ölçüm ham kalış nedenini gruplar (`uw roundtrip` özeti + `raw.txt`). Üç neden, hepsi küçük düzeltme (DeepSeek'e iş çıkmadı, $0): `lt/le/neq` takma adları atlas'ta yok (333 blok), tek başına saf `or` bayrakla derleniyordu (173), `A and (B or C)` parantezsiz basılıyordu + parser koşulda parantezi tanımıyordu (77). Temiz olmayan `try` bloklarının içi artık yapılı. Sonuç: 9113/9113 yapılı, 0 hata; satır düzeyinde Native kalan %7,3 (5518/75165). Testler 188/188. Sıradaki: "önce hesapla sonra sına" kollarının sözdizimi (sözdizimi kararı), sonra veri kayıtları meclisi.
+
 ## 2026-11-15 · Kaldıraç: Native işlem bloklarının %100'ü UW'ye çevrilip geri dönüyor (Claude + DeepSeek, tur 5)
 `uw_decomp` iskeleti + ölçüm motoru ve `uw roundtrip` Claude; çevirici, parse_block, check_block, 7 tablo çıkarıcısı DeepSeek (T-020..T-029, 10/10 PASS, ~$0.32). 9113 blok: 9113 birebir (8644 yapılı, 469 ham), 0 hata. Bulunanlar: tek elemanlı demet argümanı, liste satır, rakamla başlayan yerel ad, ondalık olay numarası (KNOWLEDGE). Gemini kopyası: defter boş, hiçbir şey alınmadı (kanıt belgeleri `geminiversion/docs/meclis/` içinde). Testler 184/184. Sıradaki: ham kalan 469 bloğun nedenleri (okunaklılık şeritleri), sonra veri kayıtları meclisi.
 

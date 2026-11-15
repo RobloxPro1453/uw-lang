@@ -203,24 +203,30 @@ impl Lower {
                 for part in parts {
                     match part {
                         // A pure `or` group of single operations inside an `and` chain (§7.3).
-                        Cond::Or(branches) if !branches.is_empty() && branches.iter().all(is_single) => {
-                            let last = branches.len() - 1;
-                            for (i, branch) in branches.iter().enumerate() {
-                                if self.single_op(branch) && i < last {
-                                    let at = self.out.len() - 1;
-                                    let name = format!("this_or_next|{}", self.out[at].name);
-                                    self.out[at].name = name;
-                                }
-                            }
-                        }
+                        Cond::Or(branches) if is_pure_or(branches) => self.or_group(branches),
                         _ => self.cond(part, origin),
                     }
                 }
             }
+            // A pure `or` on its own is an `and` chain of one element: `this_or_next|` (§7.3), the
+            // way Native writes it.
+            Cond::Or(branches) if is_pure_or(branches) => self.or_group(branches),
             // Everything else cannot be reduced to a plain sequence: a flag temporary (§2, §7.3).
             Cond::Or(_) => {
                 let flag = self.flag_of(c, origin);
                 self.op("eq", vec![flag, Value::Int(1)], origin);
+            }
+        }
+    }
+
+    /// A pure `or` group: every branch but the last carries `this_or_next|`.
+    fn or_group(&mut self, branches: &[Cond]) {
+        let last = branches.len() - 1;
+        for (i, branch) in branches.iter().enumerate() {
+            if self.single_op(branch) && i < last {
+                let at = self.out.len() - 1;
+                let name = format!("this_or_next|{}", self.out[at].name);
+                self.out[at].name = name;
             }
         }
     }
@@ -300,6 +306,11 @@ fn is_single(c: &Cond) -> bool {
         Cond::Not(inner) => !matches!(&**inner, Cond::Not(_)) && is_single(inner),
         Cond::And(_) | Cond::Or(_) => false,
     }
+}
+
+/// An `or` whose branches are each one Native operation (so `this_or_next|` can join them).
+fn is_pure_or(branches: &[Cond]) -> bool {
+    !branches.is_empty() && branches.iter().all(is_single)
 }
 
 /// The alternatives of an `or`; any other condition is a single branch.
@@ -562,26 +573,31 @@ mod tests {
     }
 
     #[test]
-    fn a_bare_or_at_the_top_uses_a_flag_temporary() {
+    fn a_bare_pure_or_at_the_top_uses_this_or_next() {
         let cond = Cond::Or(vec![
             compare(CmpOp::Eq, value("$x"), int(1)),
             compare(CmpOp::Eq, value("$y"), int(2)),
+            compare(CmpOp::Lt, value("$z"), int(3)),
         ]);
         assert_eq!(
             cond_ops(cond),
             vec![
-                native("assign", vec![global(":_uw0"), Value::Int(0)]),
-                native("try_begin", vec![]),
-                native("eq", vec![global("$x"), Value::Int(1)]),
-                native("assign", vec![global(":_uw0"), Value::Int(1)]),
-                native("try_end", vec![]),
-                native("try_begin", vec![]),
-                native("eq", vec![global("$y"), Value::Int(2)]),
-                native("assign", vec![global(":_uw0"), Value::Int(1)]),
-                native("try_end", vec![]),
-                native("eq", vec![global(":_uw0"), Value::Int(1)]),
+                native("this_or_next|eq", vec![global("$x"), Value::Int(1)]),
+                native("this_or_next|eq", vec![global("$y"), Value::Int(2)]),
+                native("lt", vec![global("$z"), Value::Int(3)]),
             ]
         );
+    }
+
+    #[test]
+    fn a_bare_or_with_a_computed_side_still_uses_a_flag_temporary() {
+        let cond = Cond::Or(vec![
+            compare(CmpOp::Eq, value("$x"), int(1)),
+            compare(CmpOp::Eq, binary(BinOp::Add, value("$y"), int(1)), int(2)),
+        ]);
+        let ops = cond_ops(cond);
+        assert!(ops.iter().all(|op| !op.name.starts_with("this_or_next|")), "{ops:?}");
+        assert_eq!(ops.first().unwrap(), &native("assign", vec![global(":_uw0"), Value::Int(0)]));
     }
 
     #[test]
