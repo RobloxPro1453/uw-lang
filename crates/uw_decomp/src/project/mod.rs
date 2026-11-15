@@ -4,11 +4,19 @@
 
 pub mod layout;
 
+use std::collections::{BTreeMap, HashMap};
 use std::path::Path;
 
+use serde_json::Value as Json;
 use uw_atlas::{Atlas, Entry};
 
 use crate::records::Schema;
+
+/// Turkish plain-language descriptions (`kisa`), found like the atlas: this or a parent folder.
+const DESCRIPTIONS_REL: &str = "kit-meta/aciklama";
+
+/// At most this many failures are kept; enough to see what broke.
+const FIRST_FAILURES: usize = 5;
 
 /// What one export wrote.
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -17,15 +25,291 @@ pub struct ExportSummary {
     pub records: usize,
 }
 
+/// What one verify found when it read a project folder back.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct VerifySummary {
+    /// Records the atlas has (and the files should hold).
+    pub records: usize,
+    /// Records that came back identical to the atlas.
+    pub exact: usize,
+    pub failed: usize,
+    /// The first few failures, with the file and the record id.
+    pub first_failures: Vec<String>,
+}
+
 /// Writes every entry of every schema's table under `out`, at `layout::path_for`. Records that share a
 /// path go into one file, in atlas order, separated by a blank line. `render` turns one entry into its
-/// record text (records::print today; the block-aware printer after T-043). Filled by T-044.
+/// record text (records::print today; the block-aware printer after T-043).
+///
+/// A non-empty `out` is refused: an export never overwrites someone's folder.
 pub fn export(
     atlas: &Atlas,
     schemas: &[Schema],
     out: &Path,
     render: &mut dyn FnMut(&Schema, &Entry) -> String,
 ) -> Result<ExportSummary, String> {
-    let _ = (atlas, schemas, out, render);
-    Err("project::export is not written yet (T-044)".into())
+    if out.exists() {
+        let empty = std::fs::read_dir(out)
+            .map_err(|e| format!("{}: {e}", out.display()))?
+            .next()
+            .is_none();
+        if !empty {
+            return Err(format!("{} is not empty; refusing to overwrite it (choose a new folder)", out.display()));
+        }
+    }
+    std::fs::create_dir_all(out).map_err(|e| format!("{}: {e}", out.display()))?;
+    let descriptions = descriptions();
+    let files = group_by_path(atlas, schemas);
+    let mut summary = ExportSummary::default();
+    for (relative, records) in &files {
+        let table = &records[0].0.table;
+        let mut text = format!("// {table}: {} records\n", records.len());
+        for (schema, entry) in records {
+            text.push('\n');
+            if let Some(line) = comment(schema, entry, &descriptions) {
+                text.push_str(&line);
+                text.push('\n');
+            }
+            text.push_str(render(schema, entry).trim_end());
+            text.push('\n');
+        }
+        let path = out.join(relative);
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent).map_err(|e| format!("{}: {e}", parent.display()))?;
+        }
+        std::fs::write(&path, text).map_err(|e| format!("{}: {e}", path.display()))?;
+        summary.files += 1;
+        summary.records += records.len();
+    }
+    write_metadata(atlas, out)?;
+    Ok(summary)
 }
+
+/// Reads every `layout::path_for` file of `root` back and compares its records with the atlas by id.
+/// `parse` turns one record text into `(id, atlas value)` (records::parse today).
+pub fn verify(
+    atlas: &Atlas,
+    schemas: &[Schema],
+    root: &Path,
+    parse: &mut dyn FnMut(&Schema, &str) -> Result<(String, Json), String>,
+) -> Result<VerifySummary, String> {
+    let mut summary = VerifySummary::default();
+    for (relative, expected) in &group_by_path(atlas, schemas) {
+        let schema = expected[0].0;
+        let path = root.join(relative);
+        let text = std::fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+        let ids: Vec<String> = expected.iter().map(|(schema, entry)| record_id(schema, entry)).collect();
+        let mut found = vec![false; expected.len()];
+        summary.records += expected.len();
+        for record in split_records(&text) {
+            let failure = match parse(schema, &record) {
+                Err(e) => format!("{relative}: {e}"),
+                // The atlas may repeat an id (dialogs do), so every occurrence is matched once.
+                Ok((id, value)) => match ids.iter().enumerate().position(|(i, known)| *known == id && !found[i]) {
+                    None if ids.iter().any(|known| *known == id) => format!("{relative}: `{id}` appears twice"),
+                    None => format!("{relative}: `{id}` is not in the atlas"),
+                    Some(index) => {
+                        found[index] = true;
+                        if value == expected[index].1.value {
+                            summary.exact += 1;
+                            continue;
+                        }
+                        format!("{relative}: `{id}`: the record no longer matches the atlas value")
+                    }
+                },
+            };
+            summary.failed += 1;
+            if summary.first_failures.len() < FIRST_FAILURES {
+                summary.first_failures.push(failure);
+            }
+        }
+        for (index, id) in ids.iter().enumerate() {
+            if !found[index] {
+                summary.failed += 1;
+                if summary.first_failures.len() < FIRST_FAILURES {
+                    summary.first_failures.push(format!("{relative}: `{id}` is missing from the file"));
+                }
+            }
+        }
+    }
+    Ok(summary)
+}
+
+/// The records of one project file, split where the braces close (a record may hold nested blocks);
+/// `//` comment lines and the blank lines between records are dropped.
+fn split_records(text: &str) -> Vec<String> {
+    let mut records = Vec::new();
+    let mut current = String::new();
+    let mut depth = 0i32;
+    let mut in_string = false;
+    for line in text.lines() {
+        if depth <= 0 && current.is_empty() && (line.trim().is_empty() || line.trim_start().starts_with("//")) {
+            continue;
+        }
+        current.push_str(line);
+        current.push('\n');
+        scan_braces(line, &mut depth, &mut in_string);
+        if depth <= 0 {
+            records.push(std::mem::take(&mut current));
+            depth = 0;
+            in_string = false;
+        }
+    }
+    // A file that ends inside a record still hands the text over, so `parse` can name the problem.
+    if !current.is_empty() {
+        records.push(current);
+    }
+    records
+}
+
+/// Counts the braces of a line, ignoring the ones inside a quoted string.
+fn scan_braces(line: &str, depth: &mut i32, in_string: &mut bool) {
+    let mut chars = line.chars();
+    while let Some(c) = chars.next() {
+        if *in_string {
+            match c {
+                '\\' => {
+                    chars.next();
+                }
+                '"' => *in_string = false,
+                _ => {}
+            }
+            continue;
+        }
+        match c {
+            '"' => *in_string = true,
+            '{' => *depth += 1,
+            '}' => *depth -= 1,
+            _ => {}
+        }
+    }
+}
+
+/// The relative path of every record, in atlas order: the exporter writes one file per path.
+fn group_by_path<'a>(atlas: &'a Atlas, schemas: &'a [Schema]) -> BTreeMap<String, Vec<(&'a Schema, &'a Entry)>> {
+    let mut files: BTreeMap<String, Vec<(&Schema, &Entry)>> = BTreeMap::new();
+    for schema in schemas {
+        let Some(table) = atlas.tables.get(&schema.table) else { continue };
+        for entry in &table.entries {
+            files.entry(layout::path_for(atlas, schema, entry)).or_default().push((schema, entry));
+        }
+    }
+    files
+}
+
+/// The id a record is printed with: the atlas id without the schema's prefix (records::print does
+/// the same; the helper there is private). Tables without ids use the record's index.
+fn record_id(schema: &Schema, entry: &Entry) -> String {
+    match entry.id.as_deref().or(entry.name.as_deref()) {
+        Some(id) if !id.is_empty() => id.strip_prefix(&schema.id_prefix).unwrap_or(id).to_owned(),
+        _ => entry.index.to_string(),
+    }
+}
+
+/// `// <display name> — <short Turkish description>`; `None` when neither is known.
+fn comment(schema: &Schema, entry: &Entry, descriptions: &HashMap<String, String>) -> Option<String> {
+    let clean = |text: &str| text.replace('\n', " ").replace('\r', " ");
+    let name = display_name(schema, entry).map(|name| clean(&name));
+    let description = entry
+        .id
+        .as_deref()
+        .and_then(|id| descriptions.get(id))
+        .or_else(|| {
+            let name = entry.name.as_deref()?;
+            descriptions.get(&format!("{}{name}", schema.id_prefix))
+        })
+        .map(|text| clean(text));
+    match (name, description) {
+        (Some(name), Some(description)) => Some(format!("// {name} — {description}")),
+        (Some(name), None) => Some(format!("// {name}")),
+        (None, Some(description)) => Some(format!("// {description}")),
+        (None, None) => None,
+    }
+}
+
+/// The record's own `name` field when it holds a string (the name a player sees), else the atlas
+/// entry's name.
+fn display_name(schema: &Schema, entry: &Entry) -> Option<String> {
+    let index = schema.fields.iter().position(|field| field.name == "name");
+    let from_value = index
+        .and_then(|index| crate::items(&entry.value)?.get(index)?.as_str().map(str::to_owned));
+    from_value.or_else(|| entry.name.clone().filter(|name| !name.is_empty()))
+}
+
+/// Turkish short descriptions: full atlas id -> `kisa` text, from every `kit-meta/aciklama/*.json`
+/// (`ops.json` describes operations, not records). A missing folder gives an empty map.
+fn descriptions() -> HashMap<String, String> {
+    let mut map = HashMap::new();
+    let Some(dir) = std::env::current_dir()
+        .ok()
+        .and_then(|cwd| cwd.ancestors().map(|dir| dir.join(DESCRIPTIONS_REL)).find(|path| path.is_dir()))
+    else {
+        return map;
+    };
+    let Ok(entries) = std::fs::read_dir(&dir) else { return map };
+    for file in entries.flatten() {
+        let path = file.path();
+        if path.extension().and_then(|ext| ext.to_str()) != Some("json") {
+            continue;
+        }
+        if path.file_stem().and_then(|stem| stem.to_str()) == Some("ops") {
+            continue;
+        }
+        let Ok(text) = std::fs::read_to_string(&path) else { continue };
+        let Ok(Json::Object(records)) = serde_json::from_str::<Json>(&text) else { continue };
+        for (id, value) in records {
+            if let Some(short) = value.get("kisa").and_then(Json::as_str) {
+                if !short.is_empty() {
+                    map.insert(id, short.to_owned());
+                }
+            }
+        }
+    }
+    map
+}
+
+/// `uw.toml` (the folder is an export, not a compiled project yet) and the Turkish `README.md`.
+fn write_metadata(atlas: &Atlas, out: &Path) -> Result<(), String> {
+    let mut toml_text = String::from(
+        "# uw new --from native (P3a): every Native record as UW text. Not compiled yet (P3b).\n\
+         # base = \"native-export\": this folder is an export of Native, not a project build.\n\
+         base = \"native-export\"\n",
+    );
+    if let Some(hash) = &atlas.kit_hash {
+        toml_text.push_str(&format!("kit_hash = \"{hash}\"\n"));
+    }
+    std::fs::write(out.join("uw.toml"), toml_text).map_err(|e| format!("{}: {e}", out.join("uw.toml").display()))?;
+    std::fs::write(out.join("README.md"), README).map_err(|e| format!("{}: {e}", out.join("README.md").display()))?;
+    Ok(())
+}
+
+/// Turkish, short: what the folder is, that it is not compiled yet, and how to check it.
+const README: &str = "\
+# Native'den aktarılmış UW projesi
+
+Bu klasör `uw new --from native` ile yazıldı: Native'in her kaydı UW kayıt metni olarak,
+tablo/tür düzenine göre ayrı dosyalarda duruyor. Her dosyanın ilk satırı tabloyu ve kayıt
+sayısını söyler; kaydın üstündeki `//` satırı görünen adı ve varsa Türkçe kısa açıklamayı verir.
+
+`uw.toml` içinde `base = \"native-export\"` yazar: bu klasör bir dışa aktarım kopyasıdır.
+
+## Henüz derlenmiyor
+
+Bu klasör **derlenmiyor**: `base = \"project\"` derlemesi (P3b) gelene kadar `uw build` bu
+klasörü mod olarak kurmaz. Kayıtlar burada yalnız okunur, denetlenir ve incelenir.
+
+## Denetleme
+
+Klasörü geri okuyup her kaydın atlas (Native) ile birebir aynı olduğunu görmek için:
+
+    uw new --check .
+
+Çıktı `records N, exact N, failed 0` ise her kayıt birebir okundu. Bir kayıt eksik, yinelenmiş
+ya da artık ayrıştırılamıyorsa `failed` sıfırdan büyük olur ve ilk hatalar listelenir.
+
+## Notlar
+
+- Bu klasör Native'in kopyasıdır; elle düzenlerseniz `--check` farkı gösterir. Kaynak doğruluk
+  Native'in kendisidir.
+- Klasör boş değilken `uw new` onu ezmez: yeni bir klasör adı verin.
+";

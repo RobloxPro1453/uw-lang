@@ -8,6 +8,7 @@ mod graph;
 mod graph_export;
 mod impact;
 mod model;
+mod new;
 mod tr;
 mod tui;
 
@@ -35,6 +36,10 @@ const USAGE: &str = "usage:
       prints the share that comes back identical, writes the text to target/uw-native;
       --schemas: the record schema folder (kit-meta/records when not given): every record is
       printed and parsed back too, and written to target/uw-native/records
+  uw new <dir> --from native [--atlas <atlas.json>]
+      write every Native record into a project folder as UW text (an export; not compiled yet, see P3b)
+  uw new --check <dir>
+      read such a folder back: how many records are still exactly the atlas value
   uw --version";
 
 /// Where the atlas lives unless `--atlas` / `UW_ATLAS` says otherwise (docs/DEVELOPMENT.md).
@@ -52,6 +57,7 @@ fn main() -> ExitCode {
         Some("build") => cmd_build(&args[1..]),
         Some("graph") => cmd_graph(&args[1..]),
         Some("roundtrip") => roundtrip::cmd(&args[1..]),
+        Some("new") => new::cmd(&args[1..]),
         _ => {
             println!("uw {}", env!("CARGO_PKG_VERSION"));
             println!("{USAGE}");
