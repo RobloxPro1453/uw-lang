@@ -3,6 +3,8 @@
 use std::process::Command;
 
 const FIXTURE: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/atlas_refs.json");
+/// A made-up `languages/tr` folder: keys that exist in FIXTURE, texts that exist nowhere else.
+const TR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/tr");
 
 fn uw(args: &[&str]) -> (bool, String, String) {
     let out = Command::new(env!("CARGO_BIN_EXE_uw"))
@@ -92,6 +94,47 @@ fn unknown_thing_fails_with_suggestion() {
     let (ok, _, err) = uw(&["mnu_strat"]);
     assert!(!ok);
     assert!(err.contains("'mnu_strat' is not in Native, and no name contains it; did you mean"), "{err}");
+}
+
+#[test]
+fn shows_the_official_turkish_text_under_the_english_one() {
+    let (ok, out, _) = uw(&["--tr", TR, "menu_start"]);
+    assert!(ok, "{out}");
+    // Right under `label  ·  "English in-game text"`.
+    assert!(out.starts_with("menu_start  ·  \"Hi\"\n  tr:       \"Üveykent ülkesi\"\n"), "{out}");
+    // Things without an English hint still get their Turkish text.
+    let (ok, out, _) = uw(&["--tr", TR, "script_helper"]);
+    assert!(ok, "{out}");
+    assert!(out.contains("tr:       \"İstanbul'a git\""), "{out}");
+    // Without --tr (and with the fixture folder nowhere near the default install) nothing changes.
+    let (ok, plain, _) = uw(&["menu_start"]);
+    assert!(ok, "{plain}");
+    assert!(!plain.contains("Üveykent"), "{plain}");
+    // A folder that is not there is an error only when asked for by name.
+    let (ok, _, err) = uw(&["--tr", "no-such-tr-folder", "menu_start"]);
+    assert!(!ok);
+    assert!(err.contains("no-such-tr-folder"), "{err}");
+}
+
+#[test]
+fn search_finds_things_by_their_turkish_text() {
+    // A word the owner reads in the Turkish game: "Üveykent ülkesi" is menu_start's Turkish text.
+    let (ok, out, _) = uw(&["--tr", TR, "üveykent"]);
+    assert!(ok, "{out}");
+    assert!(out.starts_with("'üveykent' is not an exact name. Things that match (1):"), "{out}");
+    assert!(out.contains("menu_start"), "{out}");
+    // A menu option has no row of its own: its `mno_<id>` text makes its menu findable.
+    let (ok, out, _) = uw(&["--tr", TR, "erkek"]);
+    assert!(ok, "{out}");
+    assert!(out.contains("menu_camp"), "{out}");
+    // Turkish `İ` and `I`: both sides go through `to_lowercase`.
+    let (ok, out, _) = uw(&["--tr", TR, "İSTANBUL"]);
+    assert!(ok, "{out}");
+    assert!(out.contains("script_helper"), "{out}");
+    // The same word finds nothing without the translation.
+    let (ok, _, err) = uw(&["üveykent"]);
+    assert!(!ok);
+    assert!(err.contains("'üveykent' is not in Native"), "{err}");
 }
 
 /// The real Native atlas, when this machine has one (docs/DEVELOPMENT.md > Atlas).

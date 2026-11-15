@@ -31,6 +31,8 @@ pub struct Detail {
     pub label: String,
     pub kind: String,
     pub hint: Option<String>,
+    /// The official Turkish text of the same thing, when the translation is loaded.
+    pub tr: Option<String>,
     pub notes: Vec<String>,
     pub defined: Option<String>,
     pub value: Option<String>,
@@ -73,7 +75,10 @@ struct Row {
     alts: Vec<String>,
     label_lc: String,
     hint_lc: String,
-    /// label, alts, kind and hint, lower case: what word search looks in.
+    /// Turkish texts of this row (its own and, for a menu, its options), lower case. Empty when no
+    /// translation is loaded.
+    tr_lc: String,
+    /// label, alts, kind, hint and Turkish texts, lower case: what word search looks in.
     all_lc: String,
 }
 
@@ -85,6 +90,8 @@ pub struct Model {
     mentions: HashMap<Target, Vec<(String, usize, Option<String>)>>,
     /// Entry -> (target it mentions, op), in value order: the forward edges of the flow graph.
     outgoing: HashMap<Target, Vec<(Target, Option<String>)>>,
+    /// `languages/tr/*.csv` key -> Turkish text (see [`Model::with_tr`]).
+    tr: HashMap<String, String>,
 }
 
 /// Field that holds the in-game name/text, per the kit's own layout comments:
@@ -135,6 +142,53 @@ pub fn entry_hint(table: &str, entry: &Entry) -> Option<String> {
     let text = fields(&entry.value)?.get(hint_field(table)?)?.as_str()?;
     let text = text.trim();
     (!text.is_empty()).then(|| text.to_owned())
+}
+
+/// The key the official Turkish csv files use for an entry: the kit's own compiled id
+/// (`trp_player`, `menu_start_game_0`, `dlga_start:close_window`), which is what they are keyed by
+/// (docs/bilgi/diyaloglar-ve-ceviri.md:10). A shadowed duplicate has no id, so its key is the one the
+/// kit would build for it, `id_prefix + name` (`menu_camp`, as in `flow_json::menu_label`).
+/// `None` for entries the csv files have no key for (unnamed tables, skins).
+fn tr_key(atlas: &Atlas, table: &str, entry: &Entry) -> Option<String> {
+    if let Some(id) = &entry.id {
+        return Some(id.clone());
+    }
+    let t = &atlas.tables[table];
+    Some(format!("{}{}", t.id_prefix.as_deref()?, entry.name.as_deref()?.to_lowercase()))
+}
+
+/// Field holding a menu's options: `module_game_menus.py:20`, option layout on :28
+/// [id, condition, text, consequence]; the csv keys them `mno_<id>`.
+const MENU_OPTIONS: usize = 5;
+
+/// A menu's options as (translation key, text), in menu order.
+fn menu_options(entry: &Entry) -> Vec<(String, String)> {
+    let Some(options) = fields(&entry.value).and_then(|list| list.get(MENU_OPTIONS)) else {
+        return Vec::new();
+    };
+    fields(options)
+        .into_iter()
+        .flatten()
+        .filter_map(|option| {
+            let option = option.as_array()?;
+            let id = option.first()?.as_str()?;
+            let text = option.get(2)?.as_str()?.trim();
+            (!text.is_empty()).then(|| (format!("mno_{id}"), text.to_owned()))
+        })
+        .collect()
+}
+
+/// The Turkish texts stored for `target`: its own, then (for a menu) the texts of its options, which
+/// have no row of their own but should be findable.
+fn tr_texts(atlas: &Atlas, tr: &HashMap<String, String>, target: &Target) -> Vec<String> {
+    let Target::Entry { table, index } = target else { return Vec::new() };
+    let entry = &atlas.tables[table].entries[*index];
+    let mut texts: Vec<String> =
+        tr_key(atlas, table, entry).and_then(|key| tr.get(&key)).into_iter().cloned().collect();
+    if table == "menus" {
+        texts.extend(menu_options(entry).into_iter().filter_map(|(key, _)| tr.get(&key).cloned()));
+    }
+    texts
 }
 
 /// Shortens to `max` chars with an ellipsis.
@@ -222,7 +276,29 @@ impl Model {
                 vec![],
             ));
         }
-        Model { atlas, rows, mentions, outgoing }
+        Model { atlas, rows, mentions, outgoing, tr: HashMap::new() }
+    }
+
+    /// Adds the official Turkish texts (`languages/tr/*.csv`, see `tr.rs`). Without them the model
+    /// is English-only, exactly as [`Model::new`] built it.
+    pub fn with_tr(mut self, tr: HashMap<String, String>) -> Model {
+        self.tr = tr;
+        for row in &mut self.rows {
+            let texts = tr_texts(&self.atlas, &self.tr, &row.target);
+            if texts.is_empty() {
+                continue;
+            }
+            row.tr_lc = texts.join(" ").to_lowercase();
+            row.all_lc = format!("{} {}", row.all_lc, row.tr_lc);
+        }
+        self
+    }
+
+    /// The official Turkish text of `target`, when the translation holds its exact key.
+    pub fn tr(&self, target: &Target) -> Option<&str> {
+        let Target::Entry { table, index } = target else { return None };
+        let entry = &self.atlas.tables[table].entries[*index];
+        self.tr.get(&tr_key(&self.atlas, table, entry)?).map(String::as_str)
     }
 
     /// Every mention of `target`: (table, index, op) of the entry that holds it. Empty if none.
@@ -285,8 +361,9 @@ impl Model {
         }
     }
 
-    /// Rows whose label, code form or in-game name contains `query` (case-insensitive), best
-    /// first: exact, then label prefix, then label contains, then name contains.
+    /// Rows whose label, code form, in-game name or Turkish text contains `query`
+    /// (case-insensitive), best first: exact, then label prefix, then label contains, then name
+    /// contains, then Turkish text contains.
     pub fn search(&self, query: &str, limit: usize) -> Vec<Hit> {
         let q = query.trim().to_lowercase();
         if q.is_empty() {
@@ -300,7 +377,11 @@ impl Model {
             .collect();
         let mut scored: Vec<(u8, usize, &Row)> = Vec::new();
         for row in &self.rows {
-            let rank = if row.label_lc == q || row.hint_lc == q || row.alts.iter().any(|alt| alt.to_lowercase() == q) {
+            let rank = if row.label_lc == q
+                || row.hint_lc == q
+                || row.tr_lc == q
+                || row.alts.iter().any(|alt| alt.to_lowercase() == q)
+            {
                 0
             } else if row.label_lc.starts_with(&q) {
                 1
@@ -308,8 +389,10 @@ impl Model {
                 2
             } else if row.hint_lc.contains(&q) {
                 3
-            } else if words.len() > 1 && words.iter().all(|w| row.all_lc.contains(w.as_str())) {
+            } else if row.tr_lc.contains(&q) {
                 4
+            } else if words.len() > 1 && words.iter().all(|w| row.all_lc.contains(w.as_str())) {
+                5
             } else {
                 continue;
             };
@@ -347,6 +430,7 @@ impl Model {
             label: self.label(target),
             kind: String::new(),
             hint: None,
+            tr: None,
             notes: Vec::new(),
             defined: None,
             value: None,
@@ -406,6 +490,7 @@ impl Model {
                 }
             }
         }
+        detail.tr = self.tr(target).map(str::to_owned);
         if let Some(list) = self.mentions.get(target) {
             detail.total_mentions = list.len();
             detail.uses = self.group(list);
@@ -467,6 +552,7 @@ impl Row {
             all_lc,
             label_lc: label.to_lowercase(),
             hint_lc: hint.as_deref().unwrap_or("").to_lowercase(),
+            tr_lc: String::new(),
             target,
             label,
             hint,
