@@ -66,10 +66,18 @@ def steps_from_bat(kit):
         return STEP_RE.findall(fh.read())
 
 
+MARKER = ".uw-staging"  # same marker as the uw_kitrun crate; only folders carrying it are deleted
+
+
 def stage(kit, staging, no_ids, overlay):
     if os.path.exists(staging):
+        if os.listdir(staging) and not os.path.isfile(os.path.join(staging, MARKER)):
+            sys.exit("%s exists and is not a uw staging folder (no %s); refusing to delete it"
+                     % (staging, MARKER))
         shutil.rmtree(staging)
     os.makedirs(staging)
+    with open(os.path.join(staging, MARKER), "w") as fh:
+        fh.write("made by uw kitrun; deleted on every build\n")
     for rel in kit_files(kit):
         name = os.path.basename(rel)
         if no_ids and name.startswith("ID_") and name.endswith(".py"):
@@ -129,8 +137,8 @@ def main(argv=None):
 
     kit = os.path.abspath(a.kit)
     staging = os.path.abspath(a.staging)
-    if os.path.commonpath([kit, staging]) == kit:
-        sys.exit("staging must not be inside the kit")
+    if os.path.commonpath([kit, staging]) in (kit, staging):
+        sys.exit("staging must not be inside the kit or contain it")
     steps = steps_from_bat(kit)
     t0 = time.time()
     out_dir = stage(kit, staging, a.no_ids, a.overlay)

@@ -7,6 +7,10 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · Tur 1: Faz 0 deneyleri ve Rust iskeleti (Claude + DeepSeek)
+D1 temiz (29 adım, 0 uyarı, 32 çıktı, belirlenimci), D2 ana testi ve D3'ün tamamı (27 tablo) bayt bayt eşit: "Native + fark" kanıtlandı. Atlas betiği + `uw_atlas`, `uw_diag` (DeepSeek, gözden geçirildi), `uw_kitrun` (Claude; sahibi: çekirdeği Opus yazsın). Bulgu: kit tuple/liste ayırır, atlas korur (KNOWLEDGE). Testler 29/29.
+Sıradaki: `uw explain`, D2 alt testleri için `uw_runtime.py`, D4 oyun sondası tarifi CHECKUP'a, kit-meta, sözdizimi meclisi.
+
 ## 2026-11-15 · Meclis sonrası: Manus değerlendirmesi, sahibinin cevapları, devir (Claude)
 Manus'un meclise cevabı kitte doğrulandı (ID bootstrap boşluğu → iki staging; D3 sırası; ad çakışması, kopyalama sınırı, göç kuralları). Sahibi 4 soruyu cevapladı: built-in yok (`disable native.prologue` kaldırıldı, genel `disable menu …`), oyun sondaları onaylı, önce `base native`, Python 2.7 şimdilik kabul; 5. soru sade dille yeniden soruldu. Kümülatif bilgi tabanı ilkesi KARARNAMELER'e. Kod yok.
 **Yeni oturum önce `docs/meclis/DEVIR.md`'yi okur.** Sıradaki: beyin fırtınası (DEVIR §7 gündemi), kod yok.

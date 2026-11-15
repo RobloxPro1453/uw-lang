@@ -12,7 +12,8 @@ cargo build --workspace
 cargo test --workspace
 ```
 
-- Derleme/test süresi: Faz 0'da ölçülüp buraya yazılacak (D1). Uzun koşular arka planda çalıştırılır, süre sınırı konur.
+- Süre: kit derlemesi ~27 s (D1); `cargo test --workspace` gerçek kit testiyle ~30 s. Kit ya da `C:\Python27` yoksa o test kendini atlar.
+- Atlas üretimi (kit değişince): `python py/kitrun.py --kit "Module_system 1.171" --staging target/uw-staging/d1`, sonra `target/uw-staging/d1` içinde `C:/Python27/python.exe -B -E -s ../../../py/atlas_dump.py ../atlas.json` → `target/uw-staging/atlas.json` (depoya girmez). Deneyler: `py/d2_empty_patch.py`, `py/d3_reprint.py`.
 - Testler geçici staging klasörü kullanır; kit klasörüne ve sahibinin Warband mod klasörlerine dokunmaz (oyun deneyleri ayrı test modu klasöründe).
 
 ## Yeni özellik ekleme
