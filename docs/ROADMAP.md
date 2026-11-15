@@ -24,8 +24,10 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 
 ## 0b. Harita ve boş dünya (araştırma)
 
-- [ ] `map.txt` biçimini çıkar (köşe/yüz/arazi türü); düz bir zemin `map.txt`'si üretilebilir mi dene → `base: empty`'nin haritası.
-- [ ] Fikir: yükseklik haritası (PNG) + arazi boyama → `map.txt` dönüştürücü (`uw map import`). Topluluk harita editörlerinin lisans/erişim durumu.
+- [x] `map.txt` biçimini çıkar (köşe/yüz/arazi türü) — okundu, bkz. `docs/bilgi/harita.md` (yüz satırındaki 2. alanın anlamı açık).
+- [ ] Düz zemin `map.txt`'si üret, oyunda aç (D8 ile birlikte) → `empty-flat` ön ayarı.
+- [ ] Yükseklik haritası (gri PNG) + arazi boyama (renk = arazi türü) → `map.txt` dönüştürücü (`uw map import`): önce Python prototip, küçük bir haritayla oyunda dene (su seviyesi, kıyı, nehir/köprü, yol bulma, performans sınırı).
+- [ ] Taban ön ayarları listesi: `native`, `native-map-empty`, `empty-flat`; her biri deneyle kanıtlanınca açılır.
 - [ ] `base: empty` için motorun zorunlu kayıt listesi (deneyle, **D8**: `module.ini` gerekliliği dahil): oyun en az neyle açılıyor. Meclis önerisi: `base: empty` Faz 1 kabulünde yok (sahibinin onayı bekliyor).
 - [ ] **D9** slot üst sınırı ve kayıt-yüklemede korunma; **D10** hardwired sınırı (item 17/125) ve kancaların ad/indeks bağı — yalnız silme/yeniden sıralama gerekince.
 
@@ -75,7 +77,9 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 
 - Hata ayıklama derlemesi (`--debug`): LLM'e hazır log + `uw report` + oyun içi hata ayıklama menüsü. Faz 1b-4 arası; meclis yerini belirler.
 - Öğretici belgeler: her kavram için çalışan örnek + ekran görüntüsü; ileride sesli video.
-- Paket sistemi (isim alanı, bağımlılık, çakışma denetimi).
+- Paket sistemi (isim alanı, bağımlılık, çakışma denetimi) — sahibi kesin istiyor; biçim için meclis girdisi `docs/MECLIS_GUNDEMI.md` > Paketler.
+- LLM tanıtım dosyası (UW'yi bir LLM'e öğreten tek dosya); ölçü: Antigravity, ChatGPT, Claude aynı görevde derlenen kod üretiyor mu.
+- Örnek modlarla dayanıklılık: `ornek-modlar/` (6 mod) üzerinde atlas dökümü ve boş yama gidiş-dönüşü (D2'nin genişletilmişi).
 
 - `ui` DSL'i (bildirimsel arayüz → presentation): VN diyalog ve HUD'ların anahtarı; Faz 3-4 arası.
 - UW Studio (Tauri + Monaco): eşya yöneticisi, harita üstünde şehir yerleştirme; LSP'den sonra.

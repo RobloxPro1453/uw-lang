@@ -98,3 +98,23 @@ Kaynak: `docs/VISION.md` > Sahibinin kararları. Buraya yalnız meclisin bilmesi
 - Sahibi modunun tasarımını kendisi yapmak istiyor; UW tasarım kararı vermez, her yolu açık tutar (Counter-Strike modu ölçüsü).
 - Birincil kullanıcı: programlama bilen ama Module System bilmeyen sahibi; UW, LLM'lerle birlikte yazılacak bir dil olarak düşünülmeli.
 - L&D ekran görüntüleri (VN diyalog, HUD, sinematik, kullanılabilir mancınık) ilkellerin yeterlilik ölçüsü.
+
+
+## Sonraki meclisler için girdiler (2026-11-15 beyin fırtınası, süzülmüş)
+
+### Sözdizimi meclisi (L)
+- Sahibi `override` sözcüğünü `replaces native`'den doğal buldu.
+- Sahibi süslü parantezle kapsam önerdi. Moderatörün tartısı (karar değil): **parantez lehine** — (1) LLM sohbetinden, forumdan, Discord'dan kopyalanan kodda girinti bozulur, parantez bozulmaz; sahibi ve modcular UW'yi büyük ölçüde LLM çıktısı yapıştırarak yazacak; (2) sahibi C bilir, kapsamı gözle görür; (3) `uw fmt` girintiyi zaten düzeltir; (4) LLM'ler Rust/JS/C tarzını da iyi yazar, "Python benzeri" kararının özü sözcük seçimi ve sadelikti, girinti şart değil. **Girinti lehine:** daha az gürültü, bildirimsel bloklar (eşya, birlik) daha temiz. Meclis 5-10 gerçek örneği iki biçimde yazıp Antigravity/ChatGPT/Claude'a ürettirerek karşılaştırsın.
+- Bildirimsel içerik ile davranış kodu aynı sözdiziminde mi? (Eşya tanımı veri, menü seçeneği davranış.)
+
+### Adsız Native girdilerine işaret (diyalog 2773 satır, trigger'lar)
+- Sahibi soruyu anlamadı; sahibine örnekli yeniden anlatıldı (2026-11-15 sohbeti). Seçenekler: metinle, konuşan+durum ile, `uw explain`'in verdiği kararlı kısa kodla. Etki raporu şart: "bunu değiştirirsen şu satırlar da etkilenir".
+
+### Paketler (P)
+- Taslak (moderatör): paket = `uw.toml`'lu klasör; `use stealth` (yerel `packages/stealth/` ya da git adresi + sabit commit); adlar paket önekli (`stealth.energy`); numaralar PLAN'da dağıtıldığı için çakışma yok; indirme ve sürüm git ile (tekerleği yeniden icat etme). Sahibinin önerisi `extern "stealth"`. Bağımlılık, sürüm uyumu, iki paketin aynı kancaya girme sırası açık.
+
+### Sinematik ve kayıt
+- Varsayılan: sinematik sırasında kayıt kapalı, yarıda kalan baştan. Motor gerçeği: savaş/sahne içinde zaten kayıt yok (L&D ekranında "Can't Quick-save during battle" görüldü); dünya haritasında açık bir presentation sırasında kayıt engellenebiliyor mu → **motor deneyi gerekir**.
+
+### Örnek modlar (dayanıklılık)
+- `ornek-modlar/` (6 mod, yerel) atlas dökümü ve "Native + fark" için gerçek dünya deneme seti. Bkz. `docs/bilgi/ornek-modlar.md`.

@@ -113,3 +113,11 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 
 ## [2026-11-15] [strateji] Katı derleyici
 - **Karar:** Derleyicinin "uyarı" kategorisi yok sayılarak geçilmez: şüpheli her durum hata. Gevşetme yalnız açık, satıra özel ve gerekçeli bir işaretle (`#[allow(...)]` benzeri) mümkün. Kimlikler ASCII İngilizce; değilse hata.
+
+## [2026-11-15] [strateji] Bilgi tabanı: konu başına dosya + kanıt etiketi
+- **Karar:** Kalıcı Module System/motor bilgisi `docs/bilgi/<konu>.md` dosyalarına; her iddia [KİT]/[DENEY]/[MOD]/[İDDİA] etiketi taşır; karar yalnız [KİT] ya da [DENEY]'e dayanır. Dış raporlar ve örnek modlar ham maddedir, süzülmeden girmez. Bağlantılar düz Markdown (GitHub + Obsidian). `docs/KNOWLEDGE.md` tuzak günlüğü olarak kalır.
+- **Neden:** Ajan yalnız ilgili konuyu okur; sahibinin "binlerce fikirden süzülmüş kemik bilgi birikir" ilkesinin dosya karşılığı.
+
+## [2026-11-15] [strateji] Sahibinin sözü ham girdidir
+- **Bulgu:** Sahibi açıkça: "Cevaplarımı nihai sonuçmuş gibi yazma; muhakeme et, süz, sisteme uygun biçimde belgele. Sisteme ters bir şey de diyebilirim."
+- **Karar:** Sahibinin beyin fırtınası cevapları VISION'a "(süzüldü)" etiketiyle, sistem diline çevrilmiş ve mimariyle uzlaştırılmış halde girer; mimariyle çelişen öneri doğrudan uygulanmaz, meclis girdisi olarak `docs/MECLIS_GUNDEMI.md`'ye yazılır ve sahibine nedeni sade anlatılır. Değişmeyen tek şey sahibinin istediği **sonuç**.

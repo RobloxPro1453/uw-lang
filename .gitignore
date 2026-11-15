@@ -8,3 +8,7 @@
 
 # TaleWorlds Module System (depoya girmez)
 Module_system 1.171/
+
+# Örnek modlar: yerel referans, lisanslar karışık (docs/bilgi/ornek-modlar.md)
+ornek-modlar/
+.obsidian/

@@ -8,6 +8,17 @@ universal_warband bir mod değil, **Mount & Blade: Warband için bir programlama
 
 ## Sahibinin kararları
 
+- 2026-11-15 (süzüldü): Meclisin "Native + fark" kararı onaylandı ("aşırı iş yüküne gerek yok").
+- 2026-11-15 (süzüldü): Taban tek seçenek değil, genişletilebilir **ön ayar listesi** (Native, Native haritası içi boş, düz zemin, ileride özel harita…); her biri deneyle kanıtlanınca açılır.
+- 2026-11-15 (süzüldü): Harita üretimi **yükseklik haritası + arazi boyama** ile; deniz, göl, nehir, dağ, kayalık, orman ayırt edilebilmeli. Görseli sahibi çizer ya da Claude betikle üretir; 3B modelleme gerekmez.
+- 2026-11-15 (süzüldü): Sahibinin prolog deneyiminden kalan tek iz: "game_start'taki soruları ve merchant_quest gibi bir şeyi sildim, bir şekilde çalıştı ama neden çalıştığını bilmiyorum." → Gerçek ihtiyaç: bir şeyi kapatınca **neyin etkileneceğini önceden görmek** (`uw explain` + etki raporu).
+- 2026-11-15 (süzüldü): Native'de bir şeyi değiştirmek için `override` sözcüğü doğal geliyor ("burada bir şey var, kullanmıyoruz, üzerine yaz"). Süslü parantezle kapsam fikri sahibinin önerisi; nihai sözdizimi kararı meclisin.
+- 2026-11-15 (süzüldü): Örnek hata mesajı biçimi (kod, dosya:satır, işaret, "şunu mu demek istedin") anlaşılır bulundu.
+- 2026-11-15 (süzüldü): Derleme elle (`uw build`); hata **hem VS Code'da hem terminalde** görünür.
+- 2026-11-15 (süzüldü): Derleyiciyi Claude (başmimar/orkestra) + DeepSeek (iyi tarifle hızlı işçi, denetim şart) yazar. Modu yazarken kullanılacak LLM'ler: Claude, Antigravity, ChatGPT; LLM dostu olma ölçüsü **Antigravity ile** sınanır.
+- 2026-11-15 (süzüldü): Paket paylaşımı (bir moddaki mekaniği diğerinde kullanmak) kesinlikle isteniyor; sahibinin fikri `extern "stealth"` gibi bir satır. Biçim meclisin.
+- 2026-11-15 (süzüldü): Sinematik sırasında kayıt yok; yarıda kalan sinematik baştan oynar (varsayılan; modcu değiştirebilir).
+- 2026-11-15: Bilgi tabanının biçimine Claude karar verir (sahibi Obsidian'ı yalnız Markdown okuyucu olarak kullanıyor).
 - 2026-11-15 (meclis sonrası): **UW'nin belli bir amacı yok, evrensel derleyicidir.** "Prolog silici, sprint ekleyici gibi built-in fonksiyonlar yapmıyoruz; istenen her mod yapılabilmeli." Praven/prolog/sprint örnekleri sahibinin farazi hikâyesinden gelen **kabul testleridir**, dilin özelliği değil. Native'den bir şeyi çıkarmak/değiştirmek genel mekanizmayla (herhangi bir Native girdisini `override`/`disable`) yapılır; "modlamak sistemi istediğin gibi bükmektir".
 - 2026-11-15: **Öncelik mimaridir:** bütün iş yükü mimariyi doğru ve kapsamlı kurmaya gider. Kurulum kolaylığı (ör. Python 2.7'yi `uw`'nin kurması), topluluk ve paylaşım işleri en sona.
 - 2026-11-15: **Oyunda bakmak** küçük şeyler için doğrulama sayılır ama nihai doğrulama değildir (küçük sessiz hata oyunda görünmez); asıl güvence otomatik testler.
