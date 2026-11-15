@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · P3b v1: `uw new` klasörü derleniyor, 32/32 çıktı Native'le bayt bayt aynı (Claude + DeepSeek)
+Claude: tam tablo modül yazıcı (`project::pymodule`; metin latin-1 baytı kaçışlı, ondalık Python repr), `uw build-project --native-check` (kitin modülü `native_module_X.py` olarak yanında: yardımcı adlar `find_troop`, `level_bits` için şart). DeepSeek: T-056 `uw.lock` + `project::load` (silme = açık hata, yeni kayıt sona), T-057 `uw build-project <dir> [--compare-native] [--no-install]` (~$0.08). Ölçü: `uw new` → `build-project --compare-native` 32/32; Praven adı değişince yalnız parties.txt farklı (31/32). Testler 301/301. Kalan P3b: tombstone silme, aralık kilidi, ters dizin hatası; oyun deneyi CHECKUP'ta.
+
 ## 2026-11-15 · P2 bitti: `require` / `attempt` / `for` — Native biçimli satır 5518 → 28 (Claude + DeepSeek)
 Döküm "diğer"in döngü kapanışı olduğunu gösterdi; `for <değişken> in <tür>(…)` eklendi (tür = kitin `try_for_<tür>`'ü, YON2-KARAR §8). Claude AST düğümleri + require/attempt denetimi; DeepSeek T-052 ayrıştırıcı, T-053 indirgeme + for denetimi, T-054 çevirici, T-055 kılavuz §11 (~$0.2). Ölçü: 9113/9113 blok, 12815/12815 kayıt, satır 72303, Native biçimli 28 (hepsi gövdesinde `else_try` olan döngü, kararla L0); `uw new --check` 12815/12815; testler 287/287. Sıradaki: P3b (`base = "project"` derleme, `.txt` bayt eşitliği).
 

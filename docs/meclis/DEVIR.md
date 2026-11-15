@@ -1,6 +1,6 @@
 # Devir: sonraki oturum buradan başlar
 
-## 000000. P2 BİTTİ (Native biçimli satır 28) — sıradaki: P3b `base = "project"` derleme (tam liste üretimi, `uw.lock`, tombstone, `.txt` bayt eşitliği; sıra bağları `docs/bilgi/sira-baglari.md`)
+## 000000. P3b v1 BİTTİ (proje klasörü 32/32 bayt eşit) — sıradaki: P3b kalanı (tombstone, aralık kilidi, ters dizin hatası) ya da P5 okunaklı kayıt alanları; oyun deneyi CHECKUP
 
 ## 00000a. YÖN 2 MECLİSİ BİTTİ (2026-11-15)
 
