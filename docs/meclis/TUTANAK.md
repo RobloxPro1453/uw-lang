@@ -36,7 +36,7 @@ Manus dağıtımı: H1 → 03 + 01 (derleme zinciri); H2 → 02 + 04 + 08 (düny
 - O1 son söz: altı itirazın tamamı kabul edildi, `KARAR.md`'ye işlendi (229 satır); D2 deneyi beş alt testle genişledi.
 
 ## Ek · Meclis sonrası (2026-11-15)
-- Manus'un meclise cevabı (`llm-raporlari/perplexity/meclise-cevap/`) kitte değerlendirildi → `manus-cevabi-degerlendirme.md`; 11 düzeltme ARCHITECTURE/ROADMAP/KARARNAMELER'e işlendi.
+- Manus'un meclise cevabı (`llm-raporlari/manus-ai/meclise-cevap/`) kitte değerlendirildi → `manus-cevabi-degerlendirme.md`; 11 düzeltme ARCHITECTURE/ROADMAP/KARARNAMELER'e işlendi.
 - Sahibinin cevapları: built-in yok (genel `override`/`disable`), oyun sondaları onaylı, önce `base native`, Python 2.7 şimdilik kabul; 5. soru yeniden soruldu.
 - Devir belgesi: `DEVIR.md`.
 

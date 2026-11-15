@@ -1,6 +1,6 @@
 # Manus'un meclise cevabı: değerlendirme (moderatör, 2026-11-15)
 
-Girdi: `llm-raporlari/perplexity/meclise-cevap/` (Manus AI hazırlamış, klasör perplexity altında). Otorite sayılmadı; her iddia kite karşı tartıldı. Kit: `K/` = `Module_system 1.171/`, Python `C:\Python27` (2.7.18).
+Girdi: `llm-raporlari/manus-ai/meclise-cevap/` (Manus AI hazırladı). Otorite sayılmadı; her iddia kite karşı tartıldı. Kit: `K/` = `Module_system 1.171/`, Python `C:\Python27` (2.7.18).
 
 ## Genel hüküm
 
