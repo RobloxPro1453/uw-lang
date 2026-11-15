@@ -450,7 +450,7 @@ uw build <mod klasörü> [--debug] [--no-install] [--atlas <atlas.json>]
 
 | Bayrak | Değer | Ne yapar? |
 |---|---|---|
-| `--debug` | yok | Oyunda her menü açılınca kimliğini yazar (`uw: menu_start_phase_2`). Hangi menüyü değiştireceğinizi oynarken görürsünüz. |
+| `--debug` | yok | Oyunda her menü açılınca kimliğini sarı renkle yazar (`uw: menu-start-phase-2`; oyun `_` işaretini boşluk gösterdiği için `-` kullanılır, kodda yine `menu_start_phase_2` yazarsınız). Satır oyunun mesaj günlüğünde de kalır. |
 | `--no-install` | yok | Derler ama `Modules` klasörüne kurmaz; çıktı `target/uw-build/<mod>/staging/out` altında kalır. |
 | `--atlas` | dosya | Kullanılacak atlas dosyası. (Kullanım özeti satırında görünmez ama komut kabul eder.) |
 | `--kit` | klasör | Module System kitinin yeri. |
@@ -481,7 +481,7 @@ done      output in C:\...\target\uw-build\praven_start\staging\out (not install
 `--debug` verirseniz `generated` satırından önce şu satır çıkar:
 
 ```
-debug     every menu will print its id in game (uw: menu_...)
+debug     every menu will print its id in game (uw: menu-...)
 ```
 
 Kurulumlu çalıştırmada son iki satır:
@@ -522,7 +522,7 @@ Hiçbir şey kaybolmadıysa bu bölüm hiç yazılmaz.
 **Sözdizimi**
 
 ```
-uw explain [--all] [--atlas <atlas.json>] <şey>
+uw explain [--all] [--atlas <atlas.json>] [--tr <tr klasörü>] <şey>
 ```
 
 **Bayraklar**
@@ -531,10 +531,12 @@ uw explain [--all] [--atlas <atlas.json>] <şey>
 |---|---|---|
 | `--all` | yok | Kaydın ham değerini ve **bütün** kullanımlarını gösterir. |
 | `--atlas` | dosya | Kullanılacak atlas dosyası. |
+| `--tr` | klasör | Oyunun resmî Türkçe çeviri klasörü (`Modules/Native/languages/tr`). Verilmezse Steam'deki varsayılan kurulum kullanılır; o da yoksa yalnız İngilizce gösterilir. Türkçe metin `tr:` satırında görünür; aramada Türkçe kelime de bulunur. |
 
 **`<şey>` ne olabilir?**
 
 - Bir ad ya da adın bir parçası: `praven`, `p_town_6`, `mnu_camp`, `merchant`
+- Öneksiz ad: `start_phase_2` → `menu_start_phase_2` (yalnız tek bir kayda uyuyorsa)
 - Bir global: `$g_player_luck`
 - Bir işlem: `call_script`
 - Bir sabit: `reg0`
@@ -590,7 +592,7 @@ error: 'mnu_strat' is not in Native, and no name contains it; did you mean '<en 
 **Sözdizimi**
 
 ```
-uw browse [--atlas <atlas.json>] [arama]
+uw browse [--atlas <atlas.json>] [--tr <tr klasörü>] [arama]
 ```
 
 **Bayraklar**
@@ -624,7 +626,7 @@ bulunamazsa `Nothing matches.` yazar.
 **Sözdizimi**
 
 ```
-uw graph <şey> [--depth N] [--mermaid] [--html <dosya.html>] [--atlas <atlas.json>]
+uw graph <şey> [--depth N] [--mermaid] [--html <dosya.html>] [--atlas <atlas.json>] [--tr <tr klasörü>]
 uw graph --json <flow.json> [<şey>] [--atlas <atlas.json>]
 ```
 

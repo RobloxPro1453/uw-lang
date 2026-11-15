@@ -21,7 +21,7 @@ pub struct Options {
     pub python: Option<PathBuf>,
     pub modules: Option<PathBuf>,
     pub install: bool,
-    /// Every menu prints its id in game (`uw: menu_x`).
+    /// Every menu prints its id in game (`uw: menu-x`, `_` shows as a space in game).
     pub debug: bool,
 }
 
@@ -101,7 +101,7 @@ pub fn run(opts: Options) -> Result<(), String> {
     reset_dir(&overlay, OVERLAY_MARKER)?;
     let emitted = uw_emit::emit(&checked, opts.debug);
     if opts.debug {
-        println!("debug     every menu will print its id in game (uw: menu_...)");
+        println!("debug     every menu will print its id in game (uw: menu-...)");
     }
     for file in &emitted.files {
         write(&overlay.join(&file.name), &file.text)?;

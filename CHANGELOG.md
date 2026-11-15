@@ -5,6 +5,10 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
+- UW kılavuzu: `docs/kilavuz/UW_KILAVUZU.md` (Türkçe; dil, komutlar, hata kodları, sınırlar).
+- `uw explain/browse/graph --tr`: oyunun resmî Türkçe metni gösterilir ve aranır.
+- Öneksiz ad kabulü: `uw explain start_phase_2`.
+- `uw build --debug`: menü kimliği okunur (`uw: menu-start-phase-2`, sarı, mesaj günlüğünde).
 - `uw --version`: derleyicinin ilk hali (Rust, 10 parça).
 - Kit çalıştırıcı (`uw_kitrun`): Module System'i kendi kopyasında derler, kit klasörüne hiç yazmaz; yabancı bir klasörü silmeyi reddeder.
 - Native atlası (`py/atlas_dump.py` + `uw_atlas`): Native'deki her kaydın adı, sırası, değeri ve kaynak satırı; `p_town_6` → Praven, `module_parties.py:82`.
