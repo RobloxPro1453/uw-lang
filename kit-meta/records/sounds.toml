@@ -1,0 +1,22 @@
+# Sound records, round 1 (raw): every field is the atlas value as it is.
+# The kit's module_sounds.py has no field-description comment, so the positions have no kit
+# name and stay `field_<n>`; the shape is the tuple (id, flags, sample list) written in the
+# `sounds` list at line 3. docs/meclis/YON2-KARAR.md §2.
+table = "sounds"
+kind = "sound"
+id_prefix = "snd_"
+
+[[fields]]
+name = "field_1"
+ty = "raw"
+source = "module_sounds.py:3"
+
+[[fields]]
+name = "field_2"
+ty = "raw"
+source = "module_sounds.py:3"
+
+[[fields]]
+name = "field_3"
+ty = "raw"
+source = "module_sounds.py:3"
