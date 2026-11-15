@@ -44,8 +44,13 @@ pub struct File {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Item {
-    /// `override <kind> <name> { handlers }`
-    Override { kind: Ident, name: Ident, handlers: Vec<Handler>, span: Span },
+    /// `override <kind> <name> { … }` (Faz 1 form) or `override <id> { … }` with the kind taken
+    /// from the id prefix (`override menu_start_phase_2`, docs/meclis/gramer-2-oneri.md §3): then
+    /// `kind` is `None` and `name` holds the full id.
+    /// `handlers` are the `on <event>` blocks, `members` the other menu lines (text, options).
+    Override { kind: Option<Ident>, name: Ident, handlers: Vec<Handler>, members: Vec<Member>, span: Span },
+    /// `new <id> "<text>" { … }`: a new record (`new menu_uw_ask "…" { … }`, §4).
+    New { id: Ident, text: Option<(String, Span)>, handlers: Vec<Handler>, members: Vec<Member>, span: Span },
     /// `on a.b { body }`
     On { path: Vec<Ident>, body: Block, span: Span },
 }
@@ -57,18 +62,125 @@ pub struct Handler {
     pub body: Block,
 }
 
+/// Menu lines other than `on` handlers (gramer-2-oneri.md §4).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Member {
+    /// `text "…"`: the record's text field.
+    Text { text: String, span: Span },
+    /// `option <id> "<text>" [when …] [after|before <id>] { body }`: a NEW option.
+    Option { id: Ident, text: String, when: Option<When>, place: Option<Place>, body: Block, span: Span },
+    /// `change option <id> { text "…" / when … / do { … } }`: change parts of an existing option.
+    ChangeOption { id: Ident, text: Option<(String, Span)>, when: Option<When>, body: Option<Block>, span: Span },
+    /// `remove option <id>`
+    RemoveOption { id: Ident, span: Span },
+}
+
+/// An option's condition: `when <cond>` or `when { statements }`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum When {
+    Cond(Cond),
+    Block(Block),
+}
+
+/// `after <id>` / `before <id>`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Place {
+    After(Ident),
+    Before(Ident),
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Block {
     pub stmts: Vec<Stmt>,
     pub span: Span,
 }
 
+/// One statement of a block.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Stmt {
+    /// A Native operation: `name(a, b)`.
+    Call(Call),
+    /// `target = expr`, `target += expr` …; `target` is `$global`, `:local` or a register name.
+    Assign { target: Arg, op: AssignOp, value: Expr, span: Span },
+    /// `if c { } else if c { } else { }`: `arms` in order, `otherwise` the final `else`.
+    If { arms: Vec<(Cond, Block)>, otherwise: Option<Block>, span: Span },
+}
+
+impl Stmt {
+    /// The operation call, if this statement is one.
+    pub fn as_call(&self) -> Option<&Call> {
+        match self {
+            Stmt::Call(call) => Some(call),
+            _ => None,
+        }
+    }
+
+    pub fn span(&self) -> Span {
+        match self {
+            Stmt::Call(call) => call.span,
+            Stmt::Assign { span, .. } | Stmt::If { span, .. } => *span,
+        }
+    }
+}
+
 /// A Native operation call: `name(args)` (or a bare `name` for an operation without operands).
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Stmt {
+pub struct Call {
     pub op: Ident,
     pub args: Vec<Arg>,
     pub span: Span,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AssignOp {
+    /// `=`
+    Set,
+    /// `+=` `-=` `*=` `/=` `%=`
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Mod,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BinOp {
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Mod,
+}
+
+/// An integer expression. Leaves are the same values an operation takes.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Expr {
+    Value(Arg),
+    /// Unary minus on a non-literal (`-$x`); `-5` stays `Value(Arg::Int(-5))`.
+    Neg(Box<Expr>, Span),
+    Bin { op: BinOp, left: Box<Expr>, right: Box<Expr>, span: Span },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CmpOp {
+    Eq,
+    Ne,
+    Gt,
+    Ge,
+    Lt,
+    Le,
+}
+
+/// A condition (`if`, `when`). Precedence `not` > `and` > `or` (Python), §2 and §7.3.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Cond {
+    /// `a < b`
+    Cmp { op: CmpOp, left: Expr, right: Expr, span: Span },
+    /// A Native condition operation used as a condition: `party_is_active(p_town_6)`.
+    Call(Call),
+    Not(Box<Cond>, Span),
+    And(Vec<Cond>),
+    Or(Vec<Cond>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -419,9 +531,10 @@ impl Parser {
                             Tok::RBrace => {
                                 self.bump();
                                 file.items.push(Item::Override {
-                                    kind,
+                                    kind: Some(kind),
                                     name,
                                     handlers,
+                                    members: Vec::new(),
                                     span: Span { start: open.start, end: t.span.end },
                                 });
                                 break;
@@ -593,7 +706,7 @@ impl Parser {
                 return Err(err(E0100_UNEXPECTED, format!("expected a new line or ';' after `{}(...)`, found {}", op.text, describe(other)), self.peek().span));
             }
         }
-        Ok(Stmt { span: Span { start: op.span.start, end }, op, args })
+        Ok(Stmt::Call(Call { span: Span { start: op.span.start, end }, op, args }))
     }
 }
 
@@ -615,18 +728,18 @@ mod tests {
         let file = parse(PRAVEN).expect("parses");
         assert_eq!(file.module.as_ref().unwrap().text, "praven_start");
         assert_eq!(file.items.len(), 2);
-        let Item::Override { kind, name, handlers, .. } = &file.items[0] else { panic!() };
+        let Item::Override { kind: Some(kind), name, handlers, .. } = &file.items[0] else { panic!() };
         assert_eq!((kind.text.as_str(), name.text.as_str()), ("menu", "start_phase_2"));
         assert_eq!(handlers[0].event.text, "enter");
         let stmts = &handlers[0].body.stmts;
-        assert_eq!(stmts[0].op.text, "party_relocate_near_party");
-        assert_eq!(stmts[0].args.len(), 3);
-        assert!(matches!(&stmts[0].args[2], Arg::Int(3, _)));
-        assert!(stmts[1].args.is_empty());
+        assert_eq!(stmts[0].as_call().unwrap().op.text, "party_relocate_near_party");
+        assert_eq!(stmts[0].as_call().unwrap().args.len(), 3);
+        assert!(matches!(&stmts[0].as_call().unwrap().args[2], Arg::Int(3, _)));
+        assert!(stmts[1].as_call().unwrap().args.is_empty());
         let Item::On { path, body, .. } = &file.items[1] else { panic!() };
         assert_eq!(path.iter().map(|p| p.text.as_str()).collect::<Vec<_>>(), ["game", "start"]);
-        assert!(matches!(&body.stmts[0].args[0], Arg::Global(g) if g.text == "$g_x"));
-        assert!(matches!(&body.stmts[1].args[0], Arg::Str(s, _) if s == "@hi"));
+        assert!(matches!(&body.stmts[0].as_call().unwrap().args[0], Arg::Global(g) if g.text == "$g_x"));
+        assert!(matches!(&body.stmts[1].as_call().unwrap().args[0], Arg::Str(s, _) if s == "@hi"));
     }
 
     #[test]
@@ -649,9 +762,10 @@ mod tests {
             let blocks = match item {
                 Item::Override { handlers, .. } => handlers.into_iter().map(|h| h.body).collect(),
                 Item::On { body, .. } => vec![body],
+                Item::New { handlers, .. } => handlers.into_iter().map(|h| h.body).collect(),
             };
             for b in blocks {
-                for s in b.stmts {
+                for s in b.stmts.iter().filter_map(Stmt::as_call) {
                     let args: Vec<String> = s
                         .args
                         .iter()
@@ -727,15 +841,15 @@ on game.start {
         let file = parse(text).unwrap();
         let Item::On { body, .. } = &file.items[0] else { panic!() };
         assert_eq!(body.stmts.len(), 2);
-        assert_eq!(body.stmts[0].args.len(), 2);
-        assert_eq!(body.stmts[1].op.text, "g");
+        assert_eq!(body.stmts[0].as_call().unwrap().args.len(), 2);
+        assert_eq!(body.stmts[1].as_call().unwrap().op.text, "g");
     }
 
     #[test]
     fn negative_numbers_and_locals() {
         let file = parse("on game.start { f(-5, :loc) }").unwrap();
         let Item::On { body, .. } = &file.items[0] else { panic!() };
-        assert!(matches!(body.stmts[0].args[0], Arg::Int(-5, _)));
-        assert!(matches!(&body.stmts[0].args[1], Arg::Local(l) if l.text == ":loc"));
+        assert!(matches!(body.stmts[0].as_call().unwrap().args[0], Arg::Int(-5, _)));
+        assert!(matches!(&body.stmts[0].as_call().unwrap().args[1], Arg::Local(l) if l.text == ":loc"));
     }
 }

@@ -15,6 +15,8 @@ use std::collections::BTreeMap;
 use uw_atlas::Atlas;
 use uw_diag::{suggest, Diagnostic, SourceFile, Span};
 use uw_syntax::{Arg, File, Item, Stmt};
+#[allow(unused_imports)]
+use uw_syntax::Call;
 
 pub const E0001_UNKNOWN_NAME: &str = uw_diag::E0001_UNKNOWN_NAME;
 pub const E0201_NOT_YET: &str = "E0201";
@@ -36,30 +38,47 @@ pub struct Error {
     pub diag: Diagnostic,
 }
 
+/// Values and operations are defined in `uw_lower` (it turns the checked tree into them).
+pub use uw_lower::{Op, Value};
+
+/// What a patch does to its entry. `path` (on [`Patch`]) is the field it works on; `ops` is the
+/// lowered operation block where the action has one.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Value {
-    /// A Native reference, emitted as a Python string the kit resolves (`"p_town_6"`), also
-    /// `$global` and `:local`.
-    Ref(String),
-    /// A kit constant emitted as a bare Python name, with the module that defines it.
-    Const { name: String, module: String },
-    Int(i64),
-    /// Text, emitted as a Python string literal.
-    Text(String),
+pub enum Action {
+    /// Replace the operation block at `path` with `ops`.
+    ReplaceBody,
+    /// Append `ops` to the operation block at `path`.
+    Append,
+    /// Replace the text field at `path` (`text "…"`, menu field 2).
+    ReplaceText(String),
+    /// Add a new option to the menu's option list (`option …`).
+    InsertOption { option: NewOption, place: OptionPlace },
+    /// Change parts of an existing option (`change option …`); `None` keeps the Native part.
+    ChangeOption { id: String, text: Option<String>, condition: Option<Vec<Op>>, consequence: Option<Vec<Op>> },
+    /// Remove an existing option (`remove option …`).
+    RemoveOption(String),
+    /// A new menu appended to the list (`new menu_x …`); `entry` holds its bare name.
+    NewMenu { text: String, enter: Vec<Op>, options: Vec<NewOption> },
 }
 
+/// A menu option written in UW: kit layout module_game_menus.py:28 (id, condition, text,
+/// consequence).
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Op {
-    pub name: String,
-    pub args: Vec<Value>,
-    /// `file.uw:line`, written next to the generated operation.
+pub struct NewOption {
+    /// Without `mno_` (the kit adds it).
+    pub id: String,
+    pub condition: Vec<Op>,
+    pub text: String,
+    pub consequence: Vec<Op>,
     pub origin: String,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Action {
-    ReplaceBody,
-    Append,
+/// Where a new option goes: the end of the list, or after/before an option id.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum OptionPlace {
+    End,
+    After(String),
+    Before(String),
 }
 
 /// One checked change to a Native entry.
@@ -136,9 +155,37 @@ impl Ctx<'_> {
         format!("{}:{line}", self.source.name)
     }
 
+    /// Checks a block and lowers it to the operations the kit writes.
     fn ops(&mut self, stmts: &[Stmt]) -> Vec<Op> {
+        let tree = self.stmts(stmts);
+        uw_lower::lower(&tree)
+    }
+
+    /// Checks a block into the tree `uw_lower` lowers.
+    fn stmts(&mut self, stmts: &[Stmt]) -> Vec<uw_lower::Stmt> {
         let mut out = Vec::new();
         for stmt in stmts {
+            match stmt {
+                Stmt::Call(call) => {
+                    if let Some(op) = self.call(call) {
+                        out.push(uw_lower::Stmt::Op(op));
+                    }
+                }
+                // Checking assignments and `if` is task T-017.
+                Stmt::Assign { span, .. } | Stmt::If { span, .. } => self.error(diag(
+                    E0201_NOT_YET,
+                    "assignments and `if` are parsed but not checked yet".into(),
+                    *span,
+                    None,
+                )),
+            }
+        }
+        out
+    }
+
+    /// Checks one operation call: the operation exists, has enough values, every value resolves.
+    fn call(&mut self, stmt: &Call) -> Option<Op> {
+        {
             let Some(op) = self.atlas.op(&stmt.op.text) else {
                 let help = suggest(&stmt.op.text, self.atlas.ops.iter().map(|o| o.name.as_str()))
                     .map(|s| format!("did you mean '{s}'? (`uw browse` lists every operation)"));
@@ -148,7 +195,7 @@ impl Ctx<'_> {
                     stmt.op.span,
                     help,
                 ));
-                continue;
+                return None;
             };
             if let Some(min) = min_args(op) {
                 if stmt.args.len() < min {
@@ -213,9 +260,8 @@ impl Ctx<'_> {
                     }
                 }
             }
-            out.push(Op { name: op.name.clone(), args, origin: self.origin(stmt.span) });
+            Some(Op { name: op.name.clone(), args, origin: self.origin(stmt.span) })
         }
-        out
     }
 }
 
@@ -271,7 +317,12 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
         }
         for item in &source.tree.items {
             match item {
-                Item::Override { kind, name: target, handlers, span } => {
+                Item::Override { kind, name: target, handlers, members: _, span } => {
+                    // `override menu_x` (kind from the prefix) and menu members: task T-017.
+                    let Some(kind) = kind else {
+                        ctx.error(diag(E0201_NOT_YET, "`override <id>` is parsed but not checked yet".into(), target.span, None));
+                        continue;
+                    };
                     if kind.text != "menu" {
                         ctx.error(diag(
                             E0201_NOT_YET,
@@ -330,6 +381,8 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
                         });
                     }
                 }
+                // New records: task T-017.
+                Item::New { id, .. } => ctx.error(diag(E0201_NOT_YET, "`new` is parsed but not checked yet".into(), id.span, None)),
                 Item::On { path, body, span } => {
                     let words: Vec<&str> = path.iter().map(|p| p.text.as_str()).collect();
                     let hook = match words.as_slice() {
@@ -428,7 +481,7 @@ mod tests {
         assert_eq!(menu.ops[0].args, [Value::Ref("p_main_party".into()), Value::Ref("p_town_6".into()), Value::Int(3)]);
         assert_eq!(menu.ops[0].origin, "start.uw:4");
         let script = &checked.patches[1];
-        assert_eq!((script.entry.as_str(), script.action), ("game_start", Action::Append));
+        assert_eq!((script.entry.as_str(), &script.action), ("game_start", &Action::Append));
         assert_eq!(script.ops[0].args[1], Value::Const { name: "reg0".into(), module: "header_common".into() });
     }
 

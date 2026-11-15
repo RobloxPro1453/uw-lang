@@ -86,9 +86,11 @@ fn wrapper(name: &str, module: &str, patches: &[&Patch], debug: bool) -> String 
     }
     let _ = writeln!(out, "import uw_runtime as _uw");
     for patch in patches {
-        let func = match patch.action {
+        let func = match &patch.action {
             Action::ReplaceBody => "replace_body",
             Action::Append => "append_ops",
+            // Menu text, options and new menus: task T-018.
+            other => unimplemented!("T-018: emit {other:?}"),
         };
         let path = match patch.path.as_slice() {
             [one] => one.to_string(),
