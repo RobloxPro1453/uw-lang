@@ -3,10 +3,8 @@
 ## 0000000. SABAH (2026-11-16) — önce bunu oku
 
 Sahibi uyudu; ilk mesajında kısa durum + tahmini yüzde ister (hafıza: progress-percent-each-cycle).
-1. `cv delegate status`: P5 şeritleri T-059/T-061/T-064/T-066 ve gece araştırma şeritleri T-067..T-074
-   (belge: `docs/bilgi/anlam/*.md`). Bitenleri birleştir; P5 için ölçü `uw roundtrip` (12815/12815, 9113/9113,
-   kapsam satırı `typed N/M`) + `uw build-project --native-check` 32/32. Araştırma belgelerinde her adın kitte
-   grep'lenebildiğini örnekle denetle.
+1. BİTTİ (gece): P5 ilk tur birleşti (12815/12815, 9113/9113, 32/32, testler 339/339); anlam kütüphanesi
+   araştırması `docs/bilgi/anlam/*.md` (8 sayfa, 1138 satır; 417 addan 415'i kitte, kalan 2'si uydurma değil).
 2. Sonra: P5b ad katmanı (oyunda görünen adlar, `names.uw`) — sözdiziminden bağımsız temel
    (KARARNAMELER 2026-11-16 "Önce temel, sözdizimi en son"; hedef yazım `docs/meclis/kolay-dil-taslak.md`).
 3. Ayar: günlük tavan $8, test yuvası 4 (`.evrim/config.json`). Toplam tavan $15: harcamayı kontrol et.
