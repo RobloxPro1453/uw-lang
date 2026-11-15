@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · Sahibinin notları belgelendi, graph_viewer brief'i (Claude)
+`--debug` oyunda doğrulandı (`_` boşluk görünüyor, CHECKUP). Akış şeması okunaksız → ayrı proje `graph_viewer` için `docs/graph_viewer/README.md` + `DATA.md` (`uw-flow/1`) ve `py/flow_export.py` (217 menü, 554 seçenek, 949 bağlantı). ROADMAP: graph arayüzü, ad tutarlılığı, menü dili istek listesi. Kod: yalnız dışa aktarma betiği (kota).
+
 ## 2026-11-15 · Tur 4 (kapandı): keşif araçları, DeepSeek şeritleri (Claude orkestra)
 Sahibi DeepSeek'e izin verdi (8-10 işçi). Claude: model ileri dizini + `engine_roots`, `uw build --debug` (217 menü kodunu oyunda yazar). 7 tarif (T-004..T-010) 7 şeritte; birleşenler: T-007 (`tr.rs`, resmî TR metin yükleyici), T-010 (D2 a/d/e, Claude çalıştırdı: 3/3 ok). Çalışan: T-004 akış ağacı, T-005 Mermaid/HTML, T-006 etki raporu, T-008 browse leads-to, T-009 explain leads-to.
 Sonra: 7 dalın 7'si verify PASS, birleşti; Claude `uw graph` ve etki raporunu bağladı (praven_start: prolog zinciri + gizli CHEAT seçeneğinin eşyaları). DeepSeek 0,21 $. Testler 81/81.
