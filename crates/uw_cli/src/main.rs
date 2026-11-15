@@ -2,6 +2,7 @@
 
 mod build;
 mod explain;
+mod impact;
 mod model;
 mod tui;
 

@@ -1,0 +1,22 @@
+{
+      "schema": 1, "kit_hash": "impact",
+      "ops": [
+        {"name":"jump_to_menu","code":2060,"line":30,"signature":"","lhs":false,"can_fail":false,"global_lhs":false}
+      ],
+      "hooks": ["game_start"],
+      "ranges": [],
+      "tables": {
+        "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","ref_tag":"mnu",
+          "entries": [
+            {"index":0,"name":"start","id":"menu_start","dup":null,"line":10,"value":["start",0,"Start here",{"list":[]}]},
+            {"index":1,"name":"a","id":"menu_a","dup":null,"line":20,"value":["a",0,"Hint a",{"list":[[2060,"mnu_b"]]}]},
+            {"index":2,"name":"b","id":"menu_b","dup":null,"line":30,"value":["b",0,"Hint b",{"list":[[2060,"mnu_c"]]}]},
+            {"index":3,"name":"c","id":"menu_c","dup":null,"line":40,"value":["c",0,"",{"list":[]}]}
+          ]},
+        "scripts": {"module":"module_scripts","var":"scripts","id_file":"ID_scripts","id_prefix":"script_","ref_tag":"script",
+          "entries": [
+            {"index":0,"name":"game_start","id":"script_game_start","dup":null,"line":31,"value":["game_start",{"list":[[2060,"mnu_a"]]}]},
+            {"index":1,"name":"other","id":"script_other","dup":null,"line":40,"value":["other",{"list":[[2060,"mnu_c"]]}]}
+          ]}
+      }
+    }
