@@ -1,108 +1,140 @@
-# Gemini (Antigravity) için devir — 2026-11-15
+# Gemini için görev belgesi — baş mimardan (Claude), 2026-11-15
 
-Bu belge, Claude'un limiti dolunca işi Antigravity/Gemini'de sürdürmek için yazıldı. Claude geri
-gelince bu belgeyi ve senin commit'lerini okuyup denetleyecek; iyi olanı tutacak, kötüyü geri alacak.
-Önce `AGENTS.md`'yi oku (kurallar orada; özellikle "Kesin kurallar").
+Sen bu projede **katkıcı mühendissin**; baş mimar Claude, proje sahibi insan. Claude kota beklerken işi
+sen sürdürüyorsun. Claude geri gelince yaptığın her şeyi tek tek denetleyecek: iyi olanı tutacak, kötüsünü
+geri alacak. Bu belge senin sözleşmendir. Önce bunu, sonra `AGENTS.md`'yi oku. Bu belge ile AGENTS.md
+çelişirse **bu belge** geçerli (Claude dönene kadar).
 
-## 1. Proje bir paragrafta
+---
 
-UW (universal_warband): Mount & Blade: Warband 1.174 için Rust ile yazılmış modlama dili ve
-derleyicisi. `.uw` dosyası → `uw_syntax` (ayrıştırma) → `uw_check` (adları kitin atlasına karşı
-denetleme) → `uw_lower` (hesap/if → Native işlemleri) → `uw_emit` (Python sarmalayıcı) → kit
-(Module System 1.171, Python 2.7, staging kopyasında) → `Warband/Modules/<mod>`. Sahibi Türkçe
-konuşur, teknik bilmeyebilir; sade anlat. **OHAL:** şu an yalnız bu proje geliştiriliyor.
+## 1. Rolün ve sınırın (en önemli bölüm)
 
-## 2. Şu an ne çalışıyor (doğrulandı)
+**Projenin yönü değişti ve henüz karar verilmedi.** Sahibi, "Native'e yama yap" modelinden "`uw new` ile
+Native'in tamamı okunaklı UW dosyalarına çevrilmiş proje iskeleti + yüksek seviyeli dil (DSL)" modeline
+geçmek istiyor. Muhakeme: `docs/meclis/yon-2-proje-modeli.md` (tamamını oku). Bu bir mimari değişiklik
+ve **büyük meclis** kararı bekliyor (`docs/MECLIS_GUNDEMI.md` > BÜYÜK MECLİS — Yön 2).
 
-- Dil: `mod`, `override menu_x { … }` (eski `override menu x` de), `on enter { … }`,
-  `on game.<kanca> { … }`, Native işlem çağrısı `ad(a, b)`, atama ve hesap (`$x = $y + 2 * :z`,
-  `+= -= *= /= %=`), `if / else if / else`, `and / or / not`, menü `text "…"`,
-  `option id "metin" [when …] [after|before id] { … }`, `change option`, `remove option`,
-  `new menu_x "metin" { … }`.
-- Komutlar: `uw build <klasör> [--debug] [--no-install]`, `uw explain`, `uw browse`, `uw graph`
-  (`--tr` ile resmî Türkçe metin), `uw graph --json`.
-- `examples/menu_demo/menu_demo.uw`: hepsini kullanan örnek; kit derlemesinden geçti, oyuna kuruldu,
-  **oyunda henüz denenmedi** (docs/CHECKUP.md > Oyun deneyi kuyruğu).
-- Testler: `cargo test --workspace` → 141 geçiyor (son ölçüm); `python py/test_uw_runtime.py` → 15.
-- Kullanıcı kılavuzu: `docs/kilavuz/UW_KILAVUZU.md` (Türkçe). **Kural:** dile/komutlara görünür bir
-  şey eklersen aynı işte kılavuzun ilgili bölümünü güncelle (yalnız yeni olanı ekle).
+Bu yüzden senin işin **karar vermek değil, karara kanıt hazırlamak ve güvenli işleri bitirmek.**
 
-## 2b. YÖN DEĞİŞTİ (2026-11-15 akşam) — önce bunu oku
+| Yapabilirsin | Yapamazsın |
+|---|---|
+| Kitten / atlas'tan ölçüm, envanter, kanıt notu | Yeni dil sözdizimi eklemek ya da mevcudu değiştirmek |
+| Salt okuma prototip betiği (`py/` altında, derleyiciye bağlanmayan) | `uw new`, `lib/`, iskelet klasör düzeni, emit'in "tam liste" kipi |
+| Bekleyen dalı denetleyip birleştirmek (T-019) | KARARNAMELER, VISION, ARCHITECTURE'daki kararları değiştirmek |
+| Oyun deneyi tarifleri (CHECKUP) | `.evrim/config.json` ve `forbiddenWrite` yolları |
+| Var olan özelliklerde hata düzeltmek (test + kılavuz ile) | `Module_system 1.171/` (kit) klasörüne yazmak |
+| Belge düzeltmesi (yanlış/eski bilgi) | `docs/graph_viewer/program/` (ayrı depo) |
 
-Sahibi projenin yönünü büyük ölçüde değiştirdi: Native'e yama yerine **`uw new` ile Native'in tamamı
-okunaklı UW dosyalarına çevrilmiş bir proje iskeleti** ve **alt seviye Native işlemleri yerine yüksek
-seviyeli dil (DSL)**. Muhakeme, model ve fazlar: `docs/meclis/yon-2-proje-modeli.md` (oku). Bu bir
-mimari değişiklik ve **büyük meclis bekliyor** (`docs/MECLIS_GUNDEMI.md` > BÜYÜK MECLİS — Yön 2).
+Bir şey mimariyi kesinleştiriyor mu emin değilsen: **yapma**, `docs/meclis/gemini-sorular.md`'ye yaz.
 
-Senin için kural: **mimariyi kesinleştiren kodu yazma** (yeni sözdizimi, `uw new`, `lib/` adları,
-emit'in tam liste kipi). Meclisten bağımsız ve güvenli olanları yapabilirsin:
-- `docs/ROADMAP.md` > Y1: oyun deneylerinin adım adım tariflerini `docs/CHECKUP.md` kuyruğuna yaz
-  (D8 boş taban; özel menüden karakter yaratma açılır mı; tetik "check interval" birimi).
-- Y1b: salt okuma ölçüm prototipi — atlas'taki (`target/uw-staging/atlas.json`) Native menülerinin kaçı
-  bugünkü dille `.uw` olarak yazılabiliyor, yazılamayanlar neden. Sonucu `docs/meclis/` altına kısa bir
-  kanıt notu olarak yaz. Derleyiciye bağlama.
-- `kit-meta/hardwired.toml` taslağı: yalnız [KİT]/[DENEY] kanıtlı maddeler, her biri kaynak satırıyla.
-- Aşağıdaki 3. bölümdeki yarım işler.
+## 2. Nasıl davranmanı istiyorum
 
-## 3. Yarım kalanlar (öncelik sırası)
+1. **Ad uydurma yok.** Native'e ait her ad (menü, işlem, birlik, slot, sabit, sahne) kitten ya da
+   `target/release/uw explain <ad>` ile doğrulanır. Bulamazsan "bulunamadı" yaz, tahmin etme. Bu projede
+   en tehlikeli hata budur.
+2. **Her iddia kanıtlı.** Belgelere yazdığın her teknik iddia `[KİT] dosya:satır`, `[DENEY]` ya da komut
+   çıktısıyla gelir; kanıtsızsa `[İDDİA]` diye işaretle. Rapor ettiğin her sayı bir komutun çıktısından.
+3. **Küçük adım, sık commit.** Bir iş = bir commit, Türkçe açıklayıcı mesaj, `master` dalına. Her
+   commit'ten önce: `cargo build --workspace` + `cargo test --workspace` (kod değiştiyse ayrıca
+   `cargo build --release`). Kırık hâlde commit yok.
+4. **Push:** testler yeşilken `git push origin master:main` serbest (sahibi istedi; uzak depo hazır).
+   Anahtar, parola, kişisel bilgi, kit dosyası asla gitmez (`.gitignore`'u bozma).
+5. **Sahibine soru sorma** (tasarım sorusu hiç). Belirsizlikte küçük ve geri alınabilir olanı seç; soruyu
+   `docs/meclis/gemini-sorular.md`'ye yaz. Sahibine konuşurken sade Türkçe, teknik terim az.
+6. **Kabukta metin yazma.** Dosya içeriğini dosya aracıyla yaz. Kabukta çift tırnaklı metnin içindeki
+   ters tırnak komut olarak çalışır (bir kez istemeden `git push` çalıştı); tek tırnaklı Türkçe kelime
+   (`Steam'deki`) komutu bozar.
+7. **Belge diyeti:** yeni plan/rapor belgesi açma; aşağıda adı verilen dosyalar dışında yalnız mevcut
+   belgeleri güncelle. Görünür özellik → `CHANGELOG.md`; anlamlı iş → `docs/PROGRESS.md` en üste ≤5 satır.
+8. **DeepSeek (`cv delegate`) kullanma.** Bütçe Claude'un denetiminde; bu turda gerek yok.
+9. **Her yaptığını bu belgenin sonundaki "Gemini'nin yaptıkları" listesine tek satırla yaz:** commit
+   kimliği, ne, nasıl doğruladın, şüphen. Claude denetimi buradan yapacak.
 
-1. **`cv/T-019` dalı (DeepSeek, altın testler) gözden geçirilmedi.** Yapılacak: dalın diff'ini oku
-   (`git diff master...cv/T-019 --stat`, sonra dosyalar); beklenen çıktılar kılavuz 3.5-3.8 ile tutarlı
-   mı bak; `git merge --no-ff cv/T-019`; `cargo test --workspace`. Yanlış görünen beklenen dosyayı
-   "düzeltip bless etme": önce derleyici mi test mi yanlış, onu bul.
-2. **GitHub:** uzak depo `origin` = github.com/RobloxPro1453/uw-lang, yerel `master` → uzak `main`.
-   Son commit'ler gönderilmedi. Testler yeşilken `git push origin master:main` (sahibi izin verdi).
-3. **Bağlayıcı sırası:** aynı kancaya (`on game.start`) birden çok dosya eklerse sıra = dosya adı
-   alfabetik, dosya içinde yazım sırası (docs/meclis/gramer-2-oneri.md §5). Bugünkü davranışı test et,
-   eksikse ekle + altın test.
-4. **`uw graph --json` (uw-flow/1):** diyaloglar ve mod farkı (`changed` / `impact` alanları) eksik.
-   Veri biçimi `docs/graph_viewer/DATA.md`; görüntüleyici uygulamaya (`docs/graph_viewer/program/`)
-   **dokunma**, yalnız veri tarafı.
-5. **`--debug` diyaloglar:** menülerde var (`uw: menu-…`), diyalog satırlarına da kimlik yazdırma.
-6. ROADMAP'in açık maddeleri: `docs/ROADMAP.md` (yalnız açık maddeleri oku).
+## 3. Görevler (öncelik sırası; her birinin kabul ölçütü var)
 
-## 4. Asla
+### G1. Bekleyen dalı bitir: `cv/T-019` (altın testler, DeepSeek yazdı)
+- `git diff master...cv/T-019 --stat`, sonra dosyaları oku. Beklenen çıktılar kılavuzun 3.5-3.8
+  bölümleriyle (`docs/kilavuz/UW_KILAVUZU.md`) tutarlı mı? Fixture'a eklenen Native adları gerçek mi?
+- Uygunsa `git merge --no-ff cv/T-019`, testler. Yanlış görünen beklenen dosyayı "düzeltip bless etme":
+  önce derleyici mi test mi yanlış, bul; derleyici yanlışsa düzeltme yapma, `gemini-sorular.md`'ye yaz.
+- **Kabul:** dal birleşti ya da gerekçesiyle reddedildi; `cargo test --workspace` yeşil; sayıyı yaz.
 
-- `Module_system 1.171/` klasörüne yazma; kit Python'u yalnız staging kopyasında `-B -E -s` ile.
-- Native adı (menü, işlem, kişi, eşya, global) **uydurma**: kitten ya da `uw explain <ad>` ile doğrula.
-  Örnek gerekiyorsa gerçek ad kullan ya da "(uydurma örnek)" diye işaretle.
-- Anahtar/parola/kişisel bilgi dosyaya, loga, commit'e yazma (DeepSeek anahtarı yalnız ortam değişkeni
-  `DEEPSEEK_API_KEY`).
-- `docs/graph_viewer/program/` (ayrı depo) ve `.evrim/config.json` > `forbiddenWrite` yolları.
-- Veri kaybı riski olan akışı (kurulum klasörü silme/yazma: `crates/uw_cli/src/build.rs`) testsiz
-  değiştirme. `uw build` yalnız `.uw-mod` işaretli klasörün üzerine yazar; bunu bozma.
+### G2. GitHub'ı güncelle
+- G1'den sonra testler yeşilse `git push origin master:main`.
+- **Kabul:** `git status` "up to date with origin/main" (ya da push hatası aynen yazılı).
 
-## 5. Bilinen tuzaklar (pahalıya patlamış)
+### G3. Oyun deneyi tarifleri (Y1) → `docs/CHECKUP.md` > Oyun deneyi kuyruğu
+Üç madde, her biri: hangi test modu, oyunda nereye gidilir, neye bakılır, sonuç nereye yazılır.
+- **D8 boş taban:** oyun en az hangi kayıtlarla açılıyor. Önce kitten ve `docs/bilgi/baslangic-akisi.md`'den
+  ne bildiğimizi topla; sonra en küçük deneyi tasarla (bir test modu `examples/` altında, mevcut dille
+  yazılabiliyorsa). Mevcut dille yazılamıyorsa bunu gerekçesiyle yaz, kod ekleme.
+- **Karakter yaratma / yüz editörü özel bir menüden açılabilir mi?** Kitten hangi mekanizmayla açıldığını
+  bul (D4 notları: motor zinciri yürütüyor); deneyi tarif et.
+- **Tetik aralığı:** `module_simple_triggers.py` / `module_triggers.py` "check interval" alanının birimi
+  ve 0'ın anlamı; kitte yorum varsa alıntıla, yoksa deney tarif et.
+- **Kabul:** üç madde CHECKUP'ta, her biri sahibinin tek başına yapabileceği netlikte.
 
-- Kabukta çift tırnaklı metnin içine ters tırnak koyma: komut olarak çalışır (bir kez istemeden
-  `git push` çalıştı). Metin dosyalarını dosya aracıyla yaz.
-- Tek tırnak içeren Türkçe metin (`Steam'deki`) kabuk komutunu bozar; aynı çözüm.
-- Kod değişince `cargo build --release` da yap: sahibi `target/release/uw.exe` kullanır.
-- Kitte `lt = neg|ge`, `neq = neg|eq`, `le = neg|gt`: `neg|lt` yine `lt` olur. `not a < b` → `ge`.
-- `this_or_next|` yalnız ardışık tek koşul işlemlerinde: arada `store_*` olursa OR bozulur
-  (`uw_lower::is_single`).
-- Oyun `_` işaretini boşluk gösterir (menü metinleri, `--debug`).
-- Metinler şimdilik yalnız ASCII (Türkçe harf deneyi D5 bekliyor; `E0204`).
+### G4. Ölçüm (Y1b): Native menülerinin kaçı bugünkü dille yazılabilir?
+- `target/uw-staging/atlas.json` (yoksa `docs/DEVELOPMENT.md` > Atlas üretimi) içindeki `menus`
+  tablosunu oku. Her menü için: metni, giriş bloğu, seçenekleri (koşul, metin, sonuç). Bugünkü dil
+  (kılavuz §3) bunu ifade edebiliyor mu? Engel olan şeyleri say: hangi işlemler, `this_or_next`/`neg`
+  karışımları, `try_for_range` döngüleri, `{reg0}` gibi metin değişkenleri, bayraklar (`mnf_*`), vb.
+- Betik: `py/measure_menus.py` (salt okuma, Python 3, derleyiciye bağlanmaz). İsteğe bağlı: her menü için
+  okunur bir `.uw` taslağı `target/uw-native/menus/<ad>.uw` (depoya girmez) — sadece insan bakışı için.
+- Çıktı: `docs/meclis/kanit-menuler.md`: toplam / yazılabilen / yazılamayan sayıları, engel türleri ve
+  her türden 2-3 örnek (`module_game_menus.py:satır` ile).
+- **Kabul:** sayılar betiğin çıktısından; örnekler satır numaralı; betik tekrar çalıştırılabilir.
 
-## 6. Nasıl doğrularsın
+### G5. Sıra bağları envanteri (meclis sorusu 11 için kanıt)
+- Kitte "bir kaydın sırası başka bir kaydın sırasına bağlı" olan yerleri bul. Bilinen örnek:
+  `module_scripts.py:281-291` (şehir sahneleri `scn_town_1_center + offset`), `module_constants.py:1552-1564`
+  (`towns_begin` … aralıkları). Ara: `store_add, ":…", "<tablo>_…", ":offset"` kalıpları, `*_begin`/`*_end`
+  sabitleri ve bunların script'lerde kaç kez kullanıldığı (lordlar, köyler, kaleler, yoldaşlar, eşyalar…).
+- Çıktı: `docs/meclis/kanit-sira-baglari.md`: her bağ için kaynak satırı, hangi listeler arasında, kaç yerde
+  kullanılıyor, yeni kayıt eklemenin ne gerektirdiği.
+- **Kabul:** her madde `[KİT] dosya:satır`; sayılar `grep -c` ya da betik çıktısından.
 
-```
-cargo build --workspace
-cargo test --workspace
-cargo build --release
-target/release/uw build examples/menu_demo --no-install
-```
+### G6. `kit-meta/hardwired.toml` taslağı
+- Yalnız kanıtlı maddeler: motorun sabit beklediği kayıtlar ve indeksler (D4 bulguları, D10 notu
+  `docs/ROADMAP.md`, kit yorumları). Her madde: `id`, `neden`, `kaynak = "dosya:satır"`, `kanit = "KİT|DENEY"`.
+- **Kabul:** her satırın kaynağı var; emin olmadıkların `kanit = "İDDİA"` ve ayrı bölümde.
 
-Son komut "built … files" demeli; çıktı `target/uw-build/menu_demo/staging/out`.
+### G7 (vakit kalırsa). Mevcut özelliklerde küçük düzeltmeler
+- `docs/CHECKUP.md` > Bilinen hatalar; kılavuzdaki yanlışlar. Her düzeltme testli.
+- Yeni özellik ekleme (yön kararı beklendiği için).
 
-## 7. Kayıt düzeni (belge diyeti)
+## 4. Claude geri gelince görmek istediklerim
 
-- Görünür değişiklik → `CHANGELOG.md` (`## Sürümlenmemiş`).
-- Anlamlı iş bitince → `docs/PROGRESS.md` en üste ≤5 satır.
-- Oyunda denenmesi gereken → `docs/CHECKUP.md` > Oyun deneyi kuyruğu.
-- Commit'ler `master`'a, açıklayıcı Türkçe mesaj. Yaptığın her şeyi bu belgenin sonuna
-  "## Gemini'nin yaptıkları" başlığı altına tek satırlarla yaz ki Claude denetleyebilsin.
+1. Bu belgenin sonunda dolu bir "Gemini'nin yaptıkları" listesi (commit kimlikleriyle).
+2. G1-G6'nın kabul ölçütleri karşılanmış ya da karşılanamayanın nedeni yazılı.
+3. `docs/meclis/kanit-menuler.md` ve `docs/meclis/kanit-sira-baglari.md`: meclisin masasına konacak
+   iki kanıt belgesi.
+4. `docs/meclis/gemini-sorular.md`: karar gerektiren her soru (tasarım, belirsizlik), kısa.
+5. Yeşil test takımı, temiz `git status`, GitHub güncel.
+6. Hiç **görmek istemediklerim:** yeni sözdizimi, uydurma Native adı, kanıtsız "kesin" iddia, testsiz
+   kod, kit klasörüne yazılmış bir şey, büyük tek commit.
+
+## 5. Proje hakkında bilmen gerekenler (kısa)
+
+- Zincir: `.uw` → `uw_syntax` (ayrıştırma) → `uw_check` (adları atlas'a karşı denetleme) → `uw_lower`
+  (hesap/if → Native işlemleri) → `uw_emit` (Python sarmalayıcı) → kit (Python 2.7, staging kopyasında,
+  `-B -E -s`) → `Warband/Modules/<mod>`. Ayrıntı `docs/ARCHITECTURE.md`.
+- Bugün çalışan dil: kılavuz `docs/kilavuz/UW_KILAVUZU.md` §3 (override menu, on game.kanca, işlem
+  çağrısı, atama/hesap, if/and/or/not, menü text/option/change/remove, new menu).
+- Doğrulama:
+  ```
+  cargo build --workspace
+  cargo test --workspace
+  cargo build --release
+  target/release/uw build examples/menu_demo --no-install
+  python py/test_uw_runtime.py
+  ```
+  `uw build … --no-install` "built … files" demeli.
+- Tuzaklar: kitte `lt = neg|ge`, `neq = neg|eq`, `le = neg|gt` (`neg|lt` yine `lt`); `this_or_next|`
+  yalnız ardışık tek koşul işlemlerinde; oyun `_`'yi boşluk gösterir; metinler şimdilik yalnız ASCII
+  (`E0204`, D5 deneyi bekliyor); Praven `p_town_6`, `town_1` Sargoth.
+- Sahibinin bekleyen işi: `examples/menu_demo` oyunda denenmedi (CHECKUP).
 
 ## Gemini'nin yaptıkları
 
-(boş)
+(her satır: tarih · commit · ne · nasıl doğrulandı · şüphe)
