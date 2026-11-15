@@ -102,7 +102,7 @@ impl Records {
 }
 
 /// The block paths of every record, keyed by `(table, entry index)`.
-fn block_paths(blocks: &[Block]) -> std::collections::BTreeMap<(&str, usize), Vec<Vec<usize>>> {
+pub(crate) fn block_paths(blocks: &[Block]) -> std::collections::BTreeMap<(&str, usize), Vec<Vec<usize>>> {
     let mut paths: std::collections::BTreeMap<(&str, usize), Vec<Vec<usize>>> = Default::default();
     for block in blocks {
         paths.entry((block.table.as_str(), block.index)).or_default().push(block.path.clone());
@@ -112,7 +112,7 @@ fn block_paths(blocks: &[Block]) -> std::collections::BTreeMap<(&str, usize), Ve
 
 /// One operation block as readable UW text: structured when that compiles back identical, raw
 /// otherwise, the same choice [`run`] makes.
-fn block_text(atlas: &uw_atlas::Atlas, block: &Json) -> String {
+pub(crate) fn block_text(atlas: &uw_atlas::Atlas, block: &Json) -> String {
     let ops = uw_decomp::parse_ops(block).unwrap_or_default();
     let structured = decompile(atlas, &ops, Mode::Structured);
     match compile(atlas, &structured) {

@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · P3a bitti: `uw new --from native` Native'i okunaklı proje klasörüne döküyor (Claude + DeepSeek)
+7 şerit (T-043..T-051, ~$0.45): kayıtlarda kod blokları `ops { … }`, klasör düzeni (22 şehir, 48 kale, 110 köy, 120 lord, 121 leydi kitin aralıklarından), `uw new`/`--check`, `reg0`/`pos1`/slot adları, ham satır dökümü (bekçi `neg|` 1865, ara hesaplı kol 527, `this_or_next` 549, döngü-else 77, diğer 2500), sıra bağları yeniden ölçüldü (`docs/bilgi/sira-baglari.md`: 238 aralık, 48 zincir, 586 ofset sitesi; Gemini'nin 256/416'sı geçersiz), kılavuz bölümü. Claude: iki parçayı bağladı, `--check` blokları işlem olarak karşılaştırır (atlas `1262` ile `(1262,)` aynı işlem; kesin ölçü P3b'nin `.txt` eşitliği). Ölçü: 6194 dosya, 12815/12815; testler 259/259. Sıradaki: P2 `require`/`attempt` gramer + IR (Claude).
+
 ## 2026-11-15 · P1 bitti: 27 tablonun 12815 kaydı UW kayıt biçiminde birebir geri dönüyor (Claude + DeepSeek)
 T-030 çekirdek + 12 paralel şerit (T-031..T-042, ~$0.6). 6 şerit çekirdek hatası bildirip doğru durdu; Claude düzeltti (liste biçimli kayıt `list = true`, kimliksiz kayıt = sıra no, `:`/`=` içeren kimlik tırnaklı). `uw roundtrip`: kayıtlar 12815/12815, işlemler 9113/9113. 201 alan adı kit satırıyla denetlendi (1 şüpheli: `passages`, kitte var). Testler 228/228. Ders: şerit klasörlerine atlas + kit bağı gerekir. Sıradaki: P3a `uw new --from native`.
 

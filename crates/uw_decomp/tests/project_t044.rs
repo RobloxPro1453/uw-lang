@@ -105,10 +105,12 @@ fn export_writes_every_record_and_verify_reads_them_back() {
     let relative = layout::path_for(&atlas, &schema, &atlas.tables["factions"].entries[0]);
     let text = std::fs::read_to_string(out.join(&relative)).expect("record file");
     let first = text.lines().next().expect("a header line");
-    assert!(first.starts_with("// factions") && first.contains("2 records"), "{first}");
+    assert!(first.starts_with("// factions") && first.contains("1 records"), "{first}");
     // The comment line above a record carries the display name (the record's `name` field).
     assert!(text.contains("// No Faction"), "{text}");
     assert!(text.contains("faction no_faction {"), "{text}");
+    let second = layout::path_for(&atlas, &schema, &atlas.tables["factions"].entries[1]);
+    let text = std::fs::read_to_string(out.join(&second)).expect("second record file");
     assert!(text.contains("faction forest_bandits {"), "{text}");
     assert!(!text.contains('\r'), "the export writes \\n only");
 

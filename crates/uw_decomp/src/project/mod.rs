@@ -93,6 +93,18 @@ pub fn verify(
     root: &Path,
     parse: &mut dyn FnMut(&Schema, &str) -> Result<(String, Json), String>,
 ) -> Result<VerifySummary, String> {
+    verify_with(atlas, schemas, root, parse, &mut |_, entry, value| *value == entry.value)
+}
+
+/// [`verify`] with the record comparison given: `same(schema, entry, parsed value)`. `uw new --check`
+/// compares operation blocks as operations (`records::record_difference`).
+pub fn verify_with(
+    atlas: &Atlas,
+    schemas: &[Schema],
+    root: &Path,
+    parse: &mut dyn FnMut(&Schema, &str) -> Result<(String, Json), String>,
+    same: &mut dyn FnMut(&Schema, &Entry, &Json) -> bool,
+) -> Result<VerifySummary, String> {
     let mut summary = VerifySummary::default();
     for (relative, expected) in &group_by_path(atlas, schemas) {
         let schema = expected[0].0;
@@ -110,7 +122,7 @@ pub fn verify(
                     None => format!("{relative}: `{id}` is not in the atlas"),
                     Some(index) => {
                         found[index] = true;
-                        if value == expected[index].1.value {
+                        if same(expected[index].0, expected[index].1, &value) {
                             summary.exact += 1;
                             continue;
                         }

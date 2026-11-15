@@ -1,6 +1,6 @@
 # Devir: sonraki oturum buradan başlar
 
-## 000000. P1 BİTTİ (12815/12815 kayıt) — sıradaki: P3a `uw new --from native` tarifleri
+## 000000. P3a BİTTİ (`uw new --from native`, 12815/12815) — sıradaki: P2 `require`/`attempt` (gramer + IR Claude'da; ham satır dökümü PROGRESS'te), sonra P3b
 
 ## 00000a. YÖN 2 MECLİSİ BİTTİ (2026-11-15)
 

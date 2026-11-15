@@ -522,6 +522,12 @@ pub fn roundtrip_table_with_blocks(
     report
 }
 
+/// `None` when `got` is the same record as `want`, comparing operation blocks at `paths` as
+/// operations (the measure `roundtrip_table_with_blocks` uses); otherwise the first difference.
+pub fn record_difference(want: &Json, got: &Json, paths: &[Vec<usize>]) -> Option<String> {
+    first_difference(want, got, &mut Vec::new(), paths)
+}
+
 /// The first value `got` changed from `want`, described for a report; `None` when they are the
 /// same record. At a block path the operations must match (the atlas spellings `parse_ops`
 /// normalises are compared through it); elsewhere the value and the Python list-versus-tuple

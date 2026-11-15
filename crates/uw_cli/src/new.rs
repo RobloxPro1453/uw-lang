@@ -31,7 +31,13 @@ fn export_project(dir: &Path, atlas_path: Option<PathBuf>) -> ExitCode {
         Ok(found) => found,
         Err(message) => return crate::fail(&message),
     };
-    let mut render = |schema: &Schema, entry: &Entry| records::print(schema, entry);
+    // Operation blocks print as readable `ops { … }` (T-043), the same text `uw roundtrip` measures.
+    let blocks = uw_decomp::extract::all(&atlas);
+    let paths = crate::roundtrip::block_paths(&blocks);
+    let mut render = |schema: &Schema, entry: &Entry| {
+        let paths = paths.get(&(schema.table.as_str(), entry.index)).map(Vec::as_slice).unwrap_or(&[]);
+        records::print_with_blocks(schema, entry, paths, &mut |block| crate::roundtrip::block_text(&atlas, block))
+    };
     match project::export(&atlas, &schemas, dir, &mut render) {
         Ok(summary) => {
             println!(
@@ -52,8 +58,15 @@ fn check_project(dir: &Path, atlas_path: Option<PathBuf>) -> ExitCode {
         Ok(found) => found,
         Err(message) => return crate::fail(&message),
     };
-    let mut parse = |schema: &Schema, text: &str| records::parse(schema, text);
-    let summary = match project::verify(&atlas, &schemas, dir, &mut parse) {
+    let mut compile = |text: &str| crate::roundtrip::compile(&atlas, text).map(|ops| records::ops_to_json(&ops));
+    let mut parse = |schema: &Schema, text: &str| records::parse_with_blocks(schema, text, &mut compile);
+    let blocks = uw_decomp::extract::all(&atlas);
+    let paths = crate::roundtrip::block_paths(&blocks);
+    let mut same = |schema: &Schema, entry: &Entry, value: &serde_json::Value| {
+        let paths = paths.get(&(schema.table.as_str(), entry.index)).map(Vec::as_slice).unwrap_or(&[]);
+        records::record_difference(&entry.value, value, paths).is_none()
+    };
+    let summary = match project::verify_with(&atlas, &schemas, dir, &mut parse, &mut same) {
         Ok(summary) => summary,
         Err(message) => return crate::fail(&message),
     };
