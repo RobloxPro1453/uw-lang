@@ -23,29 +23,34 @@ Finish the feature completely; saying honestly what you did not do still matters
      "UI code lives in src/ui; a new file must be listed in src/ui/modules.json."
      "Data loss is the worst kind of bug: do not change save or close flows unless the spec says so." -->
 
-7. <project rule>
-8. <project rule>
+7. Never guess a Warband/Module System name, operation, ID, slot, flag or field order. Look it up:
+   `docs/bilgi/`, `kit-meta/`, the atlas JSON, or the kit itself (`Module_system 1.171/`, read-only).
+   If you cannot find it, finish "blocked" and say what is missing. A guessed name is the worst bug here.
+8. File hints in the spec are a starting point, not a fence: explore the code and the kit as much as you
+   need to understand the task. Never write into `Module_system 1.171/`; run its Python only with `-B`.
+9. Compiler code is Rust: no `unsafe`; ids instead of references; every new syntax/IR case handled in
+   every `match` (no catch-all `_` that hides a missing case).
 
 ## Tests
 
-9. Every new behaviour gets a check, as the spec's "How to test" describes. A check must fail if the
+10. Every new behaviour gets a check, as the spec's "How to test" describes. A check must fail if the
    behaviour is broken; never write a check that is always true.
-10. A test must leave the state as it found it (close what it opens, restore what it changes).
-11. Before finish(status: "done"): build, then test, after your last edit. If a test you did not touch
+11. A test must leave the state as it found it (close what it opens, restore what it changes).
+12. Before finish(status: "done"): build, then test, after your last edit. If a test you did not touch
     fails, say so in the report instead of changing that test. The runner trusts a passing test you ran
     after your last edit and build; otherwise it runs the suite again.
 
 ## When to stop
 
-12. Stop with finish(status: "blocked") when: the spec is unclear or contradicts the code; something
+13. Stop with finish(status: "blocked") when: the spec is unclear or contradicts the code; something
     the spec relies on does not exist; you would need a forbidden path.
-13. Stuck rule: if a test fails, spend at most 5 steps on it. Then finish "blocked" with what you tried.
+14. Stuck rule: if a test fails, spend at most 5 steps on it. Then finish "blocked" with what you tried.
     Never repeat a failing call with the same arguments; the runner warns at the 3rd identical error
     and stops the task at the 4th. A clear "blocked" report is a good result.
-14. The step limit and the budget come from the spec's `Steps:` and `Budget:` lines. Plan for it:
+15. The step limit and the budget come from the spec's `Steps:` and `Budget:` lines. Plan for it:
     explore in the first fifth of your steps, then write.
 
 ## Report
 
-15. What you changed (files, functions), why, how you checked it (build, tests, which new checks),
+16. What you changed (files, functions), why, how you checked it (build, tests, which new checks),
     anything uncertain or left out. Plain English, short; the first line is a one-sentence summary.

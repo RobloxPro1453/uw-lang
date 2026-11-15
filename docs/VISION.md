@@ -8,6 +8,14 @@ universal_warband bir mod değil, **Mount & Blade: Warband için bir programlama
 
 ## Sahibinin kararları
 
+- 2026-11-15 (süzüldü): `override dialog tavernkeeper at start` örneğinde sahibi "start"ı "oyunun başı" sandı; Module System'de "konuşmanın açıldığı an" demek. → UW Module System terimlerini **sızdırmaz**, kendi açık adlarını kullanır (ör. `greeting`).
+- 2026-11-15 (süzüldü): `uw new` her şeyi kendi bağlar: mod adını sorar, Warband'ın yerini bulur, `Modules/` altına Native'in kopyasını mod adıyla koyar, çıktı yolunu ayara yazar, Python 2.7'yi bulur (çoğu kişide PATH'te Python 3 var; 2.7 PATH'e eklenmemiş olabilir — ona güvenmeden arar).
+- 2026-11-15 (süzüldü): `uw explain` kısa ve iyi anlatan olsun; uzun çıktı yorar (ayrıntı isteğe bağlı).
+- 2026-11-15 (süzüldü): Native'in resmî Türkçe çevirisi kullanılsın (Warband'da var, doğrulandı).
+- 2026-11-15 (süzüldü): `uw build` sonunda ne değişti özeti (menü/diyalog/eşya sayıları).
+- 2026-11-15 (süzüldü): Bir `override`'ı geri almak = satırı silmek; ek onay gerekmez.
+- 2026-11-15 (süzüldü): Oyun deneylerinde sahibi adım adım listeyle bakar, ekran görüntüsü atar.
+- 2026-11-15 (süzüldü): Ad "UW / universal_warband" kalıyor (en son yeniden düşünülebilir).
 - 2026-11-15 (süzüldü): Meclisin "Native + fark" kararı onaylandı ("aşırı iş yüküne gerek yok").
 - 2026-11-15 (süzüldü): Taban tek seçenek değil, genişletilebilir **ön ayar listesi** (Native, Native haritası içi boş, düz zemin, ileride özel harita…); her biri deneyle kanıtlanınca açılır.
 - 2026-11-15 (süzüldü): Harita üretimi **yükseklik haritası + arazi boyama** ile; deniz, göl, nehir, dağ, kayalık, orman ayırt edilebilmeli. Görseli sahibi çizer ya da Claude betikle üretir; 3B modelleme gerekmez.

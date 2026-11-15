@@ -108,6 +108,8 @@ Kaynak: `docs/VISION.md` > Sahibinin kararları. Buraya yalnız meclisin bilmesi
 - Bildirimsel içerik ile davranış kodu aynı sözdiziminde mi? (Eşya tanımı veri, menü seçeneği davranış.)
 
 ### Adsız Native girdilerine işaret (diyalog 2773 satır, trigger'lar)
+- **Yeni kanıt [KİT]:** motorun kendisi diyalog satırını `dlga_<giriş>:<çıkış>[.N]` ile kimliklendiriyor (`process_dialogs.py:140-160`) ve resmî çeviri CSV'leri bu anahtarı kullanıyor. Aday karar: UW'de diyalog işareti bu anahtarın okunaklı hali (`dialog tavernkeeper.greeting` → `dlga_start:tavernkeeper_talk`), `uw explain` listesiyle. Sahibi B biçimini ("kim + ne zaman") okunaklı buldu, ama `start`'ı yanlış anladı → Module System durum adları kullanıcıya açık adla gösterilmeli.
+- **Çeviri tuzağı:** override edilen Native metninin `languages/*/` anahtarı da güncellenmeli; Native diyalog sırası korunmalı (`.N` ekleri kaymasın). Bkz. `docs/bilgi/diyaloglar-ve-ceviri.md`.
 - Sahibi soruyu anlamadı; sahibine örnekli yeniden anlatıldı (2026-11-15 sohbeti). Seçenekler: metinle, konuşan+durum ile, `uw explain`'in verdiği kararlı kısa kodla. Etki raporu şart: "bunu değiştirirsen şu satırlar da etkilenir".
 
 ### Paketler (P)
@@ -118,3 +120,6 @@ Kaynak: `docs/VISION.md` > Sahibinin kararları. Buraya yalnız meclisin bilmesi
 
 ### Örnek modlar (dayanıklılık)
 - `ornek-modlar/` (6 mod, yerel) atlas dökümü ve "Native + fark" için gerçek dünya deneme seti. Bkz. `docs/bilgi/ornek-modlar.md`.
+
+### `uw new` ve kurulum
+- Sahibi: Warband yolu, Native kopyası, mod adı, çıktı yolu, Python 2.7 yeri otomatik. Moderatör notu: KARAR kural 5 gereği `build_module.bat` kullanılmaz; Python 2.7 yolu `uw.toml`'a yazılır. Arama sırası: kayıt defteri (PythonCore.7), `py -2.7`, `C:\Python27`. Steam kütüphanesi `libraryfolders.vdf`'den bulunur. Python 2.7 yoksa ne olur (kur rehberi mi, ileride gömülü mü) açık.
