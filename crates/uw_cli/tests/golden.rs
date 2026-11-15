@@ -1,0 +1,148 @@
+//! Golden tests for the wrapper files `uw build` writes: every folder under `tests/golden/` holds
+//! an `input.uw`, an optional `debug` marker file (the emit every-menu-ids mode of `uw build
+//! --debug`) and an `expected/` folder with one `<module>.py` per generated wrapper — or a single
+//! `error.txt` when the mod must fail the check.
+//!
+//! The test parses, checks and emits only: no kit, no Python, no game. `uw_runtime.py` is the same
+//! for every mod and is skipped here.
+//!
+//! After a deliberate change to the generated text, `UW_BLESS=1 cargo test -p uw_cli --test golden`
+//! rewrites the expected files from the current output. Blessing is not a way to make a test pass:
+//! always read the diff it wrote.
+
+use std::fs;
+use std::path::{Path, PathBuf};
+
+use uw_diag::SourceFile;
+
+const ATLAS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/atlas_golden.json");
+const GOLDEN: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden");
+
+/// The generated file kept for every run; comparing it would only copy `py/uw_runtime.py`.
+const RUNTIME: &str = "uw_runtime.py";
+
+/// A CRLF checkout must not change the goldens.
+fn norm(text: &str) -> String {
+    text.replace("\r\n", "\n")
+}
+
+fn cases() -> Vec<PathBuf> {
+    let mut dirs: Vec<PathBuf> = fs::read_dir(GOLDEN)
+        .expect("tests/golden exists")
+        .filter_map(|entry| entry.ok().map(|entry| entry.path()))
+        .filter(|path| path.is_dir())
+        .collect();
+    dirs.sort();
+    assert!(!dirs.is_empty(), "no golden cases in {GOLDEN}");
+    dirs
+}
+
+/// Parses, checks and emits `input.uw`: the generated wrappers by name, or the rendered errors.
+fn run(input: &str, debug: bool) -> Result<Vec<(String, String)>, String> {
+    let atlas = uw_atlas::Atlas::from_path(ATLAS).expect("the golden atlas fixture loads");
+    let file = SourceFile::new("input.uw", input.to_owned());
+    let tree = match uw_syntax::parse(&file.text) {
+        Ok(tree) => tree,
+        Err(d) => return Err(d.render(&file)),
+    };
+    let sources = [uw_check::Source { file: file.clone(), tree }];
+    let checked = uw_check::check(&atlas, &sources, "golden").map_err(|errors| {
+        errors.iter().map(|e| e.diag.render(&sources[e.file].file)).collect::<Vec<_>>().join("\n")
+    })?;
+    Ok(uw_emit::emit(&checked, debug)
+        .files
+        .into_iter()
+        .filter(|f| f.name != RUNTIME)
+        .map(|f| (f.name, norm(&f.text)))
+        .collect())
+}
+
+/// A small unified-ish diff: the lines that differ, expected (`-`) above actual (`+`).
+fn diff(label: &str, expected: &str, actual: &str) -> String {
+    let old: Vec<&str> = expected.trim_end_matches('\n').lines().collect();
+    let new: Vec<&str> = actual.trim_end_matches('\n').lines().collect();
+    let mut out = format!("{label} differs from expected:\n");
+    let mut shown = 0;
+    for i in 0..old.len().max(new.len()) {
+        if old.get(i) == new.get(i) {
+            continue;
+        }
+        shown += 1;
+        if shown > 20 {
+            out.push_str("  ... further lines differ\n");
+            break;
+        }
+        out.push_str(&format!("  line {}\n", i + 1));
+        if let Some(line) = old.get(i) {
+            out.push_str(&format!("  - {line}\n"));
+        }
+        if let Some(line) = new.get(i) {
+            out.push_str(&format!("  + {line}\n"));
+        }
+    }
+    out
+}
+
+/// Compares `actual` with the expected file at `path`; with `bless` the file is rewritten instead.
+fn compare(bless: bool, path: &Path, actual: &str) -> Result<(), String> {
+    let label = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+    if bless {
+        let mut text = actual.to_owned();
+        if !text.ends_with('\n') {
+            text.push('\n');
+        }
+        return fs::write(path, text).map_err(|e| format!("{}: {e}", path.display()));
+    }
+    let expected = fs::read_to_string(path)
+        .map_err(|e| format!("{}: {e} (`UW_BLESS=1` writes it)", path.display()))?;
+    let expected = norm(&expected);
+    if expected.trim_end_matches('\n') == actual.trim_end_matches('\n') {
+        Ok(())
+    } else {
+        Err(diff(&label, &expected, actual))
+    }
+}
+
+#[test]
+fn generated_wrappers_match_the_golden_files() {
+    let bless = std::env::var("UW_BLESS").as_deref() == Ok("1");
+    let mut failures = Vec::new();
+    for dir in cases() {
+        let case = dir.file_name().unwrap().to_string_lossy().into_owned();
+        let input = norm(&fs::read_to_string(dir.join("input.uw")).expect("every case has an input.uw"));
+        let debug = dir.join("debug").is_file();
+        let expected = dir.join("expected");
+        let error_case = expected.join("error.txt").is_file();
+        match run(&input, debug) {
+            Ok(files) => {
+                if error_case {
+                    failures.push(format!("{case}: expected an error, but parse/check/emit succeeded"));
+                    continue;
+                }
+                if files.is_empty() {
+                    failures.push(format!("{case}: no wrapper files were generated"));
+                    continue;
+                }
+                for (name, text) in files {
+                    let path = expected.join(&name);
+                    if bless {
+                        let _ = fs::create_dir_all(&expected);
+                    }
+                    if let Err(e) = compare(bless, &path, &text) {
+                        failures.push(format!("{case}: {e}"));
+                    }
+                }
+            }
+            Err(errors) => {
+                if !error_case {
+                    failures.push(format!("{case}: parse/check/emit failed:\n{errors}"));
+                    continue;
+                }
+                if let Err(e) = compare(bless, &expected.join("error.txt"), &errors) {
+                    failures.push(format!("{case}: {e}"));
+                }
+            }
+        }
+    }
+    assert!(failures.is_empty(), "\n{}", failures.join("\n"));
+}

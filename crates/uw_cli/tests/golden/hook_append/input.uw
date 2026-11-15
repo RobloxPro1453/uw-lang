@@ -1,0 +1,7 @@
+mod town_crier
+
+on game.start {
+    assign($g_x, reg0)
+    troop_set_type(trp_player, tf_male)
+    display_message("@praven is ready")
+}
