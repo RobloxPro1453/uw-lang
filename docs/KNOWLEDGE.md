@@ -10,11 +10,16 @@ Koddan bakarak görülemeyen şeyler: tuzaklar, denenip bırakılan yollar, orta
 - **ID adında ` = ` olabilir:** 17 Native string'in kimliği ` = ` içeriyor (`str_giver_troop_=_s2 = 2567`); Python bunu zincirleme atama okur. `ID_*.py` satırı son ` = `'den bölünür; düzenli ifadeyle ad aramak yanlış sonuç verir. (atlas, 2026-11-15)
 - **ID dosyası adı küçültmeyebilir:** `ID_scene_props.py`'de `spr_Shield` gibi büyük harfli kimlik var; ad karşılaştırması kitin `process_common.convert_to_identifier` işleviyle ve büyük/küçük harf duyarsız yapılır. (atlas, 2026-11-15)
 
+- **Aynı adlı iki kayıt: kod ilkini, ID dosyası sonuncusunu seçer.** İşlem içindeki `"itm_x"` metni `header_common.find_object` ile **ilk** eşleşmeye çözülür; Python adı `itm_x` (`ID_*.py`) ise **son** kayda. Native'de `itm_tutorial_arrows` kodda #1'i (indeks 4), ID'de #2'yi (133) gösterir. UW `ad#n` ve `uw explain` buna göre ("unreachable" uyarısı). (tur 2, 2026-11-15)
+- **Kod etiketi ≠ ID öneki:** işlemlerde menü `mnu_`, görev şablonu `mt_` (ID dosyalarında `menu_`, `mst_`). Tablo kitin `process_operations.get_id_value`'sundan atlasa `ref_tag` olarak okunur; elle yazılmaz. (tur 2)
+- **Hızlı metin (`"@..."`) eklemek çıktıyı yayar:** kit `quick_strings.txt` numarasını kit adım sırasında ilk kullanıma göre verir; scripts'e tek mesaj eklemek sonra işlenen menü/diyalog/trigger/şablon dosyalarındaki bütün hızlı metin numaralarını kaydırır (D4'te 7 dosya değişti). Zararsız ama "yalnız fark" önizlemesi ve `.txt` karşılaştırması için UW kendi metinlerini `str_` olarak sona eklemeli. (D4 yapımı, 2026-11-15)
+- **Kanca yorumları güvenilmez:** 10 Native `game_*` script'i yorumda "Output: reg0" der ama gövdede `set_trigger_result` çağırır. `kit-meta/hooks.toml` ikisini ayrı tutar; kanal kesinliği oyun deneyiyle. (tur 2)
+
 ## Faz 0 deney sonuçları (2026-11-15, [DENEY], betikler `py/`)
 
 - **D1:** kit staging kopyasında 29 adım, ~27 s, 0 hata/uyarı satırı, 32 çıktı dosyası; iki derleme bayt bayt aynı. `ID_*.py`'siz kopyada 29 adımın 18'i `ImportError` (bootstrap şart). Kitin yeniden yazdığı `ID_*.py`'ler kittekilerle aynı. Taban: `kit-meta/native.baseline.json`.
 - **Atlas:** 1060 op satırı (`ad = sayı`, hizalama boşluklu olanlar dahil; meclisin 1053'ü sıkı grep'ti), 49 `game_*` kanca, 238 `*_begin/_end`, 27 tablo, 12815 kayıt; çift adlı: items 15, strings 31 gölgeli kayıt. Kaynak satırı bulunamayan tek kayıt: menü `garden`.
-- **D2 (ana test):** 29 `module_*.py` → `native_module_*.py` + `from native_X import *` sarmalayıcı → 32 çıktı D1 ile bayt bayt eşit. Alt testler (paylaşılan nesne, `ad#n`) `uw_runtime` gelince.
+- **D2 (ana test):** 29 `module_*.py` → `native_module_*.py` + `from native_X import *` sarmalayıcı → 32 çıktı D1 ile bayt bayt eşit. Alt testler (b) paylaşılan nesne ve (c) `ad#n` `uw_runtime` ile geçti (`py/d2_runtime.py`, 13/13): 21 şablonda ortak trigger'a tek şablonda op eklenince `mission_templates.txt`'te yalnız o şablonun satırı, `item_kinds1.txt`'te yalnız #1'in satırı değişti; diğer 20 şablon aynı Python nesnesini tutuyor.
 - **D3 (tam kapsam):** 27 tablonun bütün değerleri atlastan yazıcıyla yeniden basıldı → 32 çıktı eşit. Kit girdisi = atlas değerleri; metin gerekmez.
 
 ## Denenip bırakılan yollar

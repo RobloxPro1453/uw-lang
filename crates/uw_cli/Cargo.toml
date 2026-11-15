@@ -12,3 +12,4 @@ path = "src/main.rs"
 uw_diag = { path = "../uw_diag" }
 uw_atlas = { path = "../uw_atlas" }
 uw_kitrun = { path = "../uw_kitrun" }
+serde_json = "1"

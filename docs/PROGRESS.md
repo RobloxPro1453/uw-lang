@@ -7,6 +7,10 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · Tur 2: uw explain, uw_runtime, D2 b/c, D4 hazır, hooks.toml (Claude, tamamı Opus)
+`uw explain` gerçek atlasla çalışıyor (atlasa kitten `ref_tag` eklendi: kod `mnu_`/`mt_` der, ID dosyası `menu_`/`mst_`). `uw_runtime.py` + D2 (b) paylaşılan trigger (21 şablon) ve (c) `ad#n`: 13/13 kontrol, çıktıda yalnız hedef satır değişti. D4: 3 test modu `Modules/uw_sonda_a/b/c`'ye kuruldu, adımlar CHECKUP'ta. `kit-meta/hooks.toml` 49 kanca. Bulgular KNOWLEDGE'da (find_object ilki seçer, hızlı metin kayması). Testler 38/38.
+Sıradaki: sahibinin D4 sonucu → `docs/bilgi/`; D2 (a/d/e); sözdizimi meclisi; diyalog kaynak satırları + `uw find`.
+
 ## 2026-11-15 · Tur 1: Faz 0 deneyleri ve Rust iskeleti (Claude + DeepSeek)
 D1 temiz (29 adım, 0 uyarı, 32 çıktı, belirlenimci), D2 ana testi ve D3'ün tamamı (27 tablo) bayt bayt eşit: "Native + fark" kanıtlandı. Atlas betiği + `uw_atlas`, `uw_diag` (DeepSeek, gözden geçirildi), `uw_kitrun` (Claude; sahibi: çekirdeği Opus yazsın). Bulgu: kit tuple/liste ayırır, atlas korur (KNOWLEDGE). Testler 29/29.
 Sıradaki: `uw explain`, D2 alt testleri için `uw_runtime.py`, D4 oyun sondası tarifi CHECKUP'a, kit-meta, sözdizimi meclisi.

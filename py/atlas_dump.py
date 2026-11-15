@@ -12,7 +12,10 @@ Output JSON (schema 1):
   ops:     [{name, code, line, signature, lhs, can_fail, global_lhs}]   from header_operations.py
   hooks:   ["game_start", ...]                                          scripts named game_*
   ranges:  [{name, value, line}]                                        *_begin / *_end in module_constants.py
-  tables:  {table: {module, var, id_prefix, id_file, entries: [{index, name, id, dup, line, value}]}}
+  tables:  {table: {module, var, id_prefix, id_file, ref_tag, entries: [{index, name, id, dup, line, value}]}}
+           ref_tag: the tag operations use for this table ("mnu" for menus), from process_operations.py;
+           null when operations cannot name it. "<ref_tag>_<name>" resolves to the FIRST entry whose
+           name matches case-insensitively (header_common.find_object), unlike ID_*.py (last wins).
            unnamed tables (dialogs, triggers, simple_triggers) have name/id = null.
            value: a Python tuple is a JSON array, a Python list is {"list": [...]} (the kit cares).
 Source lines are read-only pointers for `uw explain`; output generation never uses source text.
@@ -176,14 +179,39 @@ def dump_table(table, module, var, id_file, prefix):
     return {"module": module, "var": var, "id_file": id_file, "id_prefix": prefix, "entries": out}
 
 
+TAG_RE = re.compile(r'tag\s*==\s*"(\w+)"')
+FIND_RE = re.compile(r"find_object\((\w+)\s*,")
+
+
+def dump_ref_tags():
+    """{list variable: tag} as the kit's own `get_id_value` in process_operations.py resolves
+    "tag_name" strings inside operations (e.g. "mnu" -> game_menus, "mt" -> mission_templates,
+    NOT the ID_*.py prefixes). Read from the source, nothing typed in by hand."""
+    tags, pending = {}, None
+    for line in read_lines("process_operations.py"):
+        m = TAG_RE.search(line)
+        if m:
+            pending = m.group(1)
+            continue
+        m = FIND_RE.search(line)
+        if m and pending is not None:
+            tags[m.group(1)] = pending
+            pending = None
+    if not tags:
+        raise SystemExit("process_operations.py: no tag table found")
+    return tags
+
+
 def main():
     import os
     sys.path.insert(0, os.getcwd())  # the staging copy, not this script's folder
     out_path = sys.argv[1]
     kit_hash = sys.argv[2] if len(sys.argv) > 2 else None
+    ref_tags = dump_ref_tags()
     tables = {}
     for t in TABLES:
         tables[t[0]] = dump_table(*t)
+        tables[t[0]]["ref_tag"] = ref_tags.get(t[2])
     hooks = [e["name"] for e in tables["scripts"]["entries"] if e["name"].startswith("game_")]
     atlas = {"schema": 1, "kit_hash": kit_hash, "ops": dump_ops(), "hooks": hooks,
              "ranges": dump_ranges(), "tables": tables}

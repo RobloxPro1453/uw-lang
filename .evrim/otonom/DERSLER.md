@@ -13,3 +13,4 @@ Her satır bir ders: "X yapınca Y oldu → artık Z yapıyorum (GUNLUK: tarih s
 - [evrensel→taşındı makine] Ucuz kod modeline dar 'yalnız şuraya bak, şunu yap' tarifi verip düşünmesini (thinking) kapatmak zarar verir: dosya keşfedemez, düşünemez, sallar. Hedef + kabul testi + doğrulanmış bilgiler ver, keşfe izin ver, thinking açık kalsın; alan bilgisini (API/şema/ad listesi) erişilebilir kıl ve ad tahminini yasakla (bulamazsa 'blocked'). Tarif/rapor biçimini ölçerek sürekli ayarla. (2026-11-15)
 - [yerel] Örnek verirken kitte/atlas'ta olmayan Native adı uydurma (tavernkeeper.greeting vakası); uydurma örnekse açıkça işaretle. (2026-11-15)
 - [yerel] Native değerleri JSON'a dökülürken tuple/liste ayrımı korunmalı; kit '%f' % liste gibi yerlerde düşer (D3). (2026-11-15)
+- [yerel] Git Bash heredoc içinden Python ile dosyaya regex yazınca \b görünmez backspace (\x08) oldu; regex içeren düzenlemeleri Edit aracıyla yap ve od -c ile doğrula. (2026-11-15)

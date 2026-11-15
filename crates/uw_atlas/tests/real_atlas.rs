@@ -26,3 +26,21 @@ fn full_native_atlas_loads_and_resolves() {
         }
     }
 }
+
+/// kit-meta/hooks.toml (py/hooks_meta.py) must list exactly the atlas' hooks, in kit order.
+#[test]
+fn hooks_toml_matches_atlas_hooks() {
+    let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/uw-staging/atlas.json");
+    if !std::path::Path::new(path).exists() {
+        eprintln!("skipped: no atlas at {path}");
+        return;
+    }
+    let atlas = Atlas::from_path(path).expect("full atlas loads");
+    let toml = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../kit-meta/hooks.toml"))
+        .expect("kit-meta/hooks.toml");
+    let names: Vec<&str> = toml
+        .lines()
+        .filter_map(|l| l.strip_prefix('[')?.strip_suffix(']'))
+        .collect();
+    assert_eq!(names, atlas.hooks.iter().map(String::as_str).collect::<Vec<_>>());
+}

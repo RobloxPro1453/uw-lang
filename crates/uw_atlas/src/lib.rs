@@ -72,6 +72,11 @@ pub struct Table {
     pub var: String,
     pub id_file: Option<String>,
     pub id_prefix: Option<String>,
+    /// Tag operations use to name this table's entries (`"mnu"` for menus, `"mt"` for mission
+    /// templates), read by the dump from the kit's `process_operations.py`. `None` when
+    /// operations cannot reference the table, and for atlases dumped before the field existed.
+    #[serde(default)]
+    pub ref_tag: Option<String>,
     pub entries: Vec<Entry>,
 }
 
@@ -93,6 +98,23 @@ pub struct Atlas {
     id_index: HashMap<String, (String, usize)>,
     #[serde(skip)]
     hook_set: HashSet<String>,
+    /// `ref_tag` -> table name.
+    #[serde(skip)]
+    tag_index: HashMap<String, String>,
+    /// Op code -> position in `ops` (the first non-deprecated name for that code).
+    #[serde(skip)]
+    code_index: HashMap<u64, usize>,
+}
+
+/// One place where an operation block mentions something (see [`Atlas::references`]).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Reference {
+    /// Table of the entry whose value holds the mention.
+    pub table: String,
+    /// Index of that entry in its table.
+    pub index: usize,
+    /// Name of the operation the mention is an operand of; `None` outside operation blocks.
+    pub op: Option<String>,
 }
 
 impl Atlas {
@@ -154,6 +176,27 @@ impl Atlas {
             }
         }
         let hook_set = self.hooks.iter().cloned().collect();
+        let mut tag_index = HashMap::new();
+        for (table_name, table) in &self.tables {
+            if let Some(tag) = &table.ref_tag {
+                tag_index.insert(tag.clone(), table_name.clone());
+            }
+        }
+        let mut code_index: HashMap<u64, usize> = HashMap::new();
+        for (pos, op) in self.ops.iter().enumerate() {
+            // First name in header order wins, unless it is marked deprecated and a later one
+            // is not (`end_try` / `try_end`).
+            let deprecated = |op: &Op| op.signature.trim_start().starts_with("deprecated");
+            let replace = match code_index.get(&op.code) {
+                None => true,
+                Some(&old) => deprecated(&self.ops[old]) && !deprecated(op),
+            };
+            if replace {
+                code_index.insert(op.code, pos);
+            }
+        }
+        self.tag_index = tag_index;
+        self.code_index = code_index;
         self.op_index = op_index;
         self.id_index = id_index;
         self.hook_set = hook_set;
@@ -188,6 +231,111 @@ impl Atlas {
     /// True when `name` is a script hook (`game_start`, ...).
     pub fn is_hook(&self, name: &str) -> bool {
         self.hook_set.contains(name)
+    }
+
+    /// The table operations reach with `tag` (`"mnu"` -> `"menus"`).
+    pub fn table_for_tag(&self, tag: &str) -> Option<&str> {
+        self.tag_index.get(tag).map(String::as_str)
+    }
+
+    /// Resolves a reference string as the kit does inside operations (`get_identifier_value`):
+    /// the part before the first `_` is the tag, the rest is compared case-insensitively with
+    /// entry names and the FIRST match wins (`header_common.find_object`). Note the contrast with
+    /// [`Atlas::entry_by_id`], where a repeated name keeps only the last occurrence's id.
+    pub fn resolve_ref(&self, text: &str) -> Option<(&str, &Entry)> {
+        let (tag, rest) = text.split_once('_')?;
+        if tag.is_empty() {
+            return None;
+        }
+        let table_name = self.tag_index.get(tag)?;
+        let table = self.tables.get(table_name)?;
+        let wanted = rest.to_lowercase();
+        let entry = table
+            .entries
+            .iter()
+            .find(|entry| entry.name.as_deref().is_some_and(|name| name.to_lowercase() == wanted))?;
+        Some((table_name.as_str(), entry))
+    }
+
+    /// The operation named for a statement head, with the kit's `neg` / `this_or_next` flag bits
+    /// (taken from the atlas' own op list) cleared.
+    pub fn op_for_code(&self, code: u64) -> Option<&Op> {
+        let mut flags = 0u64;
+        for flag in ["neg", "this_or_next"] {
+            if let Some(op) = self.op(flag) {
+                flags |= op.code;
+            }
+        }
+        let pos = self
+            .code_index
+            .get(&code)
+            .or_else(|| self.code_index.get(&(code & !flags)))?;
+        self.ops.get(*pos)
+    }
+
+    /// Every place a string in some entry's value satisfies `matches`, in table order. Inside
+    /// operation blocks (`{"list": [...]}` of statements) the statement's operation is named.
+    /// Only string mentions are found: data written with the kit's Python names (`itm_x` as an
+    /// `ID_*.py` integer) is already a number in the atlas and cannot be traced back.
+    pub fn references(&self, matches: impl Fn(&str) -> bool) -> Vec<Reference> {
+        let mut out = Vec::new();
+        for (table_name, table) in &self.tables {
+            for entry in &table.entries {
+                let mut ops = Vec::new();
+                self.scan(&entry.value, None, false, &matches, &mut ops);
+                for op in ops {
+                    out.push(Reference { table: table_name.clone(), index: entry.index, op });
+                }
+            }
+        }
+        out
+    }
+
+    fn scan(
+        &self,
+        value: &serde_json::Value,
+        op: Option<&str>,
+        in_block: bool,
+        matches: &impl Fn(&str) -> bool,
+        found: &mut Vec<Option<String>>,
+    ) {
+        use serde_json::Value;
+        match value {
+            Value::String(text) => {
+                if matches(text) {
+                    found.push(op.map(str::to_owned));
+                }
+            }
+            Value::Array(items) => {
+                // A tuple sitting directly in a block, headed by an integer, is a statement.
+                let statement_op = if in_block {
+                    items
+                        .first()
+                        .and_then(Value::as_u64)
+                        .and_then(|code| self.op_for_code(code))
+                        .map(|op| op.name.as_str())
+                } else {
+                    None
+                };
+                let op = statement_op.or(op);
+                for item in items {
+                    self.scan(item, op, false, matches, found);
+                }
+            }
+            Value::Object(map) => {
+                for (key, item) in map {
+                    match (key.as_str(), item) {
+                        ("list", Value::Array(items)) => {
+                            for item in items {
+                                self.scan(item, op, true, matches, found);
+                            }
+                        }
+                        _ => self.scan(item, op, false, matches, found),
+                    }
+                }
+            }
+            _ => {}
+        }
     }
 
     /// Every known identifier, for did-you-mean suggestions. Deterministic order.

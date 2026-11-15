@@ -1,6 +1,12 @@
 # Devir: sonraki oturum buradan başlar
 
-## 00. EN GÜNCEL (2026-11-15, tur 1 sonrası)
+## 00. EN GÜNCEL (2026-11-15, tur 2 sonrası)
+
+- Tur 2 bitti (tamamı Opus): `uw explain`, `py/uw_runtime.py` + D2 (b)(c), D4 test modları kuruldu (`Modules/uw_sonda_a/b/c`, adımlar `docs/CHECKUP.md`), `kit-meta/hooks.toml`. Testler 38. Ayrıntı `docs/PROGRESS.md` en üst.
+- **Bekleyen:** sahibinin D4 sonucu (CHECKUP). Gelince `docs/bilgi/`'ye [DENEY] ve KARAR §5'teki praven akışı kesinleşir.
+- Sıradaki tur (3): sözdizimi meclisi (Faz 1 gramerinden önce, `docs/MECLIS_GUNDEMI.md` sonu), D2 (a/d/e), diyalog kaynak satırları + `uw find "<metin>"`, `kit-meta/` kalanları (slots, hardwired, optypes).
+
+### Tur 1 sonrası (eski)
 
 - Tur 1 bitti: D1, atlas, D2 ana testi, D3 (tamamı) geçti; `uw_diag`, `uw_atlas`, `uw_kitrun` yazıldı, 29 test. Ayrıntı: `docs/PROGRESS.md` en üst kayıt, `docs/KNOWLEDGE.md` > "Faz 0 deney sonuçları".
 - **Sahibinin kararı:** çekirdeği Claude (Opus) kendisi yazar; DeepSeek beklenmez, çekirdek işi ona verilmez (AGENTS iş bölümünü çekirdek için geçersiz kılar).

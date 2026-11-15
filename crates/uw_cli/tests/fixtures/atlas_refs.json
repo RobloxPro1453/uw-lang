@@ -1,0 +1,36 @@
+{
+      "schema": 1, "kit_hash": "refs",
+      "ops": [
+        {"name":"call_script","code":1,"line":14,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"end_try","code":3,"line":15,"signature":"deprecated, use try_end instead","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"try_end","code":3,"line":16,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"eq","code":31,"line":20,"signature":"","lhs":false,"can_fail":true,"global_lhs":false},
+        {"name":"jump_to_menu","code":2060,"line":30,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"assign","code":2133,"line":40,"signature":"","lhs":true,"can_fail":false,"global_lhs":false},
+        {"name":"neg","code":2147483648,"line":440,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"this_or_next","code":1073741824,"line":441,"signature":"","lhs":false,"can_fail":false,"global_lhs":false}
+      ],
+      "hooks": ["game_start"],
+      "ranges": [],
+      "tables": {
+        "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","ref_tag":"mnu",
+          "entries": [
+            {"index":0,"name":"start","id":"menu_start","dup":null,"line":10,"value":["start",0,"Hi",{"list":[]}]},
+            {"index":1,"name":"camp","id":null,"dup":1,"line":20,"value":["camp",0,"A",{"list":[]}]},
+            {"index":2,"name":"Camp","id":"menu_camp","dup":2,"line":30,"value":["Camp",0,"B",{"list":[]}]}
+          ]},
+        "scripts": {"module":"module_scripts","var":"scripts","id_file":"ID_scripts","id_prefix":"script_","ref_tag":"script",
+          "entries": [
+            {"index":0,"name":"game_start","id":"script_game_start","dup":null,"line":31,"value":["game_start",{"list":[
+              [2060,"mnu_camp"],
+              [2133,"$g_x",1],
+              [1073741855,"$g_x",[5,"mnu_start"]],
+              [1,"script_helper"],
+              3
+            ]}]},
+            {"index":1,"name":"helper","id":"script_helper","dup":null,"line":50,"value":["helper",{"list":[[2133,"$g_x","mnu_start"]]}]}
+          ]},
+        "dialogs": {"module":"module_dialogs","var":"dialogs","id_file":null,"id_prefix":null,"ref_tag":null,
+          "entries": [{"index":0,"name":null,"id":null,"dup":null,"line":null,"value":{"list":["anyone","start",{"list":[]},"Hello","close_window",{"list":[[2060,"mnu_start"]]}]}}]}
+      }
+    }
