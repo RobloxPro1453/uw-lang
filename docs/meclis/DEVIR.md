@@ -1,5 +1,28 @@
 # Devir: sonraki oturum buradan başlar
 
+## 00000. KALDIRAÇ PLANI — sahibi "hemen başla" dedi (2026-11-15 gece); yeni oturumun İLK İŞİ
+
+Sorun: DeepSeek ucuz (~14$), darboğaz Claude'un tarif yazması + kod okuması; Claude kotası az (haftalık
+~%37 boş; bağlam büyük oturum pahalı → kısa taze oturumlar). Çözüm: **doğruluğu makinenin ölçtüğü ve
+mimari karar gerektirmeyen iş**: Native'in bütün **işlem bloklarını** (scripts, menü giriş + seçenek
+koşul/sonuç, diyalog koşul/sonuç, triggers, simple_triggers, mission template tetikleri, presentations)
+UW'ye çevir (decompile) ve **gidiş-dönüş** ölç: `ops == lower(check(parse(print(decompile(ops)))))`,
+bellekte, kit/Python yok. Yapı: düz işlem çağrısı; temiz `try_begin/else_try/try_end` → `if/else`;
+`this_or_next|`/`neg|` → `or`/`not` (yalnız birebir geri dönüyorsa); geri kalanı ham çağrı (%100 kapsama).
+Veri kayıtları (troop/item/party alanları) YOK: meclis bekliyor.
+
+Adımlar (yeni oturum, kısa): (1) Gemini kopyası geldiyse önce onu denetle (aşağıda), gelmediyse bekleme.
+(2) Tarifler (`docs/tasks/T-02x`): A) `uw_decomp` (yeni crate ya da uw_cli modülü): atlas işlem bloğu →
+UW metni; B) uw_check'e "tek blok denetle" API'si + gidiş-dönüş koşucusu (`uw roundtrip` ya da test), rapor:
+blok sayısı / birebir / başarısız + ilk 20 hata; C-H) tablo başına çıkarıcı + koşucuya bağlama
+(scripts, menus, dialogs, triggers+simple_triggers, mission_templates, presentations). Her tarifte kabul =
+gidiş-dönüş oranı ölçülüp raporlanır, mevcut testler yeşil; derleyici hatası bulunursa düzeltip test
+eklemek serbest (ayrı commit). Steps 400, Budget 2$, `delegate.dailyBudget` 10$'a çıkar (sahibi onayladı).
+(3) `cv delegate batch --lanes 8 …`, kapan. (4) Sonraki kısa oturumlar: `cv delegate status/verify`,
+yalnız sayılar + başarısız örnekler + yasak yol kontrolü; geçenleri birleştir, sıradaki paketi aç
+(yüzde düşükse: hataları düzelt şeritleri). Hedef: işlem bloklarının %100'ü gidiş-dönüş; çıktı dosyaları
+`target/uw-native/` (depoya girmez) ve meclise kanıt.
+
 ## 0000. ÖNCE BU (2026-11-15, Claude döngüsü durduruldu)
 
 Sahibi Claude limitini bekliyor; arada iş **Antigravity/Gemini**'de sürüyor. Güncel durum, yarım işler ve
