@@ -14,7 +14,7 @@ use std::collections::BTreeMap;
 
 use uw_atlas::Atlas;
 use uw_diag::{suggest, Diagnostic, SourceFile, Span};
-use uw_syntax::{Arg, File, Item, Stmt};
+use uw_syntax::{Arg, Block, Cond, Expr, File, Ident, Item, Member, Place, Stmt, When};
 #[allow(unused_imports)]
 use uw_syntax::Call;
 
@@ -24,6 +24,13 @@ pub const E0202_DUPLICATE: &str = "E0202";
 pub const E0203_TOO_FEW: &str = "E0203";
 pub const E0204_TEXT: &str = "E0204";
 pub const E0205_MOD_NAME: &str = "E0205";
+pub const E0206_OPTION_EXISTS: &str = "E0206";
+pub const E0207_OPTION_UNKNOWN: &str = "E0207";
+pub const E0208_BAD_ID: &str = "E0208";
+pub const E0209_NEW_EXISTS: &str = "E0209";
+pub const E0210_LOCAL_TEMP: &str = "E0210";
+pub const E0211_MEMBER_TWICE: &str = "E0211";
+pub const E0212_ASSIGN_TARGET: &str = "E0212";
 
 /// A parsed source file.
 pub struct Source {
@@ -103,9 +110,11 @@ pub struct Checked {
     pub patches: Vec<Patch>,
 }
 
-/// Field of the operation block: module_game_menus.py:25 (menus, 5th field),
-/// module_scripts.py:22 (scripts, 2nd field).
+/// Fields of a menu entry: module_game_menus.py:20-32 (id, flags, text, mesh, enter block,
+/// options) and module_scripts.py:22 (scripts, 2nd field = operation block).
+const MENU_TEXT_FIELD: usize = 2;
 const MENU_ENTER_FIELD: usize = 4;
+const MENU_OPTIONS_FIELD: usize = 5;
 const SCRIPT_BODY_FIELD: usize = 1;
 
 fn diag(code: &'static str, message: String, span: Span, help: Option<String>) -> Diagnostic {
@@ -143,6 +152,8 @@ struct Ctx<'a> {
     errors: Vec<Error>,
     file: usize,
     source: &'a SourceFile,
+    /// Next `:_uwN` temporary, numbered from 0 per option condition.
+    temp: usize,
 }
 
 impl Ctx<'_> {
@@ -171,98 +182,622 @@ impl Ctx<'_> {
                         out.push(uw_lower::Stmt::Op(op));
                     }
                 }
-                // Checking assignments and `if` is task T-017.
-                Stmt::Assign { span, .. } | Stmt::If { span, .. } => self.error(diag(
-                    E0201_NOT_YET,
-                    "assignments and `if` are parsed but not checked yet".into(),
-                    *span,
-                    None,
-                )),
+                Stmt::Assign { target, op, value, span } => {
+                    let checked_target = self.assign_target(target);
+                    let checked_value = self.expr(value);
+                    if let (Some(target), Some(value)) = (checked_target, checked_value) {
+                        out.push(uw_lower::Stmt::Assign {
+                            target,
+                            op: lower_assign_op(*op),
+                            value,
+                            origin: self.origin(*span),
+                        });
+                    }
+                }
+                Stmt::If { arms, otherwise, span } => {
+                    let mut checked_arms = Vec::new();
+                    let mut ok = true;
+                    for (cond, body) in arms {
+                        let checked_cond = self.cond(cond);
+                        let checked_body = self.stmts(&body.stmts);
+                        match checked_cond {
+                            Some(cond) => checked_arms.push((cond, checked_body)),
+                            None => ok = false,
+                        }
+                    }
+                    let otherwise = otherwise.as_ref().map(|body| self.stmts(&body.stmts));
+                    if ok {
+                        out.push(uw_lower::Stmt::If { arms: checked_arms, otherwise, origin: self.origin(*span) });
+                    }
+                }
             }
         }
         out
     }
 
-    /// Checks one operation call: the operation exists, has enough values, every value resolves.
-    fn call(&mut self, stmt: &Call) -> Option<Op> {
-        {
-            let Some(op) = self.atlas.op(&stmt.op.text) else {
-                let help = suggest(&stmt.op.text, self.atlas.ops.iter().map(|o| o.name.as_str()))
-                    .map(|s| format!("did you mean '{s}'? (`uw browse` lists every operation)"));
+    /// An assignment target: `$global`, `:local`, or a register kit constant.
+    fn assign_target(&mut self, target: &Arg) -> Option<Value> {
+        match target {
+            Arg::Global(g) | Arg::Local(g) => self.local(g),
+            Arg::Name(name) => {
+                let constant = self.atlas.constant(&name.text).map(|c| (c.name.clone(), c.module.clone()));
+                match constant {
+                    Some((constant, module)) if is_register(&name.text) => Some(Value::Const { name: constant, module }),
+                    _ => {
+                        self.error(diag(
+                            E0212_ASSIGN_TARGET,
+                            format!("'{}' cannot be assigned to", name.text),
+                            name.span,
+                            Some("an assignment target is a $global, a :local or a register such as reg0".into()),
+                        ));
+                        None
+                    }
+                }
+            }
+            Arg::Int(_, span) | Arg::Str(_, span) => {
                 self.error(diag(
-                    E0001_UNKNOWN_NAME,
-                    format!("'{}' is not a Native operation", stmt.op.text),
-                    stmt.op.span,
-                    help,
+                    E0212_ASSIGN_TARGET,
+                    "an assignment target must be a $global, a :local or a register".into(),
+                    *span,
+                    None,
                 ));
-                return None;
-            };
-            if let Some(min) = min_args(op) {
-                if stmt.args.len() < min {
-                    let mut d = diag(
-                        E0203_TOO_FEW,
-                        format!("'{}' needs at least {min} values, got {}", op.name, stmt.args.len()),
-                        stmt.span,
-                        Some(format!("Native: {}", op.signature.trim())),
-                    );
-                    if let Some(line) = op.line {
-                        d.notes.push(format!("header_operations.py:{line}"));
-                    }
-                    self.error(d);
-                }
+                None
             }
-            let mut args = Vec::new();
-            for arg in &stmt.args {
-                match arg {
-                    Arg::Int(n, _) => args.push(Value::Int(*n)),
-                    Arg::Global(g) | Arg::Local(g) => args.push(Value::Ref(g.text.clone())),
-                    Arg::Str(text, span) => {
-                        if !text.is_ascii() {
-                            self.error(diag(
-                                E0204_TEXT,
-                                "text with non-ASCII letters is not supported yet".into(),
-                                *span,
-                                Some("Turkish letters wait for game experiment D5; use plain letters for now".into()),
-                            ));
-                        }
-                        args.push(Value::Text(text.clone()));
-                    }
-                    Arg::Name(name) => {
-                        if self.atlas.resolve_ref(&name.text).is_some() {
-                            args.push(Value::Ref(name.text.clone()));
-                        } else if let Some(c) = self.atlas.constant(&name.text) {
-                            args.push(Value::Const { name: c.name.clone(), module: c.module.clone() });
-                        } else {
-                            let refs: Vec<String> = self
-                                .atlas
-                                .tables
-                                .values()
-                                .filter_map(|t| {
-                                    let tag = t.ref_tag.as_deref()?;
-                                    Some(t.entries.iter().filter_map(move |e| {
-                                        e.name.as_deref().map(|n| format!("{tag}_{}", n.to_lowercase()))
-                                    }))
-                                })
-                                .flatten()
-                                .collect();
-                            let candidates = refs
-                                .iter()
-                                .map(String::as_str)
-                                .chain(self.atlas.constants.iter().map(|c| c.name.as_str()));
-                            let help = suggest(&name.text, candidates).map(|s| format!("did you mean '{s}'?"));
-                            self.error(diag(
-                                E0001_UNKNOWN_NAME,
-                                format!("'{}' is not a Native name or kit constant", name.text),
-                                name.span,
-                                help.or_else(|| Some("`uw browse` finds Native names by part of the name or in-game text".into())),
-                            ));
-                        }
-                    }
-                }
-            }
-            Some(Op { name: op.name.clone(), args, origin: self.origin(stmt.span) })
         }
     }
+
+    /// A `$global` / `:local`; `:_` names are reserved for lowering.
+    fn local(&mut self, ident: &Ident) -> Option<Value> {
+        if ident.text.starts_with(":_") {
+            self.error(diag(
+                E0210_LOCAL_TEMP,
+                format!("'{}' starts with `:_`, which lowering uses for temporaries", ident.text),
+                ident.span,
+                Some("user locals may not start with `:_`".into()),
+            ));
+            None
+        } else {
+            Some(Value::Ref(ident.text.clone()))
+        }
+    }
+
+    /// One value of an operation or expression; a name that does not resolve is an error.
+    fn value(&mut self, arg: &Arg) -> Option<Value> {
+        match arg {
+            Arg::Int(n, _) => Some(Value::Int(*n)),
+            Arg::Global(g) | Arg::Local(g) => self.local(g),
+            Arg::Str(text, span) => {
+                self.check_text(text, *span);
+                Some(Value::Text(text.clone()))
+            }
+            Arg::Name(name) => {
+                if self.atlas.resolve_ref(&name.text).is_some() {
+                    Some(Value::Ref(name.text.clone()))
+                } else if let Some(c) = self.atlas.constant(&name.text) {
+                    Some(Value::Const { name: c.name.clone(), module: c.module.clone() })
+                } else {
+                    let refs: Vec<String> = self
+                        .atlas
+                        .tables
+                        .values()
+                        .filter_map(|t| {
+                            let tag = t.ref_tag.as_deref()?;
+                            Some(t.entries.iter().filter_map(move |e| {
+                                e.name.as_deref().map(|n| format!("{tag}_{}", n.to_lowercase()))
+                            }))
+                        })
+                        .flatten()
+                        .collect();
+                    let candidates = refs
+                        .iter()
+                        .map(String::as_str)
+                        .chain(self.atlas.constants.iter().map(|c| c.name.as_str()));
+                    let help = suggest(&name.text, candidates).map(|s| format!("did you mean '{s}'?"));
+                    self.error(diag(
+                        E0001_UNKNOWN_NAME,
+                        format!("'{}' is not a Native name or kit constant", name.text),
+                        name.span,
+                        help.or_else(|| Some("`uw browse` finds Native names by part of the name or in-game text".into())),
+                    ));
+                    None
+                }
+            }
+        }
+    }
+
+    fn check_text(&mut self, text: &str, span: Span) {
+        if !text.is_ascii() {
+            self.error(diag(
+                E0204_TEXT,
+                "text with non-ASCII letters is not supported yet".into(),
+                span,
+                Some("Turkish letters wait for game experiment D5; use plain letters for now".into()),
+            ));
+        }
+    }
+
+    /// A checked integer expression.
+    fn expr(&mut self, expr: &Expr) -> Option<uw_lower::Expr> {
+        match expr {
+            Expr::Value(arg) => self.value(arg).map(uw_lower::Expr::Value),
+            Expr::Neg(inner, _) => Some(uw_lower::Expr::Neg(Box::new(self.expr(inner)?))),
+            Expr::Bin { op, left, right, .. } => Some(uw_lower::Expr::Bin {
+                op: lower_bin_op(*op),
+                left: Box::new(self.expr(left)?),
+                right: Box::new(self.expr(right)?),
+            }),
+        }
+    }
+
+    /// A checked condition for `if`.
+    fn cond(&mut self, cond: &Cond) -> Option<uw_lower::Cond> {
+        match cond {
+            Cond::Cmp { op, left, right, span } => Some(uw_lower::Cond::Cmp {
+                op: lower_cmp_op(*op),
+                left: self.expr(left)?,
+                right: self.expr(right)?,
+                origin: self.origin(*span),
+            }),
+            Cond::Call(call) => self.call(call).map(uw_lower::Cond::Op),
+            Cond::Not(inner, _) => Some(uw_lower::Cond::Not(Box::new(self.cond(inner)?))),
+            Cond::And(parts) => {
+                let mut out = Vec::new();
+                for part in parts {
+                    out.push(self.cond(part)?);
+                }
+                Some(uw_lower::Cond::And(out))
+            }
+            Cond::Or(parts) => {
+                let mut out = Vec::new();
+                for part in parts {
+                    out.push(self.cond(part)?);
+                }
+                Some(uw_lower::Cond::Or(out))
+            }
+        }
+    }
+
+    /// A `when <cond>` option condition as the operation list the kit writes (gramer-2 §2).
+    /// `uw_lower` only lowers whole statement blocks, so the condition is lowered here.
+    fn cond_ops(&mut self, cond: &Cond, span: Span) -> Vec<Op> {
+        let mut out = Vec::new();
+        self.cond_ops_into(cond, span, &mut out);
+        out
+    }
+
+    fn cond_ops_into(&mut self, cond: &Cond, fallback: Span, out: &mut Vec<Op>) -> Option<()> {
+        match cond {
+            Cond::Cmp { op, left, right, span } => {
+                let left = self.expr_value(left, out)?;
+                let right = self.expr_value(right, out)?;
+                out.push(Op {
+                    name: cmp_op_name(*op).into(),
+                    args: vec![left, right],
+                    origin: self.origin(*span),
+                });
+                Some(())
+            }
+            Cond::Call(call) => {
+                let op = self.call(call)?;
+                out.push(op);
+                Some(())
+            }
+            Cond::Not(inner, _) => self.not_ops_into(inner, fallback, out),
+            Cond::And(parts) => {
+                for part in parts {
+                    self.cond_ops_into(part, fallback, out)?;
+                }
+                Some(())
+            }
+            Cond::Or(parts) => self.or_ops_into(parts, fallback, out),
+        }
+    }
+
+    fn not_ops_into(&mut self, inner: &Cond, fallback: Span, out: &mut Vec<Op>) -> Option<()> {
+        match inner {
+            Cond::Cmp { op, left, right, span } => {
+                let left = self.expr_value(left, out)?;
+                let right = self.expr_value(right, out)?;
+                out.push(Op {
+                    name: not_cmp_op_name(*op).into(),
+                    args: vec![left, right],
+                    origin: self.origin(*span),
+                });
+                Some(())
+            }
+            Cond::Call(call) => {
+                let op = self.call(call)?;
+                out.push(Op { name: format!("neg|{}", op.name), args: op.args, origin: op.origin });
+                Some(())
+            }
+            Cond::Not(inner, _) => self.cond_ops_into(inner, fallback, out),
+            Cond::And(_) | Cond::Or(_) => {
+                let temp = self.next_temp();
+                let origin = self.origin(fallback);
+                out.push(Op { name: "assign".into(), args: vec![temp.clone(), Value::Int(0)], origin: origin.clone() });
+                out.push(Op { name: "try_begin".into(), args: Vec::new(), origin: origin.clone() });
+                self.cond_ops_into(inner, fallback, out)?;
+                out.push(Op { name: "assign".into(), args: vec![temp.clone(), Value::Int(1)], origin: origin.clone() });
+                out.push(Op { name: "try_end".into(), args: Vec::new(), origin: origin.clone() });
+                out.push(Op { name: "eq".into(), args: vec![temp, Value::Int(0)], origin });
+                Some(())
+            }
+        }
+    }
+
+    fn or_ops_into(&mut self, parts: &[Cond], fallback: Span, out: &mut Vec<Op>) -> Option<()> {
+        let mut branches = Vec::new();
+        for part in parts {
+            let mut branch = Vec::new();
+            self.cond_ops_into(part, fallback, &mut branch)?;
+            branches.push(branch);
+        }
+        if branches.iter().all(|branch| branch.len() == 1) {
+            let last = branches.len().saturating_sub(1);
+            for (index, branch) in branches.into_iter().enumerate() {
+                let mut op = branch.into_iter().next().expect("one operation");
+                if index < last {
+                    op.name = format!("this_or_next|{}", op.name);
+                }
+                out.push(op);
+            }
+            Some(())
+        } else {
+            let temp = self.next_temp();
+            let origin = self.origin(fallback);
+            out.push(Op { name: "assign".into(), args: vec![temp.clone(), Value::Int(0)], origin: origin.clone() });
+            for part in parts {
+                out.push(Op { name: "try_begin".into(), args: Vec::new(), origin: origin.clone() });
+                self.cond_ops_into(part, fallback, out)?;
+                out.push(Op { name: "assign".into(), args: vec![temp.clone(), Value::Int(1)], origin: origin.clone() });
+                out.push(Op { name: "try_end".into(), args: Vec::new(), origin: origin.clone() });
+            }
+            out.push(Op { name: "eq".into(), args: vec![temp, Value::Int(1)], origin });
+            Some(())
+        }
+    }
+
+    /// One expression as a value, writing `store_*` operations for its sub-expressions.
+    fn expr_value(&mut self, expr: &Expr, out: &mut Vec<Op>) -> Option<Value> {
+        match expr {
+            Expr::Value(arg) => self.value(arg),
+            Expr::Neg(inner, span) => {
+                if let Expr::Value(Arg::Int(n, _)) = &**inner {
+                    return Some(Value::Int(-*n));
+                }
+                let value = self.expr_value(inner, out)?;
+                let temp = self.next_temp();
+                out.push(Op {
+                    name: "store_sub".into(),
+                    args: vec![temp.clone(), Value::Int(0), value],
+                    origin: self.origin(*span),
+                });
+                Some(temp)
+            }
+            Expr::Bin { op, left, right, span } => {
+                let left = self.expr_value(left, out)?;
+                let right = self.expr_value(right, out)?;
+                let temp = self.next_temp();
+                out.push(Op { name: bin_op_name(*op).into(), args: vec![temp.clone(), left, right], origin: self.origin(*span) });
+                Some(temp)
+            }
+        }
+    }
+
+    fn next_temp(&mut self) -> Value {
+        let name = format!("{}{}", uw_lower::TEMP_PREFIX, self.temp);
+        self.temp += 1;
+        Value::Ref(name)
+    }
+
+    /// The bare option id; `mno_` is the kit's prefix, never the source form.
+    fn option_id(&mut self, id: &Ident) -> Option<String> {
+        if !id.text.is_ascii() {
+            self.error(diag(
+                E0208_BAD_ID,
+                format!("option id '{}' has non-ASCII letters", id.text),
+                id.span,
+                Some("option ids use ASCII letters, digits and _".into()),
+            ));
+            return None;
+        }
+        if let Some(bare) = id.text.strip_prefix("mno_") {
+            self.error(diag(
+                E0208_BAD_ID,
+                format!("option id '{}' is written without `mno_`", id.text),
+                id.span,
+                Some(format!("write '{bare}'; the kit adds `mno_` itself")),
+            ));
+            return None;
+        }
+        Some(id.text.clone())
+    }
+
+    /// A new option; `native` is the menu's Native option id list when it already exists.
+    fn build_option(
+        &mut self,
+        menu: &str,
+        native: Option<&[String]>,
+        id: &Ident,
+        text: &str,
+        when: Option<&When>,
+        body: &Block,
+        span: Span,
+    ) -> Option<NewOption> {
+        let id_span = id.span;
+        let id = self.option_id(id)?;
+        if let Some(native) = native {
+            if native.iter().any(|existing| existing == &id) {
+                self.error(diag(
+                    E0206_OPTION_EXISTS,
+                    format!("menu '{menu}' already has option '{id}'"),
+                    id_span,
+                    Some(format!("change it with `change option {id}`")),
+                ));
+                return None;
+            }
+        }
+        self.check_text(text, span);
+        let condition = match when {
+            Some(When::Block(block)) => self.ops(&block.stmts),
+            Some(When::Cond(cond)) => self.cond_ops(cond, span),
+            None => Vec::new(),
+        };
+        let consequence = self.ops(&body.stmts);
+        Some(NewOption { id, condition, text: text.to_owned(), consequence, origin: self.origin(span) })
+    }
+
+    fn option_place(&mut self, place: Option<&Place>) -> Option<OptionPlace> {
+        match place {
+            None => Some(OptionPlace::End),
+            Some(Place::After(id)) => Some(OptionPlace::After(self.option_id(id)?)),
+            Some(Place::Before(id)) => Some(OptionPlace::Before(self.option_id(id)?)),
+        }
+    }
+
+    fn insert_option_patch(
+        &mut self,
+        menu: &str,
+        entry: &str,
+        native: &[String],
+        id: &Ident,
+        text: &str,
+        when: Option<&When>,
+        place: Option<&Place>,
+        body: &Block,
+        span: Span,
+    ) -> Option<Patch> {
+        let place = self.option_place(place)?;
+        let option = self.build_option(menu, Some(native), id, text, when, body, span)?;
+        Some(Patch {
+            module: "module_game_menus".into(),
+            var: "game_menus".into(),
+            entry: entry.to_owned(),
+            path: vec![MENU_OPTIONS_FIELD],
+            action: Action::InsertOption { option, place },
+            ops: Vec::new(),
+            origin: self.origin(span),
+        })
+    }
+
+    fn change_option_patch(
+        &mut self,
+        menu: &str,
+        entry: &str,
+        native: &[String],
+        id: &Ident,
+        text: &Option<(String, Span)>,
+        when: Option<&When>,
+        body: Option<&Block>,
+        span: Span,
+    ) -> Option<Patch> {
+        let id_span = id.span;
+        let id = self.option_id(id)?;
+        if !native.iter().any(|existing| existing == &id) {
+            let help = suggest(&id, native.iter().map(String::as_str)).map(|s| format!("did you mean '{s}'?"));
+            self.error(diag(
+                E0207_OPTION_UNKNOWN,
+                format!("menu '{menu}' has no option '{id}'"),
+                id_span,
+                help.or_else(|| Some("`change option` only changes options the Native menu already has".into())),
+            ));
+            return None;
+        }
+        let text = match text {
+            Some((text, span)) => {
+                self.check_text(text, *span);
+                Some(text.clone())
+            }
+            None => None,
+        };
+        let condition = match when {
+            Some(When::Block(block)) => Some(self.ops(&block.stmts)),
+            Some(When::Cond(cond)) => Some(self.cond_ops(cond, span)),
+            None => None,
+        };
+        let consequence = body.map(|body| self.ops(&body.stmts));
+        Some(Patch {
+            module: "module_game_menus".into(),
+            var: "game_menus".into(),
+            entry: entry.to_owned(),
+            path: vec![MENU_OPTIONS_FIELD],
+            action: Action::ChangeOption { id, text, condition, consequence },
+            ops: Vec::new(),
+            origin: self.origin(span),
+        })
+    }
+
+    fn remove_option_patch(
+        &mut self,
+        menu: &str,
+        entry: &str,
+        native: &[String],
+        id: &Ident,
+        span: Span,
+    ) -> Option<Patch> {
+        let id_span = id.span;
+        let id = self.option_id(id)?;
+        if !native.iter().any(|existing| existing == &id) {
+            let help = suggest(&id, native.iter().map(String::as_str)).map(|s| format!("did you mean '{s}'?"));
+            self.error(diag(
+                E0207_OPTION_UNKNOWN,
+                format!("menu '{menu}' has no option '{id}'"),
+                id_span,
+                help.or_else(|| Some("`remove option` only removes options the Native menu already has".into())),
+            ));
+            return None;
+        }
+        Some(Patch {
+            module: "module_game_menus".into(),
+            var: "game_menus".into(),
+            entry: entry.to_owned(),
+            path: vec![MENU_OPTIONS_FIELD],
+            action: Action::RemoveOption(id),
+            ops: Vec::new(),
+            origin: self.origin(span),
+        })
+    }
+
+    /// Checks one operation call: the operation exists, has enough values, every value resolves.
+    fn call(&mut self, stmt: &Call) -> Option<Op> {
+        let Some(op) = self.atlas.op(&stmt.op.text) else {
+            let help = suggest(&stmt.op.text, self.atlas.ops.iter().map(|o| o.name.as_str()))
+                .map(|s| format!("did you mean '{s}'? (`uw browse` lists every operation)"));
+            self.error(diag(
+                E0001_UNKNOWN_NAME,
+                format!("'{}' is not a Native operation", stmt.op.text),
+                stmt.op.span,
+                help,
+            ));
+            return None;
+        };
+        if let Some(min) = min_args(op) {
+            if stmt.args.len() < min {
+                let mut d = diag(
+                    E0203_TOO_FEW,
+                    format!("'{}' needs at least {min} values, got {}", op.name, stmt.args.len()),
+                    stmt.span,
+                    Some(format!("Native: {}", op.signature.trim())),
+                );
+                if let Some(line) = op.line {
+                    d.notes.push(format!("header_operations.py:{line}"));
+                }
+                self.error(d);
+            }
+        }
+        let mut args = Vec::new();
+        for arg in &stmt.args {
+            if let Some(value) = self.value(arg) {
+                args.push(value);
+            }
+        }
+        Some(Op { name: op.name.clone(), args, origin: self.origin(stmt.span) })
+    }
+}
+
+/// A register the kit defines as a constant: `reg0`, `reg1`, ... (not `tf_male` or other constants).
+fn is_register(name: &str) -> bool {
+    name.strip_prefix("reg").is_some_and(|n| !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()))
+}
+
+fn lower_assign_op(op: uw_syntax::AssignOp) -> uw_lower::AssignOp {
+    match op {
+        uw_syntax::AssignOp::Set => uw_lower::AssignOp::Set,
+        uw_syntax::AssignOp::Add => uw_lower::AssignOp::Add,
+        uw_syntax::AssignOp::Sub => uw_lower::AssignOp::Sub,
+        uw_syntax::AssignOp::Mul => uw_lower::AssignOp::Mul,
+        uw_syntax::AssignOp::Div => uw_lower::AssignOp::Div,
+        uw_syntax::AssignOp::Mod => uw_lower::AssignOp::Mod,
+    }
+}
+
+fn lower_bin_op(op: uw_syntax::BinOp) -> uw_lower::BinOp {
+    match op {
+        uw_syntax::BinOp::Add => uw_lower::BinOp::Add,
+        uw_syntax::BinOp::Sub => uw_lower::BinOp::Sub,
+        uw_syntax::BinOp::Mul => uw_lower::BinOp::Mul,
+        uw_syntax::BinOp::Div => uw_lower::BinOp::Div,
+        uw_syntax::BinOp::Mod => uw_lower::BinOp::Mod,
+    }
+}
+
+fn lower_cmp_op(op: uw_syntax::CmpOp) -> uw_lower::CmpOp {
+    match op {
+        uw_syntax::CmpOp::Eq => uw_lower::CmpOp::Eq,
+        uw_syntax::CmpOp::Ne => uw_lower::CmpOp::Ne,
+        uw_syntax::CmpOp::Gt => uw_lower::CmpOp::Gt,
+        uw_syntax::CmpOp::Ge => uw_lower::CmpOp::Ge,
+        uw_syntax::CmpOp::Lt => uw_lower::CmpOp::Lt,
+        uw_syntax::CmpOp::Le => uw_lower::CmpOp::Le,
+    }
+}
+
+fn cmp_op_name(op: uw_syntax::CmpOp) -> &'static str {
+    match op {
+        uw_syntax::CmpOp::Eq => "eq",
+        uw_syntax::CmpOp::Ne => "neq",
+        uw_syntax::CmpOp::Gt => "gt",
+        uw_syntax::CmpOp::Ge => "ge",
+        uw_syntax::CmpOp::Lt => "lt",
+        uw_syntax::CmpOp::Le => "le",
+    }
+}
+
+/// `not a < b` flips the operator (`lt = neg|ge`, `neq = neg|eq`, `le = neg|gt`).
+fn not_cmp_op_name(op: uw_syntax::CmpOp) -> &'static str {
+    match op {
+        uw_syntax::CmpOp::Eq => "neq",
+        uw_syntax::CmpOp::Ne => "eq",
+        uw_syntax::CmpOp::Gt => "le",
+        uw_syntax::CmpOp::Ge => "lt",
+        uw_syntax::CmpOp::Lt => "ge",
+        uw_syntax::CmpOp::Le => "gt",
+    }
+}
+
+fn bin_op_name(op: uw_syntax::BinOp) -> &'static str {
+    match op {
+        uw_syntax::BinOp::Add => "store_add",
+        uw_syntax::BinOp::Sub => "store_sub",
+        uw_syntax::BinOp::Mul => "store_mul",
+        uw_syntax::BinOp::Div => "store_div",
+        uw_syntax::BinOp::Mod => "store_mod",
+    }
+}
+
+fn strip_menu_prefix(text: &str) -> Option<&str> {
+    text.strip_prefix("menu_").or_else(|| text.strip_prefix("mnu_"))
+}
+
+/// The table a full id belongs to: menu ids (`menu_`, `mnu_`) first, then every table's `id_prefix`.
+fn id_kind(atlas: &Atlas, text: &str) -> Option<String> {
+    if strip_menu_prefix(text).is_some_and(|bare| !bare.is_empty()) {
+        return Some("menus".into());
+    }
+    atlas.tables.iter().find_map(|(name, table)| {
+        let prefix = table.id_prefix.as_deref()?;
+        (text.len() > prefix.len() && text.starts_with(prefix)).then(|| name.clone())
+    })
+}
+
+/// The Native menu entry behind `find_menu`'s label (`name` or `name#dup`).
+fn menu_entry<'a>(atlas: &'a Atlas, entry: &str) -> Option<&'a uw_atlas::Entry> {
+    let (name, dup) = match entry.split_once('#') {
+        Some((name, dup)) => (name, Some(dup.parse::<u32>().ok()?)),
+        None => (entry, None),
+    };
+    atlas.tables.get("menus")?.entries.iter().find(|e| e.name.as_deref() == Some(name) && e.dup == dup)
+}
+
+/// Option ids in a menu entry's field 5: `{"list": [[id, condition, text, consequence], ...]}`.
+fn native_option_ids(entry: &uw_atlas::Entry) -> Vec<String> {
+    let Some(list) = entry.value.get(MENU_OPTIONS_FIELD).and_then(|field| field.get("list")).and_then(|list| list.as_array()) else {
+        return Vec::new();
+    };
+    list.iter()
+        .filter_map(|option| option.as_array()?.first()?.as_str())
+        .map(str::to_owned)
+        .collect()
 }
 
 /// `start_phase_2`, `menu_start_phase_2`, `mnu_start_phase_2`, `camp#2` -> (entry ref for the
@@ -303,7 +838,7 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
     let mut overridden: BTreeMap<String, String> = BTreeMap::new();
 
     for (index, source) in sources.iter().enumerate() {
-        let mut ctx = Ctx { atlas, errors: Vec::new(), file: index, source: &source.file };
+        let mut ctx = Ctx { atlas, errors: Vec::new(), file: index, source: &source.file, temp: 0 };
         if let Some(m) = &source.tree.module {
             match &name {
                 Some(existing) if existing != &m.text => ctx.error(diag(
@@ -317,20 +852,48 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
         }
         for item in &source.tree.items {
             match item {
-                Item::Override { kind, name: target, handlers, members: _, span } => {
-                    // `override menu_x` (kind from the prefix) and menu members: task T-017.
-                    let Some(kind) = kind else {
-                        ctx.error(diag(E0201_NOT_YET, "`override <id>` is parsed but not checked yet".into(), target.span, None));
-                        continue;
+                Item::Override { kind, name: target, handlers, members, span } => {
+                    let kind = match kind {
+                        Some(kind) => kind.text.clone(),
+                        None => match id_kind(atlas, &target.text) {
+                            Some(table) => table,
+                            None => {
+                                let menus = atlas.tables.get("menus");
+                                let names: Vec<String> = menus
+                                    .map(|t| t.entries.iter().filter_map(|e| e.name.clone()).collect())
+                                    .unwrap_or_default();
+                                let help = suggest(&target.text, names.iter().map(String::as_str))
+                                    .map(|s| format!("did you mean 'menu_{s}'?"))
+                                    .or_else(|| Some("write the full Native id, e.g. `override menu_start_phase_2`".into()));
+                                ctx.error(diag(
+                                    E0001_UNKNOWN_NAME,
+                                    format!("'{}' has no Native id prefix", target.text),
+                                    target.span,
+                                    help,
+                                ));
+                                continue;
+                            }
+                        },
                     };
-                    if kind.text != "menu" {
+                    if kind != "menu" && kind != "menus" {
                         ctx.error(diag(
                             E0201_NOT_YET,
-                            format!("`override {}` is not in UW yet; Faz 1 has `override menu`", kind.text),
-                            kind.span,
+                            format!("`override {kind}` is not in UW yet; Faz 1 has `override menu`"),
+                            target.span,
                             None,
                         ));
                         continue;
+                    }
+                    if let Some(bare) = strip_menu_prefix(&target.text) {
+                        if let Some(once) = strip_menu_prefix(bare) {
+                            ctx.error(diag(
+                                E0208_BAD_ID,
+                                format!("'{}' has the menu prefix twice", target.text),
+                                target.span,
+                                Some(format!("write it once: 'menu_{once}'")),
+                            ));
+                            continue;
+                        }
                     }
                     let Some(entry) = find_menu(atlas, &target.text) else {
                         let menus = atlas.tables.get("menus");
@@ -348,6 +911,7 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
                         ));
                         continue;
                     };
+                    let native = menu_entry(atlas, &entry).map(native_option_ids).unwrap_or_default();
                     let origin = ctx.origin(*span);
                     if let Some(first) = overridden.insert(entry.clone(), origin.clone()) {
                         ctx.error(diag(
@@ -358,6 +922,8 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
                         ));
                         continue;
                     }
+                    let mut found: Vec<(usize, Patch)> = Vec::new();
+                    let mut enter_origin: Option<String> = None;
                     for handler in handlers {
                         if handler.event.text != "enter" {
                             let help = suggest(&handler.event.text, ["enter"]).map(|s| format!("did you mean '{s}'?"));
@@ -369,20 +935,242 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
                             ));
                             continue;
                         }
+                        let here = ctx.origin(handler.body.span);
+                        if let Some(first) = &enter_origin {
+                            ctx.error(diag(
+                                E0211_MEMBER_TWICE,
+                                format!("menu '{entry}' has two `on enter` blocks: {first} and {here}"),
+                                handler.event.span,
+                                Some("put all enter operations in one `on enter` block".into()),
+                            ));
+                            continue;
+                        }
+                        enter_origin = Some(here);
                         let ops = ctx.ops(&handler.body.stmts);
-                        patches.push(Patch {
-                            module: "module_game_menus".into(),
-                            var: "game_menus".into(),
-                            entry: entry.clone(),
-                            path: vec![MENU_ENTER_FIELD],
-                            action: Action::ReplaceBody,
-                            ops,
-                            origin: origin.clone(),
-                        });
+                        found.push((
+                            handler.body.span.start,
+                            Patch {
+                                module: "module_game_menus".into(),
+                                var: "game_menus".into(),
+                                entry: entry.clone(),
+                                path: vec![MENU_ENTER_FIELD],
+                                action: Action::ReplaceBody,
+                                ops,
+                                origin: origin.clone(),
+                            },
+                        ));
                     }
+                    let mut text_origin: Option<String> = None;
+                    for member in members {
+                        match member {
+                            Member::Text { text, span } => {
+                                let here = ctx.origin(*span);
+                                if let Some(first) = &text_origin {
+                                    ctx.error(diag(
+                                        E0211_MEMBER_TWICE,
+                                        format!("menu '{entry}' has two `text` lines: {first} and {here}"),
+                                        *span,
+                                        Some("keep one `text` line per menu".into()),
+                                    ));
+                                    continue;
+                                }
+                                text_origin = Some(here.clone());
+                                ctx.check_text(text, *span);
+                                found.push((
+                                    span.start,
+                                    Patch {
+                                        module: "module_game_menus".into(),
+                                        var: "game_menus".into(),
+                                        entry: entry.clone(),
+                                        path: vec![MENU_TEXT_FIELD],
+                                        action: Action::ReplaceText(text.clone()),
+                                        ops: Vec::new(),
+                                        origin: here,
+                                    },
+                                ));
+                            }
+                            Member::Option { id, text, when, place, body, span } => {
+                                if let Some(patch) = ctx.insert_option_patch(
+                                    &entry,
+                                    &entry,
+                                    &native,
+                                    id,
+                                    text,
+                                    when.as_ref(),
+                                    place.as_ref(),
+                                    body,
+                                    *span,
+                                ) {
+                                    found.push((span.start, patch));
+                                }
+                            }
+                            Member::ChangeOption { id, text, when, body, span } => {
+                                if let Some(patch) = ctx.change_option_patch(
+                                    &entry,
+                                    &entry,
+                                    &native,
+                                    id,
+                                    text,
+                                    when.as_ref(),
+                                    body.as_ref(),
+                                    *span,
+                                ) {
+                                    found.push((span.start, patch));
+                                }
+                            }
+                            Member::RemoveOption { id, span } => {
+                                if let Some(patch) = ctx.remove_option_patch(&entry, &entry, &native, id, *span) {
+                                    found.push((span.start, patch));
+                                }
+                            }
+                        }
+                    }
+                    found.sort_by_key(|(start, _)| *start);
+                    patches.extend(found.into_iter().map(|(_, patch)| patch));
                 }
-                // New records: task T-017.
-                Item::New { id, .. } => ctx.error(diag(E0201_NOT_YET, "`new` is parsed but not checked yet".into(), id.span, None)),
+                Item::New { id, text, handlers, members, span } => {
+                    let id_span = id.span;
+                    let Some(bare) = id.text.strip_prefix("menu_") else {
+                        let help = id
+                            .text
+                            .strip_prefix("mnu_")
+                            .map(|rest| format!("write 'menu_{rest}'"))
+                            .or_else(|| Some("a new menu id starts with `menu_`, e.g. `new menu_uw_ask`".into()));
+                        ctx.error(diag(
+                            E0208_BAD_ID,
+                            format!("'{}' is not a full menu id", id.text),
+                            id_span,
+                            help,
+                        ));
+                        continue;
+                    };
+                    if let Some(once) = strip_menu_prefix(bare) {
+                        ctx.error(diag(
+                            E0208_BAD_ID,
+                            format!("'{}' has the menu prefix twice", id.text),
+                            id_span,
+                            Some(format!("write it once: 'menu_{once}'")),
+                        ));
+                        continue;
+                    }
+                    if !id.text.is_ascii() {
+                        ctx.error(diag(
+                            E0208_BAD_ID,
+                            format!("menu id '{}' has non-ASCII letters", id.text),
+                            id_span,
+                            Some("menu ids use ASCII letters, digits and _".into()),
+                        ));
+                        continue;
+                    }
+                    if find_menu(atlas, &id.text).is_some() || atlas.entry_by_id(&id.text).is_some() {
+                        ctx.error(diag(
+                            E0209_NEW_EXISTS,
+                            format!("menu '{}' already exists", id.text),
+                            id_span,
+                            Some(format!("change it with `override {}`", id.text)),
+                        ));
+                        continue;
+                    }
+                    let mut menu_text = String::new();
+                    let mut text_origin: Option<String> = None;
+                    if let Some((text, text_span)) = text {
+                        ctx.check_text(text, *text_span);
+                        menu_text = text.clone();
+                        text_origin = Some(ctx.origin(*text_span));
+                    }
+                    let mut enter = Vec::new();
+                    let mut enter_origin: Option<String> = None;
+                    for handler in handlers {
+                        if handler.event.text != "enter" {
+                            let help = suggest(&handler.event.text, ["enter"]).map(|s| format!("did you mean '{s}'?"));
+                            ctx.error(diag(
+                                E0201_NOT_YET,
+                                format!("`on {}` is not in UW yet; new menus have `on enter`", handler.event.text),
+                                handler.event.span,
+                                help,
+                            ));
+                            continue;
+                        }
+                        let here = ctx.origin(handler.body.span);
+                        if let Some(first) = &enter_origin {
+                            ctx.error(diag(
+                                E0211_MEMBER_TWICE,
+                                format!("menu '{bare}' has two `on enter` blocks: {first} and {here}"),
+                                handler.event.span,
+                                Some("put all enter operations in one `on enter` block".into()),
+                            ));
+                            continue;
+                        }
+                        enter_origin = Some(here);
+                        enter = ctx.ops(&handler.body.stmts);
+                    }
+                    let mut placed = Vec::new();
+                    let menu_name = bare.to_lowercase();
+                    for member in members {
+                        match member {
+                            Member::Text { text, span } => {
+                                let here = ctx.origin(*span);
+                                if let Some(first) = &text_origin {
+                                    ctx.error(diag(
+                                        E0211_MEMBER_TWICE,
+                                        format!("menu '{menu_name}' has two `text` lines: {first} and {here}"),
+                                        *span,
+                                        Some("keep one `text` per menu".into()),
+                                    ));
+                                    continue;
+                                }
+                                ctx.check_text(text, *span);
+                                menu_text = text.clone();
+                                text_origin = Some(here);
+                            }
+                            Member::Option { id, text, when, place, body, span } => {
+                                let Some(place) = ctx.option_place(place.as_ref()) else { continue };
+                                if let Some(option) =
+                                    ctx.build_option(&menu_name, None, id, text, when.as_ref(), body, *span)
+                                {
+                                    placed.push((place, option));
+                                }
+                            }
+                            Member::ChangeOption { id, span, .. } => {
+                                ctx.error(diag(
+                                    E0207_OPTION_UNKNOWN,
+                                    format!("a new menu has no existing option '{}'", id.text),
+                                    *span,
+                                    Some("add an option with `option <id> \"text\" { ... }`".into()),
+                                ));
+                            }
+                            Member::RemoveOption { id, span } => {
+                                ctx.error(diag(
+                                    E0207_OPTION_UNKNOWN,
+                                    format!("a new menu has no existing option '{}' to remove", id.text),
+                                    *span,
+                                    Some("add an option with `option <id> \"text\" { ... }`".into()),
+                                ));
+                            }
+                        }
+                    }
+                    let mut options: Vec<NewOption> = Vec::new();
+                    for (place, option) in placed {
+                        let at = match place {
+                            OptionPlace::End => None,
+                            OptionPlace::After(id) => options.iter().position(|o| o.id == id).map(|i| i + 1),
+                            OptionPlace::Before(id) => options.iter().position(|o| o.id == id),
+                        };
+                        match at {
+                            Some(index) => options.insert(index, option),
+                            None => options.push(option),
+                        }
+                    }
+                    patches.push(Patch {
+                        module: "module_game_menus".into(),
+                        var: "game_menus".into(),
+                        entry: menu_name,
+                        path: Vec::new(),
+                        action: Action::NewMenu { text: menu_text, enter, options },
+                        ops: Vec::new(),
+                        origin: ctx.origin(*span),
+                    });
+                }
                 Item::On { path, body, span } => {
                     let words: Vec<&str> = path.iter().map(|p| p.text.as_str()).collect();
                     let hook = match words.as_slice() {
@@ -437,16 +1225,20 @@ mod tests {
             {"name":"party_relocate_near_party","code":1623,"line":667,"signature":"(party_relocate_near_party,<party_id>,<target_party_id>,<value_spawn_radius>),","lhs":false,"can_fail":false,"global_lhs":false},
             {"name":"change_screen_map","code":2052,"line":1093,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
             {"name":"display_message","code":1106,"line":482,"signature":"(display_message,<string_id>,[hex_colour_code]),","lhs":false,"can_fail":false,"global_lhs":false},
+            {"name":"party_is_active","code":2243,"line":7000,"signature":"(party_is_active,<party_id>),","lhs":false,"can_fail":true,"global_lhs":false},
             {"name":"assign","code":2133,"line":40,"signature":"had to put this here","lhs":true,"can_fail":false,"global_lhs":false}
           ],
           "hooks": ["game_start"],
           "ranges": [],
-          "constants": [{"name":"reg0","value":1,"module":"header_common","line":563}],
+          "constants": [
+            {"name":"reg0","value":1,"module":"header_common","line":563},
+            {"name":"tf_male","value":0,"module":"header_common","line":100}
+          ],
           "tables": {
             "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","ref_tag":"mnu",
               "entries": [
                 {"index":0,"name":"start_game_0","id":"menu_start_game_0","dup":null,"line":39,"value":[]},
-                {"index":1,"name":"start_phase_2","id":"menu_start_phase_2","dup":null,"line":55,"value":[]},
+                {"index":1,"name":"start_phase_2","id":"menu_start_phase_2","dup":null,"line":55,"value":[null,null,"Start",null,[],{"list":[["camp_wait_here",[],"Wait here",[]],["leave",[],"Leave",[]]]}]},
                 {"index":2,"name":"camp","id":null,"dup":1,"line":60,"value":[]},
                 {"index":3,"name":"camp","id":"menu_camp","dup":2,"line":70,"value":[]}
               ]},
@@ -542,5 +1334,549 @@ mod tests {
         assert_eq!(min_args(a.op("display_message").unwrap()), Some(1));
         assert_eq!(min_args(a.op("change_screen_map").unwrap()), None);
         assert_eq!(min_args(a.op("assign").unwrap()), None);
+    }
+
+    // ---------------------------------------------------------------- hand-built AST
+
+    const SOURCE: &str = "aaaa\nbbbb\ncccc\ndddd\neeee\nffff\ngggg\nhhhh\n";
+
+    fn line_span(line: usize) -> Span {
+        Span { start: (line - 1) * 5, end: (line - 1) * 5 + 1 }
+    }
+
+    fn ident(text: &str, line: usize) -> Ident {
+        Ident { text: text.into(), span: line_span(line) }
+    }
+
+    fn block(stmts: Vec<Stmt>) -> Block {
+        Block { stmts, span: line_span(1) }
+    }
+
+    fn op_call(name: &str, args: Vec<Arg>) -> Stmt {
+        Stmt::Call(Call { op: ident(name, 1), args, span: line_span(1) })
+    }
+
+    fn int(n: i64) -> Arg {
+        Arg::Int(n, line_span(1))
+    }
+
+    fn file_with(items: Vec<Item>) -> File {
+        File { module: None, items }
+    }
+
+    fn run_items(items: Vec<Item>) -> Result<Checked, Vec<String>> {
+        let file = SourceFile::new("start.uw", SOURCE);
+        check(&atlas(), &[Source { file: file.clone(), tree: file_with(items) }], "folder")
+            .map_err(|errs| errs.iter().map(|e| e.diag.render(&file)).collect())
+    }
+
+    fn run_stmts(stmts: Vec<Stmt>) -> Result<Vec<uw_lower::Stmt>, Vec<String>> {
+        let file = SourceFile::new("start.uw", SOURCE);
+        let a = atlas();
+        let mut ctx = Ctx { atlas: &a, errors: Vec::new(), file: 0, source: &file, temp: 0 };
+        let tree = ctx.stmts(&stmts);
+        if ctx.errors.is_empty() {
+            Ok(tree)
+        } else {
+            Err(ctx.errors.iter().map(|e| e.diag.render(&file)).collect())
+        }
+    }
+
+    fn assign(target: Arg, op: uw_syntax::AssignOp, value: Expr) -> Stmt {
+        Stmt::Assign { target, op, value, span: line_span(1) }
+    }
+
+    fn cmp(op: uw_syntax::CmpOp, left: Expr, right: Expr) -> Cond {
+        Cond::Cmp { op, left, right, span: line_span(1) }
+    }
+
+    #[test]
+    fn assignments_become_checked_statements() {
+        let tree = run_stmts(vec![
+            assign(Arg::Global(ident("$g_x", 1)), uw_syntax::AssignOp::Set, Expr::Value(int(1))),
+            assign(
+                Arg::Local(ident(":x", 2)),
+                uw_syntax::AssignOp::Add,
+                Expr::Value(Arg::Name(ident("reg0", 2))),
+            ),
+            assign(
+                Arg::Name(ident("reg0", 3)),
+                uw_syntax::AssignOp::Set,
+                Expr::Bin {
+                    op: uw_syntax::BinOp::Add,
+                    left: Box::new(Expr::Value(Arg::Global(ident("$g", 3)))),
+                    right: Box::new(Expr::Value(int(2))),
+                    span: line_span(3),
+                },
+            ),
+        ])
+        .unwrap();
+        assert_eq!(tree.len(), 3);
+        match &tree[0] {
+            uw_lower::Stmt::Assign { target, op, value, origin } => {
+                assert_eq!(target, &Value::Ref("$g_x".into()));
+                assert_eq!(*op, uw_lower::AssignOp::Set);
+                assert_eq!(value, &uw_lower::Expr::Value(Value::Int(1)));
+                assert_eq!(origin, "start.uw:1");
+            }
+            other => panic!("{other:?}"),
+        }
+        match &tree[1] {
+            uw_lower::Stmt::Assign { target, op, value, .. } => {
+                assert_eq!(target, &Value::Ref(":x".into()));
+                assert_eq!(*op, uw_lower::AssignOp::Add);
+                assert_eq!(
+                    value,
+                    &uw_lower::Expr::Value(Value::Const { name: "reg0".into(), module: "header_common".into() })
+                );
+            }
+            other => panic!("{other:?}"),
+        }
+        match &tree[2] {
+            uw_lower::Stmt::Assign { target, value, .. } => {
+                assert_eq!(target, &Value::Const { name: "reg0".into(), module: "header_common".into() });
+                match value {
+                    uw_lower::Expr::Bin { op, left, right } => {
+                        assert_eq!(*op, uw_lower::BinOp::Add);
+                        assert_eq!(**left, uw_lower::Expr::Value(Value::Ref("$g".into())));
+                        assert_eq!(**right, uw_lower::Expr::Value(Value::Int(2)));
+                    }
+                    other => panic!("{other:?}"),
+                }
+            }
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[test]
+    fn assignment_targets_are_strict() {
+        let bad = |target| {
+            run_stmts(vec![assign(target, uw_syntax::AssignOp::Set, Expr::Value(int(1)))]).unwrap_err()
+        };
+        assert!(bad(Arg::Name(ident("p_town_6", 1)))[0].contains("cannot be assigned to"));
+        assert!(bad(Arg::Name(ident("tf_male", 1)))[0].contains("cannot be assigned to"));
+        assert!(bad(Arg::Int(1, line_span(1)))[0].contains("must be a $global"));
+        assert!(bad(Arg::Local(ident(":_x", 1)))[0].contains("`:_`"));
+        let errs = run_stmts(vec![op_call("display_message", vec![Arg::Local(ident(":_bad", 1))])]).unwrap_err();
+        assert!(errs[0].contains("`:_`"), "{errs:?}");
+    }
+
+    #[test]
+    fn if_becomes_a_statement_tree() {
+        let tree = run_stmts(vec![Stmt::If {
+            arms: vec![
+                (
+                    cmp(
+                        uw_syntax::CmpOp::Ge,
+                        Expr::Value(Arg::Global(ident("$gold", 1))),
+                        Expr::Value(int(100)),
+                    ),
+                    block(vec![op_call("change_screen_map", vec![])]),
+                ),
+                (
+                    Cond::Call(Call {
+                        op: ident("party_is_active", 2),
+                        args: vec![Arg::Name(ident("p_town_6", 2))],
+                        span: line_span(2),
+                    }),
+                    block(vec![]),
+                ),
+            ],
+            otherwise: Some(block(vec![op_call(
+                "display_message",
+                vec![Arg::Str("@hi".into(), line_span(3))],
+            )])),
+            span: line_span(1),
+        }])
+        .unwrap();
+        match &tree[0] {
+            uw_lower::Stmt::If { arms, otherwise, origin } => {
+                assert_eq!(origin, "start.uw:1");
+                assert_eq!(
+                    arms[0].0,
+                    uw_lower::Cond::Cmp {
+                        op: uw_lower::CmpOp::Ge,
+                        left: uw_lower::Expr::Value(Value::Ref("$gold".into())),
+                        right: uw_lower::Expr::Value(Value::Int(100)),
+                        origin: "start.uw:1".into(),
+                    }
+                );
+                match &arms[0].1[0] {
+                    uw_lower::Stmt::Op(op) => assert_eq!(op.name, "change_screen_map"),
+                    other => panic!("{other:?}"),
+                }
+                match &arms[1].0 {
+                    uw_lower::Cond::Op(op) => {
+                        assert_eq!(op.name, "party_is_active");
+                        assert_eq!(op.args, [Value::Ref("p_town_6".into())]);
+                    }
+                    other => panic!("{other:?}"),
+                }
+                assert_eq!(otherwise.as_ref().unwrap().len(), 1);
+            }
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[test]
+    fn condition_combinators_are_checked() {
+        let tree = run_stmts(vec![Stmt::If {
+            arms: vec![(
+                Cond::And(vec![
+                    Cond::Call(Call {
+                        op: ident("party_is_active", 1),
+                        args: vec![Arg::Name(ident("p_town_6", 1))],
+                        span: line_span(1),
+                    }),
+                    Cond::Not(
+                        Box::new(cmp(
+                            uw_syntax::CmpOp::Lt,
+                            Expr::Value(Arg::Global(ident("$x", 1))),
+                            Expr::Value(int(3)),
+                        )),
+                        line_span(1),
+                    ),
+                ]),
+                block(vec![]),
+            )],
+            otherwise: None,
+            span: line_span(1),
+        }])
+        .unwrap();
+        match &tree[0] {
+            uw_lower::Stmt::If { arms, .. } => match &arms[0].0 {
+                uw_lower::Cond::And(parts) => {
+                    assert!(matches!(&parts[0], uw_lower::Cond::Op(op) if op.name == "party_is_active"));
+                    assert!(matches!(&parts[1], uw_lower::Cond::Not(inner)
+                        if matches!(&**inner, uw_lower::Cond::Cmp { op: uw_lower::CmpOp::Lt, .. })));
+                }
+                other => panic!("{other:?}"),
+            },
+            other => panic!("{other:?}"),
+        }
+    }
+
+    fn override_item(kind: Option<&str>, target: &str, handlers: Vec<uw_syntax::Handler>, members: Vec<Member>) -> Item {
+        Item::Override {
+            kind: kind.map(|k| ident(k, 1)),
+            name: ident(target, 1),
+            handlers,
+            members,
+            span: line_span(1),
+        }
+    }
+
+    fn enter(line: usize) -> uw_syntax::Handler {
+        uw_syntax::Handler {
+            event: ident("enter", line),
+            body: Block { stmts: vec![op_call("change_screen_map", vec![])], span: line_span(line) },
+        }
+    }
+
+    #[test]
+    fn override_id_and_menu_members_become_patches() {
+        let item = override_item(
+            None,
+            "menu_start_phase_2",
+            vec![enter(2)],
+            vec![
+                Member::Text { text: "New text".into(), span: line_span(3) },
+                Member::Option {
+                    id: ident("uw_skip", 4),
+                    text: "Skip".into(),
+                    when: Some(When::Cond(Cond::Cmp {
+                        op: uw_syntax::CmpOp::Lt,
+                        left: Expr::Value(Arg::Global(ident("$gold", 4))),
+                        right: Expr::Value(int(10)),
+                        span: line_span(4),
+                    })),
+                    place: Some(Place::After(ident("leave", 4))),
+                    body: block(vec![op_call("change_screen_map", vec![])]),
+                    span: line_span(4),
+                },
+                Member::ChangeOption {
+                    id: ident("leave", 5),
+                    text: Some(("Leave now".into(), line_span(5))),
+                    when: Some(When::Block(Block {
+                        stmts: vec![op_call("display_message", vec![Arg::Str("@x".into(), line_span(5))])],
+                        span: line_span(5),
+                    })),
+                    body: Some(block(vec![op_call("change_screen_map", vec![])])),
+                    span: line_span(5),
+                },
+                Member::RemoveOption { id: ident("camp_wait_here", 6), span: line_span(6) },
+            ],
+        );
+        let checked = run_items(vec![item]).unwrap();
+        let patches = &checked.patches;
+        assert_eq!(patches.len(), 5);
+        assert!(patches.iter().all(|p| p.entry == "start_phase_2"));
+        assert_eq!((patches[0].action.clone(), patches[0].path.clone()), (Action::ReplaceBody, vec![MENU_ENTER_FIELD]));
+        assert_eq!(
+            (patches[1].action.clone(), patches[1].path.clone(), patches[1].origin.as_str()),
+            (Action::ReplaceText("New text".into()), vec![MENU_TEXT_FIELD], "start.uw:3")
+        );
+        assert_eq!(patches[2].path, vec![MENU_OPTIONS_FIELD]);
+        match &patches[2].action {
+            Action::InsertOption { option, place } => {
+                assert_eq!(option.id, "uw_skip");
+                assert_eq!(option.text, "Skip");
+                assert_eq!(
+                    option.condition,
+                    vec![Op {
+                        name: "lt".into(),
+                        args: vec![Value::Ref("$gold".into()), Value::Int(10)],
+                        origin: "start.uw:4".into(),
+                    }]
+                );
+                assert_eq!(option.consequence.len(), 1);
+                assert_eq!(option.origin, "start.uw:4");
+                assert_eq!(*place, OptionPlace::After("leave".into()));
+            }
+            other => panic!("{other:?}"),
+        }
+        match &patches[3].action {
+            Action::ChangeOption { id, text, condition, consequence } => {
+                assert_eq!(id, "leave");
+                assert_eq!(text.as_deref(), Some("Leave now"));
+                assert_eq!(condition.as_ref().unwrap()[0].name, "display_message");
+                assert_eq!(consequence.as_ref().unwrap()[0].name, "change_screen_map");
+            }
+            other => panic!("{other:?}"),
+        }
+        assert_eq!(patches[4].action, Action::RemoveOption("camp_wait_here".into()));
+    }
+
+    #[test]
+    fn old_override_form_accepts_members() {
+        let item = override_item(
+            Some("menu"),
+            "start_phase_2",
+            vec![],
+            vec![Member::Text { text: "Old form".into(), span: line_span(2) }],
+        );
+        let checked = run_items(vec![item]).unwrap();
+        assert_eq!(checked.patches[0].action, Action::ReplaceText("Old form".into()));
+    }
+
+    #[test]
+    fn new_menu_becomes_one_action() {
+        let item = Item::New {
+            id: ident("menu_uw_ask", 1),
+            text: Some(("Where from?".into(), line_span(1))),
+            handlers: vec![uw_syntax::Handler {
+                event: ident("enter", 2),
+                body: Block {
+                    stmts: vec![op_call("display_message", vec![Arg::Str("@hi".into(), line_span(2))])],
+                    span: line_span(2),
+                },
+            }],
+            members: vec![
+                Member::Option {
+                    id: ident("north", 3),
+                    text: "North".into(),
+                    when: None,
+                    place: None,
+                    body: block(vec![op_call("change_screen_map", vec![])]),
+                    span: line_span(3),
+                },
+                Member::Option {
+                    id: ident("south", 4),
+                    text: "South".into(),
+                    when: None,
+                    place: Some(Place::Before(ident("north", 4))),
+                    body: block(vec![op_call("change_screen_map", vec![])]),
+                    span: line_span(4),
+                },
+            ],
+            span: line_span(1),
+        };
+        let checked = run_items(vec![item]).unwrap();
+        assert_eq!(checked.patches.len(), 1);
+        let patch = &checked.patches[0];
+        assert_eq!(
+            (patch.module.as_str(), patch.var.as_str(), patch.entry.as_str(), patch.path.as_slice()),
+            ("module_game_menus", "game_menus", "uw_ask", &[][..])
+        );
+        match &patch.action {
+            Action::NewMenu { text, enter, options } => {
+                assert_eq!(text, "Where from?");
+                assert_eq!(enter.len(), 1);
+                assert_eq!(enter[0].name, "display_message");
+                assert_eq!(options.len(), 2);
+                assert_eq!((options[0].id.as_str(), options[0].text.as_str()), ("south", "South"));
+                assert_eq!((options[1].id.as_str(), options[1].text.as_str()), ("north", "North"));
+                assert_eq!(options[1].consequence[0].name, "change_screen_map");
+            }
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[test]
+    fn option_and_menu_ids_are_strict() {
+        fn option(id: &str, line: usize) -> Member {
+            Member::Option {
+                id: ident(id, line),
+                text: "x".into(),
+                when: None,
+                place: None,
+                body: block(vec![]),
+                span: line_span(line),
+            }
+        }
+        let menu = |members| override_item(None, "menu_start_phase_2", vec![], members);
+
+        let errs = run_items(vec![menu(vec![option("leave", 2)])]).unwrap_err();
+        assert!(errs[0].contains("already has option 'leave'"), "{errs:?}");
+        assert!(errs[0].contains("change option leave"), "{errs:?}");
+
+        let errs = run_items(vec![menu(vec![Member::ChangeOption {
+            id: ident("cam_wait_here", 2),
+            text: None,
+            when: None,
+            body: None,
+            span: line_span(2),
+        }])])
+        .unwrap_err();
+        assert!(errs[0].contains("has no option 'cam_wait_here'"), "{errs:?}");
+        assert!(errs[0].contains("did you mean 'camp_wait_here'?"), "{errs:?}");
+
+        let errs = run_items(vec![menu(vec![Member::RemoveOption {
+            id: ident("nope", 2),
+            span: line_span(2),
+        }])])
+        .unwrap_err();
+        assert!(errs[0].contains("has no option 'nope'"), "{errs:?}");
+
+        let errs = run_items(vec![menu(vec![option("mno_camp", 2)])]).unwrap_err();
+        assert!(errs[0].contains("without `mno_`"), "{errs:?}");
+        assert!(errs[0].contains("write 'camp'"), "{errs:?}");
+
+        let errs = run_items(vec![menu(vec![option("seç", 2)])]).unwrap_err();
+        assert!(errs[0].contains("non-ASCII"), "{errs:?}");
+
+        let checked = run_items(vec![menu(vec![
+            option("first", 2),
+            Member::Option {
+                id: ident("second", 3),
+                text: "Second".into(),
+                when: None,
+                place: Some(Place::After(ident("first", 3))),
+                body: block(vec![]),
+                span: line_span(3),
+            },
+        ])])
+        .unwrap();
+        match &checked.patches[1].action {
+            Action::InsertOption { place, .. } => assert_eq!(*place, OptionPlace::After("first".into())),
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[test]
+    fn new_menu_and_duplicate_members_are_strict() {
+        let new = |id: &str| Item::New {
+            id: ident(id, 1),
+            text: Some(("x".into(), line_span(1))),
+            handlers: vec![],
+            members: vec![],
+            span: line_span(1),
+        };
+        let errs = run_items(vec![new("menu_start_phase_2")]).unwrap_err();
+        assert!(errs[0].contains("already exists"), "{errs:?}");
+        let errs = run_items(vec![new("menu_menu_x")]).unwrap_err();
+        assert!(errs[0].contains("prefix twice"), "{errs:?}");
+        let errs = run_items(vec![new("troop_x")]).unwrap_err();
+        assert!(errs[0].contains("not a full menu id"), "{errs:?}");
+
+        let errs = run_items(vec![override_item(None, "menu_menu_start_phase_2", vec![], vec![])]).unwrap_err();
+        assert!(errs[0].contains("prefix twice"), "{errs:?}");
+
+        let errs = run_items(vec![override_item(
+            None,
+            "menu_start_phase_2",
+            vec![],
+            vec![
+                Member::Text { text: "one".into(), span: line_span(2) },
+                Member::Text { text: "two".into(), span: line_span(3) },
+            ],
+        )])
+        .unwrap_err();
+        assert!(errs[0].contains("two `text` lines"), "{errs:?}");
+        assert!(errs[0].contains("start.uw:2") && errs[0].contains("start.uw:3"), "{errs:?}");
+
+        let errs = run_items(vec![override_item(None, "menu_start_phase_2", vec![enter(2), enter(3)], vec![])])
+            .unwrap_err();
+        assert!(errs[0].contains("two `on enter` blocks"), "{errs:?}");
+        assert!(errs[0].contains("start.uw:2") && errs[0].contains("start.uw:3"), "{errs:?}");
+    }
+
+    #[test]
+    fn when_conditions_become_operations() {
+        let option = |when: When| Member::Option {
+            id: ident("uw_opt", 2),
+            text: "Opt".into(),
+            when: Some(when),
+            place: None,
+            body: block(vec![]),
+            span: line_span(2),
+        };
+        let condition = |member: Member| {
+            run_items(vec![override_item(None, "menu_start_phase_2", vec![], vec![member])]).unwrap()
+        };
+        let with_cond = |cond: Cond| {
+            match &condition(option(When::Cond(cond))).patches[0].action {
+                Action::InsertOption { option, .. } => option.condition.clone(),
+                other => panic!("{other:?}"),
+            }
+        };
+
+        let ops = with_cond(Cond::Call(Call {
+            op: ident("party_is_active", 2),
+            args: vec![Arg::Name(ident("p_town_6", 2))],
+            span: line_span(2),
+        }));
+        assert_eq!(ops.len(), 1);
+        assert_eq!(ops[0].name, "party_is_active");
+        assert_eq!(ops[0].args, [Value::Ref("p_town_6".into())]);
+
+        let ops = with_cond(Cond::Not(
+            Box::new(cmp(uw_syntax::CmpOp::Lt, Expr::Value(int(1)), Expr::Value(int(2)))),
+            line_span(2),
+        ));
+        assert_eq!(ops.len(), 1);
+        assert_eq!(ops[0].name, "ge");
+
+        let ops = with_cond(Cond::Or(vec![
+            Cond::Call(Call {
+                op: ident("party_is_active", 2),
+                args: vec![Arg::Name(ident("p_town_6", 2))],
+                span: line_span(2),
+            }),
+            Cond::Call(Call {
+                op: ident("party_is_active", 2),
+                args: vec![Arg::Name(ident("p_main_party", 2))],
+                span: line_span(2),
+            }),
+        ]));
+        assert_eq!(ops.len(), 2);
+        assert_eq!(ops[0].name, "this_or_next|party_is_active");
+        assert_eq!(ops[1].name, "party_is_active");
+
+        let ops = with_cond(cmp(
+            uw_syntax::CmpOp::Lt,
+            Expr::Bin {
+                op: uw_syntax::BinOp::Add,
+                left: Box::new(Expr::Value(Arg::Global(ident("$gold", 2)))),
+                right: Box::new(Expr::Value(int(1))),
+                span: line_span(2),
+            },
+            Expr::Value(int(10)),
+        ));
+        assert_eq!(ops.len(), 2);
+        assert_eq!(ops[0].name, "store_add");
+        assert_eq!(ops[0].args[0], Value::Ref(":_uw0".into()));
+        assert_eq!(ops[1].name, "lt");
+        assert_eq!(ops[1].args[0], Value::Ref(":_uw0".into()));
     }
 }
