@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T13:02:40.542Z",
+  "updatedAt": "2026-11-15T13:04:34.532Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -147,12 +147,23 @@
     },
     "T-012": {
       "task": "T-012",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-012",
-      "updatedAt": "2026-11-15T12:59:19.968Z"
+      "updatedAt": "2026-11-15T13:04:34.531Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/explain.rs +3 -0",
+        "crates/uw_cli/src/main.rs +37 -10",
+        "crates/uw_cli/src/model.rs +92 -6",
+        "crates/uw_cli/src/tr.rs +0 -2",
+        "crates/uw_cli/src/tui.rs +24 -0",
+        "crates/uw_cli/tests/explain.rs +43 -0",
+        "crates/uw_cli/tests/fixtures/atlas_refs.json +1 -1",
+        "crates/uw_cli/tests/fixtures/tr/menus.csv +4 -0"
+      ]
     },
     "T-013": {
       "task": "T-013",
