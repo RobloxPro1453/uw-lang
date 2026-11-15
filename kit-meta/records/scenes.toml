@@ -1,0 +1,65 @@
+# Scene records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_scenes.py
+# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "scenes"
+kind = "scene"
+id_prefix = "scn_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_scenes.py:9"
+
+[[fields]]
+name = "scene_flags"
+ty = "raw"
+source = "module_scenes.py:10"
+
+[[fields]]
+name = "mesh_name"
+ty = "raw"
+source = "module_scenes.py:11"
+
+[[fields]]
+name = "body_name"
+ty = "raw"
+source = "module_scenes.py:12"
+
+[[fields]]
+name = "min_pos"
+ty = "raw"
+source = "module_scenes.py:13"
+
+[[fields]]
+name = "max_pos"
+ty = "raw"
+source = "module_scenes.py:14"
+
+[[fields]]
+name = "water_level"
+ty = "raw"
+source = "module_scenes.py:15"
+
+[[fields]]
+name = "terrain_code"
+ty = "raw"
+source = "module_scenes.py:16"
+
+[[fields]]
+name = "passages"
+ty = "raw"
+source = "module_scenes.py:17"
+
+[[fields]]
+name = "chest_troops"
+ty = "raw"
+source = "module_scenes.py:21"
+
+# The comment lists ten fields, but `random_scene_steppe` and its siblings carry an eleventh value:
+# the outer terrain, which the kit reads as `scene[10]` (process_scenes.py:20,66). No kit comment
+# names it, so the position stays `field_11`; absent from every other scene record.
+[[fields]]
+name = "field_11"
+ty = "raw"
+optional = true
+source = "process_scenes.py:20"
