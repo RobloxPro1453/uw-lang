@@ -213,3 +213,82 @@ araçlar (explain/browse/graph) hepsi bu yolun parçaları. `override` yama modu
   prototip (yalnız okuma; derleyiciye girmez), Native'deki 216 menünün kaçının bugünkü dille ifade
   edilebildiğini ölçmek. Sonuç meclise kanıt olur.
 - `kit-meta/hardwired.toml` taslağı (D10 ve D4 bulguları).
+
+---
+
+## 7. Örnek 2 (sahibi, aynı akşam): boş dünya ve şehir ekleme
+
+### 7.1 Sahibinin sözü (ham, kısaltılmış)
+
+> "İskelet kuruldu, başta 'boş harita istiyorum' dedim: harita yok, şehir yok, yalnız çalışma alanı,
+> motor ve biz. Böylece iskelette Native'in her şeyi görüp kullanabileceğim şekilde durur, ama dünya
+> boş açılır. Sonra haritayı koyduk, bir şehir ekliyoruz. `towns/praven/` düşün: `info.uw` (şehrin türü,
+> refahı, kim yönetiyor… bütün değiştirilebilir veriler; önemli şey kaçmasın), menü dosyası (haritada
+> tıklayınca hangi menüler açılır, içlerinde ne var; dükkânlar, lonca başkanı…), `misc` dosyaları
+> (şehirlilerin yürüme yapay zekâsı, ekonomi yapay zekâsı; %90 modcudan bağımsız ama dursun).
+> Yeni şehri sıfırdan yazmamak için Praven klasörünü kopyaladım; `info`'dan ismi, konumu, yöneticiyi,
+> hangi krallıkta olduğunu, diğer krallıklarla ilişkisini, ikonunu, sahnesini (meydana girince) değiştirdim.
+> `main` zaten `extern towns` dediği için ekstra kod yazmadım, şehir eklendi. Aynısını yeni lord ekleme,
+> var olan lordu değiştirme vb. için de düşün. Bunları gözden geçir, doğrudan alma."
+
+### 7.2 Kitten bulgular [KİT]
+
+- **Şehirler bir sıra aralığıdır.** `module_constants.py:1552-1564`: `towns_begin = "p_town_1"`,
+  `towns_end = castles_begin`, `centers_begin = towns_begin` …; `module_scripts.py` bu aralıkları 92 yerde
+  döner (`try_for_range, ":town_no", towns_begin, towns_end`). Şehirler birlik (party) listesinde art arda
+  durmalı; şehir, kale ve köy grupları da kendi içinde bitişik.
+- **Şehrin sahneleri sıra farkıyla bağlanır.** `module_scripts.py:281-291`: her şehir için
+  `scn_town_1_center + (şehir - towns_begin)` hesaplanıp `slot_town_center`'a yazılır (aynı yolla castle,
+  prison, …). Yani N. şehrin meydan sahnesi, sahneler listesinde `scn_town_1_center`'dan N-1 sonraki kayıt
+  olmak **zorunda**. Yeni şehir = sahneler listesinde de doğru yere yeni kayıtlar.
+- **Şehir verilerinin çoğu kayıtta değil, slotlarda.** Kayıt (`module_parties.py:77`, ör.
+  `("town_1","Sargoth", icon_town|pf_town, …, fac_neutral, …, (-17.6, 79.7), [], 170)`) yalnız ad, ikon,
+  bayraklar, krallık, konum, açı tutar. Refah (`slot_town_prosperity = 50`, `module_constants.py:287`),
+  yönetici (`slot_town_lord = 7`), meydan sahnesi (`slot_town_center = 10`), taverna … **slotlarda** ve
+  oyun başında script'lerle doldurulur.
+- **Yürüyen halk şehre değil kültüre bağlı.** `module_scripts.py:138-140`:
+  `faction_set_slot, "fac_culture_1", slot_faction_town_walker_male_troop, "trp_town_walker_1"`.
+  Ekonomi de bütün şehirler için ortak script'lerle döner. Not: Praven `town_6`'dır; `town_1` Sargoth.
+
+### 7.3 Süzülmüş model
+
+1. **"Boş dünya ama Native görünür":** iskelet iki bölüm taşır. `native/` (Native'in tamamı, okunaklı UW;
+   **başvuru kitaplığı**, varsayılan olarak derlenmez) ve `world/` ya da proje kökü (**etkin içerik**).
+   `uw new --empty-world`: etkin içerikte şehir/köy/harita yok; `native/`'dan bir şey almak açık bir satır
+   (`use native/towns/praven`) ya da klasörü kopyalamak. Böylece "her şeyi görüp kullanabilirim" ile
+   "dünya boş açılır" aynı anda olur.
+2. **Şehir klasörü:**
+   ```
+   towns/praven/
+     info.uw     # kayıt + slotlar tek yerde: ad, tür, konum, ikon, krallık, yönetici, refah,
+                 # ilişkiler, sahneler (meydan, kale, zindan, taverna …); her alanın açıklaması
+     menus.uw    # şehir menüsü ve alt menüler (dükkânlar, lonca başkanı …): ekle, sil, değiştir
+   ```
+   `info.uw`'deki alanlar derleyicide **kayda mı, slota mı** gideceğini bilir; modcu ayrımı görmez.
+   Sahne alanı (`center: scn_…` ya da kendi sahnen) derleyiciye sıra bağını kurdurur (7.2): sahneler
+   listesindeki sırayı ve `towns_begin/end` aralığını **derleyici** düzenler, modcu sıra düşünmez.
+3. **"misc" (yürüme, ekonomi yapay zekâsı) şehir başına kopyalanmaz.** Native'de bunlar şehre özel değil:
+   yürüyenler kültüre, ekonomi ortak script'lere bağlı. Önerilen: ortak davranış tek yerde
+   (`cultures/swadia.uw` içinde yürüyenler, `systems/economy.uw` gibi), şehir klasöründe yalnız
+   **farklı olan** durur (isteğe bağlı `overrides.uw`). Böylece Praven'i kopyalayınca yapay zekâ kodu
+   çoğalmaz, ama "her şey bir yerde dursun" isteği karşılanır.
+4. **Kopyalayarak yeni şehir:** klasör kopyası çalışır, ama daha temiz yol kalıtım: `info.uw` başında
+   `town yeni_sehir from praven { name "…"; position (…); faction …; center scn_… }`: yazmadığın her alan
+   Praven'den gelir. Kopya da kalıtım da desteklenebilir; meclis seçsin.
+5. **`extern towns`:** proje klasörleri kendiliğinden toplanır (proje ayarında `towns/` listesi ya da
+   kural: klasördeki her şehir derlenir). `main.uw`'ye satır eklemek gerekmez. Kayıt sırası ve kimlik
+   kalıcılığı (`uw.lock`: bir kez verilen sıra korunur, kayıtlı oyunlar bozulmaz) derleyicinin işi.
+6. **Aynı kalıp her şeye:** `lords/<ad>/info.uw` (birlik, eşya, krallık, ilişkiler) + `dialogs.uw`
+   ("ilk karşılaşma" …); `factions/<ad>/`; `items/`; `troops/`. Yeni lord = klasör kopyası ya da
+   `lord yeni from harlaus { … }`. Lordlar da Native'de aralıklarla tutulur (aynı tür kitten doğrulanacak).
+
+### 7.4 Meclis için ek sorular
+
+9. Etkin içerik / başvuru kitaplığı (`native/`) ayrımı: varsayılan ne olmalı, `use` sözdizimi nasıl?
+10. Kayıt + slot birleşik "info" modeli: hangi slotlar "info"ya girer (hepsi mi, modcu için önemliler mi)?
+    Kaynak: `module_constants.py` slot tanımları + script'lerdeki ilk değer atamaları.
+11. Sıra bağları (şehir aralığı, sahne sıra farkı, lord aralıkları): derleyici bunları kayıt listelerini
+    yeniden dizerek mi sağlar, yoksa Native script'lerindeki `+ offset` hesaplarını açık eşlemeye mi çevirir?
+    İkincisi daha temiz ama Native script'lerini değiştirmek demek; gidiş-dönüş testini etkiler.
+12. Kalıtım (`from praven`) mi, kopya mı, ikisi birden mi?
+13. Ortak davranış (kültür, ekonomi) klasörleri: adlar ve sınırlar.

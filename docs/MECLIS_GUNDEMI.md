@@ -151,5 +151,6 @@ Kaynak: `docs/VISION.md` > Sahibinin kararları. Buraya yalnız meclisin bilmesi
 6. Gidiş-dönüşün kırılgan yerleri: paylaşılan nesneler (D2b), çift adlar, tuple/liste, kit tuhaflıkları.
 7. Bölge (poligon) tetiklerinin maliyeti ve "her adım" kancasının yokluğu (aralıklı kontrol).
 8. Faz sırası (belgedeki Y0-Y8) doğru mu; ilk görünür teslim "menülerle `uw new`" mi olmalı?
+9-13. Sahibinin ikinci örneği (boş dünya + şehir klasörü + Praven'i kopyalayıp yeni şehir + `extern towns`): `yon-2-proje-modeli.md` §7. Kitten çıkan sıra bağları (şehirler `towns_begin..towns_end` aralığı, 92 kullanım; şehir sahneleri `scn_town_1_center + sıra` ile bağlı) ve kayıt/slot ayrımı burada karara bağlanmalı.
 
 **Meclis kuralı hatırlatma:** sahibinin sözü ham girdidir; değişmeyen şey istenen sonuç. Karar KARARNAMELER'e, sahibine sade anlatım OZET'e.
