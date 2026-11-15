@@ -1,4 +1,5 @@
-# Mesh records, round 1 (raw): every field is the atlas value as it is.
+# Mesh records: `mesh_flags` is a `flags:render_order_plus_1` set; every other field is the atlas
+# value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_meshes.py
 # (`source` points at it); docs/meclis/YON2-KARAR.md §2.
 table = "meshes"
@@ -10,9 +11,10 @@ name = "id"
 ty = "raw"
 source = "module_meshes.py:5"
 
+# The header's only mesh flag: render_order_plus_1 (header_meshes.py:8); every other record has 0.
 [[fields]]
 name = "mesh_flags"
-ty = "raw"
+ty = "flags:render_order_plus_1"
 source = "module_meshes.py:6"
 
 [[fields]]
