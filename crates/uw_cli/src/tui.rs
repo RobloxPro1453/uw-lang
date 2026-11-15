@@ -3,6 +3,8 @@
 //! user, Esc goes back. State and key handling live in [`App`] so tests drive it without a
 //! terminal.
 
+use std::collections::BTreeMap;
+
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
@@ -10,7 +12,7 @@ use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, BorderType, Borders, List, ListItem, ListState, Paragraph, Wrap};
 use ratatui::Frame;
 
-use crate::model::{short, Detail, Hit, Model, Target, UseSite};
+use crate::model::{entry_hint, entry_label, short, Detail, Hit, Model, Target, UseSite};
 
 const RESULT_LIMIT: usize = 300;
 
@@ -27,6 +29,13 @@ pub enum UseRow {
     Site(UseSite),
 }
 
+/// What the lower right list shows: who mentions the current target, or what it mentions.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ListMode {
+    UsedBy,
+    LeadsTo,
+}
+
 pub struct App<'a> {
     model: &'a Model,
     pub query: String,
@@ -38,6 +47,7 @@ pub struct App<'a> {
     pub detail: Option<Detail>,
     pub uses: Vec<UseRow>,
     pub use_state: ListState,
+    pub list_mode: ListMode,
     /// Where Enter came from: (target, selected use row) to go back to.
     pub history: Vec<(Target, Option<usize>)>,
     pub quit: bool,
@@ -56,6 +66,7 @@ impl<'a> App<'a> {
             detail: None,
             uses: Vec::new(),
             use_state: ListState::default(),
+            list_mode: ListMode::UsedBy,
             history: Vec::new(),
             quit: false,
         };
@@ -79,15 +90,71 @@ impl<'a> App<'a> {
     fn show(&mut self, target: Option<Target>, use_sel: Option<usize>) {
         self.detail = target.as_ref().map(|t| self.model.describe(t));
         self.current = target;
-        self.uses.clear();
+        let rows = match (&self.current, self.list_mode) {
+            (Some(current), ListMode::LeadsTo) => self.leads_to_rows(current),
+            _ => self.used_by_rows(),
+        };
+        self.uses = rows;
+        let first_site = self.uses.iter().position(|r| matches!(r, UseRow::Site(_)));
+        let picked = use_sel.filter(|&i| matches!(self.uses.get(i), Some(UseRow::Site(_))));
+        self.use_state.select(picked.or(first_site));
+    }
+
+    /// Who mentions the current target, as `Detail` already grouped it.
+    fn used_by_rows(&self) -> Vec<UseRow> {
+        let mut rows = Vec::new();
         if let Some(detail) = &self.detail {
             for group in &detail.uses {
-                self.uses.push(UseRow::Header(group.table.clone(), group.sites.len()));
-                self.uses.extend(group.sites.iter().cloned().map(UseRow::Site));
+                rows.push(UseRow::Header(group.table.clone(), group.sites.len()));
+                rows.extend(group.sites.iter().cloned().map(UseRow::Site));
             }
         }
-        let first_site = self.uses.iter().position(|r| matches!(r, UseRow::Site(_)));
-        self.use_state.select(use_sel.or(first_site));
+        rows
+    }
+
+    /// What the current target mentions: one row per named entry, grouped by table. Globals are
+    /// left out: they have no place in the kit that a list row could point at.
+    fn leads_to_rows(&self, current: &Target) -> Vec<UseRow> {
+        // table -> index -> op -> count, as `Model::group` does for mentions.
+        let mut by_table: BTreeMap<&str, BTreeMap<usize, BTreeMap<&str, usize>>> = BTreeMap::new();
+        for (to, op) in self.model.outgoing(current) {
+            let Target::Entry { table, index } = to else { continue };
+            *by_table
+                .entry(table.as_str())
+                .or_default()
+                .entry(*index)
+                .or_default()
+                .entry(op.as_deref().unwrap_or("data"))
+                .or_default() += 1;
+        }
+        let mut rows = Vec::new();
+        for (table, sites) in by_table {
+            let t = &self.model.atlas.tables[table];
+            rows.push(UseRow::Header(table.to_owned(), sites.len()));
+            for (index, ops) in sites {
+                let entry = &t.entries[index];
+                rows.push(UseRow::Site(UseSite {
+                    target: Target::Entry { table: table.to_owned(), index },
+                    label: entry_label(&self.model.atlas, table, entry),
+                    hint: entry_hint(table, entry),
+                    place: match entry.line {
+                        Some(line) => format!("{}.py:{line}", t.module),
+                        None => format!("{}.py", t.module),
+                    },
+                    ops: ops.into_iter().map(|(op, n)| (op.to_owned(), n)).collect(),
+                }));
+            }
+        }
+        rows
+    }
+
+    fn toggle_list_mode(&mut self) {
+        self.list_mode = match self.list_mode {
+            ListMode::UsedBy => ListMode::LeadsTo,
+            ListMode::LeadsTo => ListMode::UsedBy,
+        };
+        let current = self.current.clone();
+        self.show(current, None);
     }
 
     fn has_sites(&self) -> bool {
@@ -156,6 +223,8 @@ impl<'a> App<'a> {
         }
         match self.focus {
             Focus::Results => match key.code {
+                // Only a toggle while nothing is typed; otherwise `g` is part of the search.
+                KeyCode::Char('g') if self.query.is_empty() => self.toggle_list_mode(),
                 KeyCode::Char(c) => {
                     self.query.push(c);
                     self.refresh_search();
@@ -198,6 +267,7 @@ impl<'a> App<'a> {
                     }
                 }
                 KeyCode::Tab => self.focus = Focus::Results,
+                KeyCode::Char('g') => self.toggle_list_mode(),
                 KeyCode::Char(c) => {
                     self.focus = Focus::Results;
                     self.query.push(c);
@@ -339,21 +409,25 @@ impl<'a> App<'a> {
             parts[0],
         );
 
-        let sites: usize = detail.uses.iter().map(|g| g.sites.len()).sum();
-        let title = if sites == 0 {
-            " used by: nothing in Native ".to_owned()
-        } else {
-            format!(
+        let sites = self.uses.iter().filter(|r| matches!(r, UseRow::Site(_))).count();
+        let title = match (self.list_mode, sites) {
+            (ListMode::UsedBy, 0) => " used by: nothing in Native ".to_owned(),
+            (ListMode::UsedBy, sites) => format!(
                 " used by {sites} {} ({} mentions) ",
                 if sites == 1 { "place" } else { "places" },
                 detail.total_mentions
-            )
+            ),
+            (ListMode::LeadsTo, 0) => " leads to: nothing in Native ".to_owned(),
+            (ListMode::LeadsTo, sites) => format!(" leads to {sites} {} ", if sites == 1 { "place" } else { "places" }),
         };
         let block = Self::panel(title, self.focus == Focus::Uses);
         if sites == 0 {
-            let text = match self.current {
-                Some(Target::Op(_)) => "Operations are listed with their usage above.",
-                _ => "No operation in Native mentions this by name.\n(Data written as Python numbers can't be traced.)",
+            let text = match self.list_mode {
+                ListMode::LeadsTo => "Nothing in Native is written here by name.\n(Data written as Python numbers can't be traced.)",
+                ListMode::UsedBy => match self.current {
+                    Some(Target::Op(_)) => "Operations are listed with their usage above.",
+                    _ => "No operation in Native mentions this by name.\n(Data written as Python numbers can't be traced.)",
+                },
             };
             frame.render_widget(Paragraph::new(text).style(Style::default().fg(Color::DarkGray)).block(block), parts[1]);
             return;
@@ -403,9 +477,16 @@ impl<'a> App<'a> {
     }
 
     fn draw_help(&self, frame: &mut Frame, area: Rect) {
+        let toggle = match self.list_mode {
+            ListMode::UsedBy => ("g", "leads to"),
+            ListMode::LeadsTo => ("g", "used by"),
+        };
         let keys: &[(&str, &str)] = match self.focus {
+            Focus::Results if self.query.is_empty() => {
+                &[("type", "search"), ("↑↓", "pick"), ("Enter", "go to its users"), toggle, ("Esc", "clear / quit"), ("Ctrl+C", "quit")]
+            }
             Focus::Results => &[("type", "search"), ("↑↓", "pick"), ("Enter", "go to its users"), ("Esc", "clear / quit"), ("Ctrl+C", "quit")],
-            Focus::Uses => &[("↑↓", "pick a user"), ("Enter", "open it"), ("Esc", "back"), ("Tab", "results"), ("type", "new search")],
+            Focus::Uses => &[("↑↓", "pick a user"), ("Enter", "open it"), ("Esc", "back"), ("Tab", "results"), toggle, ("type", "new search")],
         };
         let mut spans = Vec::new();
         for (key, what) in keys {
@@ -524,6 +605,88 @@ mod tests {
         let mut release = KeyEvent::new(KeyCode::Char('x'), KeyModifiers::NONE);
         release.kind = KeyEventKind::Release;
         app.on_key(release);
+        assert!(app.query.is_empty());
+    }
+
+    fn labels(app: &App) -> Vec<String> {
+        app.uses
+            .iter()
+            .filter_map(|r| match r {
+                UseRow::Site(site) => Some(site.label.clone()),
+                UseRow::Header(..) => None,
+            })
+            .collect()
+    }
+
+    fn headers(app: &App) -> Vec<(String, usize)> {
+        app.uses
+            .iter()
+            .filter_map(|r| match r {
+                UseRow::Header(table, n) => Some((table.clone(), *n)),
+                UseRow::Site(_) => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn g_switches_to_leads_to_and_enter_follows_a_target() {
+        let model = model();
+        let mut app = App::new(&model, "mnu_start");
+        assert_eq!(app.current, Some(Target::Entry { table: "menus".into(), index: 0 }));
+        // Enter opens the first place that mentions menu_start: the game_start script.
+        press(&mut app, KeyCode::Enter);
+        assert_eq!(app.focus, Focus::Uses);
+        let UseRow::Site(site) = app.uses[app.use_state.selected().unwrap()].clone() else { panic!() };
+        assert_eq!(site.target, Target::Entry { table: "scripts".into(), index: 0 });
+        press(&mut app, KeyCode::Enter);
+        assert_eq!(app.current, Some(Target::Entry { table: "scripts".into(), index: 0 }));
+        assert!(screen(&mut app).contains("leads to"), "the help bar names the other mode");
+
+        press(&mut app, KeyCode::Char('g'));
+        assert_eq!(app.list_mode, ListMode::LeadsTo);
+        assert_eq!(
+            app.current,
+            Some(Target::Entry { table: "scripts".into(), index: 0 }),
+            "the toggle keeps the target"
+        );
+        assert_eq!(headers(&app), vec![("menus".to_owned(), 2), ("scripts".to_owned(), 1)]);
+        assert_eq!(labels(&app), vec!["menu_start", "menu_camp#1", "script_helper"], "$g_x is no place");
+        let UseRow::Site(camp) = app.uses[2].clone() else { panic!() };
+        assert_eq!(camp.place, "module_game_menus.py:20", "the place is where the target is defined");
+        assert_eq!(camp.ops_text(), "jump_to_menu");
+        assert_eq!(camp.hint.as_deref(), Some("A"));
+        let s = screen(&mut app);
+        assert!(s.contains("leads to 3 places"), "{s}");
+        assert!(s.contains("used by"), "the help bar offers the other mode: {s}");
+
+        // Enter follows one of the targets; the mode stays.
+        let first = app.use_state.selected().unwrap();
+        press(&mut app, KeyCode::Enter);
+        assert_eq!(app.current, Some(Target::Entry { table: "menus".into(), index: 0 }));
+        assert_eq!(app.history.len(), 2);
+        assert_eq!(app.list_mode, ListMode::LeadsTo, "the mode stays when jumping");
+        assert!(screen(&mut app).contains("leads to: nothing in Native"));
+        press(&mut app, KeyCode::Esc);
+        assert_eq!(app.current, Some(Target::Entry { table: "scripts".into(), index: 0 }));
+        assert_eq!(app.list_mode, ListMode::LeadsTo, "the mode stays on the way back");
+        assert_eq!(app.use_state.selected(), Some(first), "back restores the picked row");
+
+        press(&mut app, KeyCode::Char('g'));
+        assert_eq!(app.list_mode, ListMode::UsedBy);
+        assert!(labels(&app).is_empty(), "nothing mentions a hook: the used by list is empty again");
+        assert!(screen(&mut app).contains("used by: nothing in Native"));
+    }
+
+    #[test]
+    fn g_types_into_a_non_empty_search_and_toggles_on_an_empty_one() {
+        let model = model();
+        let mut app = App::new(&model, "game");
+        press(&mut app, KeyCode::Char('g'));
+        assert_eq!(app.query, "gameg");
+        assert_eq!(app.list_mode, ListMode::UsedBy);
+        let mut app = App::new(&model, "");
+        press(&mut app, KeyCode::Char('g'));
+        assert_eq!(app.list_mode, ListMode::LeadsTo);
         assert!(app.query.is_empty());
     }
 }
