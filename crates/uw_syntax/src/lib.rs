@@ -980,7 +980,16 @@ impl Parser {
         if op.text == "if" {
             return self.if_stmt(op);
         }
-        if matches!(op.text.as_str(), "elif" | "else" | "while" | "for") {
+        if op.text == "require" {
+            return self.require_stmt(op);
+        }
+        if op.text == "attempt" {
+            return self.attempt_stmt(op);
+        }
+        if op.text == "for" {
+            return self.for_stmt(op);
+        }
+        if matches!(op.text.as_str(), "elif" | "else" | "while") {
             return Err(self.keyword_error(op));
         }
         if matches!(self.peek().tok, Tok::Assign(_)) {
@@ -1093,12 +1102,9 @@ impl Parser {
         Ok(Stmt::Assign { target, op, value, span })
     }
 
-    /// `elif` / `else` / `while` / `for` written as a statement; each gets a one-line fix.
+    /// `elif` / `else` / `while` written as a statement; each gets a one-line fix.
     fn keyword_error(&self, op: Ident) -> Diagnostic {
-        let python = self.toks[self.pos..]
-            .iter()
-            .take_while(|t| t.tok != Tok::Newline && t.tok != Tok::Eof)
-            .any(|t| t.tok == Tok::Colon);
+        let python = self.colon_on_this_line();
         let d = err(
             if python { E0104_PYTHON_BLOCK } else { E0100_UNEXPECTED },
             format!("`{}` is not a UW statement", op.text),
@@ -1107,8 +1113,16 @@ impl Parser {
         match op.text.as_str() {
             "elif" => d.with_help("write `else if <condition> { ... }` instead of `elif`"),
             "else" => d.with_help("write `else { ... }`; `else` must follow the `}` of an `if` block"),
-            _ => d.with_help("UW has no loops yet; write the steps one by one"),
+            _ => d.with_help("UW has no `while` loop; count with `for :i in range(0, 10) { ... }`"),
         }
+    }
+
+    /// A `:` before the end of this line — the Python block habit (§ Sözdizimi).
+    fn colon_on_this_line(&self) -> bool {
+        self.toks[self.pos..]
+            .iter()
+            .take_while(|t| t.tok != Tok::Newline && t.tok != Tok::Eof)
+            .any(|t| t.tok == Tok::Colon)
     }
 
     /// `if <cond> { } else if <cond> { } else { }`.
@@ -1147,6 +1161,97 @@ impl Parser {
         };
         self.end_of_stmt("this `if` block")?;
         Ok(Stmt::If { arms, otherwise, span: Span { start, end } })
+    }
+
+    /// `require <cond>`: one statement, ends at a new line or `;` (§4.2).
+    fn require_stmt(&mut self, kw: Ident) -> Result<Stmt, Diagnostic> {
+        let cond = self.cond()?;
+        let span = Span { start: kw.span.start, end: cond_span(&cond).end };
+        self.end_of_stmt("this `require`")?;
+        Ok(Stmt::Require { cond, span })
+    }
+
+    /// `attempt { } else attempt { } else { }` (§4.3): each block is one arm, the last one may be
+    /// a plain `else { }`.
+    fn attempt_stmt(&mut self, kw: Ident) -> Result<Stmt, Diagnostic> {
+        let start = kw.span.start;
+        let mut arms = vec![self.block("attempt")?];
+        loop {
+            // `else` may follow the `}` directly or on the next line.
+            let save = self.pos;
+            self.skip_newlines();
+            let t = self.peek().clone();
+            if !matches!(&t.tok, Tok::Ident(word) if word == "else") {
+                self.pos = save;
+                break;
+            }
+            self.bump();
+            // An arm carries no condition of its own: `else if` is an `if` habit.
+            let next = self.peek().clone();
+            if matches!(&next.tok, Tok::Ident(word) if word == "if" || word == "elif") {
+                return Err(err(E0100_UNEXPECTED, "`else if` cannot follow an `attempt` block", next.span)
+                    .with_help("write `else attempt { ... }` here and put `require <condition>` inside the arm"));
+            }
+            if matches!(&next.tok, Tok::Ident(word) if word == "attempt") {
+                self.bump();
+                arms.push(self.block("attempt")?);
+                continue;
+            }
+            arms.push(self.block("else")?);
+            break;
+        }
+        let end = arms.last().map_or(kw.span.end, |body| body.span.end);
+        self.end_of_stmt("this `attempt` block")?;
+        Ok(Stmt::Attempt { arms, span: Span { start, end } })
+    }
+
+    /// `for <$global|:local> in <kind>(<args>) { … }` (§8); `kind` is a `try_for_` operation
+    /// without that prefix (`range`, `range_backwards`, `parties`, `agents` …).
+    fn for_stmt(&mut self, kw: Ident) -> Result<Stmt, Diagnostic> {
+        let start = kw.span.start;
+        self.skip_newlines();
+        let t = self.peek().clone();
+        let var = match t.tok {
+            Tok::Global(text) => Arg::Global(Ident { text, span: t.span }),
+            Tok::Local(text) => Arg::Local(Ident { text, span: t.span }),
+            Tok::Ident(text) => {
+                // A loop variable carries `$` or `:`; a `:` at the end of the line is Python.
+                let d = if self.colon_on_this_line() {
+                    err(E0104_PYTHON_BLOCK, format!("`for {text} …:` is not a UW loop; there is no ':' before a block"), t.span)
+                } else {
+                    err(E0100_UNEXPECTED, format!("`{text}` is not a loop variable: it needs `$` or `:`"), t.span)
+                };
+                return Err(d.with_help(format!("write `for :{text} in range(0, 10) {{ ... }}`")));
+            }
+            other => {
+                return Err(err(
+                    E0100_UNEXPECTED,
+                    format!("expected a loop variable like `:i` after `for`, found {}", describe(&other)),
+                    t.span,
+                )
+                .with_help("write `for :i in range(0, 10) { ... }`"));
+            }
+        };
+        self.bump();
+        self.skip_newlines();
+        let t = self.peek().clone();
+        if !matches!(&t.tok, Tok::Ident(word) if word == "in") {
+            return Err(err(
+                E0100_UNEXPECTED,
+                format!("expected `in` after the loop variable, found {}", describe(&t.tok)),
+                t.span,
+            )
+            .with_help("write `for :i in range(0, 10) { ... }`"));
+        }
+        self.bump();
+        self.skip_newlines();
+        let kind = self.ident("the loop kind after `in`, e.g. `range`")?;
+        let call = self.call_after(kind.clone())?;
+        let var_text = self.text[var.span().start..var.span().end].to_owned();
+        let body = self.block(&format!("for {var_text} in {}", kind.text))?;
+        self.end_of_stmt("this `for` loop")?;
+        let span = Span { start, end: body.span.end };
+        Ok(Stmt::For { var, kind, args: call.args, body, span })
     }
 
     /// `a < b`, `not c`, `x and y or z` — precedence `not` > `and` > `or` (§7.3).
@@ -1816,5 +1921,114 @@ $2ary = 1").expect("parses");
         assert!(matches!(&stmts[1].as_call().unwrap().args[0], Arg::Int(72057594037927936, _)));
         assert!(stmts[2].as_call().unwrap().args.is_empty());
         assert!(matches!(&stmts[3], Stmt::Assign { value: Expr::Value(Arg::Int(-5, _)), .. }));
+    }
+
+    #[test]
+    fn require_parses_with_its_condition() {
+        let text = "require $gold >= 100";
+        let stmts = parse_block(text).expect("parses");
+        let Stmt::Require { cond, span } = &stmts[0] else { panic!("{:?}", stmts[0]) };
+        assert!(
+            matches!(cond, Cond::Cmp { op: CmpOp::Ge, left: Expr::Value(Arg::Global(g)), right: Expr::Value(Arg::Int(100, _)), .. } if g.text == "$gold")
+        );
+        assert_eq!(*span, Span { start: 0, end: text.len() });
+
+        let stmts = parse_block("require party_is_active(p_town_6); a()").expect("parses");
+        assert!(matches!(&stmts[0], Stmt::Require { cond: Cond::Call(c), .. } if c.op.text == "party_is_active"));
+        assert!(matches!(&stmts[1], Stmt::Call(c) if c.op.text == "a"));
+    }
+
+    #[test]
+    fn attempt_chain_and_final_else_parse() {
+        let text = "attempt {\n  require $g > 1\n} else attempt {\n  require $g > 2\n} else {\n$x = 3\n}";
+        let stmts = parse_block(text).expect("parses");
+        let Stmt::Attempt { arms, span } = &stmts[0] else { panic!("{:?}", stmts[0]) };
+        assert_eq!(arms.len(), 3);
+        assert!(matches!(&arms[0].stmts[0], Stmt::Require { cond: Cond::Cmp { .. }, .. }));
+        assert!(matches!(&arms[1].stmts[0], Stmt::Require { cond: Cond::Cmp { .. }, .. }));
+        assert!(matches!(&arms[2].stmts[0], Stmt::Assign { target: Arg::Global(g), .. } if g.text == "$x"));
+        assert_eq!(*span, Span { start: 0, end: text.len() });
+
+        // Without a final `else` the chain stops after the last `else attempt`.
+        let stmts = parse_block("attempt {\n  a()\n} else attempt {\n  b()\n}").expect("parses");
+        let Stmt::Attempt { arms, .. } = &stmts[0] else { panic!("{:?}", stmts[0]) };
+        assert_eq!(arms.len(), 2);
+        assert!(matches!(&arms[1].stmts[0], Stmt::Call(c) if c.op.text == "b"));
+    }
+
+    #[test]
+    fn for_parses_its_variable_kind_and_arguments() {
+        let text = "for :i in range(0, 10) {\n  f(:i)\n}";
+        let stmts = parse_block(text).expect("parses");
+        let Stmt::For { var, kind, args, body, span } = &stmts[0] else { panic!("{:?}", stmts[0]) };
+        assert!(matches!(var, Arg::Local(l) if l.text == ":i"));
+        assert_eq!(kind.text, "range");
+        assert_eq!(args.len(), 2);
+        assert!(matches!(&args[0], Arg::Int(0, _)));
+        assert!(matches!(&args[1], Arg::Int(10, _)));
+        assert!(matches!(&body.stmts[0], Stmt::Call(c) if c.op.text == "f"));
+        assert_eq!(*span, Span { start: 0, end: text.len() });
+
+        let stmts = parse_block("for $p in parties() {\n}").expect("parses");
+        let Stmt::For { var, kind, args, body, .. } = &stmts[0] else { panic!("{:?}", stmts[0]) };
+        assert!(matches!(var, Arg::Global(g) if g.text == "$p"));
+        assert_eq!(kind.text, "parties");
+        assert!(args.is_empty());
+        assert!(body.stmts.is_empty());
+    }
+
+    #[test]
+    fn attempt_nests_inside_for_and_require_inside_an_arm() {
+        let stmts = parse_block(
+            "for :p in parties() {\n  attempt {\n    require $ok == 1\n    f(:p)\n  } else {\n    g()\n  }\n}",
+        )
+        .expect("parses");
+        let Stmt::For { body, .. } = &stmts[0] else { panic!("{:?}", stmts[0]) };
+        let Stmt::Attempt { arms, .. } = &body.stmts[0] else { panic!("{:?}", body.stmts[0]) };
+        assert_eq!(arms.len(), 2);
+        assert!(matches!(&arms[0].stmts[0], Stmt::Require { cond: Cond::Cmp { .. }, .. }));
+        assert!(matches!(&arms[0].stmts[1], Stmt::Call(c) if c.op.text == "f"));
+        assert!(matches!(&arms[1].stmts[0], Stmt::Call(c) if c.op.text == "g"));
+    }
+
+    #[test]
+    fn for_without_in_is_named() {
+        let (d, r) = error("on game.start {\n  for :i range(0, 10) {\n  }\n}");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("expected `in` after the loop variable, found 'range'"), "{r}");
+        assert!(r.contains("--> t.uw:2:10"), "{r}");
+        assert!(!r.contains("unexpected end"), "{r}");
+    }
+
+    #[test]
+    fn for_without_a_block_brace_is_named() {
+        let (d, r) = error("on game.start {\n  for :i in range(0, 10)\n    f(:i)\n  }\n}");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("expected '{' after `for :i in range`"), "{r}");
+        assert!(r.contains("--> t.uw:3:5"), "{r}");
+        // An unclosed body points at its own `{`, never only at the file end.
+        let (d, r) = error("on game.start {\n  for :i in range(0, 10) {\n");
+        assert_eq!(d.code, E0101_UNCLOSED);
+        assert!(r.contains("--> t.uw:2:"), "{r}");
+        assert!(r.contains("never closed"), "{r}");
+    }
+
+    #[test]
+    fn else_if_after_attempt_is_an_error_with_a_fix() {
+        let (d, r) = error("on game.start {\n  attempt {\n    a()\n  } else if $x < 1 {\n    b()\n  }\n}");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("`else if` cannot follow an `attempt` block"), "{r}");
+        assert!(r.contains("else attempt"), "{r}");
+        assert!(r.contains("--> t.uw:4:10"), "{r}");
+    }
+
+    #[test]
+    fn python_style_for_gets_a_one_line_fix() {
+        let (d, r) = error("on game.start {\n  for i in range(10):\n    a()\n  }\n}");
+        assert_eq!(d.code, E0104_PYTHON_BLOCK);
+        assert!(r.contains("`for i …:` is not a UW loop"), "{r}");
+        assert!(r.contains("write `for :i in range(0, 10) { ... }`"), "{r}");
+        assert!(r.contains("--> t.uw:2:7"), "{r}");
+        assert!(!r.contains("unexpected end"), "{r}");
     }
 }
