@@ -11,7 +11,7 @@ use uw_decomp::records::{self, Schema};
 use uw_atlas::{Atlas, Entry};
 
 /// The atlas and the record schemas the export/check needs.
-fn atlas_and_schemas(atlas_path: Option<PathBuf>) -> Result<(Atlas, Vec<Schema>), String> {
+pub(crate) fn atlas_and_schemas(atlas_path: Option<PathBuf>) -> Result<(Atlas, Vec<Schema>), String> {
     let path = atlas_path
         .or_else(|| std::env::var_os("UW_ATLAS").map(PathBuf::from))
         .or_else(crate::find_atlas)
