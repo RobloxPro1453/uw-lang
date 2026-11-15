@@ -31,3 +31,8 @@ Sıradaki: uw_runtime yardımcıları (set_text, add_option, change_option, remo
 Yaptım: T-016, T-018, T-014 birleşti; lower this_or_next hatası düzeltildi; uw_runtime menü yardımcıları; T-015 başladı
 Maliyet: 5s %3 · commit: 11 · Değdi: evet
 Sıradaki: T-017 ve T-015 gözden geçir/birleştir; altın testler + örnek mod (if, option) + kılavuz bölümleri; release derle
+
+## 2026-11-15 16:50 · kota 5s %75 / hafta %63
+Yaptım: T-015 ve T-017 birleşti; menu_demo uçtan uca derlendi ve kuruldu; kılavuz 3.5-3.8; CHECKUP oyun deneyi; T-019 başladı; push izin denetiminde
+Maliyet: 5s %5 · commit: 8 · Değdi: evet
+Sıradaki: T-019 gözden geçir; bağlayıcı sırası (T-020) ve flow_json diyaloglar; bağlam 400k olunca devir

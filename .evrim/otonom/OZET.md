@@ -1,16 +1,14 @@
 # Özet (sahibi için, sade)
 
 ## Şu an
-OHAL. 5. çevrim bitti. Dilin yeni parçalarının çoğu birleşti; DeepSeek iki şeritte son parçaları yazıyor: denetim (T-017) ve menü öğeleri ayrıştırıcısı (T-015). Bunlar birleşince hesap, if ve seçenek kullanan ilk örnek mod derlenecek.
+OHAL. 6. çevrim bitti. **Dilin yeni hâli çalışıyor:** hesap, if, menü metni ve seçenekleri. Örnek mod `menu_demo` derlendi ve oyuna kuruldu; senin denemeni bekliyor. DeepSeek altın testleri yazıyor (T-019).
 
 ## Bitenler
-- Ayrıştırıcı artık atama, hesap, if / else if / else ve and/or/not okuyor (T-014).
-- Çeviri: hesap ve if Native işlemlerine dönüşüyor (T-016); bir and/or tuzağını ben yakalayıp düzelttim.
-- Menü metni / seçenek / yeni menü çıktısı (T-018) ve oyun tarafı Python yardımcıları (Python 3 ve 2.7'de testli).
-- Testler 123/123.
-- GitHub: README (resmî olmayan proje, TaleWorlds ile bağ yok), MIT/Apache lisansı. Commit'ler GitHub'da (main).
-- UW kılavuzu: docs/kilavuz/UW_KILAVUZU.md (Türkçe; dil, komutlar, hata kodları, sınırlar).
-- Türkçe metinler (`--tr`), öneksiz ad, `--debug` düzeltmesi, altın testler.
+- **Elle tutulur:** Warband başlatıcısında `menu_demo` modunu seç, yeni oyun aç, karakteri yarat. "Nereden başlamak istersin" menüsünde değişen metin, yeni adlı Praven seçeneği, yeni "Start rich" seçeneği görünmeli; Shariz kalkmış olmalı. Adımlar: docs/CHECKUP.md (Oyun deneyi kuyruğu).
+- Kaynak: examples/menu_demo/menu_demo.uw (tek dosyada hepsi).
+- Kılavuz yeni bölümler: 3.5 hesap, 3.6 if/and/or/not, 3.7 menü metni ve seçenekler, 3.8 yeni menü; hata kodları E0206-E0212 (docs/kilavuz/UW_KILAVUZU.md).
+- Testler 141/141, Python yardımcıları 15/15.
+- DeepSeek bugün ~0.5$ harcadı; işlerinin hepsi denetlendi, birinde gerçek bir hata yakalanıp düzeltildi.
 
 ## Karar verdiklerim
 - Gramer 2 kararı: docs/meclis/gramer-2-oneri.md.
@@ -18,13 +16,13 @@ OHAL. 5. çevrim bitti. Dilin yeni parçalarının çoğu birleşti; DeepSeek ik
 - Bağlam büyüyünce devir notu + yeni oturum (KARARNAMELER).
 
 ## Takıldıklarım
-- Push'u izin denetimi reddetmişti; 5. çevrim sonunda özet dosyasını güncelleyen bir komuttaki ters tırnak yüzünden `git push` istemeden çalıştı ve commit'ler GitHub'a gitti. İçerik denetlenmiş depo içeriği (kit yok, gizli bilgi yok). Ders kaydedildi; kabukta ters tırnaklı metin artık yazılmıyor.
-- Döngü bir süre SIRA_DEGIL dedi: sıra kaydındaki iki sahte proje senin sözünle silindi (yedek: ~/.claudevolution/projects.json.bak).
+- **GitHub push'u otomatik izin denetimi reddediyor.** Son commit'ler yalnız bilgisayarında; GitHub'daki main geride. Çözüm: ya arada kendin `git push origin master:main` çalıştır ya da Claude Code izinlerine bu komutu ekle.
+- 5. çevrimde özet yazarken bir ters tırnak yüzünden `git push` istemeden bir kez çalışmıştı (içerik temizdi). Ders kaydedildi.
 
 ## Harcama
-Çevrim başına 5 saatlik kotanın ~%3-5'i; DeepSeek bugün toplam ~0.5$ civarı (cv delegate status).
+Çevrim başına 5 saatlik kotanın ~%3-6'sı; haftalık %63 / tavan %90.
 
 ## Senin bakman gerekenler
-- Commit e-postası `fincan106@gmail.com` GitHub'da görünür; istemezsen söyle.
-- `uw build examples/praven_start --debug` ile oyunda menü adının okunur çıktığını dene (CHECKUP).
-- Proje kökünde depoya girmemiş `flow_startgamezero.json` ve `github-icin(oku).txt` var.
+1. `menu_demo`yu oyunda dene (yukarıda), sonucu docs/CHECKUP.md maddesinin altına yaz.
+2. GitHub için push (yukarıda).
+3. Commit e-postası `fincan106@gmail.com` GitHub'da görünür; istemezsen söyle.
