@@ -74,6 +74,52 @@ fn measures_records_of_every_table_with_a_schema() {
     std::fs::remove_dir_all(&root).ok();
 }
 
+/// The real Native atlas, when this machine has one (docs/DEVELOPMENT.md > Atlas).
+const REAL: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/uw-staging/atlas.json");
+/// The record schemas of the real kit.
+const REAL_SCHEMAS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../kit-meta/records");
+
+#[test]
+fn real_atlas_menus_and_scripts_records_show_their_blocks() {
+    if !Path::new(REAL).exists() {
+        eprintln!("skipped: no atlas at {REAL}");
+        return;
+    }
+    let root = scratch("real");
+    let out = Command::new(env!("CARGO_BIN_EXE_uw"))
+        .arg("roundtrip")
+        .args(["--atlas", REAL])
+        .arg("--schemas")
+        .arg(REAL_SCHEMAS)
+        .arg("--out")
+        .arg(root.join("out"))
+        .output()
+        .expect("uw runs");
+    let stdout = String::from_utf8(out.stdout).expect("utf-8 stdout");
+    let stderr = String::from_utf8(out.stderr).expect("utf-8 stderr");
+    assert!(out.status.success(), "{stdout}\n{stderr}");
+
+    // A block field printed raw would change the record value and fail those counts.
+    let ops = stdout.split("\nrecords\n").next().expect("an ops summary");
+    assert_eq!(
+        &words(ops, "TOTAL")[..5],
+        &["TOTAL", "9113", "blocks", "structured", "9113"],
+        "{ops}"
+    );
+    let records = stdout.split("\nrecords\n").nth(1).expect("a records block");
+    assert_eq!(words(records, "menus"), ["menus", "217", "records,", "exact", "217,", "failed", "0"]);
+    assert_eq!(words(records, "scripts"), ["scripts", "610", "records,", "exact", "610,", "failed", "0"]);
+    assert_eq!(words(records, "TOTAL"), ["TOTAL", "12815", "records,", "exact", "12815,", "failed", "0"]);
+
+    // The written text shows the decompiler's code, not the raw numbers.
+    let menus = std::fs::read_to_string(root.join("out/records/menus.uw")).expect("menus records");
+    assert!(menus.contains("ops {"), "{menus}");
+    let scripts = std::fs::read_to_string(root.join("out/records/scripts.uw")).expect("scripts records");
+    assert!(scripts.contains("ops {"), "{scripts}");
+
+    std::fs::remove_dir_all(&root).ok();
+}
+
 #[test]
 fn a_record_that_does_not_round_trip_fails_the_run() {
     let root = scratch("failed");
