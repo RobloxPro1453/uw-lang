@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T13:22:00.300Z",
+  "updatedAt": "2026-11-15T13:27:26.242Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -194,21 +194,29 @@
     },
     "T-014": {
       "task": "T-014",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-014",
-      "updatedAt": "2026-11-15T13:22:00.267Z"
+      "updatedAt": "2026-11-15T13:27:26.242Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_syntax/src/lib.rs +514 -25"
+      ]
     },
     "T-016": {
       "task": "T-016",
-      "status": "pending",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-016",
-      "updatedAt": "2026-11-15T13:22:00.113Z"
+      "updatedAt": "2026-11-15T13:25:39.203Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_lower/src/lib.rs +525 -7"
+      ]
     },
     "T-017": {
       "task": "T-017",
@@ -221,12 +229,16 @@
     },
     "T-018": {
       "task": "T-018",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-018",
-      "updatedAt": "2026-11-15T13:22:00.299Z"
+      "updatedAt": "2026-11-15T13:26:10.351Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_emit/src/lib.rs +298 -17"
+      ]
     }
   }
 }
