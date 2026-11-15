@@ -1,0 +1,22 @@
+# Info page records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_info_pages.py
+# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "info_pages"
+kind = "info_page"
+id_prefix = "ip_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_info_pages.py:3"
+
+[[fields]]
+name = "name"
+ty = "raw"
+source = "module_info_pages.py:4"
+
+# The kit comment names only two positions; the description that follows has no comment line.
+[[fields]]
+name = "field_3"
+ty = "raw"
+source = "module_info_pages.py:9"

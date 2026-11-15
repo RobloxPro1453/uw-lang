@@ -1,0 +1,26 @@
+# Quest records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_quests.py
+# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "quests"
+kind = "quest"
+id_prefix = "qst_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_quests.py:5"
+
+[[fields]]
+name = "quest_name"
+ty = "raw"
+source = "module_quests.py:6"
+
+[[fields]]
+name = "quest_flags"
+ty = "raw"
+source = "module_quests.py:7"
+
+[[fields]]
+name = "description"
+ty = "raw"
+source = "module_quests.py:8"
