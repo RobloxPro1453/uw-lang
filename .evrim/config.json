@@ -105,7 +105,9 @@
     "workPlan": "Work plan: 1) find the place in the code (search, then read); 2) write the change and the test; 3) build and test; fix until they pass.",
     "worktreeRoot": "~/cv-calisma/{project}",
     "branchPrefix": "cv/",
-    "linkDirs": [],
+    "linkDirs": [
+      "Module_system 1.171"
+    ],
     "lanes": 12,
     "slots": {
       "test": 2,
