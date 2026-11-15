@@ -1,5 +1,8 @@
-# Item records, round 1 (raw): every field is the atlas value as it is.
-# Field names and order follow the layout comment at the top of the kit's module_items.py
+# Item records: the fields whose meaning the kit states are typed with the T-058 types
+# (docs/meclis/YON2-KARAR.md §2). `item_flags`, `item_capabilities` and `modifier_bits` are flag
+# sets, `item_stats` a packed number and `factions` a list of faction refs. `id`, `name`, `meshes`
+# (a list of (mesh, bits) tuples), `value` and `triggers` (operation blocks) stay the atlas value as
+# it is. Field names and order follow the layout comment at the top of the kit's module_items.py
 # (`source` points at it); docs/meclis/YON2-KARAR.md §2.
 table = "items"
 kind = "item"
@@ -21,29 +24,148 @@ name = "meshes"
 ty = "raw"
 source = "module_items.py:12"
 
+# The item type is the low byte: itp_type_* = 0x1..0x14 (header_items.py:13-32) and no kit constant
+# names that mask. The attach armature/attachment mask is 0xf00 (header_items.py:42-43).
 [[fields]]
 name = "item_flags"
-ty = "raw"
+ty = "flags:itp_"
 source = "module_items.py:16"
 
+[[fields.enums]]
+mask = 255
+prefix = "itp_type_"
+
+[[fields.enums]]
+mask = "itp_attachment_mask"
+prefix = "itp_attach_armature"
+
+# The shoot, carry and reload groups are bit fields with a kit mask (header_items.py:304, 314,
+# 346); the other capabilities are single itcf_* bits.
 [[fields]]
 name = "item_capabilities"
-ty = "raw"
+ty = "flags:itcf_"
 source = "module_items.py:17"
+
+[[fields.enums]]
+mask = "itcf_shoot_mask"
+prefix = "itcf_shoot_"
+
+[[fields.enums]]
+mask = "itcf_carry_mask"
+prefix = "itcf_carry_"
+
+[[fields.enums]]
+mask = "itcf_reload_mask"
+prefix = "itcf_reload_"
 
 [[fields]]
 name = "value"
 ty = "raw"
 source = "module_items.py:18"
 
+# process_items.py:30-44 reads these stats through the header_items.py bit helpers; the shifts and
+# widths come from the ibf_* / iwf_* lines cited below. The damage type shares the 10-bit damage
+# value with the damage (damage_type << 8, ibf_damage_mask/iwf_damage_type_bits), so it is 2 bits.
 [[fields]]
 name = "item_stats"
-ty = "raw"
+ty = "bits"
 source = "module_items.py:19"
 
+[[fields.parts]]
+name = "head_armor"
+shift = 0
+width = 8
+source = "header_items.py:137"
+
+[[fields.parts]]
+name = "body_armor"
+shift = 8
+width = 8
+source = "header_items.py:138"
+
+[[fields.parts]]
+name = "leg_armor"
+shift = 16
+width = 8
+source = "header_items.py:139"
+
+[[fields.parts]]
+name = "weight"
+shift = 24
+width = 8
+source = "header_items.py:140"
+
+[[fields.parts]]
+name = "difficulty"
+shift = 32
+width = 8
+source = "header_items.py:141"
+
+[[fields.parts]]
+name = "hit_points"
+shift = 40
+width = 16
+source = "header_items.py:143-144"
+
+[[fields.parts]]
+name = "swing_damage"
+shift = 50
+width = 8
+source = "header_items.py:147"
+
+[[fields.parts]]
+name = "swing_damage_type"
+shift = 58
+width = 2
+source = "header_items.py:148"
+
+[[fields.parts]]
+name = "thrust_damage"
+shift = 60
+width = 8
+source = "header_items.py:149"
+
+[[fields.parts]]
+name = "thrust_damage_type"
+shift = 68
+width = 2
+source = "header_items.py:150"
+
+[[fields.parts]]
+name = "weapon_length"
+shift = 70
+width = 10
+source = "header_items.py:151"
+
+[[fields.parts]]
+name = "speed_rating"
+shift = 80
+width = 8
+source = "header_items.py:152"
+
+[[fields.parts]]
+name = "shoot_speed"
+shift = 90
+width = 10
+source = "header_items.py:153"
+
+[[fields.parts]]
+name = "max_ammo"
+shift = 100
+width = 8
+source = "header_items.py:155"
+
+[[fields.parts]]
+name = "abundance"
+shift = 110
+width = 8
+source = "header_items.py:156"
+
+# A set of imodbit_* powers of two (header_item_modifiers.py:46-88). `imodbits_none = 0` lives in
+# module_items.py:27, not atlas.constants, so the zero value prints `[]` instead of a name.
 [[fields]]
 name = "modifier_bits"
-ty = "raw"
+ty = "flags:imodbit_"
 source = "module_items.py:21"
 
 [[fields]]
@@ -52,8 +174,9 @@ ty = "raw"
 optional = true
 source = "module_items.py:22"
 
+# Indices into ID_factions.py (the kit's module_items.py uses e.g. [fac_kingdom_2, fac_kingdom_3]).
 [[fields]]
 name = "factions"
-ty = "raw"
+ty = "list:ref:factions"
 optional = true
 source = "module_items.py:23"
