@@ -27,3 +27,5 @@ Sahibi: yükseklik haritası "muazzam olur"; deniz, göl, dağ, kayalık her şe
 3. **Önce `base: native`:** "Evet." → Faz 1 yalnız `base: native`; `base: empty` D8 sonrası.
 4. **Python 2.7:** "Şu an gerek yok, ileriki sürümlerde ekleriz. Bütün iş yükümüz mimariyi doğru ve kapsamlı kurmak; topluluk işleri en son." → Python 2.7 gerekliliği şimdilik kabul; kurulum kolaylığı/Python'dan kurtulma sonraki sürümlere.
 5. Sahibi anlamadı → sade anlatımla "Açık"ta yeniden soruldu.
+
+- [2026-11-15] Döngü SIRA_DEGIL diyor: ~/.claudevolution/projects.json içinde paketin testlerinden kalmış iki sahte "proj" kaydı (AppData/Local/Temp/cv-qm-test-*) sırayı tutuyor. Silme izni otomatik denetime takıldı. Sahibi silebilir ya da kayıtlar 2026-11-16 ~15:00 (TR) kendiliğinden düşer.
