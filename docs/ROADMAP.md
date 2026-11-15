@@ -20,6 +20,7 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 - [ ] **D5-D7** Tek sonda modunda: Türkçe karakter, trigger birimleri, `rgl_log.txt` yolu ve komut satırından başlatma.
 - [ ] `kit-meta/` iskeleti: `hardwired.toml`, `slots.toml`, `hooks.toml` (dönüş kanalları), `optypes.toml` ilk taslağı.
 - [x] Depo iskeleti (`uw.toml` Faz 1 ile): Rust workspace, ARCHITECTURE'daki 10 crate (`uw_diag`, `uw_syntax`, `uw_atlas`, `uw_check`, `uw_lower`, `uw_plan`, `uw_emit`, `uw_kitrun`, `uw_verify`, `uw_cli`) + `py/`, her crate'te sözleşme README'si; `examples/`, `tests/`; `uw.toml` içinde kit yolu ve export yolu; kit dosyaları depoya girmez.
+- [ ] **Sandbox / görsel önizleme (sahibi, 2026-11-15):** bir UW komutu yazınca Module System'de nereye ne eklendiğini (hangi dosya, hangi kayıt, eklenen satırlar) güzel bir arayüzde yan yana göstermek; test kiti olarak da kullanılır. Derleyici ilk komutu çevirebildiğinde başlar.
 - [ ] `uw explain <id>`: atlas üstünde; Native'de bir şey nerede tanımlı/kullanılıyor, kaynak satırı (sahibinin ilk acısına erken çözüm).
 
 - [ ] Native bulma tabloları (atlas'tan, otomatik): diyalog tablosu (motor kimliği, kim konuşuyor, EN metin, resmî TR metin, sonraki durum, kaynak satırı); kişi/şehir/eşya tabloları (kimlik ↔ görünen ad). `uw find "<metin>"` bunların üstünde.
