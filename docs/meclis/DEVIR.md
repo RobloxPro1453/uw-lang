@@ -1,5 +1,16 @@
 # Devir: sonraki oturum buradan başlar
 
+## 0000000. SABAH (2026-11-16) — önce bunu oku
+
+Sahibi uyudu; ilk mesajında kısa durum + tahmini yüzde ister (hafıza: progress-percent-each-cycle).
+1. `cv delegate status`: P5 şeritleri T-059/T-061/T-064/T-066 ve gece araştırma şeritleri T-067..T-074
+   (belge: `docs/bilgi/anlam/*.md`). Bitenleri birleştir; P5 için ölçü `uw roundtrip` (12815/12815, 9113/9113,
+   kapsam satırı `typed N/M`) + `uw build-project --native-check` 32/32. Araştırma belgelerinde her adın kitte
+   grep'lenebildiğini örnekle denetle.
+2. Sonra: P5b ad katmanı (oyunda görünen adlar, `names.uw`) — sözdiziminden bağımsız temel
+   (KARARNAMELER 2026-11-16 "Önce temel, sözdizimi en son"; hedef yazım `docs/meclis/kolay-dil-taslak.md`).
+3. Ayar: günlük tavan $8, test yuvası 4 (`.evrim/config.json`). Toplam tavan $15: harcamayı kontrol et.
+
 ## 000000. P3b v1 BİTTİ (proje klasörü 32/32 bayt eşit) — sıradaki: P3b kalanı (tombstone, aralık kilidi, ters dizin hatası) ya da P5 okunaklı kayıt alanları; oyun deneyi CHECKUP
 
 ## 00000a. YÖN 2 MECLİSİ BİTTİ (2026-11-15)
