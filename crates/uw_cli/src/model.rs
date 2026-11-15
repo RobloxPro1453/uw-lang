@@ -83,6 +83,8 @@ pub struct Model {
     rows: Vec<Row>,
     /// Target mentioned -> (table, index, op) of each mention, in atlas order.
     mentions: HashMap<Target, Vec<(String, usize, Option<String>)>>,
+    /// Entry -> (target it mentions, op), in value order: the forward edges of the flow graph.
+    outgoing: HashMap<Target, Vec<(Target, Option<String>)>>,
 }
 
 /// Field that holds the in-game name/text, per the kit's own layout comments:
@@ -182,6 +184,7 @@ impl Model {
         }
 
         let mut mentions: HashMap<Target, Vec<(String, usize, Option<String>)>> = HashMap::new();
+        let mut outgoing: HashMap<Target, Vec<(Target, Option<String>)>> = HashMap::new();
         let mut globals: BTreeMap<String, ()> = BTreeMap::new();
         atlas.for_each_string(|table, entry, op, text| {
             let target = if text.starts_with('$') && text.len() > 1 {
@@ -193,6 +196,10 @@ impl Model {
                 let Some(&index) = names.get(&rest.to_lowercase()) else { return };
                 Target::Entry { table: (*ref_table).to_owned(), index }
             };
+            outgoing
+                .entry(Target::Entry { table: table.to_owned(), index: entry.index })
+                .or_default()
+                .push((target.clone(), op.map(str::to_owned)));
             mentions
                 .entry(target)
                 .or_default()
@@ -215,7 +222,40 @@ impl Model {
                 vec![],
             ));
         }
-        Model { atlas, rows, mentions }
+        Model { atlas, rows, mentions, outgoing }
+    }
+
+    /// Every mention of `target`: (table, index, op) of the entry that holds it. Empty if none.
+    pub fn incoming(&self, target: &Target) -> &[(String, usize, Option<String>)] {
+        self.mentions.get(target).map_or(&[], Vec::as_slice)
+    }
+
+    /// Everything entry `source` mentions by name, with the operation (None outside operation
+    /// blocks), in the order it appears in the entry's value. Empty for non-entries.
+    pub fn outgoing(&self, source: &Target) -> &[(Target, Option<String>)] {
+        self.outgoing.get(source).map_or(&[], Vec::as_slice)
+    }
+
+    /// Entries the engine itself starts from (nothing in Native has to mention them): every hook
+    /// script (`game_*`, header comments in module_scripts.py), menu #0 (the first menu,
+    /// docs/bilgi/baslangic-akisi.md) and menu `start_phase_2` (opened by the engine after character
+    /// creation, D4 [DENEY]). Triggers and simple triggers run by themselves too.
+    pub fn engine_roots(&self) -> Vec<Target> {
+        let mut roots = Vec::new();
+        for (table_name, table) in &self.atlas.tables {
+            for entry in &table.entries {
+                let root = match table_name.as_str() {
+                    "scripts" => entry.name.as_deref().is_some_and(|n| self.atlas.is_hook(n)),
+                    "menus" => entry.index == 0 || entry.name.as_deref() == Some("start_phase_2"),
+                    "triggers" | "simple_triggers" => true,
+                    _ => false,
+                };
+                if root {
+                    roots.push(Target::Entry { table: table_name.clone(), index: entry.index });
+                }
+            }
+        }
+        roots
     }
 
     /// The target `query` names exactly (id, `id#n`, code form, hook, global, op, constant).
