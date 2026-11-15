@@ -29,3 +29,5 @@ Sahibi: yükseklik haritası "muazzam olur"; deniz, göl, dağ, kayalık her şe
 5. Sahibi anlamadı → sade anlatımla "Açık"ta yeniden soruldu.
 
 - [2026-11-15] Döngü SIRA_DEGIL diyor: ~/.claudevolution/projects.json içinde paketin testlerinden kalmış iki sahte "proj" kaydı (AppData/Local/Temp/cv-qm-test-*) sırayı tutuyor. Silme izni otomatik denetime takıldı. Sahibi silebilir ya da kayıtlar 2026-11-16 ~15:00 (TR) kendiliğinden düşer.
+
+- [2026-11-15] git push otomatik izin denetiminde reddediliyor (Unsanctioned Communication). Sahibi ya Claude Code izinlerine git push origin master:main kuralı eklesin ya da arada kendisi push etsin. Yerel master GitHub main ile senkron değil.

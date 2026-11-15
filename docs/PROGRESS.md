@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · Gramer 2 çalışıyor: hesap, if, menü seçenekleri (otonom, Claude + DeepSeek)
+Gramer kararı (docs/meclis/gramer-2-oneri.md), AST/IR iskeleti Claude; ayrıştırıcı, lower, denetim, emit DeepSeek (T-014..T-018), uw_runtime menü yardımcıları Claude. `examples/menu_demo` kit'ten geçti ve oyuna kuruldu (b7ee758); oyunda denenmedi (CHECKUP). Lower'da this_or_next + ara hesap hatası bulundu, düzeltildi. Testler 141/141 + runtime 15/15. Kılavuz 3.5-3.8. Sıradaki: altın testler (gerçek atlas parçası), oyun deneyi, bağlayıcı sırası.
+
 ## 2026-11-15 · graph_viewer bitti, açıklamalar (Claude + DeepSeek)
 Viewer (`docs/graph_viewer/program/app`, kendi deposu): soldan sağa, geri oklar etiket, konsolsuz exe, açıklama ve buton kodu paneli. `py/describe.py`: DeepSeek kit kaynağından Türkçe açıklama (ops, menü, görev şablonu, sunum, sahne, script) → `kit-meta/aciklama/`; `uw graph --json` bunları ve `condition`/`does`/`on_enter_does` deyimlerini ekler (uw-flow/1'e yalnız yeni alan). Testler: flow_json 5/5.
 
