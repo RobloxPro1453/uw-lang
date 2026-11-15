@@ -6,6 +6,7 @@
 
 pub mod decompile;
 pub mod extract;
+pub mod records;
 pub mod roundtrip;
 
 use serde_json::Value as Json;
