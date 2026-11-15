@@ -175,3 +175,72 @@ def insert_after(lst, index, entries):
 def remove_where(lst, predicate):
     """Entries for which predicate(index, entry) is true are left out."""
     return [e for i, e in enumerate(lst) if not predicate(i, e)]
+
+
+# Menu text and options (grammar 2, docs/meclis/gramer-2-oneri.md section 4).
+# Menu layout module_game_menus.py:20-32: field 2 text, field 5 option list; an option is
+# (id, condition block, text, consequence block[, door text]). Option ids are written without the
+# `mno_` the kit adds, and compared exactly.
+
+def set_text(lst, ref, path, text, key=None):
+    """The text field at `path` set to `text`."""
+    return replace_field(lst, ref, path, text, key)
+
+
+def _option_index(options, option_id):
+    for i, option in enumerate(options):
+        if option[0] == option_id:
+            return i
+    raise UwRuntimeError("menu option %r does not exist" % (option_id,))
+
+
+def _options(lst, ref, path, fn, key):
+    def change(old):
+        if not isinstance(old, list):
+            raise UwRuntimeError("path does not end at an option list, found %s" % type(old).__name__)
+        return fn(list(old))
+    return _patch(lst, ref, path, change, key)
+
+
+def add_option(lst, ref, path, option, after=None, before=None, key=None):
+    """A new option: at the end, or right after / before the option with that id."""
+    def add(options):
+        if any(o[0] == option[0] for o in options):
+            raise UwRuntimeError("menu option %r already exists" % (option[0],))
+        new = copy.deepcopy(option)
+        if after is not None:
+            at = _option_index(options, after) + 1
+        elif before is not None:
+            at = _option_index(options, before)
+        else:
+            at = len(options)
+        return options[:at] + [new] + options[at:]
+    return _options(lst, ref, path, add, key)
+
+
+def change_option(lst, ref, path, option_id, text=None, condition=None, consequence=None, key=None):
+    """Parts of an existing option replaced; a part given as None keeps Native's."""
+    def change(options):
+        i = _option_index(options, option_id)
+        items = list(options[i])
+        if condition is not None:
+            items[1] = copy.deepcopy(list(condition))
+        if text is not None:
+            items[2] = text
+        if consequence is not None:
+            items[3] = copy.deepcopy(list(consequence))
+        options[i] = _rebuild(options[i], items)
+        return options
+    return _options(lst, ref, path, change, key)
+
+
+def remove_option(lst, ref, path, option_id, key=None):
+    def remove(options):
+        i = _option_index(options, option_id)
+        return options[:i] + options[i + 1:]
+    return _options(lst, ref, path, remove, key)
+
+
+def add_entry(lst, entry, key=None):
+    """One new entry at the end of the list (new menu); its name must be new."""
+    return extend(lst, [entry], key)

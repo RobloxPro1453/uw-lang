@@ -105,5 +105,53 @@ class Runtime(unittest.TestCase):
         self.assertEqual(lst, ["a", "b", "c"])
 
 
+class Menus(unittest.TestCase):
+    """Menu layout module_game_menus.py:20-32: (id, flags, text, mesh, enter ops, options)."""
+
+    def setUp(self):
+        self.menus = [
+            ("camp", 0, "Old", "none", [], [
+                ("wait", [], "Wait", [(1, "a")]),
+                ("leave", [(2,)], "Leave", [], "Door"),
+            ]),
+            ("other", 0, "X", "none", [], []),
+        ]
+        self.before = repr(self.menus)
+
+    def tearDown(self):
+        self.assertEqual(repr(self.menus), self.before, "input list was mutated")
+
+    def opts(self, menus):
+        return [o[0] for o in menus[0][5]]
+
+    def test_set_text(self):
+        out = uw.set_text(self.menus, "camp", 2, "New", key=KEY)
+        self.assertEqual(out[0][2], "New")
+        self.assertIs(out[1], self.menus[1])
+
+    def test_add_option_positions(self):
+        new = ("uw_x", [], "X", [])
+        self.assertEqual(self.opts(uw.add_option(self.menus, "camp", 5, new, key=KEY)), ["wait", "leave", "uw_x"])
+        self.assertEqual(self.opts(uw.add_option(self.menus, "camp", 5, new, after="wait", key=KEY)), ["wait", "uw_x", "leave"])
+        self.assertEqual(self.opts(uw.add_option(self.menus, "camp", 5, new, before="wait", key=KEY)), ["uw_x", "wait", "leave"])
+        self.assertRaises(uw.UwRuntimeError, uw.add_option, self.menus, "camp", 5, ("wait", [], "W", []), key=KEY)
+        self.assertRaises(uw.UwRuntimeError, uw.add_option, self.menus, "camp", 5, new, after="nope", key=KEY)
+
+    def test_change_option_keeps_unnamed_parts(self):
+        out = uw.change_option(self.menus, "camp", 5, "leave", text="Go", key=KEY)
+        self.assertEqual(out[0][5][1], ("leave", [(2,)], "Go", [], "Door"))
+        out = uw.change_option(self.menus, "camp", 5, "wait", condition=[(3,)], consequence=[], key=KEY)
+        self.assertEqual(out[0][5][0], ("wait", [(3,)], "Wait", []))
+
+    def test_remove_option(self):
+        self.assertEqual(self.opts(uw.remove_option(self.menus, "camp", 5, "wait", key=KEY)), ["leave"])
+        self.assertRaises(uw.UwRuntimeError, uw.remove_option, self.menus, "camp", 5, "nope", key=KEY)
+
+    def test_add_entry(self):
+        out = uw.add_entry(self.menus, ("uw_ask", 0, "Q", "none", [], []), key=KEY)
+        self.assertEqual([m[0] for m in out], ["camp", "other", "uw_ask"])
+        self.assertRaises(uw.UwRuntimeError, uw.add_entry, self.menus, ("camp", 0, "", "none", [], []), key=KEY)
+
+
 if __name__ == "__main__":
     unittest.main()
