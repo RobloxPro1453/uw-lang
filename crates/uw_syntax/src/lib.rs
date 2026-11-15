@@ -593,54 +593,31 @@ impl Parser {
                 }
                 Tok::Ident(kw) if kw == "override" => {
                     self.bump();
-                    let kind = self.ident("what to override, e.g. `menu`")?;
-                    let name = self.ident(&format!("the Native {} name", kind.text))?;
-                    let head = format!("override {} {}", kind.text, name.text);
-                    let open = self.open_brace(&head)?;
-                    let mut handlers = Vec::new();
-                    loop {
-                        self.skip_separators();
-                        let t = self.peek().clone();
-                        match &t.tok {
-                            Tok::RBrace => {
-                                self.bump();
-                                file.items.push(Item::Override {
-                                    kind: Some(kind),
-                                    name,
-                                    handlers,
-                                    members: Vec::new(),
-                                    span: Span { start: open.start, end: t.span.end },
-                                });
-                                break;
-                            }
-                            Tok::Eof => return Err(self.unclosed(open, &format!("`{head}`"))),
-                            // A top-level item inside the block: the block lost its `}`.
-                            Tok::Ident(kw)
-                                if kw == "override"
-                                    || kw == "mod"
-                                    || (kw == "on"
-                                        && self.toks.get(self.pos + 2).is_some_and(|t| t.tok == Tok::Dot)) =>
-                            {
-                                return Err(self
-                                    .unclosed(open, &format!("`{head}`"))
-                                    .with_note(format!("line {} starts `{kw}` while this block is still open", self.line_of(t.span.start))));
-                            }
-                            Tok::Ident(kw) if kw == "on" => {
-                                self.bump();
-                                let event = self.ident("an event after `on`, e.g. `enter`")?;
-                                let body = self.block(&format!("on {}", event.text))?;
-                                handlers.push(Handler { event, body });
-                            }
-                            other => {
-                                return Err(err(
-                                    E0100_UNEXPECTED,
-                                    format!("expected `on <event> {{` inside `{head}`, found {}", describe(other)),
-                                    t.span,
-                                )
-                                .with_help("for example `on enter { ... }`"));
-                            }
-                        }
-                    }
+                    let first = self.ident("what to override, e.g. `menu`")?;
+                    // `override menu_start_phase_2 { … }` writes the id in one word (§3): the kind
+                    // comes from the id prefix, so only `name` is kept.
+                    let (kind, name) = if self.peek_after_newlines().tok == Tok::LBrace {
+                        (None, first)
+                    } else {
+                        let name = self.ident(&format!("the Native {} name", first.text))?;
+                        (Some(first), name)
+                    };
+                    let head = match &kind {
+                        Some(kind) => format!("override {} {}", kind.text, name.text),
+                        None => format!("override {}", name.text),
+                    };
+                    let (handlers, members, span) = self.record_body(&head)?;
+                    file.items.push(Item::Override { kind, name, handlers, members, span });
+                }
+                Tok::Ident(kw) if kw == "new" => {
+                    self.bump();
+                    let id = self.ident("a record id after `new`, e.g. `menu_uw_ask`")?;
+                    let text = match self.peek().tok {
+                        Tok::Str(_) => Some(self.text_lit(&format!("the text of `{}` in double quotes", id.text))?),
+                        _ => None,
+                    };
+                    let (handlers, members, span) = self.record_body(&format!("new {}", id.text))?;
+                    file.items.push(Item::New { id, text, handlers, members, span });
                 }
                 Tok::Ident(kw) if kw == "on" => {
                     let start = t.span.start;
@@ -662,11 +639,238 @@ impl Parser {
                 other => {
                     return Err(err(
                         E0100_UNEXPECTED,
-                        format!("expected `mod`, `override` or `on` at the top level, found {}", describe(other)),
+                        format!("expected `mod`, `override`, `new` or `on` at the top level, found {}", describe(other)),
                         t.span,
                     ));
                 }
             }
+        }
+    }
+
+    /// The next token that is not a line end (looking past newlines without reading them).
+    fn peek_after_newlines(&self) -> &Token {
+        let mut i = self.pos;
+        while self.toks[i].tok == Tok::Newline {
+            i += 1;
+        }
+        &self.toks[i]
+    }
+
+    /// A `"…"` text literal.
+    fn text_lit(&mut self, what: &str) -> Result<(String, Span), Diagnostic> {
+        let t = self.peek().clone();
+        match t.tok {
+            Tok::Str(text) => {
+                self.bump();
+                Ok((text, t.span))
+            }
+            other => Err(
+                err(E0100_UNEXPECTED, format!("expected {what}, found {}", describe(&other)), t.span)
+                    .with_help("write the text in double quotes, e.g. \"New text\""),
+            ),
+        }
+    }
+
+    /// The `{ … }` body of `override` / `new`: `on` handlers and menu members (§4).
+    fn record_body(&mut self, head: &str) -> Result<(Vec<Handler>, Vec<Member>, Span), Diagnostic> {
+        let open = self.open_brace(head)?;
+        let mut handlers = Vec::new();
+        let mut members = Vec::new();
+        loop {
+            self.skip_separators();
+            let t = self.peek().clone();
+            match &t.tok {
+                Tok::RBrace => {
+                    self.bump();
+                    return Ok((handlers, members, Span { start: open.start, end: t.span.end }));
+                }
+                Tok::Eof => return Err(self.unclosed(open, &format!("`{head}`"))),
+                // A top-level item inside the block: the block lost its `}`.
+                Tok::Ident(kw)
+                    if kw == "override"
+                        || kw == "mod"
+                        || kw == "new"
+                        || (kw == "on" && self.toks.get(self.pos + 2).is_some_and(|t| t.tok == Tok::Dot)) =>
+                {
+                    return Err(self
+                        .unclosed(open, &format!("`{head}`"))
+                        .with_note(format!("line {} starts `{kw}` while this block is still open", self.line_of(t.span.start))));
+                }
+                Tok::Ident(kw) if kw == "on" => {
+                    self.bump();
+                    let event = self.ident("an event after `on`, e.g. `enter`")?;
+                    let body = self.block(&format!("on {}", event.text))?;
+                    handlers.push(Handler { event, body });
+                }
+                Tok::Ident(kw) if matches!(kw.as_str(), "text" | "option" | "change" | "remove") => {
+                    members.push(self.member()?);
+                }
+                other => {
+                    return Err(err(
+                        E0100_UNEXPECTED,
+                        format!(
+                            "expected `on <event> {{`, `text`, `option`, `change option` or `remove option` inside `{head}`, found {}",
+                            describe(other)
+                        ),
+                        t.span,
+                    )
+                    .with_help("for example `on enter { ... }`, `text \"New text\"` or `option uw_skip \"Skip\" { ... }`"));
+                }
+            }
+        }
+    }
+
+    /// One menu line of an `override` / `new` body: `text`, `option`, `change option` or
+    /// `remove option` (§4). The keyword is not read yet.
+    fn member(&mut self) -> Result<Member, Diagnostic> {
+        let kw_tok = self.bump();
+        let kw = match &kw_tok.tok {
+            Tok::Ident(kw) => kw.clone(),
+            _ => return Err(err(E0100_UNEXPECTED, "expected a menu line", kw_tok.span)),
+        };
+        match kw.as_str() {
+            "text" => {
+                let (text, lit) = self.text_lit("a text in double quotes after `text`")?;
+                self.end_of_stmt("this `text` line")?;
+                Ok(Member::Text { text, span: Span { start: kw_tok.span.start, end: lit.end } })
+            }
+            "option" => {
+                let id = self.ident("an option id after `option`, e.g. `option uw_skip \"Skip\" {`")?;
+                let (text, _) = self.text_lit(&format!("a text in double quotes after `option {}`", id.text))?;
+                let when = if matches!(&self.peek().tok, Tok::Ident(w) if w == "when") {
+                    self.bump();
+                    Some(self.when_part()?)
+                } else {
+                    None
+                };
+                let t = self.peek().clone();
+                let place = match &t.tok {
+                    Tok::Ident(w) if w == "after" => {
+                        self.bump();
+                        Some(Place::After(self.ident("an option id after `after`")?))
+                    }
+                    Tok::Ident(w) if w == "before" => {
+                        self.bump();
+                        Some(Place::Before(self.ident("an option id after `before`")?))
+                    }
+                    _ => None,
+                };
+                let body = self.block(&format!("option {}", id.text))?;
+                let span = Span { start: kw_tok.span.start, end: body.span.end };
+                self.end_of_stmt("this `option` line")?;
+                Ok(Member::Option { id, text, when, place, body, span })
+            }
+            "change" | "remove" => {
+                let word = self.ident(&format!("`option` after `{kw}`"))?;
+                if word.text != "option" {
+                    return Err(err(
+                        E0100_UNEXPECTED,
+                        format!("expected `option` after `{kw}`, found '{}'", word.text),
+                        word.span,
+                    )
+                    .with_help(format!("write `{kw} option <id>`")));
+                }
+                let id = self.ident(&format!("an option id after `{kw} option`"))?;
+                if kw == "remove" {
+                    let span = Span { start: kw_tok.span.start, end: id.span.end };
+                    self.end_of_stmt("this `remove option` line")?;
+                    return Ok(Member::RemoveOption { id, span });
+                }
+                let head = format!("change option {}", id.text);
+                let open = self.open_brace(&head)?;
+                let mut text: Option<(String, Span)> = None;
+                let mut when: Option<When> = None;
+                let mut body: Option<Block> = None;
+                let end;
+                loop {
+                    self.skip_separators();
+                    let t = self.peek().clone();
+                    let part = match &t.tok {
+                        Tok::RBrace => {
+                            end = t.span.end;
+                            self.bump();
+                            break;
+                        }
+                        Tok::Eof => return Err(self.unclosed(open, &format!("`{head}`"))),
+                        Tok::Ident(w) if matches!(w.as_str(), "text" | "when" | "do") => {
+                            self.bump();
+                            w.clone()
+                        }
+                        other => {
+                            return Err(err(
+                                E0100_UNEXPECTED,
+                                format!("expected `text`, `when` or `do` inside `{head}`, found {}", describe(other)),
+                                t.span,
+                            )
+                            .with_help("for example `text \"New text\"`, `when $gold > 0` or `do { ... }`"));
+                        }
+                    };
+                    match part.as_str() {
+                        "text" => {
+                            if let Some((_, first)) = text.as_ref() {
+                                return Err(err(
+                                    E0100_UNEXPECTED,
+                                    format!("this `{head}` already sets `text` on line {}", self.line_of(first.start)),
+                                    t.span,
+                                )
+                                .with_help("keep one `text` line"));
+                            }
+                            text = Some(self.text_lit("a text in double quotes after `text`")?);
+                        }
+                        "when" => {
+                            if let Some(first) = when.as_ref() {
+                                let first = match first {
+                                    When::Cond(cond) => cond_span(cond),
+                                    When::Block(block) => block.span,
+                                };
+                                return Err(err(
+                                    E0100_UNEXPECTED,
+                                    format!("this `{head}` already sets `when` on line {}", self.line_of(first.start)),
+                                    t.span,
+                                )
+                                .with_help("keep one `when` line"));
+                            }
+                            when = Some(self.when_part()?);
+                        }
+                        _ => {
+                            if let Some(first) = body.as_ref() {
+                                return Err(err(
+                                    E0100_UNEXPECTED,
+                                    format!("this `{head}` already sets `do` on line {}", self.line_of(first.span.start)),
+                                    t.span,
+                                )
+                                .with_help("keep one `do` block"));
+                            }
+                            body = Some(self.block("do")?);
+                        }
+                    }
+                }
+                self.end_of_stmt(&format!("this `{head}`"))?;
+                Ok(Member::ChangeOption { id, text, when, body, span: Span { start: kw_tok.span.start, end } })
+            }
+            other => Err(err(
+                E0100_UNEXPECTED,
+                format!("`{other}` is not a menu line"),
+                kw_tok.span,
+            )
+            .with_help("menu lines are `text`, `option`, `change option` and `remove option`")),
+        }
+    }
+
+    /// `when { … }` (always the block form) or `when <cond>`, which ends at the body's `{` (§7.5).
+    /// The `when` keyword is already read.
+    fn when_part(&mut self) -> Result<When, Diagnostic> {
+        self.skip_newlines();
+        let t = self.peek().clone();
+        match &t.tok {
+            Tok::LBrace => Ok(When::Block(self.block("when")?)),
+            Tok::RBrace | Tok::Semi | Tok::Eof => Err(err(
+                E0100_UNEXPECTED,
+                format!("expected a condition or '{{' after `when`, found {}", describe(&t.tok)),
+                t.span,
+            )
+            .with_help("write `when $gold > 0` or `when { ... }`")),
+            _ => Ok(When::Cond(self.cond()?)),
         }
     }
 
@@ -1340,5 +1544,98 @@ on game.start {
         let (d, r) = error("on game.start {\n  if $x < 1 {\n  } else:\n  }\n}");
         assert_eq!(d.code, E0104_PYTHON_BLOCK);
         assert!(r.contains("else {"), "{r}");
+    }
+
+    fn menu_members(text: &str) -> Vec<Member> {
+        let file = parse(text).expect("parses");
+        let Item::Override { members, .. } = &file.items[0] else { panic!("not an override") };
+        members.clone()
+    }
+
+    #[test]
+    fn override_with_a_full_id_has_no_kind() {
+        let file = parse("override menu_start_phase_2 {\n  text \"New text\"\n}").unwrap();
+        let Item::Override { kind, name, members, .. } = &file.items[0] else { panic!() };
+        assert!(kind.is_none());
+        assert_eq!(name.text, "menu_start_phase_2");
+        assert!(matches!(&members[0], Member::Text { text, .. } if text == "New text"));
+    }
+
+    #[test]
+    fn new_record_with_or_without_text() {
+        let text = "new menu_uw_ask \"Where from?\" {\n  on enter {\n    a()\n  }\n  option north \"North\" {\n    jump_to_menu(mnu_start_phase_2)\n  }\n}\n\nnew menu_uw_other { }\n";
+        let file = parse(text).expect("parses");
+        assert_eq!(file.items.len(), 2);
+        let Item::New { id, text, handlers, members, .. } = &file.items[0] else { panic!() };
+        assert_eq!(id.text, "menu_uw_ask");
+        assert_eq!(text.as_ref().map(|(t, _)| t.as_str()), Some("Where from?"));
+        assert_eq!(handlers[0].event.text, "enter");
+        assert!(matches!(&members[0], Member::Option { id, .. } if id.text == "north"));
+        let Item::New { text, handlers, members, .. } = &file.items[1] else { panic!() };
+        assert!(text.is_none() && handlers.is_empty() && members.is_empty());
+    }
+
+    #[test]
+    fn option_when_and_place_forms() {
+        let members = menu_members(
+            "override menu_x {\n  option a \"A\" {\n    a_native()\n  }\n  option b \"B\" when $gold < 10 after a {\n    b_native()\n  }\n  option c \"C\" when { ge(:g, 5) } before a {\n    c_native()\n  }\n}",
+        );
+        assert_eq!(members.len(), 3);
+        let Member::Option { when, place, body, .. } = &members[0] else { panic!("{:?}", members[0]) };
+        assert!(when.is_none() && place.is_none());
+        assert_eq!(body.stmts.len(), 1);
+        let Member::Option { when, place, .. } = &members[1] else { panic!("{:?}", members[1]) };
+        assert!(matches!(when, Some(When::Cond(Cond::Cmp { op: CmpOp::Lt, .. }))));
+        assert!(matches!(place, Some(Place::After(id)) if id.text == "a"));
+        let Member::Option { when, place, .. } = &members[2] else { panic!("{:?}", members[2]) };
+        assert!(matches!(when, Some(When::Block(block)) if block.stmts.len() == 1));
+        assert!(matches!(place, Some(Place::Before(id)) if id.text == "a"));
+    }
+
+    #[test]
+    fn change_option_takes_each_part_in_any_order() {
+        let members = menu_members(
+            "override menu_x {\n  change option camp_wait_here {\n    do {\n      $x = 1\n    }\n    text \"Wait\"\n    when $x > 0\n  }\n  change option only_text { text \"Only\" }\n}",
+        );
+        let Member::ChangeOption { id, text, when, body, .. } = &members[0] else { panic!("{:?}", members[0]) };
+        assert_eq!(id.text, "camp_wait_here");
+        assert_eq!(text.as_ref().map(|(t, _)| t.as_str()), Some("Wait"));
+        assert!(matches!(when, Some(When::Cond(Cond::Cmp { op: CmpOp::Gt, .. }))));
+        assert_eq!(body.as_ref().map(|b| b.stmts.len()), Some(1));
+        let Member::ChangeOption { text, when, body, .. } = &members[1] else { panic!("{:?}", members[1]) };
+        assert!(text.is_some() && when.is_none() && body.is_none());
+    }
+
+    #[test]
+    fn remove_option_parses() {
+        let members = menu_members("override menu_x {\n  remove option camp_leave\n}");
+        assert!(matches!(&members[0], Member::RemoveOption { id, .. } if id.text == "camp_leave"));
+    }
+
+    #[test]
+    fn option_without_text_is_named() {
+        let (d, r) = error("override menu_x {\n  option uw_skip {\n    a()\n  }\n}");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("a text in double quotes after `option uw_skip`"), "{r}");
+        assert!(!r.contains("unexpected end"), "{r}");
+    }
+
+    #[test]
+    fn a_change_option_takes_each_part_once() {
+        let (d, r) = error("override menu_x {\n  change option a {\n    text \"One\"\n    text \"Two\"\n  }\n}");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("already sets `text` on line 3"), "{r}");
+        assert!(r.contains("--> t.uw:4:5"), "{r}");
+    }
+
+    #[test]
+    fn when_with_nothing_after_it_is_named() {
+        let (d, r) = error("override menu_x {\n  option a \"A\" when\n}");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("expected a condition or '{' after `when`"), "{r}");
+        assert!(!r.contains("unexpected end"), "{r}");
+        let (d, r) = error("override menu_x {\n  change option a {\n    when\n  }\n}");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("after `when`"), "{r}");
     }
 }
