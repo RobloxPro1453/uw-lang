@@ -17,16 +17,18 @@ const USAGE: &str = "usage:
   uw build <mod folder> [--debug] [--no-install] [--modules <Warband/Modules>] [--kit <kit>] [--python <python27.exe>]
       check the .uw files, build them with the Module System kit and install the mod;
       --debug: in game every menu prints its id, so you see what to override
-  uw graph <thing> [--depth N] [--mermaid] [--html <file.html>]
+  uw graph <thing> [--depth N] [--mermaid] [--html <file.html>] [--tr <languages/tr dir>]
       what <thing> leads to, as a tree (or a Mermaid chart / an HTML page with the drawing)
   uw graph --json <flow.json> [<thing>]
       the whole menu flow for graph_viewer (format uw-flow/1, docs/graph_viewer/DATA.md);
       <thing> (optional) becomes the starting point, otherwise the game's own starts
-  uw browse [--atlas <atlas.json>] [search]
+  uw browse [--atlas <atlas.json>] [--tr <languages/tr dir>] [search]
       look around Native in a window: type to search, Enter to follow who uses what
-  uw explain [--all] [--atlas <atlas.json>] <thing>
+  uw explain [--all] [--atlas <atlas.json>] [--tr <languages/tr dir>] <thing>
       <thing>: a name or part of one (praven, p_town_6, mnu_camp, merchant), a global
       ($g_player_luck), an operation (call_script) or a constant
+      --tr: the official Turkish csv folder (Modules/Native/languages/tr), to show the
+      Turkish in-game text too (the default install is used when it is not given)
   uw --version";
 
 /// Where the atlas lives unless `--atlas` / `UW_ATLAS` says otherwise (docs/DEVELOPMENT.md).
@@ -54,11 +56,12 @@ fn main() -> ExitCode {
 struct Common {
     all: bool,
     atlas: Option<PathBuf>,
+    tr: Option<PathBuf>,
     words: Vec<String>,
 }
 
 fn parse(args: &[String]) -> Result<Common, String> {
-    let mut common = Common { all: false, atlas: None, words: Vec::new() };
+    let mut common = Common { all: false, atlas: None, tr: None, words: Vec::new() };
     let mut it = args.iter();
     while let Some(arg) = it.next() {
         match arg.as_str() {
@@ -66,6 +69,10 @@ fn parse(args: &[String]) -> Result<Common, String> {
             "--atlas" => match it.next() {
                 Some(path) => common.atlas = Some(PathBuf::from(path)),
                 None => return Err("--atlas needs a path".into()),
+            },
+            "--tr" => match it.next() {
+                Some(path) => common.tr = Some(PathBuf::from(path)),
+                None => return Err("--tr needs a path".into()),
             },
             _ => common.words.push(arg.clone()),
         }
@@ -87,6 +94,24 @@ pub fn load(path: Option<PathBuf>) -> Result<model::Model, String> {
     Ok(model::Model::new(atlas))
 }
 
+/// Adds the official Turkish texts: from `dir` (`--tr`), else the default install when there is one.
+/// A machine without the translation keeps the English-only model (no error).
+fn add_tr(model: model::Model, dir: Option<PathBuf>) -> Result<model::Model, String> {
+    match dir {
+        Some(dir) => tr::load_dir(&dir)
+            .map(|map| model.with_tr(map))
+            .map_err(|err| format!("{}: {err}", dir.display())),
+        None => {
+            let Some(dir) = tr::default_dir() else { return Ok(model) };
+            match tr::load_dir(&dir) {
+                Ok(map) => Ok(model.with_tr(map)),
+                // The folder can disappear between the check and the read: English only then.
+                Err(_) => Ok(model),
+            }
+        }
+    }
+}
+
 fn cmd_explain(args: &[String]) -> ExitCode {
     let common = match parse(args) {
         Ok(common) => common,
@@ -96,7 +121,7 @@ fn cmd_explain(args: &[String]) -> ExitCode {
         return fail(&format!("what should I explain?\n{USAGE}"));
     }
     let thing = common.words.join(" ");
-    let model = match load(common.atlas) {
+    let model = match load(common.atlas).and_then(|model| add_tr(model, common.tr)) {
         Ok(model) => model,
         Err(message) => return fail(&message),
     };
@@ -114,7 +139,7 @@ fn cmd_browse(args: &[String]) -> ExitCode {
         Ok(common) => common,
         Err(message) => return fail(&message),
     };
-    let model = match load(common.atlas) {
+    let model = match load(common.atlas).and_then(|model| add_tr(model, common.tr)) {
         Ok(model) => model,
         Err(message) => return fail(&message),
     };
@@ -177,6 +202,7 @@ fn cmd_graph(args: &[String]) -> ExitCode {
     let mut html: Option<PathBuf> = None;
     let mut json: Option<PathBuf> = None;
     let mut atlas = None;
+    let mut tr_dir = None;
     let mut words = Vec::new();
     let mut it = args.iter();
     while let Some(arg) = it.next() {
@@ -195,16 +221,17 @@ fn cmd_graph(args: &[String]) -> ExitCode {
                 None => return fail("--json needs a file name (for example flow.json)"),
             },
             "--atlas" => atlas = it.next().map(PathBuf::from),
+            "--tr" => tr_dir = it.next().map(PathBuf::from),
             _ => words.push(arg.clone()),
         }
     }
     if let Some(path) = json {
-        return graph_json(atlas, &words, &path);
+        return graph_json(atlas, tr_dir, &words, &path);
     }
     if words.is_empty() {
         return fail(&format!("what should I draw?\n{USAGE}"));
     }
-    let model = match load(atlas) {
+    let model = match load(atlas).and_then(|model| add_tr(model, tr_dir)) {
         Ok(model) => model,
         Err(message) => return fail(&message),
     };
@@ -235,8 +262,8 @@ fn cmd_graph(args: &[String]) -> ExitCode {
 }
 
 /// `uw graph --json <file> [<thing>]`: writes the uw-flow/1 document for graph_viewer.
-fn graph_json(atlas: Option<PathBuf>, words: &[String], path: &Path) -> ExitCode {
-    let model = match load(atlas) {
+fn graph_json(atlas: Option<PathBuf>, tr_dir: Option<PathBuf>, words: &[String], path: &Path) -> ExitCode {
+    let model = match load(atlas).and_then(|model| add_tr(model, tr_dir)) {
         Ok(model) => model,
         Err(message) => return fail(&message),
     };

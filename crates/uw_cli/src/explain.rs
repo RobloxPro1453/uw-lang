@@ -71,6 +71,9 @@ fn used_by(detail: &Detail, all: bool) -> String {
             let _ = writeln!(out, "{}", detail.label);
         }
     }
+    if let Some(tr) = &detail.tr {
+        let _ = writeln!(out, "  tr:       \"{}\"", short(tr, 70));
+    }
     let _ = writeln!(out, "  what:     {}", detail.kind);
     for note in &detail.notes {
         let _ = writeln!(out, "  note:     {note}");

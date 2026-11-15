@@ -17,7 +17,7 @@
           "entries": [
             {"index":0,"name":"start","id":"menu_start","dup":null,"line":10,"value":["start",0,"Hi",{"list":[]}]},
             {"index":1,"name":"camp","id":null,"dup":1,"line":20,"value":["camp",0,"A",{"list":[]}]},
-            {"index":2,"name":"Camp","id":"menu_camp","dup":2,"line":30,"value":["Camp",0,"B",{"list":[]}]}
+            {"index":2,"name":"Camp","id":"menu_camp","dup":2,"line":30,"value":["Camp",0,"B",{"list":[]},{"list":[]},{"list":[["camp_option",{"list":[]},"Erkek",{"list":[]}]]}]}
           ]},
         "scripts": {"module":"module_scripts","var":"scripts","id_file":"ID_scripts","id_prefix":"script_","ref_tag":"script",
           "entries": [

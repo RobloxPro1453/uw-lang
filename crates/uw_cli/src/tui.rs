@@ -399,6 +399,13 @@ impl<'a> App<'a> {
             // Last, so a long in-game text never pushes the facts above out of view.
             lines.push(Line::from(Span::styled(format!("“{}”", short(hint, 240)), Style::default().fg(Color::Yellow))));
         }
+        if let Some(tr) = &detail.tr {
+            // The official Turkish text, right under the English one.
+            lines.push(Line::from(vec![
+                Span::styled("tr       ", Style::default().fg(Color::DarkGray)),
+                Span::styled(short(tr, 240), Style::default().fg(Color::Yellow)),
+            ]));
+        }
         let header_height = (lines.len() as u16 + 4).min(area.height / 2).max(4);
         let parts = Layout::default()
             .direction(Direction::Vertical)
@@ -688,6 +695,23 @@ mod tests {
         press(&mut app, KeyCode::Char('g'));
         assert_eq!(app.list_mode, ListMode::LeadsTo);
         assert!(app.query.is_empty());
+    }
+
+    #[test]
+    fn detail_shows_the_turkish_text_when_it_is_loaded() {
+        let tr = crate::tr::load_dir(std::path::Path::new(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/fixtures/tr"
+        )))
+        .expect("fixture folder");
+        let loaded = model().with_tr(tr);
+        let mut app = App::new(&loaded, "menu_start");
+        assert_eq!(app.current.as_ref().map(|t| loaded.label(t)).as_deref(), Some("menu_start"));
+        assert!(screen(&mut app).contains("Üveykent ülkesi"));
+        // Without the translation the pane is English only, as before.
+        let plain = model();
+        let mut app = App::new(&plain, "menu_start");
+        assert!(!screen(&mut app).contains("Üveykent"));
     }
 }
 

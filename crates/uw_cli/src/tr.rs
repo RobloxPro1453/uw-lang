@@ -9,7 +9,6 @@ use std::path::{Path, PathBuf};
 /// Reads every `*.csv` directly in `dir` into one map, files in file-name order.
 /// Each line splits at the FIRST `|`; a UTF-8 BOM and a trailing `\r` are dropped, empty lines and
 /// lines without `|` are skipped, and a key that repeats keeps its first value.
-#[allow(dead_code)]
 pub fn load_dir(dir: &Path) -> std::io::Result<HashMap<String, String>> {
     let mut paths: Vec<PathBuf> = fs::read_dir(dir)?
         .filter_map(|e| e.ok().map(|e| e.path()))
@@ -33,7 +32,6 @@ pub fn load_dir(dir: &Path) -> std::io::Result<HashMap<String, String>> {
 }
 
 /// `<Warband>/Modules/Native/languages/tr` in the default Steam library, if present.
-#[allow(dead_code)]
 pub fn default_dir() -> Option<PathBuf> {
     let path = PathBuf::from(
         r"C:\Program Files (x86)\Steam\steamapps\common\MountBlade Warband\Modules\Native\languages\tr",
