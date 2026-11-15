@@ -113,13 +113,15 @@
     },
     "defaultSteps": 200,
     "defaultBudget": 1,
-    "dailyBudget": 5,
+    "dailyBudget": 2,
     "minBalanceNote": "Bakiye API'den okunamaz; günlük harcama stateDir kayıtlarından toplanır ve dailyBudget aşılınca yeni iş başlamaz.",
     "stateDir": ".evrim/state/delegate",
     "commitTrailer": "Co-Authored-By: delegate-agent <noreply@example.invalid>",
     "plugins": [
       "builtin:crlf"
-    ]
+    ],
+    "_comment_totalBudget": "Sahibinin DeepSeek kredisi toplam ~15$ (2026-11-15). Döngü harcamayı stateDir kayıtlarından izler, dailyBudget'ı kendisi frenler/artırır; toplam tavanı aşamaz (KARARNAMELER).",
+    "totalBudget": 15
   },
   "metrics": {
     "_comment": "Tur ölçümleri. claudeProjectDir null ise proje yolundan türetilir (~/.claude/projects/<yol-kısaltması>), yalnız okunur. weights: 'Claude yükü' = (çıktı*20 + önbellekOkuma*0.2 + önbellekYazma*8 + girdi*4)/1e6 × model katsayısı.",
@@ -172,7 +174,7 @@
     },
     "office": {
       "autoTune": true,
-      "maxLanes": 4,
+      "maxLanes": 8,
       "strategyPivotCycles": 2
     }
   },

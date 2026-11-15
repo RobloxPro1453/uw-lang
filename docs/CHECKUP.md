@@ -6,16 +6,18 @@ Düzeltilmeden bildirilen hatalar ve sahibinin elle denemesi gerekenler. Düzelt
 
 Otomatik testin göremediği, sahibinin bir kez gözle bakması gereken şeyler. Her madde: nereye tıklanır, ne görülmeli.
 
-- [ ] <ör. "Ayarlar > Tema: koyu temada tablo başlıkları okunuyor mu">
+**Oyun deneyi kuyruğu.** Döngü soru sormaz; oyunu açmayı gerektiren deneyleri buraya **tek tek**, adım adım yazar ve beklemeden başka işe geçer. Sahibi sırayla yapar, sonucu (ve ekran görüntüsünü) maddenin altına yazar; sonraki çevrim okur, `docs/bilgi/`'ye [DENEY] olarak işler ve maddeyi siler. Her madde: hangi test modu klasörü, oyunda nereye gidilir, neye bakılır, ne yazılır.
+
+- (henüz yok — ilk deney D4, D1-D3 bitince eklenecek)
 
 ## Bilinen hatalar
 
 Biçim: belirti · nasıl tekrarlanır · tahmin edilen neden · önem (yüksek/orta/düşük).
 
-- <ör. "Uzun dosya adında başlık taşıyor · 80+ karakterlik ad ver · başlıkta kısaltma yok · düşük">
+- (henüz yok)
 
 ## Sınırlar
 
 Hata değil, bilinen kısıt.
 
-- <ör. "2 GB üstü dosya açılmaz (bellek)">
+- Derleme için Python 2.7 gerekir (kit onunla çalışır).

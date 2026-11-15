@@ -1,6 +1,19 @@
-# Devir: sonraki oturum buradan başlar (2026-11-15)
+# Devir: sonraki oturum buradan başlar
 
-Bu belge, beyin fırtınasını sürdürecek yeni oturumun hiçbir şey bilmeden her şeyi anlaması için yazıldı. Önce bunu, sonra aşağıdaki "Okuma sırası"nı izle. Kod işine geçilmiyor: **hâlâ planlama ve beyin fırtınası aşamasıyız** (sahibinin sözü).
+## 0. GÜNCEL (2026-11-15 akşam): tasarım haftası bitti, kodlama başlıyor
+
+Sahibi 4 tur daha beyin fırtınası yaptı (cevaplar süzülüp `docs/VISION.md` > "Sahibinin kararları"nda "(süzüldü)" etiketiyle). Aşağıdaki §1-§10 meclis sonrası durumu anlatır ve hâlâ geçerlidir; şunlar eklendi/değişti:
+
+- **Kodlama başlıyor:** sıra `docs/ROADMAP.md` > Faz 0 (D1 temiz Native build → atlas betiği → D2 → D3 …). İlk iş D1.
+- **Gözetimsiz döngü kuralları** (KARARNAMELER son kararnameler): `/loop` açıkken soru yok; oyun deneyi `docs/CHECKUP.md` kuyruğuna tek tek; sözdizimi meclisini döngü Faz 1 gramerinden önce kendisi toplar; DeepSeek toplam 15$ tavan, kendisi frenler.
+- **Ad uydurma yasağı:** Native'e ait hiçbir ad tahmin edilmez (AGENTS kural 4; `docs/tasks/README.md` 7-9 ucuz model için).
+- **Bilgi tabanı:** `docs/bilgi/` (konu başına, [KİT]/[DENEY]/[MOD]/[İDDİA] etiketli). Harita (`map.txt` biçimi), diyalog kimlikleri (`dlga_<giriş>:<çıkış>[.N]`) ve resmî Türkçe çeviri burada.
+- **Örnek modlar:** `ornek-modlar/` (6 mod, yalnız kaynak, yerel, depoya girmez) — atlas ve D2 için dayanıklılık seti.
+- **Açık tasarım girdileri** (karar bekleyen): `docs/MECLIS_GUNDEMI.md` sonu — sözdizimi (süslü parantez mi girinti mi; moderatör parantezden yana), paketler, Native'e işaret/görünen adlar, tuşlar, `uw new`.
+- Hata mesajları tamamen İngilizce (belgeler Türkçe). İlk mekanik sınavı: sprint + stamina HUD barı.
+
+
+Bu belge, beyin fırtınasını sürdürecek yeni oturumun hiçbir şey bilmeden her şeyi anlaması için yazıldı. Önce bunu, sonra aşağıdaki "Okuma sırası"nı izle. (Bu cümle eskidi: §0'a bak, kodlama başlıyor.)
 
 ## 1. Proje bir paragrafta
 

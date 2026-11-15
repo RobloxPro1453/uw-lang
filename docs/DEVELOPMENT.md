@@ -5,15 +5,15 @@
 Komutlar `.evrim/config.json` içindedir (`build`, `test`); beceriler ve ucuz model oradan okur. Burada yalnız insan için özet:
 
 ```
-<komut tanımlı değil: .evrim/config.json içinde doldurun>
+cargo build --workspace
 ```
 
 ```
-<komut tanımlı değil: .evrim/config.json içinde doldurun>
+cargo test --workspace
 ```
 
-- Derleme süresi: <dakika>. Test süresi: <dakika>. Uzun koşular arka planda çalıştırılır, süre sınırı konur.
-- Testler <hangi geçici klasörü/profili> kullanır; gerçek kullanıcı verisine dokunmaz.
+- Derleme/test süresi: Faz 0'da ölçülüp buraya yazılacak (D1). Uzun koşular arka planda çalıştırılır, süre sınırı konur.
+- Testler geçici staging klasörü kullanır; kit klasörüne ve sahibinin Warband mod klasörlerine dokunmaz (oyun deneyleri ayrı test modu klasöründe).
 
 ## Yeni özellik ekleme
 

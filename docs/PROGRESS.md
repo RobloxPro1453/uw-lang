@@ -15,6 +15,9 @@ Manus'un meclise cevabı kitte doğrulandı (ID bootstrap boşluğu → iki stag
 4 tur: kanıt (kit + Manus/Perplexity raporları doğrulandı) → iki tasarım → çapraz eleştiri → karar. Karar "Native + fark" (değer düzeyinde yama): Native `module_*.py` değişmeden kalır, UW ince sarmalayıcı üretir; Faz 1'de Native girdisi silinmez. ARCHITECTURE yeniden yazıldı (taslak değil), 10 kalıcı kural KARARNAMELER'e, ROADMAP Faz 0 = D1-D10 deneyleri. Ayrıntı: `docs/meclis/KARAR.md`. Kod yok.
 Sıradaki: sahibinin 5 onayı (SORULAR.md), sonra Faz 0: D1 temiz build → atlas betiği → D2 gidiş-dönüş → D4 oyun sondası.
 
+## 2026-11-15 · Tasarım haftası kapandı, kodlamaya hazır (Claude + sahibi)
+Beyin fırtınası 3-4: ad uydurma yasağı ve Native bulma araçları, diyalog kimliği/resmî TR çeviri bulgusu, DeepSeek iş verme kuralları, gözetimsiz döngü kuralları (soru yok, oyun deneyi kuyruğu, bütçe tavanı 15$). AGENTS/DEVELOPMENT yer tutucuları dolduruldu, DEVIR güncellendi. Sıradaki: Faz 0 D1.
+
 ## 2026-11-15 · Beyin fırtınası 2. tur (Claude + sahibi)
 12 cevap süzülüp VISION'a "(süzüldü)" etiketiyle işlendi; 3 açık soru kapandı. Bilgi tabanı `docs/bilgi/` açıldı (kanıt etiketli); `map.txt` biçimi okundu → yükseklik haritası dönüştürücüsü yapılabilir görünüyor. 6 açık kaynaklı mod `ornek-modlar/`'a yalnız kaynak dosyalarıyla indirildi (yerel). Sözdizimi/paket/diyalog-işaretleme girdileri `MECLIS_GUNDEMI.md` sonunda. Kod yok.
 

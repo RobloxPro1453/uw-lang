@@ -4,7 +4,7 @@
 
 ## Sıra
 
-Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Önce araştırma (hazır ne var, lisansı ne), sonra kitin temiz build'i, sonra en ince uçtan uca dikey dilim (praven_start), sonra genişletme.
+**Durum 2026-11-15:** tasarım haftası bitti, kodlama Faz 0 D1'den başlıyor (sahibinin kararı). Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Oyun gerektiren deneyler (D4-D8) `docs/CHECKUP.md` kuyruğuna tek tek yazılır, döngü onları beklemeden sıradaki işe geçer. Faz 1 gramerinden önce sözdizimi meclisi (`docs/MECLIS_GUNDEMI.md` > Sonraki meclisler için girdiler). Önce araştırma (hazır ne var, lisansı ne), sonra kitin temiz build'i, sonra en ince uçtan uca dikey dilim (praven_start), sonra genişletme.
 
 ## 0. Araştırma ve kurulum (kod öncesi)
 
@@ -16,7 +16,7 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 - [ ] Atlas betiği `py/atlas_dump.py` (prototip): op tablosu (ad, kod, lhs, can_fail, global_lhs), `game_*` kancaları, `*_begin/*_end` aralıkları, Native girdi ad/indeks/değer + salt okunur kaynak satır aralığı → JSON. Kaynak metin kesme yok.
 - [ ] **D2** Boş yama gidiş-dönüş: `native_module_*.py` + elle yazılmış boş sarmalayıcılar → `.txt`'ler D1 ile bayt bayt eşit; alt testler (a) tek başına import, (b) paylaşılan nesne, (c) `ad#n`, (d) aynı saniyede iki derleme, (e) Native hash.
 - [ ] **D3** Yeniden yazdırma testi küçük prototipi (Python'da, EMIT dondurulmadan önce): temsilî kayıt türleri (bayraklı op, iç içe tuple, boş alan, sıraya duyarlı kayıt) → yazıcı → kit → `.txt` eşit; sonra 1053 op kapsamına genişler.
-- [ ] **D4** Başlangıç sondası (oyunda, sahibi onayladı; ayrı test modu klasörü `Modules/uw_sonda/`, sahibinin moduna ve Native'e dokunulmaz): elle yazılmış praven sarmalayıcısıyla 3 varyant (menü 0'da `change_screen_return` / `change_screen_map` / menü 1 override); sonuç `docs/KNOWLEDGE.md`'ye.
+- [ ] **D4** Başlangıç sondası (oyunda, sahibi onayladı; ayrı test modu klasörü `Modules/uw_sonda/`, sahibinin moduna ve Native'e dokunulmaz): elle yazılmış praven sarmalayıcısıyla 3 varyant (menü 0'da `change_screen_return` / `change_screen_map` / menü 1 override); adımlar `docs/CHECKUP.md` kuyruğuna, sonuç `docs/bilgi/`'ye [DENEY].
 - [ ] **D5-D7** Tek sonda modunda: Türkçe karakter, trigger birimleri, `rgl_log.txt` yolu ve komut satırından başlatma.
 - [ ] `kit-meta/` iskeleti: `hardwired.toml`, `slots.toml`, `hooks.toml` (dönüş kanalları), `optypes.toml` ilk taslağı.
 - [ ] Depo iskeleti: Rust workspace, ARCHITECTURE'daki 10 crate (`uw_diag`, `uw_syntax`, `uw_atlas`, `uw_check`, `uw_lower`, `uw_plan`, `uw_emit`, `uw_kitrun`, `uw_verify`, `uw_cli`) + `py/`, her crate'te sözleşme README'si; `examples/`, `tests/`; `uw.toml` içinde kit yolu ve export yolu; kit dosyaları depoya girmez.
@@ -63,7 +63,7 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 
 ## 4. UI, kamera, sahne nesneleri (ilkeller; mekanikleri modcu yazar)
 
-- [ ] **İlk mekanik sınavı: sprint** (sahibi yazar): tuşa bağlı eylem (Ctrl, çakışma deneyle kontrol), stamina alanı, ekranda bar, ayar menüsü. Bir klasör, ayrı dosyalar. Native'e kaçmak zorunda kalınan her yer = eksik ilkel.
+- [ ] **İlk mekanik sınavı: sprint** (sahibi yazar): tuşa bağlı eylem (Ctrl, çakışma deneyle kontrol), stamina alanı, savaşta ve şehirde gezerken ekranda duran stamina barı (görev içi HUD). Bir klasör, ayrı dosyalar. Native'e kaçmak zorunda kalınan her yer = eksik ilkel.
 
 - [ ] Bildirimsel UI + değer bağlama (portre, metin kutusu, bar) → presentation. Pilot: VN tarzı veda diyaloğu sahibinin tasarımıyla.
 - [ ] Kamera/efekt ilkelleri; etkileşimli sahne nesnesi (`prop … on use`). Pilot: ağaç kesme ya da kamp kurma.

@@ -129,3 +129,9 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 ## [2026-11-15] [strateji] Ad uydurma yasağı (Claude dahil)
 - **Bulgu:** Claude sahibine örnek verirken `tavernkeeper.greeting` diye kitte olmayan bir ad uydurdu; sahibi yakaladı. Kitte `"lord_talk"` 74 satırda ortak — tahminle doğru satır bulunamaz.
 - **Karar:** Belgede, örnekte, tarifte ve derleyicide Native'e ait her ad kitten/atlas'tan alınır; uydurma örnek ad ancak açıkça "(uydurma örnek)" diye işaretlenir. Derleyici okunaklı ad üretmez; okunaklılık araçlarla (tablo, `uw find`, `--debug` kimlik gösterimi, editör) sağlanır.
+
+## [2026-11-15] [strateji] Gözetimsiz döngü kuralları (sahibinin talimatı)
+- **Soru yok:** `/loop` açıkken sahibine soru sorulmaz, onay beklenmez. Belirsizlikte güvenli varsayılan seçilir, gerekçe `.evrim/otonom/GUNLUK.md`'ye; sahibinin bakması gereken kritik şey sabah raporunun **ilk satırlarına** sade dille.
+- **Oyun deneyi:** oyunu açmayı gerektiren her şey `docs/CHECKUP.md` > "Oyun deneyi kuyruğu"na tek tek, adım adım yazılır; döngü onu beklemeden deney gerektirmeyen işe geçer. Deney sonucu gelmeden ona dayanan karar kesinleşmez.
+- **Meclis:** mimariyi/sözdizimini kesinleştirecek bir noktaya gelinince (ör. Faz 1 gramerinden önce `docs/MECLIS_GUNDEMI.md` > Sözdizimi) döngü meclisi **kendisi** toplar (`MECLIS_GUNDEMI` talimatıyla, kota kurallarıyla), kararı işler, sahibine raporda anlatır.
+- **DeepSeek bütçesi:** toplam tavan `delegate.totalBudget` (15$). Döngü harcamayı `delegate.stateDir` kayıtlarından toplar; tavanın %80'inde yeni şerit açmaz, kalan işi Claude'a ya da sonraya bırakır ve raporda söyler. `dailyBudget` (başlangıç 2$) kabul oranına göre kendisi ayarlanır.

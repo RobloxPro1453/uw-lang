@@ -8,6 +8,11 @@ universal_warband bir mod değil, **Mount & Blade: Warband için bir programlama
 
 ## Sahibinin kararları
 
+- 2026-11-15 (süzüldü): Oyun deneyleri **tek tek**: her deneyden sonra sahibi bakar; hata bulmak kolaylaşır.
+- 2026-11-15 (süzüldü): **Döngü (`/loop`) açıkken hiç soru yok**, tam gözetimsiz; sahibi gece döngüyü başlatıp uyur. Rapor sahibinin anlayacağı dille: ne yapıldı; kritik hata ya da karar varsa açıkça yazılır ama iş beklemez (güvenli varsayılanla sürer). Döngü dışı oturumda önemli şeyler sorulabilir.
+- 2026-11-15 (süzüldü): DeepSeek bütçesi toplam ~15$; döngü harcamayı ölçüp kendisi frenler/artırır.
+- 2026-11-15 (süzüldü): Kendi modunu yazmaya başlamak için acele yok; önce sistem ve mimari tam otursun.
+- 2026-11-15 (süzüldü): Sprint sınavındaki "bar" = oyuncuyu kontrol ettiğin sahnelerde (savaş, şehirde gezme) ekranda duran stamina barı (görev içi HUD).
 - 2026-11-15 (süzüldü): **UW ad uydurmaz.** Sahibi Claude'un `tavernkeeper.greeting` örneğini yakaladı: "tahmin ettin". Native'deki bir şeye (özellikle adsız diyaloglara) işaret etmek için bulma araçları gerekir: tablo, metinle arama, oyunda kimliği gösteren hata ayıklama derlemesi, editör yardımı. Bkz. `docs/bilgi/diyaloglar-ve-ceviri.md`.
 - 2026-11-15 (süzüldü): Native adlarına okunaklı karşılık (town_6 = Praven): sahibinin fikri her ikisinin de görünmesi; VS Code tamamlamasında `town_` yazınca yanında adları. Kodda kanonik ad + editörde görünen ad yönünde; ayrıntı meclisin.
 - 2026-11-15 (süzüldü): Hata mesajları **tamamen İngilizce** olabilir (önceki "önce Türkçe" kararının yerine; katalog yapısı Türkçeyi sonra eklemeye açık kalır). Belgeler/öğreticiler için önce-Türkçe kararı değişmedi.

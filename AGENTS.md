@@ -1,6 +1,6 @@
 # Yapay zekâ ajanları için rehber
 
-universal_warband: <tek cümle: bu proje nedir, kim için>. Başlamadan önce [docs/VISION.md](docs/VISION.md) dosyasını okuyun. Sahibi Türkçe konuşur; teknik bilmeyebilir, sade anlatın.
+universal_warband (UW): Mount & Blade: Warband 1.174 için Rust ile yazılan bir modlama dili ve derleyicisi; Module System 1.171'in yapabildiği her şeyi Module System bilmeden, daha kolay ve hatasız yapmak için (birincil kullanıcı sahibinin kendisi, sonra açık kaynak). Bir sonraki oturum önce [docs/meclis/DEVIR.md](docs/meclis/DEVIR.md) okur. Başlamadan önce [docs/VISION.md](docs/VISION.md) dosyasını okuyun. Sahibi Türkçe konuşur; teknik bilmeyebilir, sade anlatın.
 
 ## Oturumun ilk işi
 
@@ -41,17 +41,17 @@ Belgeleri baştan sona okumayın: tablodaki "yalnız" notlarına uyun, gerisini 
 1. Veri kaybı en ağır hata türüdür: kaydetme, silme ve taşıma akışları test edilmeden değiştirilmez.
 2. `.evrim/config.json` > `forbiddenWrite` içindeki yollara ucuz model yazamaz; bu listeyi yalnız sahibi daraltır.
 3. Anahtar, parola, kişisel bilgi hiçbir dosyaya, loga ya da commit'e yazılmaz; anahtarlar yalnız ortam değişkeninden okunur.
-4. <projeye özgü kural>
-5. <projeye özgü kural>
+4. Kit klasörüne (`Module_system 1.171/`) asla yazılmaz; kitin Python 2.7'si yalnız `-B -E -s` ile, her derlemede yeniden kurulan staging kopyasında çalışır. Native'e ait hiçbir ad (menü, diyalog, kişi, işlem, slot) tahmin edilmez ya da uydurulmaz: kitten/atlas'tan alınır.
+5. Mimari `docs/ARCHITECTURE.md` + `.evrim/otonom/KARARNAMELER.md`'dir; onları değiştiren karar meclis olmadan alınmaz. Motor davranışına dayanan her şey oyun deneyiyle (`docs/CHECKUP.md` kuyruğu) kanıtlanmadan kesin sayılmaz.
 
 ## Her değişiklikten sonra
 
 ```
-<komut tanımlı değil: .evrim/config.json içinde doldurun>
+cargo build --workspace
 ```
 
 ```
-<komut tanımlı değil: .evrim/config.json içinde doldurun>
+cargo test --workspace
 ```
 
 - Yeni davranış için test ekleyin; her zaman doğru dönen kontrol test değildir.
@@ -60,7 +60,7 @@ Belgeleri baştan sona okumayın: tablodaki "yalnız" notlarına uyun, gerisini 
 
 ## İş bölümü
 
-Claude düşünür, planlar, denetler ve belgeler; kod emeği ucuz modele gider (`calis` becerisi: turda 8-30 kısa tarif, paralel şeritler, gözden geçir, birleştir). **Claude'da kalır:** veri kaybı riski olan akışlar, ne yapılacağı belli olmayan işler, tarifi kodundan uzun sürecek küçük düzeltmeler, <projeye özgü kritik alanlar>. Ucuz model isen kuralların `docs/tasks/README.md`.
+Claude düşünür, planlar, denetler ve belgeler; kod emeği ucuz modele gider (`calis` becerisi: turda 8-30 kısa tarif, paralel şeritler, gözden geçir, birleştir). **Claude'da kalır:** veri kaybı riski olan akışlar, ne yapılacağı belli olmayan işler, tarifi kodundan uzun sürecek küçük düzeltmeler, staging/derleme zinciri ve `uw_runtime` (Native'i bozma riski), atlas çıkarımı, sözdizimi ve IR tasarımı, Native ile birleştirme kuralları. Ucuz model isen kuralların `docs/tasks/README.md`.
 
 ## Projeyi ilerletme
 
