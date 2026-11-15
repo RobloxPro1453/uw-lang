@@ -1,0 +1,58 @@
+# Item records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_items.py
+# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+table = "items"
+kind = "item"
+id_prefix = "itm_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_items.py:9"
+
+[[fields]]
+name = "name"
+ty = "raw"
+source = "module_items.py:11"
+
+[[fields]]
+name = "meshes"
+ty = "raw"
+source = "module_items.py:12"
+
+[[fields]]
+name = "item_flags"
+ty = "raw"
+source = "module_items.py:16"
+
+[[fields]]
+name = "item_capabilities"
+ty = "raw"
+source = "module_items.py:17"
+
+[[fields]]
+name = "value"
+ty = "raw"
+source = "module_items.py:18"
+
+[[fields]]
+name = "item_stats"
+ty = "raw"
+source = "module_items.py:19"
+
+[[fields]]
+name = "modifier_bits"
+ty = "raw"
+source = "module_items.py:21"
+
+[[fields]]
+name = "triggers"
+ty = "raw"
+optional = true
+source = "module_items.py:22"
+
+[[fields]]
+name = "factions"
+ty = "raw"
+optional = true
+source = "module_items.py:23"
