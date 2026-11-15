@@ -115,7 +115,7 @@
     },
     "defaultSteps": 200,
     "defaultBudget": 1,
-    "dailyBudget": 5,
+    "dailyBudget": 8,
     "minBalanceNote": "Bakiye API'den okunamaz; günlük harcama stateDir kayıtlarından toplanır ve dailyBudget aşılınca yeni iş başlamaz.",
     "stateDir": ".evrim/state/delegate",
     "commitTrailer": "Co-Authored-By: delegate-agent <noreply@example.invalid>",
