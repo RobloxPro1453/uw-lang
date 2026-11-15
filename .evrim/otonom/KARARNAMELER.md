@@ -141,3 +141,8 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 - **Karar:** Bloklar `{ }`. Ayırıcı satır sonu ya da `;` (ikisi de serbest; parantez/virgül açıkken satır sonu bitirmez). Yorum `//`, `/* */`; yapıştırma dostu olsun diye `#` da kabul. Native işlemleri `ad(a, b)` biçiminde, adlar kitteki gibi (`p_town_6`, `$global`, `:yerel`, `"metin"`). Faz 1 yapıları: `mod <ad>`, `override menu <menü> { on enter { ... } }` (giriş gövdesini değiştirir), `on game.<kanca> { ... }` (Native kanca script'inin sonuna ekler).
 - **Risk koltuğunun şartı (bağlayıcı):** ayrıştırıcı asla yalnız "beklenmedik dosya sonu" demez; kapanmamış `{`'nin satırını gösterir; Python/JS tarzına (`:` ile blok, `if (x) {`) tek satırlık düzeltme önerir; sekme/CRLF/akıllı tırnak yapıştırması aynı sonucu verir.
 - **Beklenen etki:** yapıştırılan kod çalışır ya da hatası tek satırda anlaşılır.
+
+## [2026-11-15] [yöntem] Native'e dokunan karardan önce kullanım verisine bakılır (sahibinin önerisi)
+- **Bulgu:** `uw explain` / `uw browse` her Native kaydının nerede tanımlandığını ve hangi işlemle kimin kullandığını veriyor (ör. `menu_start_phase_2`: Native'de hiçbir yerden çağrılmıyor → motor açıyor; D4 bunu doğruladı).
+- **Karar:** Ajan bir Native kaydını değiştirmeyi, kesmeyi ya da bir motor davranışını varsaymayı önermeden önce `uw explain <ad>` (ya da modeldeki ters dizin) ile kullanım yerlerini kontrol eder ve önerisinde bunu anar. Akış şeması (ROADMAP) gelince aynı kontrol şemadan yapılır.
+- **Beklenen etki:** "bunu kapatırsam ne bozulur" sorusu tahminle değil veriyle cevaplanır.

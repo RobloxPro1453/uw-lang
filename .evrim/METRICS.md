@@ -11,9 +11,10 @@ Bu dosya `cv round` tarafından üretilir, elle düzenlenmez. Ham veri: `.evrim/
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | 2026-11-15 | paket | hybrid | 52 | 3,88 | 161k / 218k | 2380 | 0,163 | 3 / 3 | 2/3 | 63 (43%) | 0,042 | 0,06 | 16 | 44 → 45 | israf: T-002 DeepSeek blocked, Claude rewrote |
 | 2 | 2026-11-15 | paket | hybrid | 58 | 4,07 | 156k / 215k | 668 | 0,61 | 0 / 0 | - | 0 (-) | 0 | 0 | 17 | 46 → - |  |
+| 3 | 2026-11-15 | paket | hybrid | 32 (2 yan) | 4,52 | 382k / 417k | 1826 | 0,248 | 0 / 0 | - | 0 (-) | 0 | 0 | 11 | 49 → - |  |
 
-## Son 2 turun ortalaması
+## Son 3 turun ortalaması
 
 | Claude yükü | Çağrı | Yük / 100 satır | Tarif / kod | Ucuz $ | Süre dk |
 |---|---|---|---|---|---|
-| 3,98 | 55 | 0,39 | 0,03 | 0,02 | 16,18 |
+| 4,16 | 47,33 | 0,34 | 0,02 | 0,01 | 14,29 |

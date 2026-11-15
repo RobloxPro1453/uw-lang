@@ -7,6 +7,10 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-15 · praven_start oyunda doğrulandı, akış şeması fikri (sahibi + Claude)
+Sahibi `praven_start`'ı oyunda denedi: karakter yaratma Native gibi geldi, prolog gelmedi, Praven yanında harita (bilgi/baslangic-akisi.md [DENEY]). Sahibinin fikri: ters dizinden olay örgüsü / akış şeması (VISION, ROADMAP); ajan da karar öncesi kullanım verisine bakar (KARARNAMELER). DEVIR durum raporu yeniden yazıldı.
+Sıradaki: karakter yaratmayı UW ile değiştirmek (option, if, yeni menü) ya da akış şeması.
+
 ## 2026-11-15 · Tur 3: dil + uw build, praven_start uçtan uca (Claude, Opus)
 Sözdizimi meclisi (2 koltuk, oybirliği): süslü parantez (KARARNAMELER). `uw_syntax` (yapıştırma dostu, kapanmamış `{` satırıyla), `uw_check` (atlas: op, ref, kit sabiti; öneri; en az değer sayısı), `uw_emit` (D4 biçiminde sarmalayıcı), `uw build` (kitrun + `Modules/<mod>` kurulumu, `.uw-mod` işareti). Atlasa 3056 kit sabiti. `examples/praven_start` derlendi ve kuruldu: Native'den yalnız `menus.txt` farklı. Testler 62/62.
 Sıradaki: sahibinin praven_start oyun denemesi; `if`/ifadeler, `override` için başka türler, `uw new`.

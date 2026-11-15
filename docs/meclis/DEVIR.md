@@ -1,14 +1,28 @@
 # Devir: sonraki oturum buradan başlar
 
-## 00. EN GÜNCEL (2026-11-15, tur 2 sonrası)
+## 00. DURUM RAPORU (2026-11-15, tur 3 sonrası) — önce bunu oku
 
-- Tur 2 sonrası ek iş (sahibinin isteği): `uw browse` terminal arayüzü + okunaklı `uw explain` (ortak model `crates/uw_cli/src/model.rs`); atlas diyaloglara kitin `dlga_` kimliğini ve metin satırını veriyor. D4 bitti (`docs/bilgi/baslangic-akisi.md`).
-- **Tur 3 sonucu:** dil (süslü parantez) + `uw build` çalışıyor; `examples/praven_start` derlenip `Modules/praven_start`'a kuruldu; oyunda sahibinin denemesi CHECKUP'ta bekliyor. Sıradaki: ifadeler/`if`, `override` türleri (script, dialog), yeni kayıt (ID/PLAN zinciri), `uw new`, resmî TR metinleri browse'a.
-- **Tur 3 (plan):** sözdizimi meclisi → Faz 1 dikey dilim: `uw_syntax` (ayrıştırıcı) → `uw_check` (atlas ad denetimi) → wrapper üretimi (`uw_runtime`) → `uw build` (kitrun + `Modules/<mod>` kurulumu) → `examples/praven_start` = D4 c varyantı UW ile. Sahibinin kabulü: birkaç satır yaz, `uw build`, oyunda prolog'suz Praven başlangıcı.
+**Bir cümlede:** UW ile yazılmış ilk mod (`examples/praven_start`) tek komutla derlenip oyuna kuruldu ve sahibi oyunda çalıştığını doğruladı (karakter yaratma Native, prolog yok, Praven yanında harita).
 
-- Tur 2 bitti (tamamı Opus): `uw explain`, `py/uw_runtime.py` + D2 (b)(c), D4 test modları kuruldu (`Modules/uw_sonda_a/b/c`, adımlar `docs/CHECKUP.md`), `kit-meta/hooks.toml`. Testler 38. Ayrıntı `docs/PROGRESS.md` en üst.
-- D4 sonucu geldi: `docs/bilgi/baslangic-akisi.md`. `game_start` menü 0'dan önce koşar; prolog'suz başlangıç = menü 1 (`start_phase_2`) override; konum `game_start`'ta değil zincir sonunda ayarlanmalı (KARAR §5 varsayımı düzeltilecek).
-- Sıradaki tur (3): sözdizimi meclisi (Faz 1 gramerinden önce, `docs/MECLIS_GUNDEMI.md` sonu), D2 (a/d/e), diyalog kaynak satırları + `uw find "<metin>"`, `kit-meta/` kalanları (slots, hardwired, optypes).
+**Çalışan komutlar** (`target/release/uw.exe`; atlas `target/uw-staging/atlas.json` gerekir, yoksa `docs/DEVELOPMENT.md` > Atlas üretimi):
+- `uw build <mod klasörü>`: `.uw` oku → denetle (atlas) → sarmalayıcı üret → kit (Python 2.7, staging) → `Warband/Modules/<mod>` kur. Yalnız `.uw-mod` işaretli klasörün üzerine yazar.
+- `uw browse [arama]`: Native'de arama ekranı (ratatui); kim kimi kullanıyor, Enter ile gezinme.
+- `uw explain <şey>`: aynı bilgi düz metin; adın parçası ve oyundaki adla da bulur.
+
+**Dil (Faz 1 ilk dilim, süslü parantez, KARARNAMELER 2026-11-15):** `mod <ad>`, `override menu <menü> { on enter { ... } }` (giriş gövdesini değiştirir), `on game.<kanca> { ... }` (kanca script'ine ekler), Native işlemleri `ad(a, b)` ile; değerler Native adı / kit sabiti / `$global` / `:yerel` / sayı / `"metin"` (yalnız ASCII, D5 bekliyor). Yok: `if`, ifadeler, menü seçenekleri, yeni kayıt, başka `override` türleri.
+
+**Kod haritası:** `uw_syntax` (ayrıştırıcı) → `uw_check` (ad denetimi, yamalar) → `uw_emit` (sarmalayıcı; Faz 1'de `uw_lower`/`uw_plan` boş, ARCHITECTURE notu) → `uw_kitrun` → kurulum (`uw_cli/src/build.rs`). Arama/ters dizin `uw_cli/src/model.rs`, arayüz `tui.rs`. Python: `py/uw_runtime.py` (sarmalayıcı yardımcıları, `uw_emit`'e gömülü), `py/atlas_dump.py` (atlas: op, kanca, aralık, 3056 kit sabiti, 27 tablo, diyalog `dlga_` kimliği), deney betikleri `py/d2_*.py`, `py/d4_sonda.py`, `py/hooks_meta.py` → `kit-meta/hooks.toml`.
+
+**Kanıtlananlar:** D1, D2 (ana + b paylaşılan nesne + c `ad#n`), D3 (27 tablo), D4 (başlangıç akışı, `docs/bilgi/baslangic-akisi.md`), praven_start oyunda. Testler 62/62 (`cargo test --workspace`).
+
+**Turlar:** tur 1 (Claude + DeepSeek, 29 test) · tur 2 (Opus: explain, uw_runtime, D2 b/c, D4 hazırlığı, hooks.toml) · ek iş (browse + okunaklı explain) · tur 3 (Opus: sözdizimi meclisi, dil, `uw build`). Sahibinin kararı: çekirdeği Opus yazar, DeepSeek'e kod işi verilmez.
+
+**Sıradaki (öncelik sırasıyla, ROADMAP):**
+1. "Oh be" ölçüsünün tamamı: karakter yaratmayı da kendi sorularıyla değiştirmek → menü seçenekleri (`option`), `if`, yeni menü (yeni kayıt: ID/PLAN zinciri `uw_lower`/`uw_plan` canlanır).
+2. Akış şeması (sahibinin fikri, VISION): ters dizinden menü/script/diyalog geçiş grafiği; önce Native, sonra mod için ("modun neyi kesti"). Ajan kararlarında da kullanılır (KARARNAMELER yöntem kuralı).
+3. Küçükler: resmî Türkçe metinler (`Modules/Native/languages/tr`) browse/explain'e; D2 a/d/e; D5-D7 tek sonda modunda; `kit-meta` kalanları.
+
+**Bekleyen yok:** CHECKUP kuyruğu boş, açık soru yok. Oyundaki `Modules/uw_sonda_a/b/c` ve `praven_start` klasörleri test amaçlı; sahibi silebilir (`praven_start` her `uw build` ile yeniden kurulur).
 
 ### Tur 1 sonrası (eski)
 

@@ -23,6 +23,7 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 - [ ] **Sandbox / görsel önizleme (sahibi, 2026-11-15):** bir UW komutu yazınca Module System'de nereye ne eklendiğini (hangi dosya, hangi kayıt, eklenen satırlar) güzel bir arayüzde yan yana göstermek; test kiti olarak da kullanılır. Derleyici ilk komutu çevirebildiğinde başlar.
 - [x] `uw explain <id>` (2026-11-15; globaller, op'lar, sabitler dahil; diyalogların kaynak satırı henüz yok): atlas üstünde; Native'de bir şey nerede tanımlı/kullanılıyor, kaynak satırı (sahibinin ilk acısına erken çözüm).
 
+- [ ] **Akış şeması (sahibi, 2026-11-15):** atlasın ters kullanım dizininden (`crates/uw_cli/src/model.rs`) geçiş grafiği: menü → menü (`jump_to_menu`), ekran geçişleri (`change_screen_*`), script çağrıları (`call_script`), diyalog durumları (giriş → çıkış), kancalar (motor → `game_*`). Önce Native için (`uw graph <başlangıç>`: TUI'de ağaç + dışa aktarım Mermaid/HTML), sonra derlenen mod için (modun değiştirdiği kenarlar renkli: "senin modun burayı kesti"). Aynı veri ajanın karar denetimi için de kaynak. Sandbox/önizleme maddesiyle birleşebilir.
 - [ ] (kısmen 2026-11-15: `uw browse` / `uw explain` adın parçası ve oyundaki metinle arıyor, diyaloglar kit kimliği + kaynak satırıyla; resmî TR metin henüz yok) Native bulma tabloları (atlas'tan, otomatik): diyalog tablosu (motor kimliği, kim konuşuyor, EN metin, resmî TR metin, sonraki durum, kaynak satırı); kişi/şehir/eşya tabloları (kimlik ↔ görünen ad). `uw find "<metin>"` bunların üstünde.
 
 ## 0b. Harita ve boş dünya (araştırma)
@@ -45,7 +46,8 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 - [ ] Genel `override` / `disable` mekanizması (her Native menü/script/trigger için aynı; amaca özel kısayol yok). Kabul testi: karakter yaratma A (soru zinciri → menüler) ve B (statları doğrudan koy) = menü 0 override + `disable menu start_phase_2` (giriş kesme; Native zincir ulaşılamaz kalır, silinmez).
 - [ ] İsim denetimi + "şunu mu demek istedin?" önerisi; çift adlı hedefte `ad#n` zorunlu.
 - [ ] Altın testler: `.uw` → beklenen `module_*.py` parçası; uçtan uca test: kit build'i geçiyor + `.txt` içinde beklenen kayıt var; gidiş-dönüş (D2) ve yeniden yazdırma testi (D3) CI'de, sahte mini Module System fixture ile.
-- [ ] `examples/praven_start` ve `uw build` / `uw check` komutları. (`uw build` + praven_start derleniyor ve kuruluyor 2026-11-15; oyunda sahibinin denemesi bekleniyor; `uw check` ayrı komut değil, build'in ilk adımı)
+- [x] `examples/praven_start` ve `uw build` (2026-11-15; sahibi oyunda doğruladı: karakter yaratma Native, prolog yok, Praven'de başlangıç. `uw check` ayrı komut değil, build'in ilk adımı)
+- [ ] **"Oh be" ölçüsünün tamamı:** karakter yaratma ekranlarını da kendi sorularıyla değiştirmek (menü 0 override + kendi menü zinciri) ve ad/yüz/eşya/istatistiği UW'de vermek (D4 b varyantı gösterdi: zincir atlanırsa bunlar boş kalır). Gerekenler: `override menu` içinde seçenekler (`option`), `if`, menüler arası geçiş, yeni menü tanımı (yeni kayıt → ID/PLAN zinciri).
 
 ## 1b. Zaman ve olay ilkelleri (Faz 1'den hemen sonra, pilot: babayla veda sahnesi)
 
