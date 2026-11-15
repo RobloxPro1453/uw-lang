@@ -114,6 +114,10 @@ pub struct Schema {
     pub kind: String,
     /// Prefix stripped from the atlas id (`fac_`).
     pub id_prefix: String,
+    /// The kit keeps each record as a Python list (`{"list": …}` in the atlas), not a tuple.
+    /// A table fact (troops, items, dialogs, animations), so the record text does not repeat it.
+    #[serde(default)]
+    pub list: bool,
     pub fields: Vec<Field>,
 }
 
@@ -144,10 +148,18 @@ impl Schema {
     }
 }
 
-/// The id a record is printed with: the atlas id without the schema's prefix.
+/// The id a record is printed with: the atlas id without the schema's prefix. Tables whose records
+/// have no id in the kit (triggers, simple triggers, skins) use the record's index.
 fn record_id(schema: &Schema, entry: &Entry) -> String {
-    let id = entry.id.as_deref().or(entry.name.as_deref()).unwrap_or("");
-    id.strip_prefix(&schema.id_prefix).unwrap_or(id).to_owned()
+    match entry.id.as_deref().or(entry.name.as_deref()) {
+        Some(id) if !id.is_empty() => id.strip_prefix(&schema.id_prefix).unwrap_or(id).to_owned(),
+        _ => entry.index.to_string(),
+    }
+}
+
+/// A bare id reads back as one `word`; anything else (dialog `a:b`, string `x_=_y`) is quoted.
+fn is_word(id: &str) -> bool {
+    !id.is_empty() && id.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '.' | '-' | '+'))
 }
 
 /// The values of one record: the fields of its tuple, or the elements of its list.
@@ -162,7 +174,14 @@ fn record_values(value: &Json) -> Vec<Value> {
 ///
 /// Values past the schema's fields print as `field_<n>` (`n` is the 1-based position in the record).
 pub fn print(schema: &Schema, entry: &Entry) -> String {
-    let mut out = format!("{} {} {{\n", schema.kind, record_id(schema, entry));
+    let id = record_id(schema, entry);
+    let mut out = format!("{} ", schema.kind);
+    if is_word(&id) {
+        out.push_str(&id);
+    } else {
+        write_str(&id, &mut out);
+    }
+    out.push_str(" {\n");
     for (i, value) in record_values(&entry.value).iter().enumerate() {
         let name = match schema.fields.get(i) {
             Some(field) => field.name.clone(),
@@ -295,7 +314,9 @@ pub fn parse(schema: &Schema, text: &str) -> Result<(String, Json), String> {
     while matches!(values.last(), Some(None)) {
         values.pop();
     }
-    Ok((id, Json::Array(values.into_iter().flatten().map(|v| to_json(&v)).collect())))
+    let items: Vec<Value> = values.into_iter().flatten().collect();
+    let record = if schema.list { Value::List(items) } else { Value::Tuple(items) };
+    Ok((id, to_json(&record)))
 }
 
 /// One printed text left at most per failing record kind; enough to see what broke.
@@ -571,6 +592,34 @@ source = "module_factions.py:7"
 
     fn schema() -> Schema {
         Schema::from_toml(SCHEMA).expect("schema loads")
+    }
+
+    /// List-shaped records, records without an id, and ids that are not one bare word (dialog `a:b`,
+    /// string `x_=_y`) all come back exact; the bugs the T-031..T-042 lanes reported.
+    #[test]
+    fn list_records_unnamed_records_and_odd_ids_round_trip() {
+        let atlas = Atlas::from_str(r#"{
+          "schema": 1, "kit_hash": "records", "ops": [], "hooks": [], "ranges": [],
+          "tables": { "dialogs": {"module":"module_dialogs","var":"dialogs","id_file":"","id_prefix":"","entries":[
+            {"index":0,"name":null,"id":"dlga_start:close_window","dup":null,"line":1,"value":{"list":[1,"start"]}},
+            {"index":1,"name":null,"id":"str_a_=_b","dup":null,"line":2,"value":{"list":[2,"b"]}},
+            {"index":2,"name":null,"id":null,"dup":null,"line":3,"value":{"list":[3,"c"]}}
+          ]}}
+        }"#).expect("atlas");
+        let mut schema = Schema::from_toml(
+            "table = \"dialogs\"\nkind = \"dialog\"\nid_prefix = \"\"\nlist = true\n\
+             [[fields]]\nname = \"a\"\nty = \"raw\"\nsource = \"x:1\"\n\
+             [[fields]]\nname = \"b\"\nty = \"raw\"\nsource = \"x:2\"\n",
+        )
+        .expect("schema");
+        let entries = &atlas.tables["dialogs"].entries;
+        assert!(print(&schema, &entries[0]).starts_with("dialog \"dlga_start:close_window\" {"));
+        assert!(print(&schema, &entries[2]).starts_with("dialog 2 {"));
+        let report = roundtrip_table(&atlas, &schema);
+        assert_eq!((report.exact, report.failed), (3, 0), "{:?}", report.first_failures);
+        // Without `list = true` the shape is lost and every record fails.
+        schema.list = false;
+        assert_eq!(roundtrip_table(&atlas, &schema).exact, 0);
     }
 
     #[test]
