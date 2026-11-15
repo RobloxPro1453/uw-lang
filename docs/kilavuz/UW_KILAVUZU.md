@@ -358,6 +358,109 @@ on game.start {
 | Kapanmamış `(`: ``this '(' of `...` is never closed`` | E0101 |
 | Python tarzı blok (`if ...:` gibi) | E0104 (iki nokta varsa) / E0100 (yoksa) |
 
+### 3.5. Atama ve hesap: `$x = ...`, `$x += ...`
+
+**Sözdizimi**
+
+```uw
+$g_altin = 100                  // assign
+:bonus = 2 * 250 + 500          // ara sonuçlar :_uw0, :_uw1 ... yerellerine
+$g_altin += 50                  // -= *= /= %= de var
+```
+
+**Ne yapar?** Sağdaki hesabı yapar ve soldaki değişkene yazar. İşleçler `+ - * / %`, parantez ve
+eksi işareti; öncelik Python'daki gibi (`2 + 3 * 4` = 14). Oyun yalnız tam sayı bilir (`7 / 2` = 3).
+Sol taraf `$global`, `:yerel` ya da `reg0` gibi bir yazmaç olabilir.
+
+UW bunu Native işlemlerine çevirir: tek değer → `assign`, `a + b` → `store_add`, `+=` → `val_add`
+(`*`, `/`, `%`, `-` için `store_mul/div/mod/sub`, `val_mul/...`). İç içe hesaplar için UW kendi ara
+yerellerini (`:_uw0`, `:_uw1`, …) kullanır; bu yüzden **`:_` ile başlayan yerel adları siz
+kullanamazsınız**.
+
+### 3.6. Koşul: `if / else if / else`, `and / or / not`
+
+**Sözdizimi**
+
+```uw
+if :bonus >= 1000 and $g_uw_rich == 1 {
+    display_message("@UW: arithmetic and if work.")
+} else if not party_is_active(p_town_6) {
+    ...
+} else {
+    display_message("@UW: something is wrong.")
+}
+```
+
+**Ne yapar?** İlk doğru koşulun bloğunu çalıştırır. Karşılaştırmalar `== != > >= < <=`; iki taraf da
+hesap olabilir. Koşul olarak bir Native koşul işlemi de yazılabilir (`party_is_active(p_town_6)`).
+Öncelik Python'daki gibi: önce `not`, sonra `and`, en son `or`; parantez kullanabilirsiniz. Satır
+`and`, `or`, `not` ya da bir işleçle biterse koşul alt satırda sürer.
+
+UW bunu `try_begin / else_try / try_end` bloğuna çevirir; `or` için `this_or_next|`, `not` için
+`neg|` ya da ters karşılaştırma kullanır, karışık durumlarda bir ara bayrak yereli kurar.
+
+> **Native kuralı:** bir bloğun içinde (if dışında) çıplak bir koşul işlemi (`eq($x, 1)`) başarısız
+> olursa **bloğun geri kalanı çalışmaz**. Bu Native'in davranışıdır; `if` bu tuzağı önler.
+
+`elif` ya da `else:` yazarsanız UW tek satırlık düzeltme önerir (`else if` / `else {`).
+
+### 3.7. Menüyü değiştirmek: metin ve seçenekler
+
+**Sözdizimi**
+
+```uw
+override menu_start_phase_2 {              // menünün tam kimliği (eski "override menu x" de olur)
+    text "UW demo: where do you want to start your journey?"
+
+    change option town_1 {                 // var olan seçenek: yalnız yazdığınız kısım değişir
+        text "join a caravan to Praven (changed by UW)."
+        // when <koşul>   -> görünme koşulu
+        // do { ... }     -> seçilince yapılacaklar
+    }
+
+    remove option town_6                   // seçeneği kaldırır
+
+    option uw_rich "Start rich: 1000 denars, next to Praven." when $g_uw_rich == 0 after town_1 {
+        troop_add_gold(trp_player, 1000)   // yeni seçenek: seçilince çalışır
+        $g_uw_rich = 1
+        party_relocate_near_party(p_main_party, p_town_6, 1)
+        change_screen_map()
+    }
+}
+```
+
+- `text "…"`: menünün metnini değiştirir. Oyunda `_` boşluk görünür.
+- `option <kimlik> "<metin>" [when <koşul> | when { işlemler }] [after <kimlik> | before <kimlik>] { … }`:
+  **yeni** seçenek. `when` yoksa her zaman görünür. Yer verilmezse sona eklenir.
+- `change option <kimlik> { text "…"  when …  do { … } }`: Native seçeneğinin yalnız yazdığınız
+  kısmını değiştirir, diğerleri Native'deki gibi kalır.
+- `remove option <kimlik>`: seçeneği kaldırır.
+- Seçenek kimlikleri kitteki gibi öneksiz yazılır (`town_1`; `mno_town_1` değil). Native'deki
+  seçenek kimliklerini `uw explain menu_start_phase_2 --all` ile görebilirsiniz.
+- Katı kurallar: var olan kimlikle yeni `option` açmak, olmayan seçeneği `change`/`remove` etmek,
+  aynı menüye iki `text` ya da iki `on enter` yazmak hatadır (UW yerini ve öneriyi gösterir).
+
+**Örnek:** `examples/menu_demo/menu_demo.uw` (bütün bu bölüm tek dosyada).
+
+```
+uw build examples/menu_demo
+```
+
+Oyunda karakteri yaratınca açılan "nereden başlamak istersin" menüsünde değişen metni, yeni adlı
+Praven seçeneğini, Shariz'in kalktığını ve yeni "Start rich" seçeneğini görürsünüz.
+
+### 3.8. Yeni menü: `new menu_<ad> "<metin>" { … }`
+
+```uw
+new menu_uw_ask "Where are you from?" {
+    on enter { ... }
+    option north "From the north" { jump_to_menu(mnu_start_phase_2) }
+}
+```
+
+Yeni bir menü kaydı ekler (listenin sonuna). Kimlik `menu_` ile başlar ve Native'de olmamalıdır.
+Başka bir yerden `jump_to_menu(mnu_uw_ask)` ile açılır. **Oyunda henüz denenmedi** (CHECKUP).
+
 ---
 
 ## 4. Değer türleri
@@ -750,6 +853,13 @@ Her hatanın bir kodu (`E....`), bir satır/sütun işareti, çoğu zaman bir `h
 | **E0203** | `uw_check` | Bir işleme zorunlu değerden az verilmiş. | `'...' needs at least N values, got M`; yardımda Native imzası, notta `header_operations.py:<satır>`. |
 | **E0204** | `uw_check` | Metinde ASCII dışı harf. | `text with non-ASCII letters is not supported yet` — şimdilik düz harf kullanın (D5 deneyi bekleniyor). |
 | **E0205** | `uw_check` | Aynı mod iki dosyada farklı adlandırılmış. | `this mod is already named '...' in another file` — modu yalnız bir dosyada adlandırın. |
+| **E0206** | `uw_check` | Yeni `option`, menüde zaten olan bir kimlikle açılmış. | Var olanı değiştirmek için `change option <kimlik>` yazın. |
+| **E0207** | `uw_check` | `change option` / `remove option` / `after` / `before` olmayan bir seçeneği gösteriyor. | Yakın kimlik önerilir; liste için `uw explain <menü> --all`. |
+| **E0208** | `uw_check` | Kimlik biçimi yanlış (ASCII değil, `mno_` yazılmış, çift önek `menu_menu_…`). | Seçenek kimliğini öneksiz, menü kimliğini tek `menu_` ile yazın. |
+| **E0209** | `uw_check` | `new menu_…` Native'de zaten olan bir menü. | Var olanı değiştirmek için `override` kullanın. |
+| **E0210** | `uw_check` | `:_` ile başlayan yerel ad. | Bu adlar UW'nin ara yerellerine ayrılmıştır; başka ad seçin. |
+| **E0211** | `uw_check` | Aynı menüye iki `text` / iki `on enter` (ya da bir seçeneğe iki aynı parça). | İki yer de gösterilir; birini silin. |
+| **E0212** | `uw_check` | Atamanın sol tarafı değişken değil. | Sol taraf `$global`, `:yerel` ya da `reg0` gibi bir yazmaç olmalı. |
 
 > `uw explain`, `uw browse` ve `uw graph`'ın kendi hataları kod taşımaz; düz `error: ...` metni
 > olarak yazılır (ör. atlas bulunamadı, ad bulunamadı).
@@ -758,15 +868,14 @@ Her hatanın bir kodu (`E....`), bir satır/sütun işareti, çoğu zaman bir `h
 
 ## 8. Sınırlar (bugün yapılamayanlar)
 
-- `if`, `elif`, `else`, `while`, `for` yoktur; koşul için Native'in `try_begin()` / `try_end()`
-  işlemleri kullanılır.
-- Yalnızca `override menu` vardır; başka bir türü (`troop`, `item`, ...) değiştirmek yoktur.
+- `while` ve `for` döngüleri yoktur (`if / else if / else` var, bkz. 3.6).
+- Yalnızca menüler değiştirilir ve eklenir (`override menu_…`, `new menu_…`); başka bir türü
+  (`troop`, `item`, ...) değiştirmek yoktur.
 - Bir menüde yalnızca `on enter` olayı desteklenir; başka olay yoktur.
 - Yalnızca `on game.<kanca>` biçimindeki motor kancaları desteklenir ve bunlar
   `kit-meta/hooks.toml` içindeki `game_*` script'leridir.
 - Metinlerde ASCII dışı harf kullanılamaz.
-- Yeni bir Native kaydı veya nesnesi eklenemez; yalnızca var olanın gövdesi değiştirilir ya da
-  sonuna işlem eklenir.
+- Yeni kayıt olarak yalnız menü eklenebilir (`new menu_…`); başka türde yeni kayıt yoktur.
 - İşlem değerlerinde yalnızca **alt sınır** denetlenir; fazla değer verilmesi hata değildir.
 - `override menu x { }` gibi hiç `on enter` içermeyen bir blok ne hata verir ne de değişiklik
   üretir.

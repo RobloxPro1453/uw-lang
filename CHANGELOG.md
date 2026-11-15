@@ -5,6 +5,9 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
+- Dil: atama ve hesap (`$x = $y + 2 * :z`, `+= -= *= /= %=`), `if / else if / else`, `and / or / not`.
+- Dil: menü metni (`text`), yeni seçenek (`option … when … after …`), `change option`, `remove option`, yeni menü (`new menu_…`); `override menu_x` tam kimlikle.
+- Örnek mod `examples/menu_demo` (hepsi bir arada; kılavuz 3.5-3.8).
 - UW kılavuzu: `docs/kilavuz/UW_KILAVUZU.md` (Türkçe; dil, komutlar, hata kodları, sınırlar).
 - `uw explain/browse/graph --tr`: oyunun resmî Türkçe metni gösterilir ve aranır.
 - Öneksiz ad kabulü: `uw explain start_phase_2`.

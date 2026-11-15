@@ -8,7 +8,7 @@ Otomatik testin göremediği, sahibinin bir kez gözle bakması gereken şeyler.
 
 **Oyun deneyi kuyruğu.** Döngü soru sormaz; oyunu açmayı gerektiren deneyleri buraya **tek tek**, adım adım yazar ve beklemeden başka işe geçer. Sahibi sırayla yapar, sonucu (ve ekran görüntüsünü) maddenin altına yazar; sonraki çevrim okur, `docs/bilgi/`'ye [DENEY] olarak işler ve maddeyi siler. Her madde: hangi test modu klasörü, oyunda nereye gidilir, neye bakılır, ne yazılır.
 
-- (şu an bekleyen deney yok)
+- **menu_demo (gramer 2, 2026-11-15; kuruldu):** Warband başlatıcısında `menu_demo` modunu seç → yeni oyun → karakteri yarat. "Where do you want to start" menüsünde bak: (1) üst metin "UW demo: where do you want to start your journey?" mi, (2) ilk seçenek "join a caravan to Praven (changed by UW)." mi, (3) hemen altında "Start rich: 1000 denars, next to Praven." var mı, (4) Shariz (Sarranid) seçeneği yok mu. "Start rich"i seç: sol altta "UW: arithmetic and if work." yazmalı, para 1000 artmalı, Praven yanında haritada başlamalısın. Sonucu buraya yaz (ekran görüntüsü varsa yolu).
 
 ## Bilinen hatalar
 
