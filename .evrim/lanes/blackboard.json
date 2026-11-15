@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T13:50:26.961Z",
+  "updatedAt": "2026-11-15T13:57:42.869Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -259,12 +259,33 @@
     },
     "T-019": {
       "task": "T-019",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-019",
-      "updatedAt": "2026-11-15T13:50:26.961Z"
+      "updatedAt": "2026-11-15T13:57:42.869Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/tests/fixtures/atlas_golden.json +12 -2",
+        "crates/uw_cli/tests/golden/and_or_not/expected/module_game_menus.py +42 -0",
+        "crates/uw_cli/tests/golden/and_or_not/expected/module_scripts.py +16 -0",
+        "crates/uw_cli/tests/golden/and_or_not/input.uw +22 -0",
+        "crates/uw_cli/tests/golden/assign_and_arith/expected/module_scripts.py +22 -0",
+        "crates/uw_cli/tests/golden/assign_and_arith/input.uw +16 -0",
+        "crates/uw_cli/tests/golden/error_local_temp/expected/error.txt +7 -0",
+        "crates/uw_cli/tests/golden/error_local_temp/input.uw +6 -0",
+        "crates/uw_cli/tests/golden/error_option_exists/expected/error.txt +7 -0",
+        "crates/uw_cli/tests/golden/error_option_exists/input.uw +8 -0",
+        "crates/uw_cli/tests/golden/error_option_unknown/expected/error.txt +7 -0",
+        "crates/uw_cli/tests/golden/error_option_unknown/input.uw +9 -0",
+        "crates/uw_cli/tests/golden/if_else_chain/expected/module_scripts.py +22 -0",
+        "crates/uw_cli/tests/golden/if_else_chain/input.uw +14 -0",
+        "crates/uw_cli/tests/golden/menu_text_and_options/expected/module_game_menus.py +48 -0",
+        "crates/uw_cli/tests/golden/menu_text_and_options/input.uw +33 -0",
+        "crates/uw_cli/tests/golden/new_menu/expected/module_game_menus.py +40 -0",
+        "crates/uw_cli/tests/golden/new_menu/input.uw +20 -0"
+      ]
     }
   }
 }

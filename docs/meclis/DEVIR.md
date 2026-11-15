@@ -1,5 +1,15 @@
 # Devir: sonraki oturum buradan başlar
 
+## 0000. ÖNCE BU (2026-11-15, Claude döngüsü durduruldu)
+
+Sahibi Claude limitini bekliyor; arada iş **Antigravity/Gemini**'de sürüyor. Güncel durum, yarım işler ve
+kurallar: `docs/meclis/GEMINI_DEVIR.md`. **Claude geri gelince ilk iş:** o belgenin sonundaki
+"Gemini'nin yaptıkları" listesini ve `git log` ile Gemini commit'lerini oku; her birini diff + `cargo test
+--workspace` + `cargo build --release` + `uw build examples/menu_demo --no-install` ile denetle; iyi olanı
+tut, kötüsünü `git revert` ile geri al, kararı PROGRESS'e yaz. Sonra `cv/T-019` (altın testler) hâlâ
+birleşmediyse onu gözden geçir. Aşağıdaki eski bölümler tarihçedir; gramer 2 (if, hesap, menü
+seçenekleri) artık çalışıyor.
+
 ## 000. EKSİKLER RAPORU VE TUR 5 PLANI (2026-11-15 akşam) — önce bunu oku
 
 **Sahibinin sözü:** "5 saatlik limitlerin %230'u bitti, düzgün kod yok, yalnız menüyü atlıyoruz. Sağlam ama hızlı ilerleyelim. Yeni oturumda `/loop` ile başlatacağım; DeepSeek'i yüklen, darboğaz yoksa 20 işçi bile olur." graph_viewer ayrı oturumda (bu oturumda) bitiyor: `docs/graph_viewer/program/app` (Rust/egui; artık proje Claude'da). **Yeni oturum graph_viewer'a dokunmaz.**
