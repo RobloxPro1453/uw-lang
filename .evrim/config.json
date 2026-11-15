@@ -149,8 +149,8 @@
     "gates": {
       "fiveHourNoNewStep": 85,
       "fiveHourExit": 90,
-      "weeklyBase": 60,
-      "weeklySlope": 30,
+      "weeklyBase": 90,
+      "weeklySlope": 0,
       "weeklyMargin": 5,
       "cycleShareMax": 8,
       "stepShareAlarm": 15,
@@ -162,7 +162,7 @@
     },
     "safetyWakeSeconds": 1800,
     "share": {
-      "weight": 1
+      "weight": 3
     },
     "watchdog": {
       "delegateNoCommitMinutes": 15,
@@ -174,7 +174,7 @@
     },
     "office": {
       "autoTune": true,
-      "maxLanes": 8,
+      "maxLanes": 20,
       "strategyPivotCycles": 2
     }
   },
