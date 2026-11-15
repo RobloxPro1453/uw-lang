@@ -154,3 +154,6 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 ## [2026-11-15] [mimari] Gramer 2: ifadeler, if, menü dili (hafif meclis: mimar + risk, oybirliği)
 - **Karar:** `docs/meclis/gramer-2-oneri.md` (1-7. bölümler) bağlayıcıdır: `$x = ifade`, `+= -= *= /= %=`, `if / else if / else`, `and/or/not` (Python önceliği), `override menu_x { text "…"; on enter {…}; option id "metin" [when …] [after|before id] {…}; change option id {…}; remove option id }`, `new menu_x "metin" {…}`. İndirgeme `uw_lower`'da; ara yereller `:_uwN`; `not karşılaştırma` işleci ters çevirir (neg|lt tuzağı).
 - **Beklenen etki:** modcu menü metnini, seçenekleri, koşulları ve yeni menüleri Module System bilmeden yazar; her yapı altın testle ve kılavuz bölümüyle gelir.
+
+## [2026-11-15] [strateji] OHAL: yalnız universal_warband (sahibinin sözü)
+- **Karar:** Sahibi OHAL ilan etti: uzun süre yalnız bu proje geliştirilir, diğer projeler (pdfcanavari, Fotosop) mühürlü. Bu proje makinedeki kota payında öndedir (`autonomy.share.weight` 3, haftalık tavan %90). Sıra kaydında yabancı ya da test kaydı engel olursa (SIRA_DEGIL) nedeni bulunur, OZET'e yazılır.
