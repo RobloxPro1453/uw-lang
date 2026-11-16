@@ -5,6 +5,9 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
+- İlk kelime kütüphanesi `lib/core.uw`: her modda tanımlamadan kullanılır: `give_gold(1000)`, `take_gold(50)` (fazlasını almaz), `give_item`, `take_item`, `add_troops`, `remove_troops`, `add_renown`, `add_honor`, `move_near(praven)`, `show_map()`, `say("@…")`. `examples/menu_demo` artık bunlarla yazılı.
+- Nesne yazımı: kütüphane `player.gold` gibi bir kelime tanımlarsa `player.gold += 1000`, `player.level = 5`, `if player.gold >= 100` yazılabilir.
+- Parti kayıtları okunaklı: `icon icon_town`, `menu none`, `ai_target none` (eskiden `rest 12`, `menu 0`). Şehir kayıtlarında oyun başındaki sahibi yorum olarak: `// at game start: owned by swadia`.
 - `uw create <ad>`: terminalin açık olduğu klasöre yeni mod iskeleti kurar (Native'in tamamı UW metni olarak + `names.uw`). Sonra `cd <ad>` ve `uw build`: klasör verilmezse bulunduğun klasörü derleyip oyuna kurar. `uw build <klasör>` de olur. İkisi de UW klasörünün dışından çalışır.
 - Kayıt başlığı oyundaki adla: `faction swadia {`, `troop count_klargus {` (içindeki `id` satırı kitin kimliği olarak kalır).
 - Alan adları tam İngilizce: `strength`, `agility`, `intelligence`, `charisma`, `animation_length`, `min_position`…

@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-16 · Döngü: kelime kütüphanesi + nesne yazımı + okunaklı parti (otonom, DeepSeek T-079..T-082 ~$0.30)
+`lib/core.uw` 11 kelime (`uw build` yükler), `player.gold += n` nesne yazımı, parti kaydında icon/none, şehir sahibi yorumu. Şeritlerde atlas yok → gerçek-atlas testleri orada atlanıyor; ölçü ana dalda: testler 365/365, adlı proje 12815/12815, build-project 32/32, menu_demo derlendi. Sıradaki: kütüphanede `player.*` nesneleri, `uw build-project` lib yüklesin, `save` kalıcı değişken.
+
 ## 2026-11-16 · P5b ad katmanı + `uw create` + `fn` (Claude + DeepSeek, tur 7)
 Claude: names.uw çekirdeği (atlas'ta oyun adı katmanı, 1111 ad), `uw create`, klasörü tanıyan `uw build`. DeepSeek T-075..T-078 (~$0.21): tam İngilizce alan adları, başlıkta oyun adı, `uw build`'de adlar + `roundtrip --names`, `fn` satır içi kelimeler. Ölçü: adlı proje 12815/12815, build-project 32/32 bayt eşit; testler 352/352. Kayıt uyumu deneyi (sahibi) başarılı → bilgi. Stres testi raporu özetlendi (`docs/bilgi/ornek-modlar.md`), depoya alınmadı. Sıradaki: T-079 `lib/core.uw` ilk kelimeler (şeritte), sonra P6 nesne yazımı (`player.gold`).
 
