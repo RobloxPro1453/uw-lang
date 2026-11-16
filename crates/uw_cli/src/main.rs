@@ -378,7 +378,7 @@ fn uw_home() -> Option<PathBuf> {
 }
 
 /// A Windows `\\?\` long-path prefix removed (canonicalize adds it; it only confuses readers).
-fn plain(path: PathBuf) -> PathBuf {
+pub(crate) fn plain(path: PathBuf) -> PathBuf {
     match path.to_str().and_then(|text| text.strip_prefix(r"\\?\")) {
         Some(rest) => PathBuf::from(rest),
         None => path,

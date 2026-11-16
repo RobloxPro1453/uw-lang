@@ -77,7 +77,7 @@ pub fn cmd(args: &[String]) -> ExitCode {
         Ok(dir) => dir,
         Err(message) => return crate::fail(&message),
     };
-    let dir = dir.canonicalize().unwrap_or(dir);
+    let dir = crate::plain(dir.canonicalize().unwrap_or(dir));
     match run(&dir, &args) {
         Ok(()) => ExitCode::SUCCESS,
         Err(message) => crate::fail(&message),
@@ -285,7 +285,12 @@ fn translation_file_hits(dir: &Path, old: &str) -> Result<Vec<Hit>, String> {
     }
     for path in files_with(&root, "csv") {
         let bytes = std::fs::read(&path).map_err(|e| format!("{}: {e}", path.display()))?;
-        let text = String::from_utf8(bytes).map_err(|_| format!("{}: not UTF-8 text", path.display()))?;
+        // A few Native language files are not UTF-8 (es/party_templates.csv): they cannot hold the
+        // name as text we could rewrite safely, so they are left alone and named.
+        let Ok(text) = String::from_utf8(bytes) else {
+            println!("skipped  {} (not UTF-8 text; left unchanged)", relative(dir, &path));
+            continue;
+        };
         let file = relative(dir, &path);
         for (start, end, line, source) in translation_hits(&text, old) {
             hits.push(Hit { path: path.clone(), file: file.clone(), line, start, end, text: source });

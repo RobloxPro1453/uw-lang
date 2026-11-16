@@ -5,6 +5,9 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
+- `uw rename praven "Adam Siken"`: adın geçtiği her yeri bulur (kaydın adı, "join a caravan to Praven…" gibi metinler, "Merchant of Praven", bütün dillerdeki çeviriler), grup grup sorar, sonra değiştirir; `--list` yalnız gösterir, `--yes` sormadan yapar. Çeviride kalıp korunur ("Praven Şehri" → "Adam Siken Şehri"); `uw.toml`'da `[languages.tr] town_suffix = ""` ile şehir eklerini toptan kaldırabilirsin.
+- `town riverhold like praven { name "Riverhold"  initial_coordinates (35, -12) }`: var olan şehirden yeni şehir (ayrıca `castle`, `village`, `party`).
+- VS Code eklentisi v0 (`editors/vscode/`): `.uw` dosyaları renkli; kurulum README'de.
 - Var olan askerden yeni asker: `troop elite_crossbowman like swadian_crossbowman { name "Elite Crossbowman"  level 22  agility 18 }`; listenin sonuna eklenir, kodda `elite_crossbowman` diye kullanılır (gerçek kitle derlendi: çeviklik 18, seviye 22).
 - `in menu camp { option "Party report" { … } }`: seçeneğe kimlik vermek gerekmez (metinden `uw_party_report` üretilir).
 - Kılavuz: `every`, `save`, çeviriler, `uw explain praven`.
