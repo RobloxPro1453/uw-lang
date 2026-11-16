@@ -17,3 +17,4 @@
   adını değiştirmek onları değiştirmez.
 - Sonuç: proje kipi çeviri dosyalarını da sahiplenmeli (ROADMAP P3b kalanı: "dil dosyaları").
 - [DENEY] Çeviri deneyi 1 (2026-11-16, sahibi, T-089 sonrası): `name "Adam Siken"` → harita ve yerler menüsü "Adam Siken". Ama oyun tamamen İngilizce açıldı: kurulan modda `languages/` yoktu (proje dil klasörsüz, kurulum Native'in kopyasını sildi). Ad başka metinlerde kaldı: başlangıç menüsü seçenekleri ("join a caravan to Praven…"), "Merchant of Praven". Derleme ~1 dk 20 sn.
+- [DENEY] Çeviri deneyi 2 (2026-11-16, sahibi, düzeltmeden sonra): oyun Türkçe, haritada "Adam Siken" görünüyor (T-089 + dil klasörü düzeltmesi çalışıyor). Eski TR çevirisinin eki ("Praven **Şehri**") yeni ada taşınmıyor: düşürülen satır yerine kaydın kendi adı gösteriliyor.

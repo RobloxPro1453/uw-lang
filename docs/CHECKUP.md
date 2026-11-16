@@ -10,7 +10,6 @@ Otomatik testin göremediği, sahibinin bir kez gözle bakması gereken şeyler.
 
 
 
-- [ ] **Çeviri adla birlikte (T-089), 2. deneme.** 1. denemede (sahibi 2026-11-16) harita/yerler menüsü "Adam Siken" oldu, ama **bütün oyun İngilizceye döndü**: proje `languages/` olmadan kurulmuştu ve kurulum Native'in çevirilerini silip yerine bir şey koymuyordu (düzeltildi: proje dil klasörü yoksa Native'inki süzülerek kurulur). Tekrar: aynı klasörde `uw build`, oyunu Türkçe aç: menüler Türkçe olmalı, haritada "Adam Siken". Sonucu buraya yaz.
 
 ## Bilinen hatalar
 
