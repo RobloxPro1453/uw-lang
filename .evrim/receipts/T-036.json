@@ -1,0 +1,11 @@
+{
+  "taskId": "T-036",
+  "branch": "cv/T-036",
+  "headSha": "34d544d940ceed9dd44e5abce94eef00504f4062",
+  "treeSha": "059715a01a533349b8eba6b06bfc398f178a1919",
+  "buildOk": true,
+  "testOk": false,
+  "status": "blocked",
+  "testsBy": "runner",
+  "timestamp": "2026-11-15T18:19:29.607Z"
+}

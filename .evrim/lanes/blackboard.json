@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-15T17:22:22.651Z",
+  "updatedAt": "2026-11-16T14:58:25.556Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -416,6 +416,1009 @@
       "files": [
         "crates/uw_decomp/src/extract/other.rs +196 -6"
       ]
+    },
+    "T-031": {
+      "task": "T-031",
+      "status": "blocked",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-031",
+      "updatedAt": "2026-11-15T18:17:40.929Z",
+      "summary": "status=blocked; tests=not run",
+      "files": []
+    },
+    "T-032": {
+      "task": "T-032",
+      "status": "blocked",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-032",
+      "updatedAt": "2026-11-15T18:15:56.975Z",
+      "summary": "status=blocked; tests=not run",
+      "files": []
+    },
+    "T-033": {
+      "task": "T-033",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-033",
+      "updatedAt": "2026-11-15T18:14:01.945Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/records_t033.rs +95 -0",
+        "kit-meta/records/parties.toml +67 -0",
+        "kit-meta/records/party_templates.toml +41 -0"
+      ]
+    },
+    "T-034": {
+      "task": "T-034",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-034",
+      "updatedAt": "2026-11-15T18:11:12.892Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/main.rs +4 -2",
+        "crates/uw_cli/src/roundtrip.rs +136 -1",
+        "crates/uw_cli/tests/fixtures/atlas_records.json +17 -0",
+        "crates/uw_cli/tests/roundtrip.rs +101 -0"
+      ]
+    },
+    "T-035": {
+      "task": "T-035",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-035",
+      "updatedAt": "2026-11-15T18:11:32.054Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/records_t035.rs +39 -0",
+        "kit-meta/records/info_pages.toml +22 -0",
+        "kit-meta/records/map_icons.toml +49 -0",
+        "kit-meta/records/quests.toml +26 -0"
+      ]
+    },
+    "T-036": {
+      "task": "T-036",
+      "status": "blocked",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-036",
+      "updatedAt": "2026-11-15T18:19:29.675Z",
+      "summary": "status=blocked; tests=not run",
+      "files": []
+    },
+    "T-037": {
+      "task": "T-037",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-037",
+      "updatedAt": "2026-11-15T18:15:34.430Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/records_t037.rs +35 -0",
+        "kit-meta/records/particle_systems.toml +128 -0",
+        "kit-meta/records/scene_props.toml +31 -0"
+      ]
+    },
+    "T-038": {
+      "task": "T-038",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-038",
+      "updatedAt": "2026-11-15T18:09:49.187Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/records_t038.rs +39 -0",
+        "kit-meta/records/meshes.toml +66 -0",
+        "kit-meta/records/music.toml +26 -0",
+        "kit-meta/records/sounds.toml +22 -0"
+      ]
+    },
+    "T-039": {
+      "task": "T-039",
+      "status": "blocked",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-039",
+      "updatedAt": "2026-11-15T18:16:54.797Z",
+      "summary": "status=blocked; tests=not run",
+      "files": []
+    },
+    "T-040": {
+      "task": "T-040",
+      "status": "blocked",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-040",
+      "updatedAt": "2026-11-15T18:19:16.932Z",
+      "summary": "status=blocked; tests=not run",
+      "files": []
+    },
+    "T-041": {
+      "task": "T-041",
+      "status": "blocked",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-041",
+      "updatedAt": "2026-11-15T18:18:59.649Z",
+      "summary": "status=blocked; tests=not run",
+      "files": []
+    },
+    "T-042": {
+      "task": "T-042",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-042",
+      "updatedAt": "2026-11-15T18:14:47.078Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/records_t042.rs +64 -0",
+        "kit-meta/records/mission_templates.toml +36 -0",
+        "kit-meta/records/presentations.toml +26 -0",
+        "kit-meta/records/scripts.toml +16 -0",
+        "kit-meta/records/tableau_materials.toml +56 -0"
+      ]
+    },
+    "T-043": {
+      "task": "T-043",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-043",
+      "updatedAt": "2026-11-15T18:58:04.716Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/roundtrip.rs +48 -14",
+        "crates/uw_cli/tests/roundtrip.rs +46 -0",
+        "crates/uw_decomp/src/records.rs +394 -8"
+      ]
+    },
+    "T-044": {
+      "task": "T-044",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-044",
+      "updatedAt": "2026-11-15T18:48:22.637Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/main.rs +6 -0",
+        "crates/uw_cli/src/new.rs +118 -0",
+        "crates/uw_cli/src/roundtrip.rs +2 -2",
+        "crates/uw_cli/tests/new.rs +114 -0",
+        "crates/uw_decomp/src/project/mod.rs +287 -3",
+        "crates/uw_decomp/tests/project_t044.rs +260 -0"
+      ]
+    },
+    "T-045": {
+      "task": "T-045",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-045",
+      "updatedAt": "2026-11-15T18:52:34.407Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/project/layout.rs +375 -3"
+      ]
+    },
+    "T-048": {
+      "task": "T-048",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-048",
+      "updatedAt": "2026-11-15T18:55:59.926Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/tests/naming.rs +127 -0",
+        "crates/uw_decomp/src/decompile.rs +260 -17"
+      ]
+    },
+    "T-049": {
+      "task": "T-049",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-049",
+      "updatedAt": "2026-11-15T18:54:26.803Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/sira-baglari.md +24 -12"
+      ]
+    },
+    "T-050": {
+      "task": "T-050",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-050",
+      "updatedAt": "2026-11-15T18:45:28.825Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/roundtrip.rs +190 -4"
+      ]
+    },
+    "T-051": {
+      "task": "T-051",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-051",
+      "updatedAt": "2026-11-15T18:44:34.080Z",
+      "summary": "status=done",
+      "files": [
+        "docs/kilavuz/UW_KILAVUZU.md +118 -0"
+      ]
+    },
+    "T-052": {
+      "task": "T-052",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-052",
+      "updatedAt": "2026-11-15T19:32:32.302Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_syntax/src/lib.rs +221 -7"
+      ]
+    },
+    "T-053": {
+      "task": "T-053",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-053",
+      "updatedAt": "2026-11-15T19:35:39.216Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_check/src/lib.rs +165 -3",
+        "crates/uw_lower/src/lib.rs +143 -2"
+      ]
+    },
+    "T-055": {
+      "task": "T-055",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-055",
+      "updatedAt": "2026-11-15T19:42:39.562Z",
+      "summary": "status=done",
+      "files": [
+        "docs/kilavuz/UW_KILAVUZU.md +93 -0"
+      ]
+    },
+    "T-054": {
+      "task": "T-054",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-054",
+      "updatedAt": "2026-11-15T20:07:14.029Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/tests/roundtrip.rs +7 -0",
+        "crates/uw_cli/tests/structured.rs +157 -0",
+        "crates/uw_decomp/src/decompile.rs +195 -29"
+      ]
+    },
+    "T-056": {
+      "task": "T-056",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-056",
+      "updatedAt": "2026-11-15T20:34:49.799Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/project/load.rs +191 -4",
+        "crates/uw_decomp/src/project/mod.rs +5 -3",
+        "crates/uw_decomp/tests/project_t056.rs +247 -0"
+      ]
+    },
+    "T-057": {
+      "task": "T-057",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-057",
+      "updatedAt": "2026-11-15T20:29:59.992Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/build.rs +1 -1",
+        "crates/uw_cli/src/build_project.rs +307 -10",
+        "crates/uw_cli/src/main.rs +5 -0",
+        "crates/uw_cli/src/new.rs +1 -1"
+      ]
+    },
+    "T-058": {
+      "task": "T-058",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-058",
+      "updatedAt": "2026-11-15T21:27:06.822Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/build_project.rs +1 -1",
+        "crates/uw_cli/src/new.rs +2 -2",
+        "crates/uw_cli/src/roundtrip.rs +5 -1",
+        "crates/uw_cli/tests/roundtrip.rs +4 -0",
+        "crates/uw_decomp/src/records.rs +904 -23",
+        "crates/uw_decomp/tests/records_t031.rs +29 -1",
+        "kit-meta/records/troops.toml +37 -3"
+      ]
+    },
+    "T-059": {
+      "task": "T-059",
+      "status": "blocked",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-059",
+      "updatedAt": "2026-11-15T22:59:59.410Z",
+      "summary": "status=blocked; tests=not run",
+      "files": []
+    },
+    "T-060": {
+      "task": "T-060",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-060",
+      "updatedAt": "2026-11-15T22:06:10.039Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/readable_t060.rs +186 -0",
+        "kit-meta/records/items.toml +130 -7"
+      ]
+    },
+    "T-061": {
+      "task": "T-061",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-061",
+      "updatedAt": "2026-11-15T23:02:46.242Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/records_t033.rs +29 -4"
+      ]
+    },
+    "T-062": {
+      "task": "T-062",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-062",
+      "updatedAt": "2026-11-15T22:34:43.222Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/records.rs +5 -1"
+      ]
+    },
+    "T-063": {
+      "task": "T-063",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-063",
+      "updatedAt": "2026-11-15T22:21:05.304Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/readable_t063.rs +176 -0",
+        "kit-meta/records/meshes.toml +4 -2",
+        "kit-meta/records/scene_props.toml +7 -2",
+        "kit-meta/records/scenes.toml +5 -2"
+      ]
+    },
+    "T-064": {
+      "task": "T-064",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-064",
+      "updatedAt": "2026-11-15T22:29:15.856Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/readable_t064.rs +145 -0",
+        "kit-meta/records/menus.toml +19 -2",
+        "kit-meta/records/mission_templates.toml +8 -2",
+        "kit-meta/records/presentations.toml +7 -3"
+      ]
+    },
+    "T-065": {
+      "task": "T-065",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-065",
+      "updatedAt": "2026-11-15T22:17:42.877Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/readable_t065.rs +214 -0",
+        "kit-meta/records/dialogs.toml +12 -2"
+      ]
+    },
+    "T-066": {
+      "task": "T-066",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-066",
+      "updatedAt": "2026-11-15T22:40:10.033Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/readable_t066.rs +158 -0",
+        "kit-meta/records/animations.toml +19 -3",
+        "kit-meta/records/music.toml +12 -3",
+        "kit-meta/records/particle_systems.toml +3 -2",
+        "kit-meta/records/postfx_params.toml +4 -2",
+        "kit-meta/records/skins.toml +8 -6",
+        "kit-meta/records/sounds.toml +16 -3"
+      ]
+    },
+    "T-067": {
+      "task": "T-067",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-067",
+      "updatedAt": "2026-11-15T22:58:35.271Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/anlam/oyuncu-varliklari.md +148 -0"
+      ]
+    },
+    "T-068": {
+      "task": "T-068",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-068",
+      "updatedAt": "2026-11-15T22:57:36.875Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/anlam/hareket-ve-harita.md +130 -0"
+      ]
+    },
+    "T-069": {
+      "task": "T-069",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-069",
+      "updatedAt": "2026-11-15T22:56:26.034Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/anlam/zaman-ve-olaylar.md +133 -0"
+      ]
+    },
+    "T-070": {
+      "task": "T-070",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-070",
+      "updatedAt": "2026-11-15T22:47:30.291Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/anlam/bolgeler-ve-dogma.md +135 -0"
+      ]
+    },
+    "T-071": {
+      "task": "T-071",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-071",
+      "updatedAt": "2026-11-15T22:47:53.792Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/anlam/diyaloglar.md +148 -0"
+      ]
+    },
+    "T-072": {
+      "task": "T-072",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-072",
+      "updatedAt": "2026-11-15T22:49:01.305Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/anlam/menuler.md +147 -0"
+      ]
+    },
+    "T-073": {
+      "task": "T-073",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-073",
+      "updatedAt": "2026-11-15T22:51:50.120Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/anlam/asker-ve-birlik.md +149 -0"
+      ]
+    },
+    "T-074": {
+      "task": "T-074",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-074",
+      "updatedAt": "2026-11-15T22:57:08.678Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/anlam/sehir-ve-krallik.md +148 -0"
+      ]
+    },
+    "T-075": {
+      "task": "T-075",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-075",
+      "updatedAt": "2026-11-16T10:10:35.197Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/names_t075.rs +76 -0",
+        "crates/uw_decomp/tests/readable_t059.rs +6 -1",
+        "crates/uw_decomp/tests/readable_t066.rs +2 -2",
+        "crates/uw_decomp/tests/records_t031.rs +8 -2",
+        "kit-meta/records/animations.toml +2 -1",
+        "kit-meta/records/particle_systems.toml +4 -2",
+        "kit-meta/records/scenes.toml +3 -2",
+        "kit-meta/records/troops.toml +5 -4"
+      ]
+    },
+    "T-076": {
+      "task": "T-076",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-076",
+      "updatedAt": "2026-11-16T10:32:00.988Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/records.rs +38 -3",
+        "crates/uw_decomp/tests/header_t076.rs +99 -0"
+      ]
+    },
+    "T-077": {
+      "task": "T-077",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-077",
+      "updatedAt": "2026-11-16T10:33:03.082Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_check/src/lib.rs +15 -1",
+        "crates/uw_cli/src/build.rs +42 -2",
+        "crates/uw_cli/src/main.rs +3 -2",
+        "crates/uw_cli/src/roundtrip.rs +38 -1",
+        "crates/uw_cli/tests/fixtures/atlas_golden.json +1 -1",
+        "crates/uw_cli/tests/golden.rs +3 -1",
+        "crates/uw_cli/tests/golden/game_names/expected/module_scripts.py +12 -0",
+        "crates/uw_cli/tests/golden/game_names/input.uw +8 -0",
+        "crates/uw_cli/tests/roundtrip.rs +37 -0"
+      ]
+    },
+    "T-078": {
+      "task": "T-078",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-078",
+      "updatedAt": "2026-11-16T10:22:30.693Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_check/src/lib.rs +316 -8",
+        "crates/uw_cli/tests/golden/fn_words/expected/module_scripts.py +21 -0",
+        "crates/uw_cli/tests/golden/fn_words/input.uw +21 -0",
+        "crates/uw_syntax/src/lib.rs +71 -1"
+      ]
+    },
+    "T-079": {
+      "task": "T-079",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-079",
+      "updatedAt": "2026-11-16T11:06:14.778Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/build.rs +112 -18",
+        "crates/uw_cli/tests/fixtures/atlas_golden.json +9 -1",
+        "crates/uw_cli/tests/golden.rs +57 -4",
+        "crates/uw_cli/tests/golden/lib_words/expected/module_scripts.py +21 -0",
+        "crates/uw_cli/tests/golden/lib_words/input.uw +9 -0",
+        "crates/uw_cli/tests/golden/lib_words/lib +1 -0",
+        "examples/menu_demo/menu_demo.uw +7 -6",
+        "lib/core.uw +62 -0"
+      ]
+    },
+    "T-080": {
+      "task": "T-080",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-080",
+      "updatedAt": "2026-11-16T11:11:22.352Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/records.rs +109 -27",
+        "crates/uw_decomp/tests/readable_t061.rs +36 -23",
+        "crates/uw_decomp/tests/readable_t080.rs +65 -0",
+        "kit-meta/records/parties.toml +20 -12",
+        "kit-meta/records/party_templates.toml +16 -6"
+      ]
+    },
+    "T-081": {
+      "task": "T-081",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-081",
+      "updatedAt": "2026-11-16T11:03:29.273Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/src/project/mod.rs +75 -0",
+        "crates/uw_decomp/tests/owner_t081.rs +150 -0"
+      ]
+    },
+    "T-082": {
+      "task": "T-082",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-082",
+      "updatedAt": "2026-11-16T11:19:32.733Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_check/src/lib.rs +274 -5",
+        "crates/uw_cli/tests/golden/object_words/expected/module_game_menus.py +20 -0",
+        "crates/uw_cli/tests/golden/object_words/expected/module_scripts.py +21 -0",
+        "crates/uw_cli/tests/golden/object_words/input.uw +37 -0",
+        "crates/uw_lower/src/lib.rs +8 -2",
+        "crates/uw_syntax/src/lib.rs +28 -3"
+      ]
+    },
+    "T-083": {
+      "task": "T-083",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-083",
+      "updatedAt": "2026-11-16T12:06:05.700Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/tests/fixtures/atlas_golden.json +5 -2",
+        "crates/uw_cli/tests/golden.rs +9 -1",
+        "crates/uw_cli/tests/golden/lib_objects/expected/module_scripts.py +33 -0",
+        "crates/uw_cli/tests/golden/lib_objects/input.uw +17 -0",
+        "crates/uw_cli/tests/golden/lib_objects/lib +1 -0",
+        "crates/uw_cli/tests/tmp_menu_demo.rs +56 -0",
+        "examples/menu_demo/menu_demo.uw +9 -8",
+        "lib/core.uw +41 -0"
+      ]
+    },
+    "T-084": {
+      "task": "T-084",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-084",
+      "updatedAt": "2026-11-16T11:55:36.018Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/build.rs +2 -2",
+        "crates/uw_cli/src/build_project.rs +62 -1",
+        "crates/uw_cli/src/roundtrip.rs +239 -0",
+        "crates/uw_decomp/src/project/load.rs +24 -2"
+      ]
+    },
+    "T-085": {
+      "task": "T-085",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-085",
+      "updatedAt": "2026-11-16T11:59:55.966Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_check/src/lib.rs +193 -1",
+        "crates/uw_cli/tests/golden/save_values/expected/module_game_menus.py +19 -0",
+        "crates/uw_cli/tests/golden/save_values/expected/module_scripts.py +24 -0",
+        "crates/uw_cli/tests/golden/save_values/input.uw +21 -0",
+        "crates/uw_syntax/src/lib.rs +55 -1"
+      ]
+    },
+    "T-086": {
+      "task": "T-086",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-086",
+      "updatedAt": "2026-11-16T12:00:03.580Z",
+      "summary": "status=done",
+      "files": [
+        "docs/kilavuz/UW_KILAVUZU.md +468 -32"
+      ]
+    },
+    "T-087": {
+      "task": "T-087",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-087",
+      "updatedAt": "2026-11-16T12:26:43.030Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_check/src/lib.rs +79 -37",
+        "crates/uw_cli/src/roundtrip.rs +1 -230"
+      ]
+    },
+    "T-088": {
+      "task": "T-088",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-088",
+      "updatedAt": "2026-11-16T12:34:13.155Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_check/src/lib.rs +17 -0",
+        "crates/uw_cli/tests/golden/every_day/expected/module_simple_triggers.py +43 -0",
+        "crates/uw_cli/tests/golden/every_day/input.uw +18 -0",
+        "crates/uw_cli/tests/golden/every_day/lib +1 -0",
+        "crates/uw_emit/src/lib.rs +6 -0",
+        "crates/uw_syntax/src/lib.rs +97 -3",
+        "py/test_uw_runtime.py +8 -0",
+        "py/uw_runtime.py +6 -0"
+      ]
+    },
+    "T-089": {
+      "task": "T-089",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-089",
+      "updatedAt": "2026-11-16T12:28:03.442Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/build.rs +1 -1",
+        "crates/uw_cli/src/build_project.rs +276 -2",
+        "crates/uw_cli/src/new.rs +64 -0"
+      ]
+    },
+    "T-090": {
+      "task": "T-090",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-090",
+      "updatedAt": "2026-11-16T12:32:04.096Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/main.rs +28 -8",
+        "crates/uw_cli/src/model.rs +13 -2",
+        "crates/uw_cli/tests/explain.rs +17 -1",
+        "crates/uw_cli/tests/fixtures/atlas_refs.json +8 -0"
+      ]
+    },
+    "T-091": {
+      "task": "T-091",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-091",
+      "updatedAt": "2026-11-16T13:00:54.636Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/tests/fixtures/atlas_golden.json +2 -1",
+        "crates/uw_cli/tests/golden/in_menu/expected/module_game_menus.py +39 -0",
+        "crates/uw_cli/tests/golden/in_menu/input.uw +19 -0",
+        "crates/uw_cli/tests/golden/in_menu/lib +1 -0",
+        "crates/uw_syntax/src/lib.rs +110 -7"
+      ]
+    },
+    "T-092": {
+      "task": "T-092",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-092",
+      "updatedAt": "2026-11-16T13:16:05.959Z",
+      "summary": "status=done",
+      "files": [
+        "Cargo.lock +2 -0",
+        "crates/uw_atlas/src/lib.rs +8 -0",
+        "crates/uw_check/Cargo.toml +2 -0",
+        "crates/uw_check/src/lib.rs +501 -3",
+        "crates/uw_cli/src/build.rs +7 -1",
+        "crates/uw_cli/src/roundtrip.rs +15 -1",
+        "crates/uw_cli/tests/fixtures/atlas_golden.json +5 -1",
+        "crates/uw_cli/tests/golden.rs +6 -1",
+        "crates/uw_cli/tests/golden/troop_like/expected/module_troops.py +10 -0",
+        "crates/uw_cli/tests/golden/troop_like/input.uw +7 -0",
+        "crates/uw_emit/src/lib.rs +5 -0",
+        "crates/uw_syntax/src/lib.rs +114 -1"
+      ]
+    },
+    "T-093": {
+      "task": "T-093",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-093",
+      "updatedAt": "2026-11-16T12:53:24.356Z",
+      "summary": "status=done",
+      "files": [
+        "docs/kilavuz/UW_KILAVUZU.md +212 -3"
+      ]
+    },
+    "T-094": {
+      "task": "T-094",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-094",
+      "updatedAt": "2026-11-16T14:16:22.338Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/build_project.rs +235 -33",
+        "crates/uw_cli/src/main.rs +9 -0",
+        "crates/uw_cli/src/rename.rs +470 -0",
+        "crates/uw_cli/tests/new.rs +1 -0",
+        "crates/uw_cli/tests/rename.rs +155 -0",
+        "crates/uw_decomp/src/project/mod.rs +19 -0"
+      ]
+    },
+    "T-098": {
+      "task": "T-098",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-098",
+      "updatedAt": "2026-11-16T14:08:05.396Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/tests/vscode_grammar.rs +85 -0",
+        "editors/vscode/README.md +66 -0",
+        "editors/vscode/language-configuration.json +21 -0",
+        "editors/vscode/package.json +36 -0",
+        "editors/vscode/syntaxes/uw.tmLanguage.json +122 -0"
+      ]
+    },
+    "T-099": {
+      "task": "T-099",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-099",
+      "updatedAt": "2026-11-16T14:18:19.729Z",
+      "summary": "status=done",
+      "files": []
+    },
+    "T-100": {
+      "task": "T-100",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-100",
+      "updatedAt": "2026-11-16T14:58:25.556Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/build.rs +89 -27",
+        "crates/uw_cli/src/build_project.rs +31 -14",
+        "crates/uw_cli/src/check.rs +234 -0",
+        "crates/uw_cli/src/main.rs +6 -1",
+        "crates/uw_cli/src/roundtrip.rs +8 -3",
+        "crates/uw_cli/tests/check.rs +83 -0",
+        "crates/uw_decomp/src/project/load.rs +21 -3",
+        "crates/uw_decomp/src/project/mod.rs +11 -6",
+        "crates/uw_decomp/src/records.rs +41 -2"
+      ]
+    },
+    "T-101": {
+      "task": "T-101",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-101",
+      "updatedAt": "2026-11-16T14:41:48.660Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/tests/vscode_grammar.rs +14 -0",
+        "editors/vscode/README.md +23 -1",
+        "editors/vscode/extension.js +142 -0",
+        "editors/vscode/package.json +14 -0",
+        "editors/vscode/test/parse.test.js +85 -0"
+      ]
+    },
+    "T-102": {
+      "task": "T-102",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-102",
+      "updatedAt": "2026-11-16T14:29:37.927Z"
     }
   }
 }

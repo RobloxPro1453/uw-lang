@@ -1,0 +1,13 @@
+{
+  "taskId": "T-080",
+  "branch": "cv/T-080",
+  "base": "master",
+  "treeSha": "bcc8bfc809377f0e8ebad0b703dbd37e39a26e78",
+  "buildOk": true,
+  "testOk": true,
+  "verdict": "PASS",
+  "ok": true,
+  "skippedRun": false,
+  "findingsCount": 0,
+  "timestamp": "2026-11-16T11:26:46.122Z"
+}
