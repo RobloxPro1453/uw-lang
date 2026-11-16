@@ -186,10 +186,15 @@ pub fn compile_with(
     sources: &[uw_check::Source],
 ) -> Result<Vec<RawOp>, String> {
     let file = SourceFile::new("block.uw", text);
-    let one_line = |s: String| s.lines().find(|l| l.contains("error")).unwrap_or(&s).trim().to_string();
-    let stmts = uw_syntax::parse_block(text).map_err(|d| one_line(d.render(&file)))?;
+    // Keep the first diagnostic's position: a project record needs it to point back into its file
+    // (records::parse_with_blocks shifts it to the record, project::load to the file).
+    let one_line = |d: &uw_diag::Diagnostic| {
+        let (line, column) = file.line_col(d.span.start);
+        format!("line {line}:{column}: error[{}]: {}", d.code, d.message)
+    };
+    let stmts = uw_syntax::parse_block(text).map_err(|d| one_line(&d))?;
     let ops = uw_check::check_block_with(atlas, &file, &stmts, sources)
-        .map_err(|ds| ds.first().map(|d| one_line(d.render(&file))).unwrap_or_default())?;
+        .map_err(|ds| ds.first().map(one_line).unwrap_or_default())?;
     uw_decomp::to_raw(atlas, &ops)
 }
 

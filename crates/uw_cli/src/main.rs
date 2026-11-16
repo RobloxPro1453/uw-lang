@@ -1,6 +1,7 @@
 //! The `uw` command line tool.
 
 mod build;
+mod check;
 mod explain;
 mod flow_json;
 mod roundtrip;
@@ -21,6 +22,9 @@ const USAGE: &str = "usage:
   uw create <mod name>
       make the folder <mod name> here: all of Native as UW text, with game names (names.uw);
       then `cd <mod name>` and `uw build`
+  uw check [folder] [--json] [--atlas <atlas.json>]
+      parse and check a mod folder or a `uw create` project without building;
+      --json: one JSON object per error, then {\"summary\":{\"errors\":N,\"warnings\":M}}
   uw build [folder] [--no-install] ...
       no folder = this folder; a folder made by `uw create` builds the whole mod and installs it
   uw build <mod folder> [--debug] [--no-install] [--modules <Warband/Modules>] [--kit <kit>] [--python <python27.exe>]
@@ -75,6 +79,7 @@ fn main() -> ExitCode {
         Some("explain") => cmd_explain(&args[1..]),
         Some("browse") => cmd_browse(&args[1..]),
         Some("create") => cmd_create(&args[1..]),
+        Some("check") => check::cmd(&args[1..]),
         Some("build") => cmd_build_any(&args[1..]),
         Some("graph") => cmd_graph(&args[1..]),
         Some("roundtrip") => roundtrip::cmd(&args[1..]),
@@ -387,7 +392,7 @@ pub(crate) fn plain(path: PathBuf) -> PathBuf {
 
 /// `dir` made absolute against the working folder, then the working folder moved to [`uw_home`]
 /// (every lookup — atlas, schemas, kit, `target/` — starts there).
-fn enter_home(dir: &Path) -> Result<PathBuf, String> {
+pub(crate) fn enter_home(dir: &Path) -> Result<PathBuf, String> {
     let cwd = std::env::current_dir().map_err(|e| e.to_string())?;
     let absolute = if dir.is_absolute() { dir.to_path_buf() } else { cwd.join(dir) };
     let home = uw_home().ok_or("the UW folder (with kit-meta/) was not found; run uw from inside it once")?;

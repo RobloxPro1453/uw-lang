@@ -129,7 +129,7 @@ pub fn verify_with(
         let ids: Vec<String> = expected.iter().map(|(schema, entry)| record_id(schema, entry)).collect();
         let mut found = vec![false; expected.len()];
         summary.records += expected.len();
-        for record in split_records(&text) {
+        for (_start, record) in split_records(&text) {
             let failure = match parse(schema, &record) {
                 Err(e) => format!("{relative}: {e}"),
                 // The atlas may repeat an id (dialogs do), so every occurrence is matched once.
@@ -164,28 +164,33 @@ pub fn verify_with(
 }
 
 /// The records of one project file, split where the braces close (a record may hold nested blocks);
-/// `//` comment lines and the blank lines between records are dropped.
-fn split_records(text: &str) -> Vec<String> {
+/// `//` comment lines and the blank lines between records are dropped. Each record carries its
+/// 1-based first line in the file, so a parse error can point at the file instead of the record.
+fn split_records(text: &str) -> Vec<(usize, String)> {
     let mut records = Vec::new();
     let mut current = String::new();
     let mut depth = 0i32;
     let mut in_string = false;
-    for line in text.lines() {
+    let mut start = 0usize;
+    for (index, line) in text.lines().enumerate() {
         if depth <= 0 && current.is_empty() && (line.trim().is_empty() || line.trim_start().starts_with("//")) {
             continue;
+        }
+        if current.is_empty() {
+            start = index + 1;
         }
         current.push_str(line);
         current.push('\n');
         scan_braces(line, &mut depth, &mut in_string);
         if depth <= 0 {
-            records.push(std::mem::take(&mut current));
+            records.push((start, std::mem::take(&mut current)));
             depth = 0;
             in_string = false;
         }
     }
     // A file that ends inside a record still hands the text over, so `parse` can name the problem.
     if !current.is_empty() {
-        records.push(current);
+        records.push((start, current));
     }
     records
 }

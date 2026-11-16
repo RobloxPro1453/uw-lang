@@ -464,27 +464,44 @@ fn translation_text(line: &[u8]) -> Option<&str> {
     std::str::from_utf8(&line[end + 1..]).ok()
 }
 
+/// The project's atlas (with its game names) and record schemas, without the kit.
+pub fn project_atlas(dir: &Path, atlas: Option<PathBuf>) -> Result<(uw_atlas::Atlas, Vec<Schema>), String> {
+    let (mut atlas, schemas) = crate::new::atlas_and_schemas(atlas)?;
+    crate::new::install_names(&mut atlas, dir)?;
+    Ok((atlas, schemas))
+}
+
+/// Why a project's records did not load: the word sources failed (one message), or the records had
+/// problems (one line each).
+pub enum LoadFailure {
+    Words(String),
+    Records(Vec<String>),
+}
+
+/// Loads the project folder's records (parse + check through its lib/fns words), without the kit.
+pub fn load_records(
+    dir: &Path,
+    atlas: &uw_atlas::Atlas,
+    schemas: &[Schema],
+) -> Result<BTreeMap<String, Vec<Json>>, LoadFailure> {
+    let words = word_sources(dir).map_err(LoadFailure::Words)?;
+    let mut compile =
+        |text: &str| crate::roundtrip::compile_with(atlas, text, &words).map(|ops| records::ops_to_json(&ops));
+    let mut parse = |schema: &Schema, text: &str| records::parse_with_blocks(atlas, schema, text, &mut compile);
+    uw_decomp::project::load::load(atlas, schemas, dir, &mut parse).map_err(LoadFailure::Records)
+}
+
 /// `uw build-project <dir>`: the same build, from the project folder.
 fn build_project(dir: &Path, args: &Args) -> ExitCode {
     let root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-    let (mut atlas, schemas) = match crate::new::atlas_and_schemas(None) {
+    let (atlas, schemas) = match project_atlas(dir, None) {
         Ok(found) => found,
         Err(message) => return crate::fail(&message),
     };
-    if let Err(message) = crate::new::install_names(&mut atlas, dir) {
-        return crate::fail(&message);
-    }
-    let atlas = atlas;
-    let words = match word_sources(dir) {
-        Ok(words) => words,
-        Err(message) => return crate::fail(&message),
-    };
-    let mut compile =
-        |text: &str| crate::roundtrip::compile_with(&atlas, text, &words).map(|ops| records::ops_to_json(&ops));
-    let mut parse = |schema: &Schema, text: &str| records::parse_with_blocks(&atlas, schema, text, &mut compile);
-    let records = match uw_decomp::project::load::load(&atlas, &schemas, dir, &mut parse) {
+    let records = match load_records(dir, &atlas, &schemas) {
         Ok(records) => records,
-        Err(errors) => {
+        Err(LoadFailure::Words(message)) => return crate::fail(&message),
+        Err(LoadFailure::Records(errors)) => {
             for line in &errors {
                 eprintln!("  {line}");
             }

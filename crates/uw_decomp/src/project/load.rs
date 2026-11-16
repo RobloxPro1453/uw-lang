@@ -86,12 +86,12 @@ pub fn load(
                 continue;
             }
         };
-        for record in super::split_records(&text) {
+        for (start, record) in super::split_records(&text) {
             // The record word (`faction`, `troop`, …) names its table exactly; prefixes collide
             // (`party` / `party_template`), so this is a whole-word match.
             let kind = record.trim_start().split_whitespace().next().unwrap_or("");
             let Some(schema) = by_kind.get(kind) else {
-                errors.push(format!("{}: `{kind}` kayıt türü tanınmıyor", file.display()));
+                errors.push(format!("{}: line {start}: `{kind}` kayıt türü tanınmıyor", file.display()));
                 continue;
             };
             match parse(schema, &record) {
@@ -99,7 +99,7 @@ pub fn load(
                     records.push(Parsed { table: schema.table.clone(), id, value, file: file.clone(), seq });
                     seq += 1;
                 }
-                Err(e) => errors.push(format!("{}: {e}", file.display())),
+                Err(e) => errors.push(format!("{}: {}", file.display(), at_line(start, &e))),
             }
         }
     }
@@ -195,6 +195,14 @@ pub fn load(
     }
 }
 
+/// Moves a record-relative `line N: message` to the file's own line (the record starts at `start`).
+fn at_line(start: usize, message: &str) -> String {
+    let Some(rest) = message.strip_prefix("line ") else { return message.to_string() };
+    let Some((line, tail)) = rest.split_once(':') else { return message.to_string() };
+    let Ok(line) = line.parse::<usize>() else { return message.to_string() };
+    format!("line {}:{tail}", start + line - 1)
+}
+
 /// Every `.uw` file under `dir`, so a user may move records between folders. `names.uw` and the
 /// `fns/` words folder hold no records (T-084).
 fn collect_uw_files(dir: &Path, files: &mut Vec<PathBuf>) {
@@ -218,6 +226,16 @@ fn collect_uw_files(dir: &Path, files: &mut Vec<PathBuf>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_record_keeps_its_first_file_line_and_errors_shift_to_it() {
+        let records = super::super::split_records("// header\n\nfaction a {}\nfaction b {\n  x\n}\n");
+        assert_eq!(records[0].0, 3);
+        assert_eq!(records[1].0, 4);
+        assert_eq!(at_line(10, "line 3: expected `}`"), "line 12: expected `}`");
+        assert_eq!(at_line(10, "line 3:4: error[E0001]: unknown name"), "line 12:4: error[E0001]: unknown name");
+        assert_eq!(at_line(10, "read error"), "read error");
+    }
 
     #[test]
     fn the_fns_folder_is_not_read_as_records() {
