@@ -75,26 +75,27 @@ source = "module_troops.py:21"
 
 # process_troops.py:44-49 reads `attrib & 0xff`, `>> 8 & 0xff`, `>> 16 & 0xff`,
 # `>> 24 & 0xff` and `>> level_bits & level_mask`; the masks are in header_troops.py.
+# The kit spells the constants str_/agi_/int_/cha_ (header_troops.py:90-205); UW spells the names out.
 [[fields.parts]]
-name = "str"
+name = "strength"
 shift = 0
 width = 8
 source = "header_troops.py:90"
 
 [[fields.parts]]
-name = "agi"
+name = "agility"
 shift = 8
 width = 8
 source = "header_troops.py:119"
 
 [[fields.parts]]
-name = "int"
+name = "intelligence"
 shift = 16
 width = 8
 source = "header_troops.py:148"
 
 [[fields.parts]]
-name = "cha"
+name = "charisma"
 shift = 24
 width = 8
 source = "header_troops.py:178"

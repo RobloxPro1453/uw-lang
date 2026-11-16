@@ -25,8 +25,9 @@ width = 24
 ty = "flags:acf_"
 source = "header_animations.py:119"
 
+# The kit only names the acf_anim_length_* constants (header_animations.py:119-121).
 [[fields.parts]]
-name = "anim_length"
+name = "animation_length"
 shift = 24
 width = 8
 source = "header_animations.py:121"

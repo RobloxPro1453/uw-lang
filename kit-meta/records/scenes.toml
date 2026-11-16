@@ -28,13 +28,14 @@ name = "body_name"
 ty = "raw"
 source = "module_scenes.py:12"
 
+# The kit spells these "Min-pos"/"Max-pos" (module_scenes.py:13-14); UW writes the full words.
 [[fields]]
-name = "min_pos"
+name = "min_position"
 ty = "raw"
 source = "module_scenes.py:13"
 
 [[fields]]
-name = "max_pos"
+name = "max_position"
 ty = "raw"
 source = "module_scenes.py:14"
 

@@ -21,8 +21,9 @@ name = "mesh_name"
 ty = "raw"
 source = "module_particle_systems.py:18"
 
+# The kit spells this "Num particles per second" (module_particle_systems.py:20).
 [[fields]]
-name = "num_particles_per_second"
+name = "number_particles_per_second"
 ty = "raw"
 source = "module_particle_systems.py:20"
 
@@ -111,8 +112,9 @@ name = "emit_velocity"
 ty = "raw"
 source = "module_particle_systems.py:37"
 
+# The kit spells this "Emit dir randomness" (module_particle_systems.py:38).
 [[fields]]
-name = "emit_dir_randomness"
+name = "emit_direction_randomness"
 ty = "raw"
 source = "module_particle_systems.py:38"
 
