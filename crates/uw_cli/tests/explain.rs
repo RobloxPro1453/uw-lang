@@ -153,6 +153,67 @@ fn game_names_work_like_kit_ids_and_show_next_to_them() {
     assert!(out.starts_with("fac_kingdom_1 (swadia)  ·  \"Kingdom of Swadia\""), "{out}");
 }
 
+#[test]
+fn json_gives_the_name_the_kind_the_native_id_and_the_plain_text() {
+    let (ok, out, _) = uw(&["--json", "praven"]);
+    assert!(ok, "{out}");
+    let object: serde_json::Value = serde_json::from_str(out.trim()).expect("one JSON object");
+    assert_eq!(object["name"], "p_town_6 (praven)");
+    assert_eq!(object["kind"], "party (parties #0)");
+    assert_eq!(object["native_id"], "p_town_6");
+    // `text` is exactly what the plain form prints.
+    let (ok, plain, _) = uw(&["praven"]);
+    assert!(ok, "{plain}");
+    assert_eq!(object["text"], plain);
+
+    // A global has no Native id.
+    let (ok, out, _) = uw(&["--json", "$g_x"]);
+    assert!(ok, "{out}");
+    let object: serde_json::Value = serde_json::from_str(out.trim()).expect("one JSON object");
+    assert_eq!(object["name"], "$g_x");
+    assert_eq!(object["kind"], "global variable");
+    assert!(object["native_id"].is_null(), "{object}");
+
+    // Not an exact name: what matches is the text, so no kind and no id (never an invented one).
+    let (ok, out, _) = uw(&["--json", "cam"]);
+    assert!(ok, "{out}");
+    let object: serde_json::Value = serde_json::from_str(out.trim()).expect("one JSON object");
+    assert_eq!(object["name"], "cam");
+    assert_eq!(object["kind"], "");
+    assert!(object["native_id"].is_null(), "{object}");
+    assert!(object["text"].as_str().unwrap_or("").contains("Things that match"), "{object}");
+
+    // A name nobody knows stays an error, like the plain form (nothing on stdout).
+    let (ok, out, err) = uw(&["--json", "mnu_strat"]);
+    assert!(!ok);
+    assert!(out.trim().is_empty(), "{out}");
+    assert!(err.contains("did you mean"), "{err}");
+}
+
+#[test]
+fn json_reads_the_project_folder_next_to_the_thing() {
+    // `uw explain --json <ad> <klasör>`: that folder's own names.uw is installed, so a renamed record
+    // answers to the name only that file has.
+    let dir = std::env::temp_dir().join(format!("uw-explain-json-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("scratch folder");
+    std::fs::write(dir.join("names.uw"), "benim_sehrim = p_town_6\n").expect("names.uw");
+    let folder = dir.display().to_string();
+
+    let (ok, out, err) = uw(&["--json", "benim_sehrim", &folder]);
+    assert!(ok, "{out}{err}");
+    let object: serde_json::Value = serde_json::from_str(out.trim()).expect("one JSON object");
+    assert_eq!(object["name"], "p_town_6 (benim_sehrim)");
+    assert_eq!(object["native_id"], "p_town_6");
+    assert!(object["text"].as_str().unwrap_or("").contains("what:     party"), "{object}");
+
+    // Without the folder the same name is unknown: only names.uw gives it.
+    let (ok, _, err) = uw(&["--json", "benim_sehrim"]);
+    assert!(!ok);
+    assert!(err.contains("'benim_sehrim' is not in Native"), "{err}");
+
+    std::fs::remove_dir_all(&dir).ok();
+}
+
 /// The real Native atlas, when this machine has one (docs/DEVELOPMENT.md > Atlas).
 const REAL: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/uw-staging/atlas.json");
 
