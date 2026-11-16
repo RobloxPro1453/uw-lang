@@ -63,6 +63,19 @@ code --install-extension uw-lang-0.1.0.vsix
 yazılıdır, kendi yayıncı kimliğinizle değiştirebilirsiniz. Bu alan bir sır değildir; hiçbir anahtar
 veya token bu klasörde tutulmaz.
 
+## Hataları görme
+
+Eklenti, `uw check --json <klasör>` komutunu `.uw` dosyası **açılınca ve her kaydedilişte** çalıştırır;
+bulunan her hata/problems panelinde kırmızı dalgalı çizgi olarak görünür. Hatayı düzeltip dosyayı
+kaydettiğinizde çizgi kaybolur.
+
+- Klasör: dosyanın en yakın `uw.toml` içeren üst klasörü; yoksa dosyanın kendi klasörü.
+- `uw` komutu `PATH` üzerinde olmalıdır (`cargo install --path crates/uw_cli`). Başka bir yerde ise
+  ayarlardan yolunu verin: `uw.path` (varsayılan `uw`), yani `settings.json` içinde
+  `"uw.path": "/tam/yol/uw"`.
+- `uw` bulunamazsa eklenti çökmez; bir kez "uw bulunamadı" uyarısı gösterir.
+- `uw check` henüz kurulu değilse hiçbir tanı üretilmez (çıktı boş sayılır).
+
 ## Denetim
 
 Söz dizimi dosyalarının (`syntaxes/uw.tmLanguage.json`, `language-configuration.json`,
@@ -75,8 +88,17 @@ cargo test -p uw_cli --test vscode_grammar
 
 Test Node.js gerektirmez.
 
+`extension.js` içindeki `parseCheckOutput` (CLI çıktısını tanılara çeviren saf fonksiyon) ayrıca
+`node` ile denenir; bir örnek satır yanlış aralığa düşerse test sıfırdan farklı çıkış kodu verir:
+
+```sh
+node editors/vscode/test/parse.test.js
+```
+
 ## Dosyalar
 
-- `package.json`: eklenti bildirimi (ad `uw-lang`, `.uw` uzantısı, dil bilgisi yolu)
+- `package.json`: eklenti bildirimi (ad `uw-lang`, `.uw` uzantısı, dil bilgisi yolu, `main`, `uw.path`)
+- `extension.js`: `uw check --json` çalıştırıp tanıları (dalgalı çizgi + Problems) gösteren uzantı
+- `test/parse.test.js`: `parseCheckOutput` testi (düz `node`, çerçeve yok)
 - `language-configuration.json`: yorumlar, parantezler, otomatik kapanan çiftler, kelime deseni
 - `syntaxes/uw.tmLanguage.json`: TextMate dil bilgisi
