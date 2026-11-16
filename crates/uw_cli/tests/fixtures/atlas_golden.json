@@ -7,7 +7,15 @@
         {"name":"assign","code":2133,"line":40,"signature":"","lhs":true,"can_fail":false,"global_lhs":false},
         {"name":"troop_set_type","code":1509,"line":600,"signature":"(troop_set_type,<troop_id>,<type_no>),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"party_is_active","code":132,"line":94,"signature":"(party_is_active,<party_id>),","lhs":false,"can_fail":true,"global_lhs":false},
-        {"name":"troop_add_gold","code":1528,"line":611,"signature":"(troop_add_gold,<troop_id>,<value>),","lhs":false,"can_fail":false,"global_lhs":false}
+        {"name":"troop_add_gold","code":1528,"line":611,"signature":"(troop_add_gold,<troop_id>,<value>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"call_script","code":1,"line":14,"signature":"(call_script,<script_id>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"ge","code":30,"line":40,"signature":"(ge,<value>,<value>),","lhs":false,"can_fail":true,"global_lhs":false},
+        {"name":"store_troop_gold","code":2149,"line":1204,"signature":"(store_troop_gold,<destination>,<troop_id>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"troop_remove_gold","code":1529,"line":612,"signature":"(troop_remove_gold,<troop_id>,<value>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"troop_add_item","code":1530,"line":613,"signature":"(troop_add_item,<troop_id>,<item_id>,[modifier]),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"troop_remove_item","code":1531,"line":614,"signature":"(troop_remove_item,<troop_id>,<item_id>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"party_add_members","code":1610,"line":651,"signature":"(party_add_members,<party_id>,<troop_id>,<number>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"party_remove_members","code":1615,"line":657,"signature":"(party_remove_members,<party_id>,<troop_id>,<number>),","lhs":false,"can_fail":false,"global_lhs":false}
       ],
       "hooks": ["game_start"],
       "ranges": [],

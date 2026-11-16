@@ -45,24 +45,11 @@ pub fn run(opts: Options) -> Result<(), String> {
         return Err(format!("no .uw files in {}", dir.display()));
     }
 
-    // 1. Parse.
-    let mut sources = Vec::new();
-    let mut failed = false;
-    for path in &paths {
-        let text = fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
-        let name = path.file_name().unwrap().to_string_lossy().into_owned();
-        let file = SourceFile::new(name, text);
-        match uw_syntax::parse(&file.text) {
-            Ok(tree) => sources.push(uw_check::Source { file, tree }),
-            Err(d) => {
-                eprintln!("{}\n", d.render(&file));
-                failed = true;
-            }
-        }
-    }
-    if failed {
-        return Err("fix the errors above and run `uw build` again".into());
-    }
+    // 1. Parse: UW's own words (`lib/*.uw`) first, so every mod sees them (T-079), then the mod's
+    // files.
+    let mut entries: Vec<(PathBuf, bool)> = lib_files(&dir)?.into_iter().map(|path| (path, true)).collect();
+    entries.extend(paths.iter().cloned().map(|path| (path, false)));
+    let sources = parse_sources(&entries)?;
 
     // 2. Check against the atlas, with game names (P5b): the mod's own `names.uw`, otherwise the
     // names `uw new` derives from the kit's display names.
@@ -266,6 +253,61 @@ pub fn install(out: &Path, modules: &Path, name: &str) -> Result<PathBuf, String
     Ok(dest)
 }
 
+/// Parses `(path, from_lib)` pairs in order. A lib file may hold only `fn` items (T-079): it is
+/// UW's own word library, not a mod.
+fn parse_sources(entries: &[(PathBuf, bool)]) -> Result<Vec<uw_check::Source>, String> {
+    let mut sources = Vec::new();
+    let mut failed = false;
+    for (path, from_lib) in entries {
+        let text = fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
+        let name = path.file_name().unwrap().to_string_lossy().into_owned();
+        let file = SourceFile::new(name, text);
+        match uw_syntax::parse(&file.text) {
+            Ok(tree) => {
+                if *from_lib
+                    && (tree.module.is_some()
+                        || tree.items.iter().any(|item| !matches!(item, uw_syntax::Item::Fn { .. })))
+                {
+                    return Err(format!("{}: a lib file may only hold `fn` items", path.display()));
+                }
+                sources.push(uw_check::Source { file, tree });
+            }
+            Err(d) => {
+                eprintln!("{}\n", d.render(&file));
+                failed = true;
+            }
+        }
+    }
+    if failed {
+        return Err("fix the errors above and run `uw build` again".into());
+    }
+    Ok(sources)
+}
+
+/// Every `.uw` file of the nearest `lib` folder (UW's own words), sorted.
+fn lib_files(dir: &Path) -> Result<Vec<PathBuf>, String> {
+    let Some(lib) = find_lib(dir) else { return Ok(Vec::new()) };
+    let mut paths: Vec<PathBuf> = fs::read_dir(&lib)
+        .map_err(|e| format!("{}: {e}", lib.display()))?
+        .filter_map(|e| e.ok().map(|e| e.path()))
+        .filter(|p| p.extension().is_some_and(|x| x == "uw"))
+        .collect();
+    paths.sort();
+    Ok(paths)
+}
+
+/// The `lib` folder of this or a parent folder, found like the atlas.
+fn find_lib(dir: &Path) -> Option<PathBuf> {
+    let mut starts = vec![dir.to_path_buf()];
+    if let Ok(cwd) = std::env::current_dir() {
+        starts.push(cwd);
+    }
+    starts
+        .iter()
+        .flat_map(|s| s.ancestors().map(|a| a.join("lib")).collect::<Vec<_>>())
+        .find(|p| p.is_dir())
+}
+
 fn find_up(dir: &Path, rel: &str) -> Option<PathBuf> {
     let mut starts = vec![dir.to_path_buf()];
     if let Ok(cwd) = std::env::current_dir() {
@@ -375,6 +417,58 @@ mod tests {
         // A wrong line stops the build instead of falling back to the kit references.
         fs::write(root.join(uw_decomp::names::FILE), "golden_town = p_town_99\n").unwrap();
         assert!(install_game_names(&mut golden(), &root).is_err());
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn lib_files_are_parsed_before_the_mod_and_hold_only_fns() {
+        let root = temp("lib");
+        let lib = root.join("lib");
+        fs::create_dir_all(&lib).unwrap();
+        fs::write(
+            lib.join("core.uw"),
+            "fn give_gold(:amount) {\n    troop_add_gold(trp_player, :amount)\n}\n",
+        )
+        .unwrap();
+        let mod_dir = root.join("mod");
+        fs::create_dir_all(&mod_dir).unwrap();
+        let mod_file = mod_dir.join("mod.uw");
+        fs::write(&mod_file, "mod m\n\non game.start {\n    give_gold(100)\n}\n").unwrap();
+
+        let entries = |with_mod: bool| -> Vec<(PathBuf, bool)> {
+            let mut entries: Vec<(PathBuf, bool)> =
+                lib_files(&mod_dir).unwrap().into_iter().map(|path| (path, true)).collect();
+            if with_mod {
+                entries.push((mod_file.clone(), false));
+            }
+            entries
+        };
+        let sources = parse_sources(&entries(true)).unwrap();
+        assert_eq!(
+            sources.iter().map(|s| s.file.name.as_str()).collect::<Vec<_>>(),
+            ["core.uw", "mod.uw"]
+        );
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/atlas_golden.json");
+        let atlas = uw_atlas::Atlas::from_path(path).unwrap();
+        assert!(uw_check::check(&atlas, &sources, "m").is_ok());
+
+        // A mod fn with a lib fn's name is an error: the lib file came first.
+        fs::write(
+            &mod_file,
+            "mod m\n\nfn give_gold(:amount) {\n    troop_add_gold(trp_player, :amount)\n}\n\non game.start {\n    give_gold(100)\n}\n",
+        )
+        .unwrap();
+        let sources = parse_sources(&entries(true)).unwrap();
+        let errors = uw_check::check(&atlas, &sources, "m").unwrap_err();
+        assert!(errors[0].diag.message.contains("already defined at core.uw:"), "{}", errors[0].diag.message);
+
+        // A lib file may hold only `fn` items, and the error names the file.
+        fs::write(lib.join("bad.uw"), "mod bad\n").unwrap();
+        let err = match parse_sources(&entries(false)) {
+            Ok(_) => panic!("a lib file with a `mod` item must be an error"),
+            Err(err) => err,
+        };
+        assert!(err.contains("bad.uw") && err.contains("only hold `fn` items"), "{err}");
         let _ = fs::remove_dir_all(&root);
     }
 
