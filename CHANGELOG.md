@@ -5,6 +5,7 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
+- Oyundaki adlarla yazma: `uw new` her kayda oyunda görünen adından bir ad verir (`swadia`, `praven`, `king_harlaus`, `count_klargus`; Native'de 1111 ad) ve `names.uw` dosyasına yazar. Bu adlar kayıtlarda (`inventory [saddle_horse, …]`) ve kodda (`if :faction == swadia`) geçer; dosyadaki adları değiştirebilirsin. Adlı proje Native ile hâlâ bayt bayt aynı derlenir.
 - `uw roundtrip`: Native'in bütün işlem blokları (9113 blok: scripts, menüler, diyaloglar, tetikler, görev şablonları, sunumlar, eşya/sahne nesnesi/tableau tetikleri) UW'ye çevrilir, geri derlenir ve karşılaştırılır; %100'ü birebir ve yapılı (`if`/`or`/`not`/atama) geri dönüyor; temiz `if` olmayan blokların içi de yapılı basılır. Özet, ham kalış nedenlerini gruplar ve satır düzeyinde Native kalan payı verir; ayrıntı `raw.txt`. Metin `target/uw-native/` altına yazılır.
 - Dil: kit yazımıyla bayraklı işlem adları (`neg|eq(…)`, `this_or_next|…`), rakamla başlayan yerel/global adlar (`:2ary_…`).
 - Dil: koşulda parantez (`if $a == 1 and ($b == 2 or not c(…)) {`).
