@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-16T14:58:25.556Z",
+  "updatedAt": "2026-11-16T18:44:50.822Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -1413,12 +1413,204 @@
     },
     "T-102": {
       "task": "T-102",
-      "status": "running",
+      "status": "error",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-102",
-      "updatedAt": "2026-11-16T14:29:37.927Z"
+      "updatedAt": "2026-11-16T17:03:53.630Z",
+      "error": "could not create cv/T-102:\nfatal: 'cv/T-102' is already used by worktree at 'C:/Users/yasink/cv-calisma/universal_warband/lane-3'\n"
+    },
+    "T-103": {
+      "task": "T-103",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-103",
+      "updatedAt": "2026-11-16T17:47:14.617Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/build_project.rs +33 -2",
+        "crates/uw_decomp/src/project/load.rs +45 -2",
+        "crates/uw_decomp/src/project/mod.rs +180 -7",
+        "crates/uw_decomp/tests/owner_t081.rs +13 -11",
+        "crates/uw_decomp/tests/owner_t103.rs +197 -0"
+      ]
+    },
+    "T-104": {
+      "task": "T-104",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-104",
+      "updatedAt": "2026-11-16T17:25:31.183Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/build.rs +1 -1",
+        "crates/uw_cli/src/main.rs +5 -0",
+        "crates/uw_cli/src/words.rs +224 -0",
+        "crates/uw_cli/tests/words.rs +79 -0",
+        "editors/vscode/README.md +20 -1",
+        "editors/vscode/extension.js +83 -1",
+        "editors/vscode/test/words.test.js +77 -0"
+      ]
+    },
+    "T-105": {
+      "task": "T-105",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-105",
+      "updatedAt": "2026-11-16T17:23:04.138Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/find.rs +409 -0",
+        "crates/uw_cli/src/main.rs +6 -0",
+        "crates/uw_cli/src/rename.rs +3 -3",
+        "crates/uw_cli/tests/find.rs +144 -0",
+        "docs/kilavuz/UW_KILAVUZU.md +31 -1"
+      ]
+    },
+    "T-106": {
+      "task": "T-106",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-106",
+      "updatedAt": "2026-11-16T17:45:15.678Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/denetim/birlik-esya-krallik.md +217 -0"
+      ]
+    },
+    "T-107": {
+      "task": "T-107",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-107",
+      "updatedAt": "2026-11-16T17:19:45.671Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/denetim/yerler-sahneler.md +134 -0"
+      ]
+    },
+    "T-108": {
+      "task": "T-108",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-108",
+      "updatedAt": "2026-11-16T17:05:47.687Z"
+    },
+    "T-109": {
+      "task": "T-109",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-109",
+      "updatedAt": "2026-11-16T18:17:16.873Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_check/src/lib.rs +200 -4",
+        "crates/uw_cli/tests/fixtures/atlas_golden.json +1 -0",
+        "crates/uw_cli/tests/golden/area_enter/expected/module_simple_triggers.py +115 -0",
+        "crates/uw_cli/tests/golden/area_enter/input.uw +12 -0",
+        "crates/uw_cli/tests/golden/area_enter/lib +1 -0",
+        "crates/uw_emit/src/lib.rs +4 -1",
+        "crates/uw_syntax/src/lib.rs +218 -8",
+        "docs/CHECKUP.md +20 -0",
+        "docs/kilavuz/UW_KILAVUZU.md +56 -1",
+        "lib/core.uw +5 -0"
+      ]
+    },
+    "T-110": {
+      "task": "T-110",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-110",
+      "updatedAt": "2026-11-16T18:09:06.584Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/explain.rs +29 -0",
+        "crates/uw_cli/src/main.rs +52 -10",
+        "crates/uw_cli/tests/explain.rs +61 -0",
+        "editors/vscode/README.md +25 -4",
+        "editors/vscode/extension.js +98 -2",
+        "editors/vscode/test/hover.test.js +103 -0"
+      ]
+    },
+    "T-111": {
+      "task": "T-111",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-111",
+      "updatedAt": "2026-11-16T17:52:00.637Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/find.rs +26 -15",
+        "crates/uw_cli/src/main.rs +3 -2",
+        "crates/uw_cli/src/rename.rs +100 -13",
+        "crates/uw_cli/tests/rename.rs +118 -0",
+        "docs/kilavuz/UW_KILAVUZU.md +18 -0"
+      ]
+    },
+    "T-112": {
+      "task": "T-112",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-112",
+      "updatedAt": "2026-11-16T18:38:12.491Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/readable_t059.rs +13 -9",
+        "crates/uw_decomp/tests/readable_t060.rs +4 -4",
+        "crates/uw_decomp/tests/readable_t112.rs +129 -0",
+        "crates/uw_decomp/tests/records_t031.rs +6 -1",
+        "docs/bilgi/denetim/birlik-esya-krallik.md +3 -3",
+        "kit-meta/records/items.toml +4 -3",
+        "kit-meta/records/troops.toml +24 -6"
+      ]
+    },
+    "T-113": {
+      "task": "T-113",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-113",
+      "updatedAt": "2026-11-16T18:44:50.822Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/build_project.rs +464 -27",
+        "crates/uw_cli/src/main.rs +3 -2",
+        "crates/uw_decomp/src/project/load.rs +26 -1",
+        "crates/uw_decomp/src/project/mod.rs +129 -6",
+        "crates/uw_decomp/tests/name_t113.rs +120 -0",
+        "docs/kilavuz/UW_KILAVUZU.md +29 -0"
+      ]
+    },
+    "T-114": {
+      "task": "T-114",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-114",
+      "updatedAt": "2026-11-16T18:25:52.244Z"
     }
   }
 }
