@@ -66,6 +66,20 @@ fn manifest_declares_the_uw_language() {
     }
 }
 
+/// T-101: the extension runs `uw check --json` on open and save, so the manifest must name its entry
+/// point, activate for the `uw` language and default `uw.path` to `uw`.
+#[test]
+fn manifest_runs_the_check_extension_for_uw_files() {
+    let manifest = load("package.json");
+    assert_eq!(manifest["main"], "./extension.js");
+    let events: Vec<&str> =
+        manifest["activationEvents"].as_array().expect("activationEvents").iter().map(|e| e.as_str().expect("activation event")).collect();
+    assert!(events.contains(&"onLanguage:uw"), "activationEvents has no onLanguage:uw: {events:?}");
+    assert_eq!(manifest["contributes"]["configuration"]["properties"]["uw.path"]["default"], "uw");
+    let entry = PathBuf::from(DIR).join(manifest["main"].as_str().expect("main"));
+    assert!(entry.is_file(), "{} is missing", entry.display());
+}
+
 #[test]
 fn language_configuration_toggles_comments_and_matches_brackets() {
     let config = load("language-configuration.json");
