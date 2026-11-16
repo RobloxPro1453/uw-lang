@@ -5,6 +5,14 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
+- Şehir ve kale kayıtlarında düzenlenebilir `owner swadia` satırı: oyun başında kimin olduğunu gösterir; değiştirirsen derleme oyun başı betiğindeki satırı günceller ve "Sargoth: sahibi nords → vaegirs" diye yazar. Değiştirmezsen çıktı Native ile bayt bayt aynı kalır.
+- Diyalog yazımı: `dialog king_harlaus first_meeting { harlaus: "Who are you?"  player: "A traveller." -> end }` (oyun denemesi CHECKUP'ta).
+- Bölgeye girince olay: `area mountain_road [(10, 20), (40, 20), (40, 60), (10, 60)]` ve `on enter mountain_road when time.hour >= 12 { … }`; bölgeye her girişte bir kez çalışır.
+- `uw check --json`, `uw words`, `uw find "praven"` (adın geçtiği bütün metinler ve çeviriler), `uw explain --json`.
+- VS Code: kaydedince hatalar kırmızı altı çizili, yazarken ad önerisi, üstüne gelince açıklama. Kurulum: `editors/vscode/uw-lang-0.1.0.vsix`.
+- Çeviriler: kayda `name_tr "Adam Siken"` yazılabilir; `uw.toml`'da `[languages.tr] strip_suffix = [" Şehri"]` ekleri toptan kaldırır (`add_suffix` ekler). Derleme neyi değiştirdiğini söyler.
+- `uw rename … --texts all|1,3`: adın geçtiği öbür metinlerden seçtiklerini de değiştirir; `--undo` hepsini geri alır.
+- Kayıtlar daha okunur: parti şablonlarında askerler numara yerine adla (`(farmer, 10, 20)`) ve başka denetim düzeltmeleri.
 - `uw rename` güvenli: değiştirmeden önce her dosyanın kopyası projede `.uw-backup/rename-<zaman>/` altına alınır; `uw rename --undo` son değişikliği geri koyar (rename'den sonra elle değiştirdiğin dosyaya dokunmaz, adını söyler). Yedekler silinmez, yalnız "geri alındı" diye işaretlenir.
 - `uw rename praven "Adam Siken"`: adın geçtiği her yeri bulur (kaydın adı, "join a caravan to Praven…" gibi metinler, "Merchant of Praven", bütün dillerdeki çeviriler), grup grup sorar, sonra değiştirir; `--list` yalnız gösterir, `--yes` sormadan yapar. Çeviride kalıp korunur ("Praven Şehri" → "Adam Siken Şehri"); `uw.toml`'da `[languages.tr] town_suffix = ""` ile şehir eklerini toptan kaldırabilirsin.
 - `town riverhold like praven { name "Riverhold"  initial_coordinates (35, -12) }`: var olan şehirden yeni şehir (ayrıca `castle`, `village`, `party`).

@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-16 22:00 · Döngü 7: DeepSeek paketleri (otonom, T-100..T-113, ~$1.2)
+T-100..T-107, T-109..T-113 birleşti: owner alanı, dialog, area/on enter, uw check/words/find, VS Code hata+tamamlama+hover, name_tr ve çeviri ekleri, rename --texts, denetim raporları (docs/bilgi/denetim/) ve ilk düzeltmeleri. Owner gerçek kitle denendi (Sargoth → vaegirs: yalnız scripts.txt farklı). Doğrulama: testler 436 geçti, uw new --check 12815/12815, build-project 32/32. Sıradaki: T-108 raporu, T-114 (koşul sözcükleri), denetim tur 2, oyun denemeleri (CHECKUP).
+
 ## 2026-11-16 · Döngü 5: uw rename, town like, VS Code v0 (otonom, T-094/T-098/T-099 ~$0.23)
 `uw rename` gerçek projede UTF-8 olmayan bir Native dil dosyasında (es/party_templates.csv) duruyordu → o dosya atlanıp yazılıyor. Ölçü: testler 395/395, adlı proje 12815/12815, build-project 32/32. Sıradaki: dialog kolay yazımı, owner alanı, VS Code'da hata gösterimi (LSP), akıllı checkup.
 
