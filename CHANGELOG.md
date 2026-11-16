@@ -5,6 +5,9 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
+- `every day { }`, `every 6 hours { }`, `every hour { }`: düzenli çalışan kod (Native'in zamanlı tetiklerine eklenir).
+- Çeviriler adla birlikte: `uw create` Native'in `languages/` klasörünü projeye kopyalar; adını değiştirdiğin kaydın eski çevirisi kurulan modda çıkarılır (artık "Praven Şehri" kalmaz) ve hangi satırın çıktığı yazılır. Proje dosyaların değişmez.
+- `uw explain praven`, `uw browse`, `uw graph` oyun adlarını tanır; sonuçta `p_town_6 (praven)` yazar.
 - `save rich = false`: kalıcı değişken (kayıtlı oyunda yaşar), sonra düz adla: `rich = true`, `when not rich`, `if rich { }`.
 - Kütüphanede nesneler: `player.gold` (oku, `+=`, `-=`: fazlasını almaz), `player.renown`, `player.honor`.
 - `uw create` ile kurulan modda da kelimeler: kayıtların `ops { }` bloklarında `give_gold(5)`, `player.gold += 5`; kendi kelimelerin `fns/*.uw` dosyalarında.
