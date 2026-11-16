@@ -13,7 +13,7 @@ geldiğinde bu belgeye de eklenecek; sonundaki "Bu belge nasıl güncellenir" no
    `every day / hour / <N> hours`
 4. Değer türleri
 5. Yorumlar
-6. Komutlar (`create`, `build`, `explain`, `browse`, `graph`, `build-project`, `roundtrip`, `new`)
+6. Komutlar (`create`, `build`, `explain`, `browse`, `graph`, `build-project`, `roundtrip`, `new`, `find`)
 7. Hata mesajları tablosu
 8. Sınırlar (bugün yapılamayanlar)
 9. Bu belge nasıl güncellenir?
@@ -1334,6 +1334,36 @@ uw roundtrip [--atlas <atlas.json>] [--out <klasör>] [--failures N]
 derler ve karşılaştırır; birebir geri dönen payı tablolar hâlinde yazar. Metin `target/uw-native`
 altına düşer (`summary.txt`, `raw.txt`, `failures.txt`, `records/`); en son satır `text: <klasör>`
 olur. Bir blok ya da kayıt geri dönmezse çıkış kodu `1`'dir.
+
+### 6.9. `uw find`
+
+**Sözdizimi**
+
+```
+uw find "<metin>" [<klasör>] [--part] [--json]
+```
+
+**Bayraklar**
+
+| Bayrak | Değer | Ne yapar? |
+|---|---|---|
+| `--part` | yok | Metni kelimenin içinde de arar (`Praven`, `Pravenia` içinde de bulunur). |
+| `--json` | yok | Her bulgu için tek satır JSON yazar (`file`, `line`, `record`, `field`, `text`); özet yazmaz. |
+
+**Ne yapar?** Projedeki bütün metinlerde (`.uw` kayıt dosyaları ve varsa `languages/<dil>/*.csv`
+çevirileri) bir adı arar; böylece bir ad değiştirildikten sonra eski adın kaldığı bir metin gözden
+kaçmaz. Varsayılan büyük/küçük harf ayrımı yapmaz ve yalnızca **tam kelimeyi** bulur (`Praven`,
+`Pravenia` içinde bulunmaz); `--part` kelimenin içinde de arar. Her bulgu için `dosya:satır`, kayıt
+türü + kimliği, alan adı ve metin (eşleşmenin çevresi kısaltılmış olarak) yazılır; `languages/`
+varsa çeviri satırları da listelenir ve en sonda `<uw> + <çeviri> yer bulundu.` (çeviri yoksa
+`<uw> yer bulundu.`) gelir. `//` yorumları metin sayılmaz.
+
+```
+parties/towns/town_1.uw:4   party town_1        name   "Praven"
+menus/mnu_start.uw:4        menu start_phase_2  text   "Join a caravan to Praven, in the Kingdom of Swadia"
+languages/tr/parties.csv:1  p_town_1            text   "Praven Şehri"
+3 + 1 yer bulundu.
+```
 
 ---
 
