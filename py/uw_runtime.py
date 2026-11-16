@@ -160,6 +160,12 @@ def tag_all(lst, path, make_ops):
 
 # Unnamed tables (dialogs, triggers, simple_triggers): the plan gives list indices.
 
+def append_entry(lst, entry):
+    """One new unnamed entry at the end of the list (a simple trigger): there is no name to
+    clash, so the existing entries and their indexes stay as they are."""
+    return list(lst) + [copy.deepcopy(entry)]
+
+
 def insert_before(lst, index, entries):
     if not 0 <= index <= len(lst):
         raise UwRuntimeError("index %d out of range" % index)

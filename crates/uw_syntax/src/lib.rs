@@ -59,6 +59,11 @@ pub enum Item {
     /// `save <name> = <int | true | false>`: a named global that lives in the save game, set to
     /// its start value once at game start (T-085).
     Save { name: Ident, value: Expr, span: Span },
+    /// `every day { body }` / `every <N> hours { body }`: one new simple trigger whose operation
+    /// block runs every `interval` game hours (`24` = a day, fractions allowed). The interval is
+    /// kept as Python writes it (`24`, `6`, `0.5`): the kit's simple_triggers record is
+    /// `(check_interval, ops)` and the interval is a plain number there (T-088).
+    Every { interval: String, body: Block, span: Span },
 }
 
 /// `on <event> { body }` inside an override.
@@ -723,6 +728,14 @@ impl Parser {
                     self.end_of_stmt("this `save` line")?;
                     file.items.push(Item::Save { name, value, span: Span { start, end } });
                 }
+                Tok::Ident(kw) if kw == "every" => {
+                    let start = t.span.start;
+                    self.bump();
+                    let interval = self.every_interval()?;
+                    let body = self.block(&format!("every {interval} hours"))?;
+                    let end = body.span.end;
+                    file.items.push(Item::Every { interval, body, span: Span { start, end } });
+                }
                 Tok::RBrace => {
                     return Err(err(E0102_STRAY_CLOSE, "this '}' has no matching '{'", t.span)
                         .with_help("remove it, or check which block above was closed early"));
@@ -730,7 +743,7 @@ impl Parser {
                 other => {
                     return Err(err(
                         E0100_UNEXPECTED,
-                        format!("expected `mod`, `override`, `new`, `on`, `fn` or `save` at the top level, found {}", describe(other)),
+                        format!("expected `mod`, `override`, `new`, `on`, `fn`, `save` or `every` at the top level, found {}", describe(other)),
                         t.span,
                     ));
                 }
@@ -769,6 +782,60 @@ impl Parser {
         };
         self.bump();
         Ok(Expr::Value(value))
+    }
+
+    /// The interval of `every`: `day` (24 game hours), `hour` (1) or `<N> hours` with `N` whole or
+    /// fractional (`0.5`; the lexer has no float token, so it arrives as `Int(0) Dot Int(5)`).
+    /// The kit's simple_triggers record takes the interval in game hours: `24` is a day, fractions
+    /// are allowed (docs/bilgi/anlam/zaman-ve-olaylar.md:45, :53). Returned as Python writes it.
+    fn every_interval(&mut self) -> Result<String, Diagnostic> {
+        let t = self.peek().clone();
+        let whole = match &t.tok {
+            Tok::Ident(word) if word == "day" => {
+                self.bump();
+                return Ok("24".into());
+            }
+            Tok::Ident(word) if word == "hour" => {
+                self.bump();
+                return Ok("1".into());
+            }
+            Tok::Int(n) => *n,
+            other => {
+                return Err(err(
+                    E0100_UNEXPECTED,
+                    format!("expected `day`, `hour` or `<N> hours` after `every`, found {}", describe(other)),
+                    t.span,
+                )
+                .with_help("write `every day { ... }`, `every 6 hours { ... }` or `every hour { ... }`"));
+            }
+        };
+        self.bump();
+        let mut hours = whole.to_string();
+        if self.peek().tok == Tok::Dot {
+            self.bump();
+            let frac = self.peek().clone();
+            match frac.tok {
+                Tok::Int(digits) if digits >= 0 => {
+                    self.bump();
+                    hours.push('.');
+                    hours.push_str(&digits.to_string());
+                }
+                other => {
+                    return Err(err(
+                        E0100_UNEXPECTED,
+                        format!("expected the digits after '.' in the interval of `every`, found {}", describe(&other)),
+                        frac.span,
+                    )
+                    .with_help("write e.g. `every 0.5 hours { ... }`"));
+                }
+            }
+        }
+        let unit = self.ident("`hours` after the number, e.g. `every 6 hours`")?;
+        if unit.text != "hours" {
+            return Err(err(E0100_UNEXPECTED, format!("`every` counts hours, so the unit is `hours`, not `{}`", unit.text), unit.span)
+                .with_help("write e.g. `every 6 hours { ... }`, or `every day { ... }`"));
+        }
+        Ok(hours)
     }
 
     /// The `(:p1, :p2, …)` parameters of `fn <name>`; each one is a `:local` the body uses.
@@ -1692,6 +1759,7 @@ mod tests {
                 Item::New { handlers, .. } => handlers.into_iter().map(|h| h.body).collect(),
                 Item::Fn { body, .. } => vec![body],
                 Item::Save { .. } => Vec::new(),
+                Item::Every { body, .. } => vec![body],
             };
             for b in blocks {
                 for s in b.stmts.iter().filter_map(Stmt::as_call) {
@@ -1782,8 +1850,34 @@ on game.start {
         assert!(matches!(&body.stmts[0].as_call().unwrap().args[1], Arg::Local(l) if l.text == ":loc"));
     }
 
-    fn on_body(text: &str) -> Vec<Stmt> {
-        let file = parse(text).expect("parses");
+    /// T-088: the interval of `every` in game hours, as the kit's simple_triggers record holds it.
+    #[test]
+    fn every_reads_a_day_an_hour_or_a_number_of_hours() {
+        let file = parse("every day { a() }\nevery hour { b() }\nevery 6 hours { c() }\nevery 0.5 hours { d() }\n").unwrap();
+        let intervals: Vec<&str> = file
+            .items
+            .iter()
+            .map(|item| match item {
+                Item::Every { interval, .. } => interval.as_str(),
+                other => panic!("not an `every`: {other:?}"),
+            })
+            .collect();
+        assert_eq!(intervals, ["24", "1", "6", "0.5"]);
+    }
+
+    #[test]
+    fn every_needs_a_number_of_hours() {
+        let (d, r) = error("every 6 sheep { a() }");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("`every` counts hours"), "{r}");
+        let (d, _) = error("every 0. hours { a() }");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        let (d, r) = error("every week { a() }");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("expected `day`, `hour` or `<N> hours` after `every`"), "{r}");
+    }
+
+    fn on_body(text: &str) -> Vec<Stmt> {        let file = parse(text).expect("parses");
         let Item::On { body, .. } = &file.items[0] else { panic!() };
         body.stmts.clone()
     }

@@ -77,6 +77,9 @@ pub enum Action {
     RemoveOption(String),
     /// A new menu appended to the list (`new menu_x …`); `entry` holds its bare name.
     NewMenu { text: String, enter: Vec<Op>, options: Vec<NewOption> },
+    /// A new simple trigger appended to the list (`every …`): an entry `(interval, ops)` with no
+    /// name, checked every `interval` game hours (module_simple_triggers.py:15-17).
+    NewSimpleTrigger { interval: String },
 }
 
 /// A menu option written in UW: kit layout module_game_menus.py:28 (id, condition, text,
@@ -1902,6 +1905,20 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
                         entry: hook,
                         path: vec![SCRIPT_BODY_FIELD],
                         action: Action::Append,
+                        ops,
+                        origin: ctx.origin(*span),
+                    });
+                }
+                // `every …` is a new simple trigger: `(check_interval, ops)`, appended at the end
+                // of the list so Native's own triggers keep their indexes (T-088).
+                Item::Every { interval, body, span } => {
+                    let ops = ctx.ops(&body.stmts);
+                    patches.push(Patch {
+                        module: "module_simple_triggers".into(),
+                        var: "simple_triggers".into(),
+                        entry: String::new(),
+                        path: Vec::new(),
+                        action: Action::NewSimpleTrigger { interval: interval.clone() },
                         ops,
                         origin: ctx.origin(*span),
                     });
