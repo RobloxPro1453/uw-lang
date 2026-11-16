@@ -673,7 +673,9 @@ dependencies = [
 name = "uw_check"
 version = "0.0.1"
 dependencies = [
+ "serde_json",
  "uw_atlas",
+ "uw_decomp",
  "uw_diag",
  "uw_lower",
  "uw_syntax",

@@ -10,11 +10,14 @@
 //!   reference (`p_town_6`, written into the operation as a string the kit resolves) or a kit
 //!   constant (`reg0`, `tf_male`, imported from the header that defines it).
 
-use std::collections::BTreeMap;
+use std::borrow::Cow;
+use std::collections::{BTreeMap, BTreeSet};
 
-use uw_atlas::Atlas;
+use serde_json::Value as Json;
+use uw_atlas::{Atlas, Entry};
+use uw_decomp::records::{self, Schema};
 use uw_diag::{suggest, Diagnostic, SourceFile, Span};
-use uw_syntax::{Arg, Block, Cond, Expr, File, Ident, Item, Member, Place, Stmt, When};
+use uw_syntax::{Arg, Block, Cond, Expr, FieldValue, File, Ident, Item, Member, Place, Stmt, When};
 #[allow(unused_imports)]
 use uw_syntax::Call;
 
@@ -39,6 +42,8 @@ pub const E0215_FN_CYCLE: &str = "E0215";
 pub const E0216_OBJECT_WORD: &str = "E0216";
 /// A `save` name that a game name, a kit constant or a Native operation already uses (T-085).
 pub const E0217_SAVE_NAME: &str = "E0217";
+/// A field or field value of `troop … like …` that the troop record does not take (T-092).
+pub const E0218_TROOP_FIELD: &str = "E0218";
 
 /// How deep `fn` calls may nest before the body is expanded, so a runaway chain stops.
 const FN_DEPTH: usize = 16;
@@ -80,6 +85,10 @@ pub enum Action {
     /// A new simple trigger appended to the list (`every …`): an entry `(interval, ops)` with no
     /// name, checked every `interval` game hours (module_simple_triggers.py:15-17).
     NewSimpleTrigger { interval: String },
+    /// A new troop appended to the list (`troop <id> like <other> { … }`, T-092): `value` is the
+    /// whole record as Python source (a list literal, the atlas value), copied from `<other>` with
+    /// the written fields changed.
+    NewTroop { value: String },
 }
 
 /// A menu option written in UW: kit layout module_game_menus.py:28 (id, condition, text,
@@ -176,6 +185,126 @@ struct FnDef<'a> {
 fn origin_in(file: &SourceFile, span: Span) -> String {
     let (line, _) = file.line_col(span.start);
     format!("{}:{line}", file.name)
+}
+
+/// The field name of one printed record line (`  level 22` -> `level`).
+fn printed_field(line: &str) -> Option<&str> {
+    let rest = line.strip_prefix("  ")?;
+    rest.split_once(' ').map(|(name, _)| name)
+}
+
+/// One `  <field> {a 1, b 2}` line with the packed part `part` set to `value`; `None` when the line
+/// does not hold a `{…}` of named parts.
+fn set_part(line: &str, part: &str, value: &str) -> Option<String> {
+    let name = printed_field(line)?;
+    let open = line.find('{')?;
+    let close = line.rfind('}')?;
+    if close < open {
+        return None;
+    }
+    let mut pairs: Vec<(String, String)> = Vec::new();
+    for item in line[open + 1..close].split(',').map(str::trim).filter(|item| !item.is_empty()) {
+        let (part_name, part_value) = item.split_once(' ')?;
+        pairs.push((part_name.to_owned(), part_value.trim().to_owned()));
+    }
+    match pairs.iter_mut().find(|(part_name, _)| part_name == part) {
+        Some((_, part_value)) => *part_value = value.to_owned(),
+        None => pairs.push((part.to_owned(), value.to_owned())),
+    }
+    let pairs: Vec<String> = pairs.into_iter().map(|(name, value)| format!("{name} {value}")).collect();
+    Some(format!("  {name} {{{}}}", pairs.join(", ")))
+}
+
+/// The record text of the printed record `lines`, as the reader takes it.
+fn record_text(lines: &[String]) -> String {
+    let mut out = lines.join("\n");
+    out.push('\n');
+    out
+}
+
+/// True when the copy has the shape of the record it copies: every field still holds the kind of
+/// value it held (a number, a text, a list, …). A value the record reader could not encode back
+/// keeps its readable form (`{level "high"}` stays a named set), so this reports it instead of
+/// writing something the kit never asked for (T-092).
+fn same_shape(copied: &Json, made: &Json) -> bool {
+    fn shape(value: &Json) -> u8 {
+        match value {
+            Json::Null => 0,
+            Json::Bool(_) => 1,
+            Json::Number(_) => 2,
+            Json::String(_) => 3,
+            Json::Object(map) if map.contains_key("list") => 4,
+            Json::Object(_) => 5,
+            Json::Array(_) => 6,
+        }
+    }
+    if shape(copied) != shape(made) {
+        return false;
+    }
+    fn items(value: &Json) -> Option<&[Json]> {
+        match value {
+            Json::Array(items) => Some(items),
+            Json::Object(map) => map.get("list").and_then(Json::as_array).map(Vec::as_slice),
+            _ => None,
+        }
+    }
+    match (items(copied), items(made)) {
+        (Some(copied), Some(made)) => {
+            copied.len() == made.len() && copied.iter().zip(made).all(|(copied, made)| same_shape(copied, made))
+        }
+        _ => true,
+    }
+}
+
+/// One atlas value as Python source: `None` for JSON null, numbers as written, text quoted, a tuple
+/// `(a, b)` and a list `[a, b]` (the kit tells them apart; the atlas writes a list as `{"list": …}`).
+fn py_record(value: &Json) -> String {
+    let mut out = String::new();
+    write_py(value, &mut out);
+    out
+}
+
+fn write_py(value: &Json, out: &mut String) {
+    let seq = |open: char, close: char, items: &[Json], out: &mut String| {
+        out.push(open);
+        for (i, item) in items.iter().enumerate() {
+            if i > 0 {
+                out.push_str(", ");
+            }
+            write_py(item, out);
+        }
+        // `(a,)` is the one-element tuple; a bare `(a)` would only be a value between brackets.
+        if open == '(' && items.len() == 1 {
+            out.push(',');
+        }
+        out.push(close);
+    };
+    match value {
+        Json::Null => out.push_str("None"),
+        Json::Bool(true) => out.push_str("True"),
+        Json::Bool(false) => out.push_str("False"),
+        Json::Number(number) => out.push_str(&number.to_string()),
+        Json::String(text) => write_py_str(text, out),
+        Json::Array(items) => seq('(', ')', items, out),
+        Json::Object(map) => match map.get("list") {
+            Some(Json::Array(items)) => seq('[', ']', items, out),
+            // Not a Python container at all: keep the value visible as text, as records reads it.
+            _ => write_py_str(&value.to_string(), out),
+        },
+    }
+}
+
+fn write_py_str(text: &str, out: &mut String) {
+    out.push('"');
+    for c in text.chars() {
+        match c {
+            '\\' => out.push_str("\\\\"),
+            '"' => out.push_str("\\\""),
+            '\n' => out.push_str("\\n"),
+            c => out.push(c),
+        }
+    }
+    out.push('"');
 }
 
 /// Every `fn` of `sources` by name, and the errors its definitions make: a fn may not take the
@@ -669,6 +798,148 @@ impl Ctx<'_> {
                 Some("Turkish letters wait for game experiment D5; use plain letters for now".into()),
             ));
         }
+    }
+
+    /// The record of `copied` with the `troop … like …` body applied, as Python source for the
+    /// emitted list (T-092). The fields go through the table's schema, so `agility 18` sets that
+    /// part of the packed attributes and `name "…"` its own field; a field or value the record
+    /// does not take is an error here.
+    fn troop_record(
+        &mut self,
+        schema: &Schema,
+        copied: &Entry,
+        id: &str,
+        fields: &[FieldValue],
+        span: Span,
+    ) -> Option<String> {
+        // The copied troop as record text (kit-meta/records layout), one `  <field> <value>` line
+        // each: the same text `uw new --from native` writes, and it reads back exactly as the atlas
+        // holds it (typed fields decode and encode through the schema).
+        let text = records::print_with_blocks(self.atlas, schema, copied, &[], &mut |_| String::new());
+        let mut lines: Vec<String> = text.lines().map(str::to_owned).collect();
+        // The first line names the troop that was copied (`troop swadian_crossbowman {`).
+        if let Some(first) = lines.first_mut() {
+            *first = format!("{} {id} {{", schema.kind);
+        }
+        // The record's own id field names it too (`  id swadian_crossbowman`): the copy is `id`.
+        let Some(named) = lines.iter_mut().find(|line| printed_field(line) == Some("id")) else {
+            self.error(diag(
+                E0218_TROOP_FIELD,
+                "a copied troop needs the `id` field of its schema to take the new id".into(),
+                span,
+                Some("kit-meta/records/troops.toml names the record id with `id`".into()),
+            ));
+            return None;
+        };
+        *named = format!("  id {id}");
+        let mut read: Option<Json> = None;
+        for field in fields {
+            let name = field.name.text.as_str();
+            if name == "id" {
+                self.error(diag(
+                    E0208_BAD_ID,
+                    format!("the id of the new troop comes from `troop {id} like …`, not from a field"),
+                    field.name.span,
+                    Some(format!("remove this line; the copy is `{id}`")),
+                ));
+                return None;
+            }
+            if schema.fields.iter().any(|whole| whole.name == name) {
+                let Some(line) = lines.iter_mut().find(|line| printed_field(line) == Some(name)) else {
+                    self.error(diag(
+                        E0218_TROOP_FIELD,
+                        format!("`{}` has no `{name}` field to change", copied.name.as_deref().unwrap_or("this troop")),
+                        field.name.span,
+                        None,
+                    ));
+                    return None;
+                };
+                *line = format!("  {name} {}", field.value);
+            } else if let Some(whole) = schema.fields.iter().find(|whole| whole.parts.iter().any(|part| part.name == name)) {
+                // A part of a packed field: `agility 18` is a part of `attributes {…}`.
+                let Some(line) = lines.iter_mut().find(|line| printed_field(line) == Some(whole.name.as_str())) else {
+                    self.error(diag(
+                        E0218_TROOP_FIELD,
+                        format!("`{}` has no `{}` field to change", copied.name.as_deref().unwrap_or("this troop"), whole.name),
+                        field.name.span,
+                        None,
+                    ));
+                    return None;
+                };
+                match set_part(line, name, &field.value) {
+                    Some(rewritten) => *line = rewritten,
+                    None => {
+                        self.error(diag(
+                            E0218_TROOP_FIELD,
+                            format!("`{}` of this troop is not written as a named field set", whole.name),
+                            field.name.span,
+                            Some(format!("write the whole field instead: `{} {}`", whole.name, field.value)),
+                        ));
+                        return None;
+                    }
+                }
+            } else {
+                let mut candidates: Vec<&str> = Vec::new();
+                for whole in &schema.fields {
+                    candidates.push(whole.name.as_str());
+                    candidates.extend(whole.parts.iter().map(|part| part.name.as_str()));
+                }
+                let help = suggest(name, candidates).map(|s| format!("did you mean '{s}'?"));
+                self.error(diag(
+                    E0218_TROOP_FIELD,
+                    format!("'{name}' is not a field of a troop"),
+                    field.name.span,
+                    help.or_else(|| Some("`uw new --from native` writes every troop field of the kit".into())),
+                ));
+                return None;
+            }
+            // Read the record back after every field, so a value the record does not take is
+            // reported on the line that wrote it.
+            let text = record_text(&lines);
+            match self.troop_value(schema, &text) {
+                Ok(value) if same_shape(&copied.value, &value) => read = Some(value),
+                Ok(_) => {
+                    self.error(diag(
+                        E0218_TROOP_FIELD,
+                        format!("`{name} {}` is not a value `{name}` takes", field.value),
+                        field.span,
+                        Some("write the value as record text writes it, e.g. `level 22` or `name \"Elite Crossbowman\"`".into()),
+                    ));
+                    return None;
+                }
+                Err(problem) => {
+                    self.error(diag(
+                        E0218_TROOP_FIELD,
+                        format!("`{name} {}` is not a value a troop field takes: {problem}", field.value),
+                        field.span,
+                        Some("write the value as record text writes it, e.g. `level 22` or `name \"Elite Crossbowman\"`".into()),
+                    ));
+                    return None;
+                }
+            }
+        }
+        let value = match read {
+            Some(value) => value,
+            None => match self.troop_value(schema, &record_text(&lines)) {
+                Ok(value) => value,
+                Err(problem) => {
+                    self.error(diag(
+                        E0218_TROOP_FIELD,
+                        format!("this troop is not read as a troop record: {problem}"),
+                        span,
+                        None,
+                    ));
+                    return None;
+                }
+            },
+        };
+        Some(py_record(&value))
+    }
+
+    /// The record text `text` read back as the atlas value of the troop, or the reader's complaint.
+    fn troop_value(&self, schema: &Schema, text: &str) -> Result<Json, String> {
+        let mut compile = |_block: &str| Err("a troop record has no operation block".to_string());
+        records::parse_with_blocks(self.atlas, schema, text, &mut compile).map(|(_id, value)| value)
     }
 
     /// A checked integer expression.
@@ -1445,12 +1716,63 @@ fn find_menu(atlas: &Atlas, text: &str) -> Option<String> {
     })
 }
 
+/// The atlas plus a name for every troop the mod makes (`troop <id> like …`, T-092): the check then
+/// resolves `trp_<id>` and the bare `<id>` the way it resolves a Native troop, and nothing is guessed.
+/// The record itself is filled in when its item is checked; here only the name matters.
+fn atlas_with_new_troops<'a>(atlas: &'a Atlas, sources: &[Source]) -> Cow<'a, Atlas> {
+    let ids: Vec<&str> = sources
+        .iter()
+        .flat_map(|source| &source.tree.items)
+        .filter_map(|item| match item {
+            Item::Troop { id, .. } => Some(id.text.as_str()),
+            _ => None,
+        })
+        .collect();
+    if ids.is_empty() {
+        return Cow::Borrowed(atlas);
+    }
+    let mut view = atlas.clone();
+    for id in ids {
+        let reference = format!("trp_{id}");
+        if let Some(table) = view.tables.get_mut("troops") {
+            let index = table.entries.len();
+            table.entries.push(Entry {
+                index,
+                name: Some(id.to_owned()),
+                id: Some(reference.clone()),
+                dup: None,
+                line: None,
+                value: Json::Null,
+            });
+        }
+        view.add_game_name(id, &reference);
+    }
+    Cow::Owned(view)
+}
+
 /// Checks every source; on success the patches in source order.
 pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<Checked, Vec<Error>> {
+    check_with_schemas(atlas, sources, fallback_name, &[])
+}
+
+/// Like [`check`], with the record schemas (`kit-meta/records/*.toml`): `troop … like …` copies the
+/// fields of the troop through the table's own layout (T-092).
+pub fn check_with_schemas(
+    atlas: &Atlas,
+    sources: &[Source],
+    fallback_name: &str,
+    schemas: &[Schema],
+) -> Result<Checked, Vec<Error>> {
+    // Every troop the mod makes (`troop … like …`) is part of the names the check reads code with:
+    // `trp_<id>` and the bare `<id>` then resolve like a Native troop (T-092).
+    let view = atlas_with_new_troops(atlas, sources);
+    let atlas: &Atlas = &view;
     let mut errors = Vec::new();
     let mut name: Option<String> = None;
     let mut patches = Vec::new();
     let mut overridden: BTreeMap<String, String> = BTreeMap::new();
+    // The troop ids the mod has made so far: one id is made once.
+    let mut made: BTreeSet<String> = BTreeSet::new();
 
     // Every `fn` of the mod is visible from every file, so the table comes first; a call is
     // replaced by the body when the block that holds it is checked (`Ctx::inline`).
@@ -1920,6 +2242,96 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
                         path: Vec::new(),
                         action: Action::NewSimpleTrigger { interval: interval.clone() },
                         ops,
+                        origin: ctx.origin(*span),
+                    });
+                }
+                // `troop <id> like <other> { … }` copies a troop: one new record at the end of the
+                // list, so Native's own troops keep their numbers (T-092).
+                Item::Troop { id, like, fields, span } => {
+                    let reference = format!("trp_{}", id.text);
+                    if !id.text.is_ascii() {
+                        ctx.error(diag(
+                            E0208_BAD_ID,
+                            format!("troop id '{}' has non-ASCII letters", id.text),
+                            id.span,
+                            Some("troop ids use ASCII letters, digits and _".into()),
+                        ));
+                        continue;
+                    }
+                    if let Some(rest) = id.text.strip_prefix("trp_") {
+                        ctx.error(diag(
+                            E0208_BAD_ID,
+                            format!("'{}' already starts with `trp_`", id.text),
+                            id.span,
+                            Some(format!("write the id without it: `troop {rest} like {}`", like.text)),
+                        ));
+                        continue;
+                    }
+                    if atlas.entry_by_id(&reference).is_some() {
+                        ctx.error(diag(
+                            E0209_NEW_EXISTS,
+                            format!("troop '{reference}' already exists"),
+                            id.span,
+                            Some("copy another troop, or rename this one".into()),
+                        ));
+                        continue;
+                    }
+                    if !made.insert(id.text.clone()) {
+                        ctx.error(diag(
+                            E0202_DUPLICATE,
+                            format!("troop '{}' is already made in this mod", id.text),
+                            id.span,
+                            Some("one id means one troop; rename this one".into()),
+                        ));
+                        continue;
+                    }
+                    // `<other>` is a Native troop, written as a game name (`swadian_crossbowman`)
+                    // or as its kit reference (`trp_swadian_crossbowman`); nothing is guessed.
+                    let Some((table, copied)) = atlas.resolve_ref(&like.text) else {
+                        let names: Vec<String> = atlas
+                            .tables
+                            .get("troops")
+                            .into_iter()
+                            .flat_map(|table| &table.entries)
+                            .filter_map(|entry| entry.name.as_deref())
+                            .flat_map(|name| [format!("trp_{name}"), name.to_owned()])
+                            .collect();
+                        let help = suggest(&like.text, names.iter().map(String::as_str))
+                            .map(|s| format!("did you mean '{s}'?"));
+                        ctx.error(diag(
+                            E0001_UNKNOWN_NAME,
+                            format!("'{}' is not a Native troop", like.text),
+                            like.span,
+                            help.or_else(|| Some("`uw browse troops` lists Native troops".into())),
+                        ));
+                        continue;
+                    };
+                    if table != "troops" {
+                        ctx.error(diag(
+                            E0001_UNKNOWN_NAME,
+                            format!("'{}' is a {table} record, not a troop", like.text),
+                            like.span,
+                            Some("`like` takes a Native troop, e.g. `like swadian_crossbowman`".into()),
+                        ));
+                        continue;
+                    }
+                    let Some(schema) = schemas.iter().find(|schema| schema.table == "troops") else {
+                        ctx.error(diag(
+                            E0201_NOT_YET,
+                            format!("`troop {} like …` needs the record schema of troops", id.text),
+                            id.span,
+                            Some("`kit-meta/records/troops.toml` holds the troop fields; run `uw build` in the project folder".into()),
+                        ));
+                        continue;
+                    };
+                    let Some(value) = ctx.troop_record(schema, copied, &id.text, fields, *span) else { continue };
+                    patches.push(Patch {
+                        module: "module_troops".into(),
+                        var: "troops".into(),
+                        entry: id.text.clone(),
+                        path: Vec::new(),
+                        action: Action::NewTroop { value },
+                        ops: Vec::new(),
                         origin: ctx.origin(*span),
                     });
                 }
@@ -3017,5 +3429,91 @@ mod tests {
         let tree = uw_syntax::parse(&file.text).expect("parses");
         let errs = check(&atlas, &[Source { file: file.clone(), tree }], "folder").unwrap_err();
         assert!(errs[0].diag.message.contains("a kit name"), "{:?}", errs[0].diag);
+    }
+
+    /// A tiny atlas with one Native troop, for `troop … like …` (T-092). `uw build` installs the
+    /// derived game names, so `swadian_crossbowman` is the troop `trp_swadian_crossbowman`.
+    fn troop_atlas() -> Atlas {
+        let text = r#"{
+          "schema": 1, "kit_hash": "troop",
+          "ops": [
+            {"name":"troop_add_gold","code":1528,"line":611,"signature":"(troop_add_gold,<troop_id>,<value>),","lhs":false,"can_fail":false,"global_lhs":false}
+          ],
+          "hooks": ["game_start"], "ranges": [], "constants": [],
+          "tables": {
+            "troops": {"module":"module_troops","var":"troops","id_file":"ID_troops","id_prefix":"trp_","ref_tag":"trp",
+              "entries": [
+                {"index":0,"name":"swadian_crossbowman","id":"trp_swadian_crossbowman","dup":null,"line":378,
+                 "value":{"list":["swadian_crossbowman","Swadian Crossbowman","Swadian Crossbowmen",1041,0,0,15,{"list":[]},107374184469,153,0,"face_a","face_b"]}}
+              ]}
+          }
+        }"#;
+        let mut atlas = Atlas::from_str(text).expect("the troop atlas loads");
+        atlas.set_game_names(&[("swadian_crossbowman".to_owned(), "trp_swadian_crossbowman".to_owned())]);
+        atlas
+    }
+
+    /// The troop layout of the kit (`kit-meta/records/troops.toml`): `uw build` reads it too.
+    fn troops_schema() -> Schema {
+        Schema::from_path(concat!(env!("CARGO_MANIFEST_DIR"), "/../../kit-meta/records/troops.toml"))
+            .expect("the troops schema loads")
+    }
+
+    fn check_troops(text: &str) -> Result<Checked, Vec<String>> {
+        let file = SourceFile::new("start.uw", text);
+        let tree = uw_syntax::parse(text).map_err(|d| vec![d.render(&file)])?;
+        check_with_schemas(&troop_atlas(), &[Source { file: file.clone(), tree }], "folder", &[troops_schema()])
+            .map_err(|errors| errors.iter().map(|e| e.diag.render(&file)).collect())
+    }
+
+    #[test]
+    fn a_troop_like_appends_the_copied_troop_with_the_fields_changed() {
+        let checked = check_troops(
+            "troop elite_crossbowman like swadian_crossbowman {\n\
+                 name \"Elite Crossbowman\"\n\
+                 level 22\n\
+                 agility 18\n\
+             }\n\
+             on game.start {\n\
+                 troop_add_gold(trp_elite_crossbowman, 100)\n\
+                 troop_add_gold(elite_crossbowman, 200)\n\
+             }",
+        )
+        .unwrap();
+        let troop = &checked.patches[0];
+        assert_eq!((troop.module.as_str(), troop.var.as_str(), troop.entry.as_str()), ("module_troops", "troops", "elite_crossbowman"));
+        // The Native record with `name` replaced and `level`/`agility` packed into `attributes`
+        // (strength 21, agility 18, level 22: 22 << 32 | 18 << 8 | 21).
+        let Action::NewTroop { value } = &troop.action else { panic!("{:?}", troop.action) };
+        assert_eq!(
+            value,
+            "[\"elite_crossbowman\", \"Elite Crossbowman\", \"Swadian Crossbowmen\", 1041, 0, 0, 15, [], 94489285141, 153, 0, \"face_a\", \"face_b\"]"
+        );
+        // Both spellings of the new troop resolve to the kit reference in code.
+        assert_eq!(checked.patches[1].ops[0].args[0], Value::Ref("trp_elite_crossbowman".into()));
+        assert_eq!(checked.patches[1].ops[1].args[0], Value::Ref("trp_elite_crossbowman".into()));
+        // No field at all is a plain copy under the new id.
+        let copy = check_troops("troop elite like swadian_crossbowman { }").unwrap();
+        let Action::NewTroop { value } = &copy.patches[0].action else { panic!("{:?}", copy.patches[0].action) };
+        assert_eq!(
+            value,
+            "[\"elite\", \"Swadian Crossbowman\", \"Swadian Crossbowmen\", 1041, 0, 0, 15, [], 107374184469, 153, 0, \"face_a\", \"face_b\"]"
+        );
+    }
+
+    #[test]
+    fn a_troop_like_reports_an_old_id_a_bad_field_and_a_foreign_like() {
+        let errs = check_troops("troop swadian_crossbowman like swadian_crossbowman { }").unwrap_err();
+        assert!(errs[0].starts_with("error[E0209]"), "{errs:?}");
+        assert!(errs[0].contains("troop 'trp_swadian_crossbowman' already exists"), "{errs:?}");
+        let errs = check_troops("troop elite like swadian_crossbowman { weapon 3 }").unwrap_err();
+        assert!(errs[0].starts_with("error[E0218]"), "{errs:?}");
+        assert!(errs[0].contains("'weapon' is not a field of a troop"), "{errs:?}");
+        let errs = check_troops("troop elite like swadian_crossbowman { level \"high\" }").unwrap_err();
+        assert!(errs[0].starts_with("error[E0218]"), "{errs:?}");
+        assert!(errs[0].contains("is not a value `level` takes"), "{errs:?}");
+        let errs = check_troops("troop elite like swadian_crossbowm { level 22 }").unwrap_err();
+        assert!(errs[0].starts_with("error[E0001]"), "{errs:?}");
+        assert!(errs[0].contains("did you mean 'swadian_crossbowman'?"), "{errs:?}");
     }
 }

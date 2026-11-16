@@ -47,7 +47,11 @@
           ]},
         "troops": {"module":"module_troops","var":"troops","id_file":"ID_troops","id_prefix":"trp_","ref_tag":"trp",
           "entries": [
-            {"index":0,"name":"player","id":"trp_player","dup":null,"line":1,"value":[]}
+            {"index":0,"name":"player","id":"trp_player","dup":null,"line":1,"value":[]},
+            {"index":1,"name":"swadian_crossbowman","id":"trp_swadian_crossbowman","dup":null,"line":378,
+              "value":{"list":["swadian_crossbowman","Swadian Crossbowman","Swadian Crossbowmen",1041,0,0,15,
+                {"list":["itm_bolts","itm_crossbow"]},
+                107374184469,153,0,"swadian_face_young_1","swadian_face_old_2"]}}
           ]},
         "scripts": {"module":"module_scripts","var":"scripts","id_file":"ID_scripts","id_prefix":"script_","ref_tag":"script",
           "entries": [{"index":0,"name":"game_start","id":"script_game_start","dup":null,"line":31,"value":[]}]}

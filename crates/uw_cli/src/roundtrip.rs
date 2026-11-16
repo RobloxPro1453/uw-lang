@@ -46,6 +46,19 @@ pub(crate) fn find_schemas() -> Option<PathBuf> {
     cwd.ancestors().map(|dir| dir.join(SCHEMA_REL)).find(|path| path.is_dir())
 }
 
+/// The schema folder of `dir` or a parent folder, then of the current folder: `uw build <folder>`
+/// runs outside the project too (T-092).
+pub(crate) fn find_schemas_from(dir: &Path) -> Option<PathBuf> {
+    let mut starts = vec![dir.to_path_buf()];
+    if let Ok(cwd) = std::env::current_dir() {
+        starts.push(cwd);
+    }
+    starts
+        .iter()
+        .flat_map(|start| start.ancestors().map(|dir| dir.join(SCHEMA_REL)).collect::<Vec<_>>())
+        .find(|path| path.is_dir())
+}
+
 /// Every atlas table's record measure, and the record texts to write.
 #[derive(Default)]
 struct Records {
@@ -304,7 +317,8 @@ mod tests {
     #[test]
     fn the_names_option_measures_with_game_names() {
         let mut atlas = uw_atlas::Atlas::from_path(FIXTURE).expect("the golden atlas fixture loads");
-        assert_eq!(install_derived_names(&mut atlas), 1);
+        // Two names: `praven` (Praven), and `swadian_crossbowman` for the troop T-092 copies.
+        assert_eq!(install_derived_names(&mut atlas), 2);
         assert_eq!(atlas.reference_for("praven"), Some("p_town_6"));
         // The game name compiles like its kit reference and prints back as the game name.
         let text = "party_relocate_near_party(praven, p_main_party, 3)";
