@@ -38,7 +38,8 @@
                 ["town_4",[],null,[]],
                 ["town_5",[],null,[]],
                 ["town_6",[],null,[]]
-              ]}]}
+              ]}]},
+            {"index":23,"name":"camp","id":"menu_camp","dup":null,"line":2998,"value":[]}
           ]},
         "parties": {"module":"module_parties","var":"parties","id_file":"ID_parties","id_prefix":"p_","ref_tag":"p",
           "entries": [

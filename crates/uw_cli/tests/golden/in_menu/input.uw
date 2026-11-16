@@ -1,0 +1,19 @@
+// Easy language §2 (T-091): `in menu camp { … }` is `override menu camp { … }`, and an option may
+// leave its id out: the id is made from the text (`uw_party_morale_report`), unique in the menu
+// (`uw_go_north`, then `uw_go_north_2`). `say` is UW's own word from lib/core.uw.
+mod golden_in_menu
+
+in menu camp {
+    option "Party morale report" {
+        say("@Morale is fine.")
+    }
+
+    option "Go north" {
+        say("@North.")
+    }
+
+    // the same text again: the second option id gets the `_2` suffix
+    option "Go north" when $g_uw_north == 0 {
+        say("@Still north.")
+    }
+}
