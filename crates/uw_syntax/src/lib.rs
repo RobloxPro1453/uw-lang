@@ -64,14 +64,25 @@ pub enum Item {
     /// kept as Python writes it (`24`, `6`, `0.5`): the kit's simple_triggers record is
     /// `(check_interval, ops)` and the interval is a plain number there (T-088).
     Every { interval: String, body: Block, span: Span },
-    /// `troop <new_id> like <existing> { <field> <value> … }`: a copy of the Native troop
-    /// `<existing>` with some fields changed, added at the end of the troop list (T-092). A field
+    /// `<kind> <new_id> like <existing> { <field> <value> … }`: a copy of the Native record
+    /// `<existing>` with some fields changed, added at the end of its list (T-092 troops, T-099
+    /// towns, castles, villages and parties). `kind` is the keyword as written (`troop`, `town`,
+    /// `castle`, `village`, `party`); the table it copies from is the check's business. A field
     /// value is written as record text (`level 22`, `name "Elite Crossbowman"`): the field layout
-    /// is kit-meta/records/troops.toml.
-    Troop { id: Ident, like: Ident, fields: Vec<FieldValue>, span: Span },
+    /// is kit-meta/records/<table>.toml.
+    Like { kind: Ident, id: Ident, like: Ident, fields: Vec<FieldValue>, span: Span },
 }
 
-/// One `<field> <value>` line of a `troop … like …` body; `value` is the record text as written.
+/// The top-level keywords that copy a Native record (`troop … like …`, `town … like …`, …); a copy
+/// only ever reads the table of its own kind, which the check decides ([`Item::Like`]).
+pub const COPY_KINDS: [&str; 5] = ["troop", "town", "castle", "village", "party"];
+
+/// True when `kw` is one of [`COPY_KINDS`].
+pub fn is_copy_kind(kw: &str) -> bool {
+    COPY_KINDS.contains(&kw)
+}
+
+/// One `<field> <value>` line of a `<kind> … like …` body; `value` is the record text as written.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FieldValue {
     pub name: Ident,
@@ -790,22 +801,29 @@ impl Parser {
                     let end = body.span.end;
                     file.items.push(Item::Every { interval, body, span: Span { start, end } });
                 }
-                Tok::Ident(kw) if kw == "troop" => {
+                Tok::Ident(kw) if is_copy_kind(kw) => {
+                    let kind = Ident { text: kw.clone(), span: t.span };
                     let start = t.span.start;
                     self.bump();
-                    let id = self.ident("the id of the new troop, e.g. `troop elite_crossbowman like swadian_crossbowman`")?;
-                    let like_kw = self.ident("`like` and the Native troop to copy after the new troop id")?;
+                    let id = self.ident(&format!(
+                        "the id of the new {}, e.g. `{} riverhold like praven`",
+                        kind.text, kind.text
+                    ))?;
+                    let like_kw = self.ident(&format!(
+                        "`like` and the Native {} to copy after the new {} id",
+                        kind.text, kind.text
+                    ))?;
                     if like_kw.text != "like" {
                         return Err(err(
                             E0100_UNEXPECTED,
-                            format!("expected `like` after `troop {}`, found '{}'", id.text, like_kw.text),
+                            format!("expected `like` after `{} {}`, found '{}'", kind.text, id.text, like_kw.text),
                             like_kw.span,
                         )
-                        .with_help("write `troop elite_crossbowman like swadian_crossbowman { ... }`"));
+                        .with_help(format!("write `{} {} like <existing> {{ ... }}`", kind.text, id.text)));
                     }
-                    let like = self.ident("the Native troop to copy after `like`, e.g. `swadian_crossbowman`")?;
-                    let (fields, body) = self.troop_body(&format!("troop {} like {}", id.text, like.text))?;
-                    file.items.push(Item::Troop { id, like, fields, span: Span { start, end: body.end } });
+                    let like = self.ident(&format!("the Native {} to copy after `like`", kind.text))?;
+                    let (fields, body) = self.copy_body(&format!("{} {} like {}", kind.text, id.text, like.text))?;
+                    file.items.push(Item::Like { kind, id, like, fields, span: Span { start, end: body.end } });
                 }
                 Tok::RBrace => {
                     return Err(err(E0102_STRAY_CLOSE, "this '}' has no matching '{'", t.span)
@@ -814,7 +832,7 @@ impl Parser {
                 other => {
                     return Err(err(
                         E0100_UNEXPECTED,
-                        format!("expected `mod`, `override`, `in`, `new`, `troop`, `on`, `fn`, `save` or `every` at the top level, found {}", describe(other)),
+                        format!("expected `mod`, `override`, `in`, `new`, `troop`, `town`, `castle`, `village`, `party`, `on`, `fn`, `save` or `every` at the top level, found {}", describe(other)),
                         t.span,
                     ));
                 }
@@ -1043,8 +1061,9 @@ impl Parser {
         }
     }
 
-    /// The `{ <field> <value> … }` body of `troop … like …`: one record field per line (T-092).
-    fn troop_body(&mut self, head: &str) -> Result<(Vec<FieldValue>, Span), Diagnostic> {
+    /// The `{ <field> <value> … }` body of a `<kind> … like …` item (`troop`, `town`, …): one
+    /// record field per line (T-092, T-099).
+    fn copy_body(&mut self, head: &str) -> Result<(Vec<FieldValue>, Span), Diagnostic> {
         let open = self.open_brace(head)?;
         let mut fields = Vec::new();
         loop {
@@ -1057,7 +1076,7 @@ impl Parser {
                 }
                 Tok::Eof => return Err(self.unclosed(open, &format!("`{head}`"))),
                 // A top-level item inside the block: the block lost its `}`.
-                Tok::Ident(kw) if matches!(kw.as_str(), "mod" | "override" | "new" | "troop") => {
+                Tok::Ident(kw) if kw == "mod" || kw == "override" || kw == "new" || is_copy_kind(kw) => {
                     return Err(self
                         .unclosed(open, &format!("`{head}`"))
                         .with_note(format!("line {} starts `{kw}` while this block is still open", self.line_of(t.span.start))));
@@ -1075,7 +1094,7 @@ impl Parser {
         }
     }
 
-    /// One `<field> <value>` line of a `troop … like …` body. The value stays exactly as the source
+    /// One `<field> <value>` line of a `<kind> … like …` body. The value stays exactly as the source
     /// writes it (record text: a number, a quoted text, a `{a 1, b 2}`), so `uw_decomp`'s record
     /// reader of the kit-meta schema reads it the way record text is read.
     fn field_value(&mut self, head: &str) -> Result<FieldValue, Diagnostic> {
@@ -1923,7 +1942,7 @@ mod tests {
                 Item::Fn { body, .. } => vec![body],
                 Item::Save { .. } => Vec::new(),
                 Item::Every { body, .. } => vec![body],
-                Item::Troop { .. } => Vec::new(),
+                Item::Like { .. } => Vec::new(),
             };
             for b in blocks {
                 for s in b.stmts.iter().filter_map(Stmt::as_call) {
@@ -2030,16 +2049,32 @@ on game.start {
     }
 
     /// T-092: `troop <new> like <existing> { <field> <value> … }`, the value as record text.
+    /// T-099: the party words (`town`, `castle`, `village`, `party`) make the same item.
     #[test]
     fn troop_reads_the_new_id_the_copied_one_and_its_field_lines() {
         let file = parse(
             "troop elite_crossbowman like swadian_crossbowman {\n  name \"Elite Crossbowman\"\n  level 22\n  agility 18\n}\n",
         )
         .unwrap();
-        let Item::Troop { id, like, fields, .. } = &file.items[0] else { panic!("not a troop: {:?}", file.items) };
+        let Item::Like { kind, id, like, fields, .. } = &file.items[0] else {
+            panic!("not a copy: {:?}", file.items)
+        };
+        assert_eq!(kind.text.as_str(), "troop");
         assert_eq!((id.text.as_str(), like.text.as_str()), ("elite_crossbowman", "swadian_crossbowman"));
         let read: Vec<(&str, &str)> = fields.iter().map(|f| (f.name.text.as_str(), f.value.as_str())).collect();
         assert_eq!(read, [("name", "\"Elite Crossbowman\""), ("level", "22"), ("agility", "18")]);
+
+        // T-099: each party word copies a party; the record text of the field stays as written.
+        for word in COPY_KINDS.iter().filter(|kw| **kw != "troop") {
+            let text = format!("{word} riverhold like praven {{\n  name \"Riverhold\"\n  initial_coordinates (35, -12)\n}}\n");
+            let file = parse(&text).unwrap();
+            let Item::Like { kind, id, like, fields, .. } = &file.items[0] else {
+                panic!("not a copy: {:?}", file.items)
+            };
+            assert_eq!((kind.text.as_str(), id.text.as_str(), like.text.as_str()), (*word, "riverhold", "praven"));
+            let read: Vec<(&str, &str)> = fields.iter().map(|f| (f.name.text.as_str(), f.value.as_str())).collect();
+            assert_eq!(read, [("name", "\"Riverhold\""), ("initial_coordinates", "(35, -12)")]);
+        }
 
         // A field line without a value, and a missing `like`, say what to write.
         let (d, r) = error("troop elite like swadian {\n  level\n}\n");
