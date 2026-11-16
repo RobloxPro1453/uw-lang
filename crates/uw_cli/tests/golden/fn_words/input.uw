@@ -1,0 +1,21 @@
+// T-078 `fn`: a named piece of code used as one line. A call is replaced by the body at compile
+// time, so the kit only sees Native operations: `:who`/`:amount` take the call's argument and
+// `:half` becomes `:half__fnN`, a fresh name per call site.
+mod fn_words
+
+fn give_gold(:who, :amount) {
+    troop_add_gold(:who, :amount)
+    display_message("@You got gold.")
+}
+
+fn reward_player(:bonus) {
+    give_gold(trp_player, :bonus)
+    :half = :bonus / 2
+    troop_add_gold(trp_player, :half)
+}
+
+on game.start {
+    give_gold(trp_player, 1000)
+    reward_player(9)
+    reward_player(11)
+}

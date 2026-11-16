@@ -31,6 +31,12 @@ pub const E0209_NEW_EXISTS: &str = "E0209";
 pub const E0210_LOCAL_TEMP: &str = "E0210";
 pub const E0211_MEMBER_TWICE: &str = "E0211";
 pub const E0212_ASSIGN_TARGET: &str = "E0212";
+pub const E0213_FN_ARITY: &str = "E0213";
+pub const E0214_FN_OP_NAME: &str = "E0214";
+pub const E0215_FN_CYCLE: &str = "E0215";
+
+/// How deep `fn` calls may nest before the body is expanded, so a runaway chain stops.
+const FN_DEPTH: usize = 16;
 
 /// A parsed source file.
 pub struct Source {
@@ -147,6 +153,23 @@ pub fn min_args(op: &uw_atlas::Op) -> Option<usize> {
     Some(required)
 }
 
+/// A `fn` of the mod: where it was written and what it does. `check` collects every one before it
+/// checks a file, so a `fn` is visible from all files of the mod (T-078).
+struct FnDef<'a> {
+    /// Index into the sources given to [`check`]: an inlined body keeps its own file and lines.
+    file: usize,
+    /// `file:line` of `fn <name>`, for "two fns with one name".
+    origin: String,
+    params: &'a [Ident],
+    body: &'a Block,
+}
+
+/// `file:line` of `span` in `file`.
+fn origin_in(file: &SourceFile, span: Span) -> String {
+    let (line, _) = file.line_col(span.start);
+    format!("{}:{line}", file.name)
+}
+
 struct Ctx<'a> {
     atlas: &'a Atlas,
     errors: Vec<Error>,
@@ -157,6 +180,14 @@ struct Ctx<'a> {
     /// Native mode ([`check_block`]): names and shapes are taken as Native wrote them, so flagged
     /// names (`neg|eq`) are allowed, the header signature is not counted and text is not checked.
     native: bool,
+    /// Every `fn` of the mod, by name (empty in Native mode and in [`check_block`]).
+    fns: &'a BTreeMap<String, FnDef<'a>>,
+    /// The files `fns` came from, so an inlined body keeps its own file and lines.
+    sources: &'a [Source],
+    /// `fn` calls being expanded, outermost first (cycle and depth check).
+    stack: Vec<String>,
+    /// Next `__fnN` suffix, so two calls never share the locals of one body.
+    rename: usize,
 }
 
 impl Ctx<'_> {
@@ -165,8 +196,20 @@ impl Ctx<'_> {
     }
 
     fn origin(&self, span: Span) -> String {
-        let (line, _) = self.source.line_col(span.start);
-        format!("{}:{line}", self.source.name)
+        origin_in(self.source, span)
+    }
+
+    /// Checks statements written in the file at `index` and goes back to the caller's file
+    /// afterwards: an inlined `fn` body reports its own file and lines.
+    fn stmts_in(&mut self, stmts: &[Stmt], index: usize) -> Vec<uw_lower::Stmt> {
+        let sources = self.sources;
+        let (file, source) = (self.file, self.source);
+        self.file = index;
+        self.source = &sources[index].file;
+        let out = self.stmts(stmts);
+        self.file = file;
+        self.source = source;
+        out
     }
 
     /// Checks a block and lowers it to the operations the kit writes.
@@ -181,7 +224,9 @@ impl Ctx<'_> {
         for stmt in stmts {
             match stmt {
                 Stmt::Call(call) => {
-                    if let Some(op) = self.call(call) {
+                    if self.fns.contains_key(&call.op.text) {
+                        out.extend(self.inline(call));
+                    } else if let Some(op) = self.call(call) {
                         out.push(uw_lower::Stmt::Op(op));
                     }
                 }
@@ -229,6 +274,61 @@ impl Ctx<'_> {
                 }
             }
         }
+        out
+    }
+
+    /// Replaces a `fn` call by its body: each `:param` becomes the argument of this call, every
+    /// other `:local` of the body gets a `__fnN` suffix, and a call inside the body is expanded in
+    /// turn. A `fn` that reaches itself, or a chain deeper than [`FN_DEPTH`], is one error naming
+    /// the chain; the call then adds nothing.
+    fn inline(&mut self, call: &Call) -> Vec<uw_lower::Stmt> {
+        let name = call.op.text.clone();
+        let fns = self.fns;
+        let Some(def) = fns.get(&name) else { return Vec::new() };
+        if call.args.len() != def.params.len() {
+            let params: Vec<&str> = def.params.iter().map(|p| p.text.as_str()).collect();
+            let help = if params.is_empty() {
+                format!("call it as `{name}()`")
+            } else {
+                format!("call it as `{name}({})`", params.join(", "))
+            };
+            self.error(diag(
+                E0213_FN_ARITY,
+                format!("`fn {name}` takes {} value(s), got {}", def.params.len(), call.args.len()),
+                call.span,
+                Some(help),
+            ));
+            return Vec::new();
+        }
+        let mut chain = self.stack.clone();
+        chain.push(name.clone());
+        if self.stack.iter().any(|n| n == &name) {
+            chain.push(name.clone());
+            self.error(diag(
+                E0215_FN_CYCLE,
+                format!("`fn {name}` never ends: {}", chain.join(" -> ")),
+                call.op.span,
+                Some("a fn cannot call itself, directly or through other fns".into()),
+            ));
+            return Vec::new();
+        }
+        if self.stack.len() >= FN_DEPTH {
+            self.error(diag(
+                E0215_FN_CYCLE,
+                format!("`fn` calls nest more than {FN_DEPTH} deep: {}", chain.join(" -> ")),
+                call.op.span,
+                Some("shorten the chain of fns, or call a Native operation directly".into()),
+            ));
+            return Vec::new();
+        }
+        let binds: Vec<(String, Arg)> =
+            def.params.iter().map(|p| p.text.clone()).zip(call.args.iter().cloned()).collect();
+        let call_site = self.rename;
+        self.rename += 1;
+        let body: Vec<Stmt> = def.body.stmts.iter().map(|s| substituted_stmt(s, &binds, call_site)).collect();
+        self.stack.push(name);
+        let out = self.stmts_in(&body, def.file);
+        self.stack.pop();
         out
     }
 
@@ -696,8 +796,13 @@ impl Ctx<'_> {
                     Some(part) => (format!("'{part}' in '{text}' is not a Native operation"), part),
                     None => (format!("'{text}' is not a Native operation"), text),
                 };
-                let help = suggest(wanted, self.atlas.ops.iter().map(|o| o.name.as_str()))
-                    .map(|s| format!("did you mean '{s}'? (`uw browse` lists every operation)"));
+                let help = suggest(
+                    wanted,
+                    self.atlas.ops.iter().map(|o| o.name.as_str()).chain(self.fns.keys().map(String::as_str)),
+                )
+                // A `fn` used where an operation is needed (a condition) is no typo of itself.
+                .filter(|suggestion| suggestion != wanted)
+                .map(|s| format!("did you mean '{s}'? (`uw browse` lists every operation)"));
                 self.error(diag(E0001_UNKNOWN_NAME, message, stmt.op.span, help));
                 return None;
             }
@@ -863,6 +968,95 @@ fn cmp_op_name(op: uw_syntax::CmpOp) -> &'static str {
     }
 }
 
+/// A `fn` body copied for one call site: `binds` holds the call's argument per parameter and
+/// `site` numbers the copy, so the body's own `:locals` stay apart from every other call.
+fn substituted_stmt(stmt: &Stmt, binds: &[(String, Arg)], site: usize) -> Stmt {
+    match stmt {
+        Stmt::Call(call) => Stmt::Call(substituted_call(call, binds, site)),
+        Stmt::Assign { target, op, value, span } => Stmt::Assign {
+            target: substituted_arg(target, binds, site),
+            op: *op,
+            value: substituted_expr(value, binds, site),
+            span: *span,
+        },
+        Stmt::If { arms, otherwise, span } => Stmt::If {
+            arms: arms
+                .iter()
+                .map(|(cond, body)| (substituted_cond(cond, binds, site), substituted_block(body, binds, site)))
+                .collect(),
+            otherwise: otherwise.as_ref().map(|body| substituted_block(body, binds, site)),
+            span: *span,
+        },
+        Stmt::Require { cond, span } => {
+            Stmt::Require { cond: substituted_cond(cond, binds, site), span: *span }
+        }
+        Stmt::Attempt { arms, span } => Stmt::Attempt {
+            arms: arms.iter().map(|body| substituted_block(body, binds, site)).collect(),
+            span: *span,
+        },
+        Stmt::For { var, kind, args, body, span } => Stmt::For {
+            var: substituted_arg(var, binds, site),
+            kind: kind.clone(),
+            args: args.iter().map(|arg| substituted_arg(arg, binds, site)).collect(),
+            body: substituted_block(body, binds, site),
+            span: *span,
+        },
+    }
+}
+
+fn substituted_block(block: &Block, binds: &[(String, Arg)], site: usize) -> Block {
+    Block { stmts: block.stmts.iter().map(|s| substituted_stmt(s, binds, site)).collect(), span: block.span }
+}
+
+fn substituted_call(call: &Call, binds: &[(String, Arg)], site: usize) -> Call {
+    Call {
+        op: call.op.clone(),
+        args: call.args.iter().map(|arg| substituted_arg(arg, binds, site)).collect(),
+        span: call.span,
+    }
+}
+
+fn substituted_cond(cond: &Cond, binds: &[(String, Arg)], site: usize) -> Cond {
+    match cond {
+        Cond::Cmp { op, left, right, span } => Cond::Cmp {
+            op: *op,
+            left: substituted_expr(left, binds, site),
+            right: substituted_expr(right, binds, site),
+            span: *span,
+        },
+        Cond::Call(call) => Cond::Call(substituted_call(call, binds, site)),
+        Cond::Not(inner, span) => Cond::Not(Box::new(substituted_cond(inner, binds, site)), *span),
+        Cond::And(list) => Cond::And(list.iter().map(|c| substituted_cond(c, binds, site)).collect()),
+        Cond::Or(list) => Cond::Or(list.iter().map(|c| substituted_cond(c, binds, site)).collect()),
+    }
+}
+
+fn substituted_expr(expr: &Expr, binds: &[(String, Arg)], site: usize) -> Expr {
+    match expr {
+        Expr::Value(arg) => Expr::Value(substituted_arg(arg, binds, site)),
+        Expr::Neg(inner, span) => Expr::Neg(Box::new(substituted_expr(inner, binds, site)), *span),
+        Expr::Bin { op, left, right, span } => Expr::Bin {
+            op: *op,
+            left: Box::new(substituted_expr(left, binds, site)),
+            right: Box::new(substituted_expr(right, binds, site)),
+            span: *span,
+        },
+    }
+}
+
+/// A parameter becomes the call's argument (a number, `$global`, `:local`, name or text); any
+/// other `:local` of the body becomes `:name__fn<site>`.
+fn substituted_arg(arg: &Arg, binds: &[(String, Arg)], site: usize) -> Arg {
+    match arg {
+        Arg::Local(ident) => match binds.iter().find(|(param, _)| param == &ident.text) {
+            Some((_, value)) => value.clone(),
+            None => Arg::Local(Ident { text: format!("{}__fn{site}", ident.text), span: ident.span }),
+        },
+        other => other.clone(),
+    }
+}
+
+
 /// `not a < b` flips the operator (`lt = neg|ge`, `neq = neg|eq`, `le = neg|gt`).
 fn not_cmp_op_name(op: uw_syntax::CmpOp) -> &'static str {
     match op {
@@ -957,8 +1151,55 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
     let mut patches = Vec::new();
     let mut overridden: BTreeMap<String, String> = BTreeMap::new();
 
+    // Every `fn` of the mod is visible from every file, so the table comes first; a call is
+    // replaced by the body when the block that holds it is checked (`Ctx::inline`).
+    let mut fns: BTreeMap<String, FnDef> = BTreeMap::new();
     for (index, source) in sources.iter().enumerate() {
-        let mut ctx = Ctx { atlas, errors: Vec::new(), file: index, source: &source.file, temp: 0, native: false };
+        for item in &source.tree.items {
+            let Item::Fn { name, params, body, .. } = item else { continue };
+            if atlas.op(&name.text).is_some() {
+                errors.push(Error {
+                    file: index,
+                    diag: diag(
+                        E0214_FN_OP_NAME,
+                        format!("`fn {}` has the name of a Native operation", name.text),
+                        name.span,
+                        Some(format!("its calls would be the Native operation; name it e.g. `fn uw_{}`", name.text)),
+                    ),
+                });
+                continue;
+            }
+            if let Some(first) = fns.get(&name.text) {
+                let existing = first.origin.clone();
+                errors.push(Error {
+                    file: index,
+                    diag: diag(
+                        E0202_DUPLICATE,
+                        format!("`fn {}` is already defined at {existing}", name.text),
+                        name.span,
+                        Some("a fn name is used once in a mod; rename one of them".into()),
+                    ),
+                });
+                continue;
+            }
+            let origin = origin_in(&source.file, name.span);
+            fns.insert(name.text.clone(), FnDef { file: index, origin, params, body });
+        }
+    }
+
+    for (index, source) in sources.iter().enumerate() {
+        let mut ctx = Ctx {
+            atlas,
+            errors: Vec::new(),
+            file: index,
+            source: &source.file,
+            temp: 0,
+            native: false,
+            fns: &fns,
+            sources,
+            stack: Vec::new(),
+            rename: 0,
+        };
         if let Some(m) = &source.tree.module {
             match &name {
                 Some(existing) if existing != &m.text => ctx.error(diag(
@@ -1291,6 +1532,8 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
                         origin: ctx.origin(*span),
                     });
                 }
+                // A `fn` adds no patch of its own: its body lands wherever it is called.
+                Item::Fn { .. } => {}
                 Item::On { path, body, span } => {
                     let words: Vec<&str> = path.iter().map(|p| p.text.as_str()).collect();
                     let hook = match words.as_slice() {
@@ -1344,7 +1587,19 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
 /// and is kept as written, the header signature count is not enforced (Native is the reference) and
 /// non-ASCII text is allowed. Names still resolve in the atlas.
 pub fn check_block(atlas: &Atlas, file: &SourceFile, stmts: &[Stmt]) -> Result<Vec<Op>, Vec<Diagnostic>> {
-    let mut ctx = Ctx { atlas, errors: Vec::new(), file: 0, source: file, temp: 0, native: true };
+    let fns = BTreeMap::new();
+    let mut ctx = Ctx {
+        atlas,
+        errors: Vec::new(),
+        file: 0,
+        source: file,
+        temp: 0,
+        native: true,
+        fns: &fns,
+        sources: &[],
+        stack: Vec::new(),
+        rename: 0,
+    };
     let ops = ctx.ops(stmts);
     if ctx.errors.is_empty() {
         Ok(ops)
@@ -1530,7 +1785,19 @@ mod tests {
     fn run_stmts(stmts: Vec<Stmt>) -> Result<Vec<uw_lower::Stmt>, Vec<String>> {
         let file = SourceFile::new("start.uw", SOURCE);
         let a = atlas();
-        let mut ctx = Ctx { atlas: &a, errors: Vec::new(), file: 0, source: &file, temp: 0, native: false };
+        let fns = BTreeMap::new();
+        let mut ctx = Ctx {
+            atlas: &a,
+            errors: Vec::new(),
+            file: 0,
+            source: &file,
+            temp: 0,
+            native: false,
+            fns: &fns,
+            sources: &[],
+            stack: Vec::new(),
+            rename: 0,
+        };
         let tree = ctx.stmts(&stmts);
         if ctx.errors.is_empty() {
             Ok(tree)
@@ -2189,5 +2456,46 @@ mod tests {
         assert_eq!(ops[0].args[0], Value::Ref(":_uw0".into()));
         assert_eq!(ops[1].name, "lt");
         assert_eq!(ops[1].args[0], Value::Ref(":_uw0".into()));
+    }
+
+    #[test]
+    fn fn_name_mistakes_are_reported() {
+        // A fn may not take the name of a Native operation: that call would be the operation.
+        let errs = run("fn display_message() { }\non game.start { display_message(\"@x\") }").unwrap_err();
+        assert!(errs[0].contains("`fn display_message` has the name of a Native operation"), "{errs:?}");
+        // Two fns with one name.
+        let errs = run("fn give() { }\nfn give() { }").unwrap_err();
+        assert!(errs[0].contains("`fn give` is already defined at start.uw:1"), "{errs:?}");
+        // A typo in a fn name is suggested like an unknown operation.
+        let errs = run("fn give_gold(:who) { troop_add_gold(:who, 5) }\non game.start { give_gol(trp_player) }").unwrap_err();
+        assert!(errs[0].contains("'give_gol' is not a Native operation"), "{errs:?}");
+        assert!(errs[0].contains("did you mean 'give_gold'?"), "{errs:?}");
+    }
+
+    #[test]
+    fn fn_calls_check_their_argument_count() {
+        let errs = run("fn give(:amount) { display_message(\"@x\") }\non game.start { give() }").unwrap_err();
+        assert!(errs[0].contains("`fn give` takes 1 value(s), got 0"), "{errs:?}");
+        assert!(errs[0].contains("call it as `give(:amount)`"), "{errs:?}");
+        let errs = run("fn give() { display_message(\"@x\") }\non game.start { give(1, 2) }").unwrap_err();
+        assert!(errs[0].contains("`fn give` takes 0 value(s), got 2"), "{errs:?}");
+        assert!(errs[0].contains("call it as `give()`"), "{errs:?}");
+    }
+
+    #[test]
+    fn fn_cycles_name_the_chain() {
+        let errs = run("fn a() { a() }\non game.start { a() }").unwrap_err();
+        assert!(errs[0].contains("never ends: a -> a"), "{errs:?}");
+        let errs = run("fn a() { b() }\nfn b() { a() }\non game.start { a() }").unwrap_err();
+        assert!(errs[0].contains("never ends: a -> b -> a"), "{errs:?}");
+        // Deep, but not a cycle: the chain still stops at the limit.
+        let mut text = String::new();
+        for i in 0..=FN_DEPTH {
+            let call = if i == FN_DEPTH { "change_screen_map()".to_string() } else { format!("f{}()", i + 1) };
+            text.push_str(&format!("fn f{i}() {{ {call} }}\n"));
+        }
+        text.push_str("on game.start { f0() }");
+        let errs = run(&text).unwrap_err();
+        assert!(errs[0].contains(&format!("nest more than {FN_DEPTH} deep: f0 -> f1")), "{errs:?}");
     }
 }
