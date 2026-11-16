@@ -204,9 +204,10 @@ fn wrapper(name: &str, module: &str, patches: &[&Patch], debug: bool) -> String 
                 let _ = writeln!(out, "    {},", op_list(&patch.ops, 4));
                 let _ = writeln!(out, "))");
             }
-            // A new troop: one whole record at the end of the list, so Native's troops keep their
-            // numbers. `value` is the record as Python source (T-092).
-            Action::NewTroop { value } => {
+            // A new record (troop, town, …): one whole record at the end of its list, so Native's
+            // own records keep their numbers. `value` is the record as Python source (T-092,
+            // T-099); the module, the list and its entry name come from the item's own table.
+            Action::NewRecord { value } => {
                 let _ = writeln!(out, "{var} = _uw.add_entry({var}, {value})", var = patch.var);
             }
         }

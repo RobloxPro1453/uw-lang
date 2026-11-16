@@ -20,7 +20,7 @@ const GOLDEN: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden");
 /// UW's own word library at the repository root (T-079): a case with a `lib` marker file gets it.
 const LIB: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../lib");
 /// The record schemas (`kit-meta/records`): `troop … like …` copies a troop through troops.toml
-/// (T-092).
+/// (T-092) and `town … like …` a party through parties.toml (T-099).
 const SCHEMAS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../kit-meta/records");
 
 /// The generated file kept for every run; comparing it would only copy `py/uw_runtime.py`.
@@ -75,9 +75,14 @@ fn run(input: &str, debug: bool, with_lib: bool) -> Result<Vec<(String, String)>
     };
     let mut sources = if with_lib { lib_sources() } else { Vec::new() };
     sources.push(uw_check::Source { file: file.clone(), tree });
-    let schema = uw_decomp::records::Schema::from_path(Path::new(SCHEMAS).join("troops.toml"))
-        .expect("the troops schema loads");
-    let checked = uw_check::check_with_schemas(&atlas, &sources, "golden", &[schema]).map_err(|errors| {
+    let schemas: Vec<uw_decomp::records::Schema> = ["troops.toml", "parties.toml"]
+        .iter()
+        .map(|name| {
+            uw_decomp::records::Schema::from_path(Path::new(SCHEMAS).join(name))
+                .unwrap_or_else(|e| panic!("the {name} schema loads: {e}"))
+        })
+        .collect();
+    let checked = uw_check::check_with_schemas(&atlas, &sources, "golden", &schemas).map_err(|errors| {
         errors.iter().map(|e| e.diag.render(&sources[e.file].file)).collect::<Vec<_>>().join("\n")
     })?;
     Ok(uw_emit::emit(&checked, debug)

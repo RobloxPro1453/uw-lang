@@ -42,7 +42,8 @@ pub const E0215_FN_CYCLE: &str = "E0215";
 pub const E0216_OBJECT_WORD: &str = "E0216";
 /// A `save` name that a game name, a kit constant or a Native operation already uses (T-085).
 pub const E0217_SAVE_NAME: &str = "E0217";
-/// A field or field value of `troop … like …` that the troop record does not take (T-092).
+/// A field or field value of a `<kind> … like …` copy that the copied record does not take
+/// (T-092 troops, T-099 parties).
 pub const E0218_TROOP_FIELD: &str = "E0218";
 
 /// How deep `fn` calls may nest before the body is expanded, so a runaway chain stops.
@@ -85,10 +86,11 @@ pub enum Action {
     /// A new simple trigger appended to the list (`every …`): an entry `(interval, ops)` with no
     /// name, checked every `interval` game hours (module_simple_triggers.py:15-17).
     NewSimpleTrigger { interval: String },
-    /// A new troop appended to the list (`troop <id> like <other> { … }`, T-092): `value` is the
-    /// whole record as Python source (a list literal, the atlas value), copied from `<other>` with
-    /// the written fields changed.
-    NewTroop { value: String },
+    /// A new record appended to its list (`troop <id> like <other> { … }`, T-092; `town … like …`,
+    /// T-099): `value` is the whole record as Python source (a list literal, the atlas value),
+    /// copied from `<other>` with the written fields changed. The module, the list and its entry
+    /// name come from the item's own table.
+    NewRecord { value: String },
 }
 
 /// A menu option written in UW: kit layout module_game_menus.py:28 (id, condition, text,
@@ -800,24 +802,26 @@ impl Ctx<'_> {
         }
     }
 
-    /// The record of `copied` with the `troop … like …` body applied, as Python source for the
-    /// emitted list (T-092). The fields go through the table's schema, so `agility 18` sets that
-    /// part of the packed attributes and `name "…"` its own field; a field or value the record
-    /// does not take is an error here.
-    fn troop_record(
+    /// The record of `copied` with the `<kind> … like …` body applied, as Python source for the
+    /// emitted list (T-092, T-099). The fields go through the table's schema, so `agility 18` sets
+    /// that part of the packed attributes and `name "…"` its own field; a field or value the
+    /// record does not take is an error here. `kind` is the item's keyword (`troop`, `town`, …),
+    /// which the messages use.
+    fn record_copy(
         &mut self,
+        kind: &str,
         schema: &Schema,
         copied: &Entry,
         id: &str,
         fields: &[FieldValue],
         span: Span,
     ) -> Option<String> {
-        // The copied troop as record text (kit-meta/records layout), one `  <field> <value>` line
+        // The copied record as record text (kit-meta/records layout), one `  <field> <value>` line
         // each: the same text `uw new --from native` writes, and it reads back exactly as the atlas
         // holds it (typed fields decode and encode through the schema).
         let text = records::print_with_blocks(self.atlas, schema, copied, &[], &mut |_| String::new());
         let mut lines: Vec<String> = text.lines().map(str::to_owned).collect();
-        // The first line names the troop that was copied (`troop swadian_crossbowman {`).
+        // The first line names the record that was copied (`troop swadian_crossbowman {`).
         if let Some(first) = lines.first_mut() {
             *first = format!("{} {id} {{", schema.kind);
         }
@@ -825,9 +829,9 @@ impl Ctx<'_> {
         let Some(named) = lines.iter_mut().find(|line| printed_field(line) == Some("id")) else {
             self.error(diag(
                 E0218_TROOP_FIELD,
-                "a copied troop needs the `id` field of its schema to take the new id".into(),
+                format!("a copied {kind} needs the `id` field of its schema to take the new id"),
                 span,
-                Some("kit-meta/records/troops.toml names the record id with `id`".into()),
+                Some(format!("kit-meta/records/{}.toml names the record id with `id`", schema.table)),
             ));
             return None;
         };
@@ -838,7 +842,7 @@ impl Ctx<'_> {
             if name == "id" {
                 self.error(diag(
                     E0208_BAD_ID,
-                    format!("the id of the new troop comes from `troop {id} like …`, not from a field"),
+                    format!("the id of the new {kind} comes from `{kind} {id} like …`, not from a field"),
                     field.name.span,
                     Some(format!("remove this line; the copy is `{id}`")),
                 ));
@@ -848,7 +852,7 @@ impl Ctx<'_> {
                 let Some(line) = lines.iter_mut().find(|line| printed_field(line) == Some(name)) else {
                     self.error(diag(
                         E0218_TROOP_FIELD,
-                        format!("`{}` has no `{name}` field to change", copied.name.as_deref().unwrap_or("this troop")),
+                        format!("`{}` has no `{name}` field to change", copied.name.as_deref().unwrap_or("this record")),
                         field.name.span,
                         None,
                     ));
@@ -860,7 +864,7 @@ impl Ctx<'_> {
                 let Some(line) = lines.iter_mut().find(|line| printed_field(line) == Some(whole.name.as_str())) else {
                     self.error(diag(
                         E0218_TROOP_FIELD,
-                        format!("`{}` has no `{}` field to change", copied.name.as_deref().unwrap_or("this troop"), whole.name),
+                        format!("`{}` has no `{}` field to change", copied.name.as_deref().unwrap_or("this record"), whole.name),
                         field.name.span,
                         None,
                     ));
@@ -871,7 +875,7 @@ impl Ctx<'_> {
                     None => {
                         self.error(diag(
                             E0218_TROOP_FIELD,
-                            format!("`{}` of this troop is not written as a named field set", whole.name),
+                            format!("`{}` of this {kind} is not written as a named field set", whole.name),
                             field.name.span,
                             Some(format!("write the whole field instead: `{} {}`", whole.name, field.value)),
                         ));
@@ -887,16 +891,16 @@ impl Ctx<'_> {
                 let help = suggest(name, candidates).map(|s| format!("did you mean '{s}'?"));
                 self.error(diag(
                     E0218_TROOP_FIELD,
-                    format!("'{name}' is not a field of a troop"),
+                    format!("'{name}' is not a field of a {kind}"),
                     field.name.span,
-                    help.or_else(|| Some("`uw new --from native` writes every troop field of the kit".into())),
+                    help.or_else(|| Some(format!("`uw new --from native` writes every {kind} field of the kit"))),
                 ));
                 return None;
             }
             // Read the record back after every field, so a value the record does not take is
             // reported on the line that wrote it.
             let text = record_text(&lines);
-            match self.troop_value(schema, &text) {
+            match self.record_value(kind, schema, &text) {
                 Ok(value) if same_shape(&copied.value, &value) => read = Some(value),
                 Ok(_) => {
                     self.error(diag(
@@ -910,7 +914,7 @@ impl Ctx<'_> {
                 Err(problem) => {
                     self.error(diag(
                         E0218_TROOP_FIELD,
-                        format!("`{name} {}` is not a value a troop field takes: {problem}", field.value),
+                        format!("`{name} {}` is not a value a {kind} field takes: {problem}", field.value),
                         field.span,
                         Some("write the value as record text writes it, e.g. `level 22` or `name \"Elite Crossbowman\"`".into()),
                     ));
@@ -920,12 +924,12 @@ impl Ctx<'_> {
         }
         let value = match read {
             Some(value) => value,
-            None => match self.troop_value(schema, &record_text(&lines)) {
+            None => match self.record_value(kind, schema, &record_text(&lines)) {
                 Ok(value) => value,
                 Err(problem) => {
                     self.error(diag(
                         E0218_TROOP_FIELD,
-                        format!("this troop is not read as a troop record: {problem}"),
+                        format!("this {kind} is not read as a {kind} record: {problem}"),
                         span,
                         None,
                     ));
@@ -936,9 +940,10 @@ impl Ctx<'_> {
         Some(py_record(&value))
     }
 
-    /// The record text `text` read back as the atlas value of the troop, or the reader's complaint.
-    fn troop_value(&self, schema: &Schema, text: &str) -> Result<Json, String> {
-        let mut compile = |_block: &str| Err("a troop record has no operation block".to_string());
+    /// The record text `text` read back as the atlas value of the `kind` record, or the reader's
+    /// complaint.
+    fn record_value(&self, kind: &str, schema: &Schema, text: &str) -> Result<Json, String> {
+        let mut compile = |_block: &str| Err(format!("a {kind} record has no operation block"));
         records::parse_with_blocks(self.atlas, schema, text, &mut compile).map(|(_id, value)| value)
     }
 
@@ -1716,15 +1721,26 @@ fn find_menu(atlas: &Atlas, text: &str) -> Option<String> {
     })
 }
 
-/// The atlas plus a name for every troop the mod makes (`troop <id> like …`, T-092): the check then
-/// resolves `trp_<id>` and the bare `<id>` the way it resolves a Native troop, and nothing is guessed.
-/// The record itself is filled in when its item is checked; here only the name matters.
-fn atlas_with_new_troops<'a>(atlas: &'a Atlas, sources: &[Source]) -> Cow<'a, Atlas> {
-    let ids: Vec<&str> = sources
+/// The record table a `<kind> … like …` item copies from: a copy reads only the table of its own
+/// kind, never another one (T-092 troops, T-099 towns, castles, villages and parties).
+fn copy_table(kind: &str) -> Option<&'static str> {
+    Some(match kind {
+        "troop" => "troops",
+        "town" | "castle" | "village" | "party" => "parties",
+        _ => return None,
+    })
+}
+
+/// The atlas plus a name for every record the mod makes (`troop <id> like …`, `town <id> like …`):
+/// the check then resolves the kit reference (`trp_<id>`, `p_<id>`) and the bare `<id>` the way it
+/// resolves a Native record, and nothing is guessed. The record itself is filled in when its item
+/// is checked; here only the name matters.
+fn atlas_with_new_records<'a>(atlas: &'a Atlas, sources: &[Source]) -> Cow<'a, Atlas> {
+    let ids: Vec<(&str, &str)> = sources
         .iter()
         .flat_map(|source| &source.tree.items)
         .filter_map(|item| match item {
-            Item::Troop { id, .. } => Some(id.text.as_str()),
+            Item::Like { kind, id, .. } => Some((copy_table(&kind.text)?, id.text.as_str())),
             _ => None,
         })
         .collect();
@@ -1732,9 +1748,11 @@ fn atlas_with_new_troops<'a>(atlas: &'a Atlas, sources: &[Source]) -> Cow<'a, At
         return Cow::Borrowed(atlas);
     }
     let mut view = atlas.clone();
-    for id in ids {
-        let reference = format!("trp_{id}");
-        if let Some(table) = view.tables.get_mut("troops") {
+    for (table_name, id) in ids {
+        // The kit reference of a new record is its table's id prefix plus the id (`p_` + `riverhold`).
+        let Some(prefix) = atlas.tables.get(table_name).and_then(|table| table.id_prefix.clone()) else { continue };
+        let reference = format!("{prefix}{id}");
+        if let Some(table) = view.tables.get_mut(table_name) {
             let index = table.entries.len();
             table.entries.push(Entry {
                 index,
@@ -1756,22 +1774,23 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
 }
 
 /// Like [`check`], with the record schemas (`kit-meta/records/*.toml`): `troop … like …` copies the
-/// fields of the troop through the table's own layout (T-092).
+/// fields of the troop, `town … like …` those of the party, through the table's own layout (T-092,
+/// T-099).
 pub fn check_with_schemas(
     atlas: &Atlas,
     sources: &[Source],
     fallback_name: &str,
     schemas: &[Schema],
 ) -> Result<Checked, Vec<Error>> {
-    // Every troop the mod makes (`troop … like …`) is part of the names the check reads code with:
-    // `trp_<id>` and the bare `<id>` then resolve like a Native troop (T-092).
-    let view = atlas_with_new_troops(atlas, sources);
+    // Every record the mod makes (`… like …`) is part of the names the check reads code with:
+    // `trp_<id>`, `p_<id>` and the bare `<id>` then resolve like a Native record (T-092, T-099).
+    let view = atlas_with_new_records(atlas, sources);
     let atlas: &Atlas = &view;
     let mut errors = Vec::new();
     let mut name: Option<String> = None;
     let mut patches = Vec::new();
     let mut overridden: BTreeMap<String, String> = BTreeMap::new();
-    // The troop ids the mod has made so far: one id is made once.
+    // The record ids the mod has made so far: one id is made once.
     let mut made: BTreeSet<String> = BTreeSet::new();
 
     // Every `fn` of the mod is visible from every file, so the table comes first; a call is
@@ -2245,97 +2264,112 @@ pub fn check_with_schemas(
                         origin: ctx.origin(*span),
                     });
                 }
-                // `troop <id> like <other> { … }` copies a troop: one new record at the end of the
-                // list, so Native's own troops keep their numbers (T-092).
-                Item::Troop { id, like, fields, span } => {
-                    let reference = format!("trp_{}", id.text);
+                // `troop <id> like <other> { … }` / `town <id> like <other> { … }` copies a record of
+                // its own table: one new record at the end of the list, so Native's own records keep
+                // their numbers (T-092 troops, T-099 towns, castles, villages and parties).
+                Item::Like { kind, id, like, fields, span } => {
+                    let word = kind.text.as_str();
+                    let Some(table_name) = copy_table(word) else { continue };
+                    // The kit reference of the new record: its table's id prefix plus the id
+                    // (`trp_` + `elite_crossbowman`, `p_` + `riverhold`).
+                    let prefix = atlas
+                        .tables
+                        .get(table_name)
+                        .and_then(|table| table.id_prefix.as_deref())
+                        .unwrap_or_default();
+                    let reference = format!("{prefix}{}", id.text);
                     if !id.text.is_ascii() {
                         ctx.error(diag(
                             E0208_BAD_ID,
-                            format!("troop id '{}' has non-ASCII letters", id.text),
+                            format!("{word} id '{}' has non-ASCII letters", id.text),
                             id.span,
-                            Some("troop ids use ASCII letters, digits and _".into()),
+                            Some(format!("{word} ids use ASCII letters, digits and _")),
                         ));
                         continue;
                     }
-                    if let Some(rest) = id.text.strip_prefix("trp_") {
+                    let rest = if prefix.is_empty() { None } else { id.text.strip_prefix(prefix) };
+                    if let Some(rest) = rest {
                         ctx.error(diag(
                             E0208_BAD_ID,
-                            format!("'{}' already starts with `trp_`", id.text),
+                            format!("'{}' already starts with `{prefix}`", id.text),
                             id.span,
-                            Some(format!("write the id without it: `troop {rest} like {}`", like.text)),
+                            Some(format!("write the id without it: `{word} {rest} like {}`", like.text)),
                         ));
                         continue;
                     }
                     if atlas.entry_by_id(&reference).is_some() {
                         ctx.error(diag(
                             E0209_NEW_EXISTS,
-                            format!("troop '{reference}' already exists"),
+                            format!("{word} '{reference}' already exists"),
                             id.span,
-                            Some("copy another troop, or rename this one".into()),
+                            Some(format!("copy another {word}, or rename this one")),
                         ));
                         continue;
                     }
                     if !made.insert(id.text.clone()) {
                         ctx.error(diag(
                             E0202_DUPLICATE,
-                            format!("troop '{}' is already made in this mod", id.text),
+                            format!("{word} '{}' is already made in this mod", id.text),
                             id.span,
-                            Some("one id means one troop; rename this one".into()),
+                            Some(format!("one id means one {word}; rename this one")),
                         ));
                         continue;
                     }
-                    // `<other>` is a Native troop, written as a game name (`swadian_crossbowman`)
-                    // or as its kit reference (`trp_swadian_crossbowman`); nothing is guessed.
-                    // A troop's bare kit name (`swadian_crossbowman`) works too: its game name may be
-                    // left out of names.uw when two records share it.
+                    // `<other>` is a Native record of the same table, written as a game name
+                    // (`swadian_crossbowman`, `praven`) or as its kit reference
+                    // (`trp_swadian_crossbowman`, `p_town_6`); nothing is guessed. A record's bare
+                    // kit name (`swadian_crossbowman`, `town_6`) works too: its game name may be left
+                    // out of names.uw when two records share it.
                     let found = atlas
                         .resolve_ref(&like.text)
-                        .or_else(|| atlas.resolve_ref(&format!("trp_{}", like.text)));
+                        .or_else(|| atlas.resolve_ref(&format!("{prefix}{}", like.text)));
                     let Some((table, copied)) = found else {
                         let names: Vec<String> = atlas
                             .tables
-                            .get("troops")
+                            .get(table_name)
                             .into_iter()
                             .flat_map(|table| &table.entries)
                             .filter_map(|entry| entry.name.as_deref())
-                            .flat_map(|name| [format!("trp_{name}"), name.to_owned()])
+                            .flat_map(|name| [format!("{prefix}{name}"), name.to_owned()])
                             .collect();
                         let help = suggest(&like.text, names.iter().map(String::as_str))
                             .map(|s| format!("did you mean '{s}'?"));
                         ctx.error(diag(
                             E0001_UNKNOWN_NAME,
-                            format!("'{}' is not a Native troop", like.text),
+                            format!("'{}' is not a Native {word}", like.text),
                             like.span,
-                            help.or_else(|| Some("`uw browse troops` lists Native troops".into())),
+                            help.or_else(|| Some(format!("`uw browse {table_name}` lists the Native {table_name}"))),
                         ));
                         continue;
                     };
-                    if table != "troops" {
+                    if table != table_name {
                         ctx.error(diag(
                             E0001_UNKNOWN_NAME,
-                            format!("'{}' is a {table} record, not a troop", like.text),
+                            format!("'{}' is a {table} record, not a {word}", like.text),
                             like.span,
-                            Some("`like` takes a Native troop, e.g. `like swadian_crossbowman`".into()),
+                            Some(format!("`like` takes a Native {word}, a {table_name} record")),
                         ));
                         continue;
                     }
-                    let Some(schema) = schemas.iter().find(|schema| schema.table == "troops") else {
+                    let Some(schema) = schemas.iter().find(|schema| schema.table == table_name) else {
                         ctx.error(diag(
                             E0201_NOT_YET,
-                            format!("`troop {} like …` needs the record schema of troops", id.text),
+                            format!("`{word} {} like …` needs the record schema of {table_name}", id.text),
                             id.span,
-                            Some("`kit-meta/records/troops.toml` holds the troop fields; run `uw build` in the project folder".into()),
+                            Some(format!(
+                                "`kit-meta/records/{table_name}.toml` holds the {word} fields; run `uw build` in the project folder"
+                            )),
                         ));
                         continue;
                     };
-                    let Some(value) = ctx.troop_record(schema, copied, &id.text, fields, *span) else { continue };
+                    let Some(value) = ctx.record_copy(word, schema, copied, &id.text, fields, *span) else { continue };
+                    let Some(info) = atlas.tables.get(table_name) else { continue };
                     patches.push(Patch {
-                        module: "module_troops".into(),
-                        var: "troops".into(),
+                        module: info.module.clone(),
+                        var: info.var.clone(),
                         entry: id.text.clone(),
                         path: Vec::new(),
-                        action: Action::NewTroop { value },
+                        action: Action::NewRecord { value },
                         ops: Vec::new(),
                         origin: ctx.origin(*span),
                     });
@@ -3464,6 +3498,31 @@ mod tests {
             .expect("the troops schema loads")
     }
 
+    /// The party layout of the kit (`kit-meta/records/parties.toml`): `uw build` reads it too.
+    fn parties_schema() -> Schema {
+        Schema::from_path(concat!(env!("CARGO_MANIFEST_DIR"), "/../../kit-meta/records/parties.toml"))
+            .expect("the parties schema loads")
+    }
+
+    /// A tiny atlas with one Native party, for `town … like …` (T-099). `praven` is its game name
+    /// (the display name of `p_town_6`), so both spellings of the copied record are known.
+    fn party_atlas() -> Atlas {
+        let text = r#"{
+          "schema": 1, "kit_hash": "party",
+          "ops": [], "hooks": [], "ranges": [], "constants": [],
+          "tables": {
+            "parties": {"module":"module_parties","var":"parties","id_file":"ID_parties","id_prefix":"p_","ref_tag":"p",
+              "entries": [
+                {"index":6,"name":"town_6","id":"p_town_6","dup":null,"line":7,
+                 "value":["town_6","Praven",4219916,0,0,3,0,0,0,[-96,26.4],{"list":[]},155]}
+              ]}
+          }
+        }"#;
+        let mut atlas = Atlas::from_str(text).expect("the party atlas loads");
+        atlas.set_game_names(&[("praven".to_owned(), "p_town_6".to_owned())]);
+        atlas
+    }
+
     fn check_troops(text: &str) -> Result<Checked, Vec<String>> {
         let file = SourceFile::new("start.uw", text);
         let tree = uw_syntax::parse(text).map_err(|d| vec![d.render(&file)])?;
@@ -3489,7 +3548,7 @@ mod tests {
         assert_eq!((troop.module.as_str(), troop.var.as_str(), troop.entry.as_str()), ("module_troops", "troops", "elite_crossbowman"));
         // The Native record with `name` replaced and `level`/`agility` packed into `attributes`
         // (strength 21, agility 18, level 22: 22 << 32 | 18 << 8 | 21).
-        let Action::NewTroop { value } = &troop.action else { panic!("{:?}", troop.action) };
+        let Action::NewRecord { value } = &troop.action else { panic!("{:?}", troop.action) };
         assert_eq!(
             value,
             "[\"elite_crossbowman\", \"Elite Crossbowman\", \"Swadian Crossbowmen\", 1041, 0, 0, 15, [], 94489285141, 153, 0, \"face_a\", \"face_b\"]"
@@ -3499,7 +3558,7 @@ mod tests {
         assert_eq!(checked.patches[1].ops[1].args[0], Value::Ref("trp_elite_crossbowman".into()));
         // No field at all is a plain copy under the new id.
         let copy = check_troops("troop elite like swadian_crossbowman { }").unwrap();
-        let Action::NewTroop { value } = &copy.patches[0].action else { panic!("{:?}", copy.patches[0].action) };
+        let Action::NewRecord { value } = &copy.patches[0].action else { panic!("{:?}", copy.patches[0].action) };
         assert_eq!(
             value,
             "[\"elite\", \"Swadian Crossbowman\", \"Swadian Crossbowmen\", 1041, 0, 0, 15, [], 107374184469, 153, 0, \"face_a\", \"face_b\"]"
@@ -3517,7 +3576,7 @@ mod tests {
         let tree = uw_syntax::parse(text).unwrap();
         let checked = check_with_schemas(&atlas, &[Source { file, tree }], "folder", &[troops_schema()])
             .unwrap_or_else(|_| panic!("the bare kit name is accepted"));
-        assert!(matches!(checked.patches[0].action, Action::NewTroop { .. }));
+        assert!(matches!(checked.patches[0].action, Action::NewRecord { .. }));
     }
 
     #[test]
@@ -3534,5 +3593,47 @@ mod tests {
         let errs = check_troops("troop elite like swadian_crossbowm { level 22 }").unwrap_err();
         assert!(errs[0].starts_with("error[E0001]"), "{errs:?}");
         assert!(errs[0].contains("did you mean 'swadian_crossbowman'?"), "{errs:?}");
+        // A copy only reads the table of its own kind: a town cannot copy a troop (T-099).
+        let errs = check_troops("town riverhold like swadian_crossbowman { }").unwrap_err();
+        assert!(errs[0].starts_with("error[E0001]"), "{errs:?}");
+        assert!(errs[0].contains("is a troops record, not a town"), "{errs:?}");
+    }
+
+    /// T-099: `town <id> like <other> { … }` appends a copy of a Native party, like a troop copy.
+    #[test]
+    fn a_town_like_appends_the_copied_party_with_the_fields_changed() {
+        let text = "town riverhold like praven {\n\
+                        name \"Riverhold\"\n\
+                        initial_coordinates (35, -12)\n\
+                    }\n";
+        let file = SourceFile::new("start.uw", text);
+        let tree = uw_syntax::parse(text).unwrap();
+        let checked = check_with_schemas(
+            &party_atlas(),
+            &[Source { file: file.clone(), tree }],
+            "folder",
+            &[parties_schema()],
+        )
+        .unwrap_or_else(|errors| {
+            panic!("{}", errors.iter().map(|e| e.diag.render(&file)).collect::<Vec<_>>().join("\n"))
+        });
+        let town = &checked.patches[0];
+        assert_eq!(
+            (town.module.as_str(), town.var.as_str(), town.entry.as_str()),
+            ("module_parties", "parties", "riverhold")
+        );
+        // Praven with `name` and `initial_coordinates` changed; the rest of the party record stays.
+        let Action::NewRecord { value } = &town.action else { panic!("{:?}", town.action) };
+        assert_eq!(
+            value,
+            "(\"riverhold\", \"Riverhold\", 4219916, 0, 0, 3, 0, 0, 0, (35, -12), [], 155)"
+        );
+        // `like` takes the bare kit name too (`town_6`); its prefix (`p_`) comes from the table.
+        let bare = "town riverhold like town_6 { }";
+        let file = SourceFile::new("start.uw", bare);
+        let tree = uw_syntax::parse(bare).unwrap();
+        let checked = check_with_schemas(&party_atlas(), &[Source { file, tree }], "folder", &[parties_schema()])
+            .unwrap_or_else(|_| panic!("the bare kit name is accepted"));
+        assert!(matches!(checked.patches[0].action, Action::NewRecord { .. }));
     }
 }
