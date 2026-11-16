@@ -64,6 +64,19 @@ pub enum Item {
     /// kept as Python writes it (`24`, `6`, `0.5`): the kit's simple_triggers record is
     /// `(check_interval, ops)` and the interval is a plain number there (T-088).
     Every { interval: String, body: Block, span: Span },
+    /// `troop <new_id> like <existing> { <field> <value> … }`: a copy of the Native troop
+    /// `<existing>` with some fields changed, added at the end of the troop list (T-092). A field
+    /// value is written as record text (`level 22`, `name "Elite Crossbowman"`): the field layout
+    /// is kit-meta/records/troops.toml.
+    Troop { id: Ident, like: Ident, fields: Vec<FieldValue>, span: Span },
+}
+
+/// One `<field> <value>` line of a `troop … like …` body; `value` is the record text as written.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FieldValue {
+    pub name: Ident,
+    pub value: String,
+    pub span: Span,
 }
 
 /// `on <event> { body }` inside an override.
@@ -777,6 +790,23 @@ impl Parser {
                     let end = body.span.end;
                     file.items.push(Item::Every { interval, body, span: Span { start, end } });
                 }
+                Tok::Ident(kw) if kw == "troop" => {
+                    let start = t.span.start;
+                    self.bump();
+                    let id = self.ident("the id of the new troop, e.g. `troop elite_crossbowman like swadian_crossbowman`")?;
+                    let like_kw = self.ident("`like` and the Native troop to copy after the new troop id")?;
+                    if like_kw.text != "like" {
+                        return Err(err(
+                            E0100_UNEXPECTED,
+                            format!("expected `like` after `troop {}`, found '{}'", id.text, like_kw.text),
+                            like_kw.span,
+                        )
+                        .with_help("write `troop elite_crossbowman like swadian_crossbowman { ... }`"));
+                    }
+                    let like = self.ident("the Native troop to copy after `like`, e.g. `swadian_crossbowman`")?;
+                    let (fields, body) = self.troop_body(&format!("troop {} like {}", id.text, like.text))?;
+                    file.items.push(Item::Troop { id, like, fields, span: Span { start, end: body.end } });
+                }
                 Tok::RBrace => {
                     return Err(err(E0102_STRAY_CLOSE, "this '}' has no matching '{'", t.span)
                         .with_help("remove it, or check which block above was closed early"));
@@ -784,7 +814,7 @@ impl Parser {
                 other => {
                     return Err(err(
                         E0100_UNEXPECTED,
-                        format!("expected `mod`, `override`, `in`, `new`, `on`, `fn`, `save` or `every` at the top level, found {}", describe(other)),
+                        format!("expected `mod`, `override`, `in`, `new`, `troop`, `on`, `fn`, `save` or `every` at the top level, found {}", describe(other)),
                         t.span,
                     ));
                 }
@@ -1011,6 +1041,67 @@ impl Parser {
                 }
             }
         }
+    }
+
+    /// The `{ <field> <value> … }` body of `troop … like …`: one record field per line (T-092).
+    fn troop_body(&mut self, head: &str) -> Result<(Vec<FieldValue>, Span), Diagnostic> {
+        let open = self.open_brace(head)?;
+        let mut fields = Vec::new();
+        loop {
+            self.skip_separators();
+            let t = self.peek().clone();
+            match &t.tok {
+                Tok::RBrace => {
+                    self.bump();
+                    return Ok((fields, Span { start: open.start, end: t.span.end }));
+                }
+                Tok::Eof => return Err(self.unclosed(open, &format!("`{head}`"))),
+                // A top-level item inside the block: the block lost its `}`.
+                Tok::Ident(kw) if matches!(kw.as_str(), "mod" | "override" | "new" | "troop") => {
+                    return Err(self
+                        .unclosed(open, &format!("`{head}`"))
+                        .with_note(format!("line {} starts `{kw}` while this block is still open", self.line_of(t.span.start))));
+                }
+                Tok::Ident(_) => fields.push(self.field_value(head)?),
+                other => {
+                    return Err(err(
+                        E0100_UNEXPECTED,
+                        format!("expected a field line like `level 22` inside `{head}`, found {}", describe(other)),
+                        t.span,
+                    )
+                    .with_help("write one `<field> <value>` per line, e.g. `name \"Elite Crossbowman\"`"));
+                }
+            }
+        }
+    }
+
+    /// One `<field> <value>` line of a `troop … like …` body. The value stays exactly as the source
+    /// writes it (record text: a number, a quoted text, a `{a 1, b 2}`), so `uw_decomp`'s record
+    /// reader of the kit-meta schema reads it the way record text is read.
+    fn field_value(&mut self, head: &str) -> Result<FieldValue, Diagnostic> {
+        let name = self.ident("a field name, e.g. `name`, `level` or `agility`")?;
+        let t = self.peek().clone();
+        if matches!(t.tok, Tok::Newline | Tok::Semi | Tok::RBrace | Tok::Eof) {
+            return Err(err(E0100_UNEXPECTED, format!("field `{}` of `{head}` has no value", name.text), t.span)
+                .with_help("write a value after the field name, e.g. `level 22`"));
+        }
+        let start = t.span.start;
+        let mut end = start;
+        let mut depth = 0usize;
+        loop {
+            let t = self.peek().clone();
+            match t.tok {
+                Tok::LBrace | Tok::LParen => depth += 1,
+                Tok::RBrace | Tok::RParen if depth > 0 => depth -= 1,
+                // The line ends here: a `}` at depth 0 closes the body of the item.
+                Tok::RBrace | Tok::Newline | Tok::Semi | Tok::Eof => break,
+                _ => {}
+            }
+            end = t.span.end;
+            self.bump();
+        }
+        let value = self.text[start..end].trim().to_owned();
+        Ok(FieldValue { name: name.clone(), value, span: Span { start: name.span.start, end } })
     }
 
     /// One menu line of an `override` / `new` body: `text`, `option`, `change option` or
@@ -1832,6 +1923,7 @@ mod tests {
                 Item::Fn { body, .. } => vec![body],
                 Item::Save { .. } => Vec::new(),
                 Item::Every { body, .. } => vec![body],
+                Item::Troop { .. } => Vec::new(),
             };
             for b in blocks {
                 for s in b.stmts.iter().filter_map(Stmt::as_call) {
@@ -1935,6 +2027,27 @@ on game.start {
             })
             .collect();
         assert_eq!(intervals, ["24", "1", "6", "0.5"]);
+    }
+
+    /// T-092: `troop <new> like <existing> { <field> <value> … }`, the value as record text.
+    #[test]
+    fn troop_reads_the_new_id_the_copied_one_and_its_field_lines() {
+        let file = parse(
+            "troop elite_crossbowman like swadian_crossbowman {\n  name \"Elite Crossbowman\"\n  level 22\n  agility 18\n}\n",
+        )
+        .unwrap();
+        let Item::Troop { id, like, fields, .. } = &file.items[0] else { panic!("not a troop: {:?}", file.items) };
+        assert_eq!((id.text.as_str(), like.text.as_str()), ("elite_crossbowman", "swadian_crossbowman"));
+        let read: Vec<(&str, &str)> = fields.iter().map(|f| (f.name.text.as_str(), f.value.as_str())).collect();
+        assert_eq!(read, [("name", "\"Elite Crossbowman\""), ("level", "22"), ("agility", "18")]);
+
+        // A field line without a value, and a missing `like`, say what to write.
+        let (d, r) = error("troop elite like swadian {\n  level\n}\n");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("has no value"), "{r}");
+        let (d, r) = error("troop elite swadian { level 22 }\n");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("expected `like` after `troop elite`"), "{r}");
     }
 
     #[test]

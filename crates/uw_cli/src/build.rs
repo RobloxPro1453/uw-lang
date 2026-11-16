@@ -55,8 +55,14 @@ pub fn run(opts: Options) -> Result<(), String> {
     // names `uw new` derives from the kit's display names.
     let mut model = crate::load(opts.atlas.or_else(|| find_up(&dir, crate::ATLAS_REL)))?;
     install_game_names(&mut model.atlas, &dir)?;
+    // The record schemas (`kit-meta/records`): `troop … like …` writes its fields through the
+    // troop layout, so a mod without them is told that instead of a guess (T-092).
+    let schemas = match crate::roundtrip::find_schemas_from(&dir) {
+        Some(schemas) => crate::roundtrip::load_schemas(&schemas)?,
+        None => Vec::new(),
+    };
     let fallback = dir.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| "uw_mod".into());
-    let checked = match uw_check::check(&model.atlas, &sources, &fallback) {
+    let checked = match uw_check::check_with_schemas(&model.atlas, &sources, &fallback, &schemas) {
         Ok(checked) => checked,
         Err(errors) => {
             for e in &errors {

@@ -244,6 +244,14 @@ impl Atlas {
         self.ref_to_name = pairs.iter().map(|(name, reference)| (reference.clone(), name.clone())).collect();
     }
 
+    /// Adds one game name (`elite_crossbowman` -> `trp_elite_crossbowman`) next to the ones
+    /// [`Atlas::set_game_names`] installed: a record the mod itself makes is named like a Native
+    /// one (T-092).
+    pub fn add_game_name(&mut self, name: &str, reference: &str) {
+        self.name_to_ref.insert(name.to_owned(), reference.to_owned());
+        self.ref_to_name.insert(reference.to_owned(), name.to_owned());
+    }
+
     /// The game name a project gave this kit reference (`fac_kingdom_1` -> `swadia`), if any.
     pub fn game_name(&self, reference: &str) -> Option<&str> {
         self.ref_to_name.get(reference).map(String::as_str)

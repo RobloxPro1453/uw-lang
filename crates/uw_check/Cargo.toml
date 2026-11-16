@@ -9,3 +9,5 @@ uw_diag = { path = "../uw_diag" }
 uw_syntax = { path = "../uw_syntax" }
 uw_atlas = { path = "../uw_atlas" }
 uw_lower = { path = "../uw_lower" }
+uw_decomp = { path = "../uw_decomp" }
+serde_json = "1"

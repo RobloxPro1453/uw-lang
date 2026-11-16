@@ -204,6 +204,11 @@ fn wrapper(name: &str, module: &str, patches: &[&Patch], debug: bool) -> String 
                 let _ = writeln!(out, "    {},", op_list(&patch.ops, 4));
                 let _ = writeln!(out, "))");
             }
+            // A new troop: one whole record at the end of the list, so Native's troops keep their
+            // numbers. `value` is the record as Python source (T-092).
+            Action::NewTroop { value } => {
+                let _ = writeln!(out, "{var} = _uw.add_entry({var}, {value})", var = patch.var);
+            }
         }
     }
     if debug && module == "module_game_menus" {
