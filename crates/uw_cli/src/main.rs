@@ -17,6 +17,11 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 const USAGE: &str = "usage:
+  uw create <mod name>
+      make the folder <mod name> here: all of Native as UW text, with game names (names.uw);
+      then `cd <mod name>` and `uw build`
+  uw build [folder] [--no-install] ...
+      no folder = this folder; a folder made by `uw create` builds the whole mod and installs it
   uw build <mod folder> [--debug] [--no-install] [--modules <Warband/Modules>] [--kit <kit>] [--python <python27.exe>]
       check the .uw files, build them with the Module System kit and install the mod;
       --debug: in game every menu prints its id, so you see what to override
@@ -60,7 +65,8 @@ fn main() -> ExitCode {
         }
         Some("explain") => cmd_explain(&args[1..]),
         Some("browse") => cmd_browse(&args[1..]),
-        Some("build") => cmd_build(&args[1..]),
+        Some("create") => cmd_create(&args[1..]),
+        Some("build") => cmd_build_any(&args[1..]),
         Some("graph") => cmd_graph(&args[1..]),
         Some("roundtrip") => roundtrip::cmd(&args[1..]),
         Some("new") => new::cmd(&args[1..]),
@@ -328,6 +334,91 @@ fn graph_json(atlas: Option<PathBuf>, tr_dir: Option<PathBuf>, words: &[String],
     }
     println!("{} -> {} (open it in graph_viewer)", flow_json::summary(&doc), path.display());
     ExitCode::SUCCESS
+}
+
+/// The UW folder (atlas, kit-meta, kit): an ancestor of the working folder that has `kit-meta/`,
+/// else the folder this `uw` was built from. Lets `uw create` / `uw build` run from any folder.
+fn uw_home() -> Option<PathBuf> {
+    let has_meta = |dir: &Path| dir.join("kit-meta").is_dir();
+    if let Some(found) = std::env::current_dir().ok().and_then(|cwd| cwd.ancestors().find(|d| has_meta(d)).map(Path::to_path_buf)) {
+        return Some(found);
+    }
+    let built_from = Path::new(env!("CARGO_MANIFEST_DIR")).join("..").join("..");
+    has_meta(&built_from).then(|| plain(built_from.canonicalize().unwrap_or(built_from)))
+}
+
+/// A Windows `\\?\` long-path prefix removed (canonicalize adds it; it only confuses readers).
+fn plain(path: PathBuf) -> PathBuf {
+    match path.to_str().and_then(|text| text.strip_prefix(r"\\?\")) {
+        Some(rest) => PathBuf::from(rest),
+        None => path,
+    }
+}
+
+/// `dir` made absolute against the working folder, then the working folder moved to [`uw_home`]
+/// (every lookup — atlas, schemas, kit, `target/` — starts there).
+fn enter_home(dir: &Path) -> Result<PathBuf, String> {
+    let cwd = std::env::current_dir().map_err(|e| e.to_string())?;
+    let absolute = if dir.is_absolute() { dir.to_path_buf() } else { cwd.join(dir) };
+    let home = uw_home().ok_or("the UW folder (with kit-meta/) was not found; run uw from inside it once")?;
+    std::env::set_current_dir(&home).map_err(|e| format!("{}: {e}", home.display()))?;
+    Ok(absolute)
+}
+
+/// `uw create <name>`: a new mod folder `<name>` here, holding all of Native as UW text + names.uw.
+fn cmd_create(args: &[String]) -> ExitCode {
+    let [name] = args else {
+        return fail("usage: uw create <mod name>   (makes the folder <mod name> in this folder)");
+    };
+    if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+        return fail(&format!("mod name '{name}' may only use letters, digits and _"));
+    }
+    let dir = match enter_home(Path::new(name)) {
+        Ok(dir) => dir,
+        Err(message) => return fail(&message),
+    };
+    let code = new::cmd(&[dir.display().to_string(), "--from".into(), "native".into()]);
+    if code == ExitCode::SUCCESS {
+        println!("next:  cd {name}   then   uw build");
+    }
+    code
+}
+
+/// `uw build [dir] [flags]`: no folder = this folder. A project folder (made by `uw create` /
+/// `uw new`, it has uw.lock) builds with `build-project`; any other folder is a `uw build` mod.
+fn cmd_build_any(args: &[String]) -> ExitCode {
+    let mut rest: Vec<String> = args.to_vec();
+    // The folder is the first word that is not a flag nor a flag's value.
+    let mut given = None;
+    let mut i = 0;
+    while i < rest.len() {
+        match rest[i].as_str() {
+            "--atlas" | "--kit" | "--python" | "--modules" => i += 2,
+            flag if flag.starts_with('-') => i += 1,
+            _ => {
+                given = Some(i);
+                break;
+            }
+        }
+    }
+    let dir = match given {
+        Some(i) => PathBuf::from(rest.remove(i)),
+        None => PathBuf::from("."),
+    };
+    let dir = match enter_home(&dir) {
+        Ok(dir) => dir,
+        Err(message) => return fail(&message),
+    };
+    let dir = dir.canonicalize().unwrap_or(dir);
+    let dir_text = dir.display().to_string();
+    let dir_text = dir_text.strip_prefix(r"\\?\").unwrap_or(&dir_text).to_string();
+    let mut forwarded = vec![dir_text];
+    forwarded.extend(rest);
+    if dir.join("uw.lock").is_file() {
+        build_project::cmd(&forwarded)
+    } else {
+        cmd_build(&forwarded)
+    }
 }
 
 pub(crate) fn find_atlas() -> Option<PathBuf> {
