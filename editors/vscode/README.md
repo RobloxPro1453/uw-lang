@@ -76,6 +76,22 @@ kaydettiğinizde çizgi kaybolur.
 - `uw` bulunamazsa eklenti çökmez; bir kez "uw bulunamadı" uyarısı gösterir.
 - `uw check` henüz kurulu değilse hiçbir tanı üretilmez (çıktı boş sayılır).
 
+## Otomatik tamamlama
+
+`.uw` dosyasında yazarken eklenti `uw words --json <klasör>` komutunu çalıştırır ve projenin
+adlarını önerir; her öneri tek satırlık bir ipucu taşır:
+
+- **oyun adları** (`praven`, `swadia`, `king_harlaus`): projenin `names.uw` dosyasından, yoksa
+  Native'in görünen adlarından `uw new` kuralıyla türetilir (ipucu, kaydın görünen adı ve türüdür);
+- **kelimeler**: `lib/*.uw` ve projenin `fns/*.uw` dosyalarındaki `fn` adları (`say`, `give_gold`);
+- **nesne alanları** (`player.gold`): adı `fn player.gold.get` / `.add` / `.remove` / `.set` olan
+  fn'lerden türetilir;
+- **anahtar kelimeler** (`mod`, `override`, `fn`, `if`, `option`, …) ve Türkçe ipuçları.
+
+Klasör kuralı "Hataları görme" bölümündeki gibidir; komut `uw.path` ayarını kullanır. Liste klasör
+başına **bir kez** çalışır: `names.uw` ya da `lib/` / `fns/` altındaki bir dosya kaydedilince
+tazelenir. `uw` bulunamazsa tamamlama sessizce boş kalır (uyarıyı "Hataları görme" verir).
+
 ## Denetim
 
 Söz dizimi dosyalarının (`syntaxes/uw.tmLanguage.json`, `language-configuration.json`,
@@ -93,12 +109,15 @@ Test Node.js gerektirmez.
 
 ```sh
 node editors/vscode/test/parse.test.js
+node editors/vscode/test/words.test.js
 ```
 
 ## Dosyalar
 
 - `package.json`: eklenti bildirimi (ad `uw-lang`, `.uw` uzantısı, dil bilgisi yolu, `main`, `uw.path`)
-- `extension.js`: `uw check --json` çalıştırıp tanıları (dalgalı çizgi + Problems) gösteren uzantı
+- `extension.js`: `uw check --json` çalıştırıp tanıları (dalgalı çizgi + Problems) gösteren ve
+  `uw words --json` ile otomatik tamamlama sunan uzantı
 - `test/parse.test.js`: `parseCheckOutput` testi (düz `node`, çerçeve yok)
+- `test/words.test.js`: `parseWords` testi (düz `node`, çerçeve yok)
 - `language-configuration.json`: yorumlar, parantezler, otomatik kapanan çiftler, kelime deseni
 - `syntaxes/uw.tmLanguage.json`: TextMate dil bilgisi
