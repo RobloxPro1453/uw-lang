@@ -59,6 +59,17 @@ pub fn load(
     dir: &Path,
     parse: &mut dyn FnMut(&Schema, &str) -> Result<(String, Json), String>,
 ) -> Result<BTreeMap<String, Vec<Json>>, Vec<String>> {
+    load_with_owners(atlas, schemas, dir, parse).map(|(records, _owners)| records)
+}
+
+/// [`load`], plus the project's `owner` lines: full party reference -> full faction reference
+/// (`p_town_1` -> `fac_kingdom_4`), read from the parties records before schema parsing.
+pub fn load_with_owners(
+    atlas: &Atlas,
+    schemas: &[Schema],
+    dir: &Path,
+    parse: &mut dyn FnMut(&Schema, &str) -> Result<(String, Json), String>,
+) -> Result<(BTreeMap<String, Vec<Json>>, BTreeMap<String, String>), Vec<String>> {
     let lock_path = dir.join(LOCK_FILE);
     let text = std::fs::read_to_string(&lock_path).map_err(|e| vec![format!("{}: {e}", lock_path.display())])?;
     let lock: Lock = toml::from_str(&text).map_err(|e| vec![format!("{}: {e}", lock_path.display())])?;
@@ -77,6 +88,7 @@ pub fn load(
     collect_uw_files(dir, &mut files);
     files.sort();
     let mut records: Vec<Parsed> = Vec::new();
+    let mut owners: BTreeMap<String, String> = BTreeMap::new();
     let mut seq = 0usize;
     for file in &files {
         let text = match std::fs::read_to_string(file) {
@@ -86,7 +98,7 @@ pub fn load(
                 continue;
             }
         };
-        for (start, record) in super::split_records(&text) {
+        for (start, mut record) in super::split_records(&text) {
             // The record word (`faction`, `troop`, …) names its table exactly; prefixes collide
             // (`party` / `party_template`), so this is a whole-word match.
             let kind = record.trim_start().split_whitespace().next().unwrap_or("");
@@ -94,8 +106,23 @@ pub fn load(
                 errors.push(format!("{}: line {start}: `{kind}` kayıt türü tanınmıyor", file.display()));
                 continue;
             };
+            let owner = if schema.table == "parties" { super::take_owner(&mut record) } else { None };
             match parse(schema, &record) {
                 Ok((id, value)) => {
+                    if let Some((owner, offset)) = owner {
+                        let party = format!("{}{id}", schema.id_prefix);
+                        match faction_id(atlas, &owner) {
+                            Some(faction) => {
+                                owners.insert(party, faction);
+                            }
+                            None => errors.push(format!(
+                                "{}: line {}: sahip `{owner}` tanınmıyor; oyun adı ya da kitle \
+                                 kimliği yaz (ör. swadia, fac_kingdom_1)",
+                                file.display(),
+                                start + offset
+                            )),
+                        }
+                    }
                     records.push(Parsed { table: schema.table.clone(), id, value, file: file.clone(), seq });
                     seq += 1;
                 }
@@ -189,10 +216,26 @@ pub fn load(
     }
 
     if errors.is_empty() {
-        Ok(result)
+        Ok((result, owners))
     } else {
         Err(errors)
     }
+}
+
+/// The faction reference behind an `owner` value: a game name (`swadia`), a kit id
+/// (`fac_kingdom_4`) or a bare kit id (`kingdom_4`). `None` when the atlas has no such faction.
+fn faction_id(atlas: &Atlas, name: &str) -> Option<String> {
+    let mut candidates = vec![name.to_owned()];
+    if let Some(reference) = atlas.reference_for(name) {
+        candidates.push(reference.to_owned());
+    }
+    if let Some(prefix) = atlas.tables.get("factions").and_then(|table| table.id_prefix.as_deref()) {
+        candidates.push(format!("{prefix}{name}"));
+    }
+    candidates.into_iter().find_map(|candidate| match atlas.entry_by_id(&candidate) {
+        Some(("factions", entry)) => entry.id.clone(),
+        _ => None,
+    })
 }
 
 /// Moves a record-relative `line N: message` to the file's own line (the record starts at `start`).
