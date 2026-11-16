@@ -8,6 +8,16 @@ Otomatik testin göremediği, sahibinin bir kez gözle bakması gereken şeyler.
 
 **Oyun deneyi kuyruğu.** Döngü soru sormaz; oyunu açmayı gerektiren deneyleri buraya **tek tek**, adım adım yazar ve beklemeden başka işe geçer. Sahibi sırayla yapar, sonucu (ve ekran görüntüsünü) maddenin altına yazar; sonraki çevrim okur, `docs/bilgi/`'ye [DENEY] olarak işler ve maddeyi siler. Her madde: hangi test modu klasörü, oyunda nereye gidilir, neye bakılır, ne yazılır.
 
+- **`dialog … first_meeting` oyunda (T-102, yeni).**
+  1. `crates/uw_cli/tests/golden/dialog_first_meeting/input.uw` içindeki `mod …` ve `dialog king_harlaus first_meeting { … }` satırlarını kendi test modunun `.uw` dosyasına kopyala (`mod` satırına kendi mod adını yaz).
+  2. `uw build <mod klasörü>` ile derle; çıktıda hata olmamalı. Kit "Output token not found" ya da "INPUT TOKEN NOT FOUND" basarsa buraya yaz.
+  3. Modu Warband başlatıcısında seç, yeni oyun aç, karakteri yarat.
+  4. Swadya kralı **King Harlaus**'u bul (Swadya'da, Praven çevresinde dolaşır), yanına git ve konuş.
+  5. **İlk konuşmada** Harlaus "Who are you, stranger?" demeli; Native'in "Do I know you?" satırı **hiç** çıkmamalı.
+  6. Seçenekler: "Just a traveller." her zaman; "I wish to serve you." yalnız şöhret 300 ve üzeriyse (yeni karakterde görünmez). "Just a traveller." seçilince konuşma kapanmalı, haritaya dönmeli (karşılaşma menüsünde asılı kalırsa yaz: satırlarda `$g_leave_encounter` yazılmıyor).
+  7. Şöhreti 300'e çıkar (konsol/hile menüsü ya da bir test fn'i ile `player.renown += 300`), tekrar konuş: ikinci seçenek görünmeli ve seçince mesaj günlüğünde "He nods." yazmalı.
+  8. Bir kez daha konuş: bu satırlar artık çıkmamalı (ilk tanışma geçti), Native'in lord satırları gelmeli.
+
 
 
 

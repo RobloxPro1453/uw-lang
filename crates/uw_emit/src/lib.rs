@@ -8,7 +8,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 
-use uw_check::{Action, Checked, NewOption, Op, OptionPlace, Patch, Value};
+use uw_check::{Action, Checked, NewDialogLine, NewOption, Op, OptionPlace, Patch, Value};
 
 /// The runtime the wrappers import (py/uw_runtime.py, embedded).
 pub const UW_RUNTIME: &str = include_str!("../../../py/uw_runtime.py");
@@ -96,14 +96,37 @@ const DEBUG_MENUS: &str = "
 game_menus = _uw.tag_all(game_menus, 4, lambda e: [(display_log_message, \"@uw: menu-\" + e[0].replace(\"_\", \"-\"), 0xFFFF00)])
 ";
 
+/// A dialog line `[SPEAKER, STATE, [CONDITION], TEXT, NEXT, [CONSEQUENCE]]` after an already-open
+/// `[`: one field per line at `base + 4`, closing `]` at `base` (no trailing comma, T-102).
+fn write_dialog_line(out: &mut String, line: &NewDialogLine, base: usize) {
+    let field = " ".repeat(base + 4);
+    let close = " ".repeat(base);
+    let _ = writeln!(out);
+    let _ = writeln!(out, "{field}{},", line.speaker);
+    let _ = writeln!(out, "{field}{},", py_str(&line.state));
+    let _ = writeln!(out, "{field}{},", op_list(&line.condition, base + 4));
+    let _ = writeln!(out, "{field}{},", py_str(&line.text));
+    let _ = writeln!(out, "{field}{},", py_str(&line.next));
+    let _ = writeln!(out, "{field}{},", op_list(&line.consequence, base + 4));
+    let _ = write!(out, "{close}]");
+}
+
 fn wrapper(name: &str, module: &str, patches: &[&Patch], debug: bool) -> String {
     let mut headers: BTreeSet<&str> = BTreeSet::new();
+    // Every operation a patch writes: its own block, and the condition / consequence blocks a new
+    // dialog line brings (T-102).
+    let mut ops: Vec<&Op> = patches.iter().flat_map(|patch| patch.ops.iter()).collect();
     for patch in patches {
-        for op in &patch.ops {
-            for arg in &op.args {
-                if let Value::Const { module, .. } = arg {
-                    headers.insert(module);
-                }
+        if let Action::NewDialog { lines, .. } = &patch.action {
+            for line in lines {
+                ops.extend(line.condition.iter().chain(&line.consequence));
+            }
+        }
+    }
+    for op in ops {
+        for arg in &op.args {
+            if let Value::Const { module, .. } = arg {
+                headers.insert(module);
             }
         }
     }
@@ -203,6 +226,21 @@ fn wrapper(name: &str, module: &str, patches: &[&Patch], debug: bool) -> String 
                 let _ = writeln!(out, "    {interval},");
                 let _ = writeln!(out, "    {},", op_list(&patch.ops, 4));
                 let _ = writeln!(out, "))");
+            }
+            // New dialog lines (`dialog …`, T-102): whole records of the `dialogs` list, put in
+            // front of Native's lines of the same state. The kit scans the table top to bottom and
+            // the first matching NPC line wins (module_dialogs.py:16-18), so a line written after
+            // Native's own would never be reached (docs/bilgi/anlam/diyaloglar.md §2, §9). The
+            // voice-over field is left out: a shorter line means `NO_VOICEOVER`
+            // (process_dialogs.py:180-183).
+            Action::NewDialog { state, lines } => {
+                let _ = writeln!(out, "{var} = _uw.insert_before_state({var}, {state}, [", var = patch.var, state = py_str(state));
+                for line in lines {
+                    let _ = write!(out, "    [");
+                    write_dialog_line(&mut out, line, 4);
+                    let _ = writeln!(out, ",");
+                }
+                let _ = writeln!(out, "])");
             }
             // A new record (troop, town, …): one whole record at the end of its list, so Native's
             // own records keep their numbers. `value` is the record as Python source (T-092,

@@ -17,6 +17,7 @@
         {"name":"party_add_members","code":1610,"line":651,"signature":"(party_add_members,<party_id>,<troop_id>,<number>),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"party_remove_members","code":1615,"line":657,"signature":"(party_remove_members,<party_id>,<troop_id>,<number>),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"troop_get_slot","code":520,"line":252,"signature":"(troop_get_slot,<destination>,<troop_id>,<slot_no>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"eq","code":31,"line":41,"signature":"(eq,<value>,<value>),","lhs":false,"can_fail":true,"global_lhs":false},
         {"name":"store_character_level","code":2171,"line":1221,"signature":"(store_character_level,<destination>,[troop_id]),","lhs":false,"can_fail":false,"global_lhs":false}
       ],
       "hooks": ["game_start"],
@@ -24,7 +25,8 @@
       "constants": [
         {"name":"reg0","value":1,"module":"header_common","line":563},
         {"name":"tf_male","value":0,"module":"header_troops","line":25},
-        {"name":"slot_troop_renown","value":7,"module":"module_constants","line":659}
+        {"name":"slot_troop_renown","value":7,"module":"module_constants","line":659},
+        {"name":"slot_troop_met","value":5,"module":"module_constants","line":653}
       ],
       "tables": {
         "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","ref_tag":"mnu",
@@ -53,7 +55,9 @@
             {"index":1,"name":"swadian_crossbowman","id":"trp_swadian_crossbowman","dup":null,"line":378,
               "value":{"list":["swadian_crossbowman","Swadian Crossbowman","Swadian Crossbowmen",1041,0,0,15,
                 {"list":["itm_bolts","itm_crossbow"]},
-                107374184469,153,0,"swadian_face_young_1","swadian_face_old_2"]}}
+                107374184469,153,0,"swadian_face_young_1","swadian_face_old_2"]}},
+            {"index":2,"name":"kingdom_1_lord","id":"trp_kingdom_1_lord","dup":null,"line":964,
+              "value":{"list":["kingdom_1_lord","King Harlaus","Harlaus"]}}
           ]},
         "scripts": {"module":"module_scripts","var":"scripts","id_file":"ID_scripts","id_prefix":"script_","ref_tag":"script",
           "entries": [{"index":0,"name":"game_start","id":"script_game_start","dup":null,"line":31,"value":[]}]}

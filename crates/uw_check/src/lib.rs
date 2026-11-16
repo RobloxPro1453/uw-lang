@@ -17,7 +17,7 @@ use serde_json::Value as Json;
 use uw_atlas::{Atlas, Entry};
 use uw_decomp::records::{self, Schema};
 use uw_diag::{suggest, Diagnostic, SourceFile, Span};
-use uw_syntax::{Arg, Block, Cond, Expr, FieldValue, File, Ident, Item, Member, Place, Stmt, When};
+use uw_syntax::{Arg, Block, Cond, DialogLine, Expr, FieldValue, File, Ident, Item, Member, Place, Stmt, When};
 #[allow(unused_imports)]
 use uw_syntax::Call;
 
@@ -91,6 +91,34 @@ pub enum Action {
     /// copied from `<other>` with the written fields changed. The module, the list and its entry
     /// name come from the item's own table.
     NewRecord { value: String },
+    /// New dialog lines (`dialog <troop> <name> { … }`, T-102): whole records of the
+    /// `module_dialogs.py` `dialogs` list, put in front of Native's lines for `state` so the mod's
+    /// line is the first one scanned there (docs/bilgi/anlam/diyaloglar.md §2, §9).
+    NewDialog { state: String, lines: Vec<NewDialogLine> },
+}
+
+/// One Native dialog line a `dialog` item makes: the fields of `module_dialogs.py:20-43` (speaker,
+/// starting state, condition block, text, ending state, consequence block). The 7th field (the
+/// voice-over) is left out, as Native's own lines do when there is none: the kit writes
+/// `NO_VOICEOVER` for a shorter line (process_dialogs.py:180-183, kit-meta/records/dialogs.toml:49).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NewDialogLine {
+    /// Field 0 as Python source: `anyone` (the NPC) or `anyone|plyr` (the player) — the kit's own
+    /// spellings (header_dialogs.py:15,22).
+    pub speaker: &'static str,
+    /// Field 1: the state the line shows in.
+    pub state: String,
+    /// Field 2: the condition block.
+    pub condition: Vec<Op>,
+    /// Field 3: the text the line says.
+    pub text: String,
+    /// Field 4: the state after the line is picked (`close_window` ends the talk,
+    /// process_dialogs.py:68).
+    pub next: String,
+    /// Field 5: the operations picking the line runs.
+    pub consequence: Vec<Op>,
+    /// `file:line` of the line, for the patch header.
+    pub origin: String,
 }
 
 /// A menu option written in UW: kit layout module_game_menus.py:28 (id, condition, text,
@@ -1187,6 +1215,135 @@ impl Ctx<'_> {
         Some(id.text.clone())
     }
 
+    /// The lines of `dialog <troop> <name> { … }` (T-102), checked, with the state they are put in
+    /// front of in the Native table (`start`).
+    fn dialog(
+        &mut self,
+        troop: &Ident,
+        name: &Ident,
+        lines: &[DialogLine],
+        span: Span,
+    ) -> Option<(String, Vec<NewDialogLine>)> {
+        // The talk partner is a troop, written as its game name (`king_harlaus`) or its kit
+        // reference (`trp_kingdom_1_lord`); the speaker field matches a troop id (diyaloglar.md §4).
+        let partner = match self.value(&Arg::Name(troop.clone())) {
+            None => return None,
+            Some(Value::Ref(reference)) if is_troop_ref(self.atlas, &reference) => reference,
+            Some(_) => {
+                self.error(diag(
+                    E0001_UNKNOWN_NAME,
+                    format!("'{}' is not a troop", troop.text),
+                    troop.span,
+                    Some("name the person the player talks to, e.g. `dialog king_harlaus first_meeting`".into()),
+                ));
+                return None;
+            }
+        };
+        // The name becomes the dialog state (`uw_<name>_0`), which the kit writes as a token.
+        if !name.text.is_ascii() {
+            self.error(diag(
+                E0208_BAD_ID,
+                format!("dialog name '{}' has non-ASCII letters", name.text),
+                name.span,
+                Some("a dialog name uses ASCII letters, digits and _".into()),
+            ));
+            return None;
+        }
+        if lines.is_empty() {
+            self.error(diag(
+                E0203_TOO_FEW,
+                format!("dialog '{}' has no lines", name.text),
+                name.span,
+                Some("write the person's first line, e.g. `harlaus: \"Who are you?\"`".into()),
+            ));
+            return None;
+        }
+        // The first line is the other person's, the lines after it are the player's choices
+        // (diyaloglar.md §2, §7); the opening line leads to the choices through a state of its own.
+        let choices = format!("uw_{}_0", name.text);
+        let mut out: Vec<NewDialogLine> = Vec::new();
+        for (index, line) in lines.iter().enumerate() {
+            let player = line.speaker.text == "player";
+            if index == 0 && player {
+                self.error(diag(
+                    E0201_NOT_YET,
+                    "a `dialog` starts with the other person's line, not `player:`".into(),
+                    line.speaker.span,
+                    Some("write the person's line first, e.g. `harlaus: \"Who are you?\"`".into()),
+                ));
+                return None;
+            }
+            if index > 0 && !player {
+                self.error(diag(
+                    E0201_NOT_YET,
+                    format!("`{}:` cannot follow the opening line", line.speaker.text),
+                    line.speaker.span,
+                    Some("one line for the other person: every line after it is a `player:` choice".into()),
+                ));
+                return None;
+            }
+            let next = match &line.to {
+                // `-> end` closes the talk (diyaloglar.md §6).
+                Some(to) if to.text == "end" => "close_window".to_string(),
+                Some(to) => {
+                    self.error(diag(
+                        E0201_NOT_YET,
+                        format!("`-> {}` is not in UW yet", to.text),
+                        to.span,
+                        Some("write `-> end`: a jump to another line is not in UW yet".into()),
+                    ));
+                    return None;
+                }
+                None if index == 0 && lines.len() > 1 => choices.clone(),
+                None => {
+                    self.error(diag(
+                        E0201_NOT_YET,
+                        "this line needs `-> end` after it".into(),
+                        line.span,
+                        Some("`-> end` closes the talk".into()),
+                    ));
+                    return None;
+                }
+            };
+            self.check_text(&line.text, line.span);
+            let mut condition = Vec::new();
+            if index == 0 {
+                // The talk partner; `$g_talk_troop` is filled by Native's preparation line, so this
+                // line must be scanned after it (diyaloglar.md §4).
+                condition.push(Op {
+                    name: "eq".into(),
+                    args: vec![Value::Ref("$g_talk_troop".into()), Value::Ref(partner.clone())],
+                    origin: self.origin(line.span),
+                });
+                // `first_meeting`: the talk partner's met slot is still 0 (diyaloglar.md §5).
+                if name.text == "first_meeting" {
+                    condition.push(Op {
+                        name: "eq".into(),
+                        args: vec![Value::Ref("$g_talk_troop_met".into()), Value::Int(0)],
+                        origin: self.origin(span),
+                    });
+                }
+            }
+            if let Some(when) = &line.when {
+                match when {
+                    When::Block(block) => condition.extend(self.ops(&block.stmts)),
+                    When::Cond(cond) => condition.extend(self.cond_ops(cond, line.span)),
+                }
+            }
+            let consequence = line.body.as_ref().map(|body| self.ops(&body.stmts)).unwrap_or_default();
+            out.push(NewDialogLine {
+                speaker: if player { "anyone|plyr" } else { "anyone" },
+                state: if index == 0 { "start".to_string() } else { choices.clone() },
+                condition,
+                text: line.text.clone(),
+                next,
+                consequence,
+                origin: self.origin(line.span),
+            });
+        }
+        Some(("start".to_string(), out))
+    }
+
     /// A new option; `native` is the menu's Native option id list when it already exists.
     fn build_option(
         &mut self,
@@ -1729,6 +1886,12 @@ fn copy_table(kind: &str) -> Option<&'static str> {
         "town" | "castle" | "village" | "party" => "parties",
         _ => return None,
     })
+}
+
+/// True when `reference` names a troop (`trp_kingdom_1_lord`): a dialog's talk partner is a troop id
+/// (module_dialogs.py:21-24, docs/bilgi/anlam/diyaloglar.md §4).
+fn is_troop_ref(atlas: &Atlas, reference: &str) -> bool {
+    atlas.resolve_ref(reference).is_some_and(|(table, _)| table == "troops")
 }
 
 /// The atlas plus a name for every record the mod makes (`troop <id> like …`, `town <id> like …`):
@@ -2370,6 +2533,20 @@ pub fn check_with_schemas(
                         entry: id.text.clone(),
                         path: Vec::new(),
                         action: Action::NewRecord { value },
+                        ops: Vec::new(),
+                        origin: ctx.origin(*span),
+                    });
+                }
+                // `dialog <troop> <name> { … }` (T-102): the talk with one troop, as Native dialog
+                // lines put in front of Native's lines of the same state (diyaloglar.md §2, §9).
+                Item::Dialog { troop, name, lines, span } => {
+                    let Some((state, dialog_lines)) = ctx.dialog(troop, name, lines, *span) else { continue };
+                    patches.push(Patch {
+                        module: "module_dialogs".into(),
+                        var: "dialogs".into(),
+                        entry: String::new(),
+                        path: Vec::new(),
+                        action: Action::NewDialog { state, lines: dialog_lines },
                         ops: Vec::new(),
                         origin: ctx.origin(*span),
                     });
