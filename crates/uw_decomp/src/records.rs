@@ -282,6 +282,35 @@ fn record_id(schema: &Schema, entry: &Entry) -> String {
     }
 }
 
+/// The ref tag of a schema's table (`fac` for factions), if the atlas knows one.
+fn ref_tag<'a>(atlas: &'a Atlas, schema: &Schema) -> Option<&'a str> {
+    atlas.tables.get(&schema.table)?.ref_tag.as_deref()
+}
+
+/// The header a record prints: its project game name (`swadia`) when the atlas has one for the
+/// reference `<ref_tag>_<bare id>` (`fac_kingdom_1`), the bare id otherwise (P5b).
+fn printed_id(atlas: Option<&Atlas>, schema: &Schema, bare: &str) -> String {
+    let Some(atlas) = atlas else { return bare.to_owned() };
+    let Some(tag) = ref_tag(atlas, schema) else { return bare.to_owned() };
+    match atlas.game_name(&format!("{tag}_{bare}")) {
+        Some(name) => name.to_owned(),
+        None => bare.to_owned(),
+    }
+}
+
+/// The bare record id a parsed header names: a project header is the record's game name
+/// (`faction swadia`), whose reference (`fac_kingdom_1`) belongs to this table (P5b). A header
+/// that is not such a name stays what it is, and the caller reports it as before.
+fn parsed_id(atlas: Option<&Atlas>, schema: &Schema, header: &str) -> String {
+    let Some(atlas) = atlas else { return header.to_owned() };
+    let Some(reference) = atlas.reference_for(header) else { return header.to_owned() };
+    let Some(tag) = ref_tag(atlas, schema) else { return header.to_owned() };
+    match reference.strip_prefix(tag).and_then(|rest| rest.strip_prefix('_')) {
+        Some(id) => id.to_owned(),
+        None => header.to_owned(),
+    }
+}
+
 /// A bare id reads back as one `word`; anything else (dialog `a:b`, string `x_=_y`) is quoted.
 fn is_word(id: &str) -> bool {
     !id.is_empty() && id.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '.' | '-' | '+'))
@@ -307,7 +336,8 @@ pub fn print(schema: &Schema, entry: &Entry) -> String {
 /// operation block: `ops {`, the block text `print_block` returns indented four more spaces, `}`.
 ///
 /// A path counts list/tuple positions from the record value root, with `{"list": …}` wrappers not
-/// counted, the same walk [`crate::extract`] uses. Values at no path keep their raw text.
+/// counted, the same walk [`crate::extract`] uses. Values at no path keep their raw text. The header
+/// prints the project game name (`faction swadia`) when the atlas has names installed (P5b).
 pub fn print_with_blocks(
     atlas: &Atlas,
     schema: &Schema,
@@ -325,7 +355,8 @@ fn print_record(
     paths: &[Vec<usize>],
     print_block: &mut dyn FnMut(&Json) -> String,
 ) -> String {
-    let id = record_id(schema, entry);
+    let bare = record_id(schema, entry);
+    let id = printed_id(atlas, schema, &bare);
     let mut out = format!("{} ", schema.kind);
     if is_word(&id) {
         out.push_str(&id);
@@ -492,7 +523,9 @@ pub fn parse(schema: &Schema, text: &str) -> Result<(String, Json), String> {
 }
 
 /// Parses record text written by [`print_with_blocks`]: every `ops { … }` block is cut out
-/// (strings and nested braces aware) and `compile` turns its inner text back into atlas JSON.
+/// (strings and nested braces aware) and `compile` turns its inner text back into atlas JSON. A
+/// header that is a project game name (`faction swadia`) reads back as the bare record id
+/// (`kingdom_1`), which is what the project load and check match records by (P5b).
 pub fn parse_with_blocks(
     atlas: &Atlas,
     schema: &Schema,
@@ -533,6 +566,8 @@ fn parse_record<'t, 'c>(
         return Err(format!("line {}: expected `{{` after `{} {id}`", p.line, schema.kind));
     }
     p.bump();
+    // A project header is the record's game name (`faction swadia`): the id is its bare record id.
+    let id = parsed_id(atlas, schema, &id);
 
     let mut values: Vec<Option<Value>> = vec![None; schema.fields.len()];
     let close_line;
