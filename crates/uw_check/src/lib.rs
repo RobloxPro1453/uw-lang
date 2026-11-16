@@ -45,6 +45,15 @@ pub const E0217_SAVE_NAME: &str = "E0217";
 /// A field or field value of a `<kind> … like …` copy that the copied record does not take
 /// (T-092 troops, T-099 parties).
 pub const E0218_TROOP_FIELD: &str = "E0218";
+/// An `on enter` naming an `area` the mod does not declare (T-109).
+pub const E0219_AREA_UNKNOWN: &str = "E0219";
+/// An `area` with fewer than 3 corners, so it cannot be a polygon (T-109).
+pub const E0220_AREA_POINTS: &str = "E0220";
+
+/// Why an `on enter` trigger checks its area this often, written next to the generated trigger:
+/// the map has no per-step hook, so the trigger samples the party position (T-109).
+const AREA_INTERVAL_COMMENT: &str =
+    "0.25 h = every quarter game-hour: the map has no per-step hook, so `on enter` samples the position";
 
 /// How deep `fn` calls may nest before the body is expanded, so a runaway chain stops.
 const FN_DEPTH: usize = 16;
@@ -83,9 +92,10 @@ pub enum Action {
     RemoveOption(String),
     /// A new menu appended to the list (`new menu_x …`); `entry` holds its bare name.
     NewMenu { text: String, enter: Vec<Op>, options: Vec<NewOption> },
-    /// A new simple trigger appended to the list (`every …`): an entry `(interval, ops)` with no
-    /// name, checked every `interval` game hours (module_simple_triggers.py:15-17).
-    NewSimpleTrigger { interval: String },
+    /// A new simple trigger appended to the list (`every …`, `on enter …`): an entry
+    /// `(interval, ops)` with no name, checked every `interval` game hours
+    /// (module_simple_triggers.py:15-17). `comment` is a note written above it (`on enter`, T-109).
+    NewSimpleTrigger { interval: String, comment: Option<String> },
     /// A new record appended to its list (`troop <id> like <other> { … }`, T-092; `town … like …`,
     /// T-099): `value` is the whole record as Python source (a list literal, the atlas value),
     /// copied from `<other>` with the written fields changed. The module, the list and its entry
@@ -172,6 +182,12 @@ const SCRIPT_BODY_FIELD: usize = 1;
 
 fn diag(code: &'static str, message: String, span: Span, help: Option<String>) -> Diagnostic {
     Diagnostic { code, message, span, notes: Vec::new(), help }
+}
+
+/// One operation the check builds itself (an `area`'s point-in-polygon test, T-109), with the
+/// `file:line` the emitter writes next to it.
+fn made_op(name: &str, args: Vec<Value>, origin: &str) -> Op {
+    Op { name: name.into(), args, origin: origin.into() }
 }
 
 /// Smallest number of values `op` needs according to its header comment
@@ -386,6 +402,15 @@ struct SaveDef {
     origin: String,
 }
 
+/// An `area` of the mod (T-109): its polygon, so `on enter` can test a party against it.
+struct AreaDef {
+    name: String,
+    /// The corners in world-map units × 100 (what `position_get_x/y` returns at multiplier 100).
+    points: Vec<(i64, i64)>,
+    /// `file:line` of `area <name>`, for "two areas with one name".
+    origin: String,
+}
+
 struct Ctx<'a> {
     atlas: &'a Atlas,
     errors: Vec<Error>,
@@ -409,6 +434,8 @@ struct Ctx<'a> {
     temps: Vec<String>,
     /// Every `save` of the mod: its bare name means `$<name>` in every file (T-085).
     saves: &'a [SaveDef],
+    /// Every `area` of the mod, so an `on enter` can name one (T-109).
+    areas: &'a [AreaDef],
 }
 
 impl Ctx<'_> {
@@ -437,6 +464,79 @@ impl Ctx<'_> {
     fn ops(&mut self, stmts: &[Stmt]) -> Vec<Op> {
         let tree = self.stmts(stmts);
         uw_lower::lower(&tree)
+    }
+
+    /// The operations of one `on enter <area>` simple trigger (T-109): read the player's party
+    /// position, test it against the polygon with a ray cast (integer arithmetic only), run the
+    /// block only on outside → inside, and store the new inside flag in `$uw_area_<name>_inside`.
+    fn area_trigger_ops(&mut self, area: &AreaDef, when: Option<&When>, body: &Block, span: Span) -> Vec<Op> {
+        let origin = self.origin(span);
+        let x = Value::Ref(":__uw_area_x".into());
+        let y = Value::Ref(":__uw_area_y".into());
+        let inside = Value::Ref(":__uw_area_inside".into());
+        let py = Value::Ref(":__uw_area_py".into());
+        let px = Value::Ref(":__uw_area_px".into());
+        let t1 = Value::Ref(":__uw_area_t1".into());
+        let t2 = Value::Ref(":__uw_area_t2".into());
+        let cross = Value::Ref(":__uw_area_cross".into());
+        let toggle = Value::Ref(":__uw_area_toggle".into());
+        // `pos1` is the kit's position register (header_common.py:498), written bare like `reg0`.
+        let pos = Value::Const { name: "pos1".into(), module: "header_common".into() };
+        let flag = Value::Ref(format!("$uw_area_{}_inside", area.name));
+
+        let mut ops = Vec::new();
+        // Positions are read as meters × 100 (header_operations.py:328-329); coordinates are stored
+        // the same way, so both are compared without dividing.
+        ops.push(made_op("set_fixed_point_multiplier", vec![Value::Int(100)], &origin));
+        ops.push(made_op("party_get_position", vec![pos.clone(), Value::Ref("p_main_party".into())], &origin));
+        ops.push(made_op("position_get_x", vec![x.clone(), pos.clone()], &origin));
+        ops.push(made_op("position_get_y", vec![y.clone(), pos], &origin));
+        ops.push(made_op("assign", vec![inside.clone(), Value::Int(0)], &origin));
+
+        // Even-odd ray casting to +x (header_operations.py: store_sub/mul 1170-1172, le/lt/gt
+        // 40-44): an edge (x1,y1)→(x2,y2) crosses the horizontal line when exactly one endpoint is
+        // above the point; the point is left of the crossing when the cross product has the sign of
+        // y2-y1. No division is needed, so no rounding can move a point across an edge.
+        let points = &area.points;
+        for i in 0..points.len() {
+            let (ax, ay) = points[i];
+            let (bx, by) = points[(i + 1) % points.len()];
+            ops.push(made_op("store_sub", vec![py.clone(), y.clone(), Value::Int(ay)], &origin));
+            ops.push(made_op("store_sub", vec![px.clone(), x.clone(), Value::Int(ax)], &origin));
+            ops.push(made_op("store_mul", vec![t1.clone(), Value::Int(bx - ax), py.clone()], &origin));
+            ops.push(made_op("store_mul", vec![t2.clone(), px.clone(), Value::Int(by - ay)], &origin));
+            ops.push(made_op("store_sub", vec![cross.clone(), t1.clone(), t2.clone()], &origin));
+            // y1 > py and y2 <= py (y2 < y1): left of the edge is `cross < 0`.
+            ops.push(made_op("try_begin", Vec::new(), &origin));
+            ops.push(made_op("gt", vec![Value::Int(ay), y.clone()], &origin));
+            ops.push(made_op("le", vec![Value::Int(by), y.clone()], &origin));
+            ops.push(made_op("lt", vec![cross.clone(), Value::Int(0)], &origin));
+            ops.push(made_op("store_sub", vec![toggle.clone(), Value::Int(1), inside.clone()], &origin));
+            ops.push(made_op("assign", vec![inside.clone(), toggle.clone()], &origin));
+            ops.push(made_op("try_end", Vec::new(), &origin));
+            // y1 <= py and y2 > py (y2 > y1): left of the edge is `cross > 0`.
+            ops.push(made_op("try_begin", Vec::new(), &origin));
+            ops.push(made_op("le", vec![Value::Int(ay), y.clone()], &origin));
+            ops.push(made_op("gt", vec![Value::Int(by), y.clone()], &origin));
+            ops.push(made_op("gt", vec![cross.clone(), Value::Int(0)], &origin));
+            ops.push(made_op("store_sub", vec![toggle.clone(), Value::Int(1), inside.clone()], &origin));
+            ops.push(made_op("assign", vec![inside.clone(), toggle.clone()], &origin));
+            ops.push(made_op("try_end", Vec::new(), &origin));
+        }
+
+        // Fire only on outside → inside (inside now, flag was 0), and only when the `when` holds.
+        ops.push(made_op("try_begin", Vec::new(), &origin));
+        ops.push(made_op("eq", vec![inside.clone(), Value::Int(1)], &origin));
+        ops.push(made_op("eq", vec![flag.clone(), Value::Int(0)], &origin));
+        match when {
+            Some(When::Cond(cond)) => ops.extend(self.cond_ops(cond, span)),
+            Some(When::Block(block)) => ops.extend(self.ops(&block.stmts)),
+            None => {}
+        }
+        ops.extend(self.ops(&body.stmts));
+        ops.push(made_op("try_end", Vec::new(), &origin));
+        ops.push(made_op("assign", vec![flag, inside], &origin));
+        ops
     }
 
     /// Checks a block into the tree `uw_lower` lowers.
@@ -2008,6 +2108,42 @@ pub fn check_with_schemas(
             saves.push(SaveDef { name: name.text.clone(), start: *start, origin });
         }
     }
+
+    // Every `area` is visible from every file, like a `save`: an `on enter` may name one written
+    // in another file (T-109). A polygon needs three corners; one name is declared once.
+    let mut areas: Vec<AreaDef> = Vec::new();
+    for (index, source) in sources.iter().enumerate() {
+        for item in &source.tree.items {
+            let Item::Area { name, points, span } = item else { continue };
+            if points.len() < 3 {
+                errors.push(Error {
+                    file: index,
+                    diag: diag(
+                        E0220_AREA_POINTS,
+                        format!("`area {}` has {} corner(s); a polygon needs at least 3", name.text, points.len()),
+                        *span,
+                        Some(format!("write `area {} [(x, y), (x, y), (x, y)]`", name.text)),
+                    ),
+                });
+                continue;
+            }
+            if let Some(first) = areas.iter().find(|area| area.name == name.text) {
+                let existing = first.origin.clone();
+                errors.push(Error {
+                    file: index,
+                    diag: diag(
+                        E0202_DUPLICATE,
+                        format!("`area {}` is already defined at {existing}", name.text),
+                        name.span,
+                        Some("an area name is used once in a mod; rename one of them".into()),
+                    ),
+                });
+                continue;
+            }
+            let origin = origin_in(&source.file, *span);
+            areas.push(AreaDef { name: name.text.clone(), points: points.iter().map(|p| (p.x, p.y)).collect(), origin });
+        }
+    }
     // The start values go to the `game_start` script, the way `on game.start` is emitted; they are
     // the first patches, so a `game_start` handler of the mod already reads them.
     if let Some(first) = saves.first() {
@@ -2044,6 +2180,7 @@ pub fn check_with_schemas(
             rename: 0,
             temps: Vec::new(),
             saves: &saves,
+            areas: &areas,
         };
         if let Some(m) = &source.tree.module {
             match &name {
@@ -2381,6 +2518,8 @@ pub fn check_with_schemas(
                 Item::Fn { .. } => {}
                 // A `save` adds no patch here: its start value is written at game start above.
                 Item::Save { .. } => {}
+                // An `area` adds no patch of its own: its polygon is used by the `on enter` triggers.
+                Item::Area { .. } => {}
                 Item::On { path, body, span } => {
                     let words: Vec<&str> = path.iter().map(|p| p.text.as_str()).collect();
                     let hook = match words.as_slice() {
@@ -2422,7 +2561,34 @@ pub fn check_with_schemas(
                         var: "simple_triggers".into(),
                         entry: String::new(),
                         path: Vec::new(),
-                        action: Action::NewSimpleTrigger { interval: interval.clone() },
+                        action: Action::NewSimpleTrigger { interval: interval.clone(), comment: None },
+                        ops,
+                        origin: ctx.origin(*span),
+                    });
+                }
+                // `on enter <area> …` is a simple trigger that runs its block once each time the
+                // player's party goes from outside the polygon to inside it (T-109).
+                Item::AreaEnter { area, when, body, span } => {
+                    let areas = ctx.areas;
+                    let Some(def) = areas.iter().find(|def| def.name == area.text) else {
+                        ctx.error(diag(
+                            E0219_AREA_UNKNOWN,
+                            format!("there is no `area {}`", area.text),
+                            area.span,
+                            Some("declare it first: `area <name> [(x, y), (x, y), (x, y)]`".into()),
+                        ));
+                        continue;
+                    };
+                    let ops = ctx.area_trigger_ops(def, when.as_ref(), body, *span);
+                    patches.push(Patch {
+                        module: "module_simple_triggers".into(),
+                        var: "simple_triggers".into(),
+                        entry: String::new(),
+                        path: Vec::new(),
+                        action: Action::NewSimpleTrigger {
+                            interval: "0.25".into(),
+                            comment: Some(AREA_INTERVAL_COMMENT.into()),
+                        },
                         ops,
                         origin: ctx.origin(*span),
                     });
@@ -2599,6 +2765,7 @@ pub fn check_block_with(
         rename: 0,
         temps: Vec::new(),
         saves: &[],
+        areas: &[],
     };
     let ops = ctx.ops(stmts);
     errors.extend(ctx.errors);
@@ -2800,6 +2967,7 @@ mod tests {
             rename: 0,
             temps: Vec::new(),
             saves: &[],
+            areas: &[],
         };
         let tree = ctx.stmts(&stmts);
         if ctx.errors.is_empty() {
@@ -3812,5 +3980,33 @@ mod tests {
         let checked = check_with_schemas(&party_atlas(), &[Source { file, tree }], "folder", &[parties_schema()])
             .unwrap_or_else(|_| panic!("the bare kit name is accepted"));
         assert!(matches!(checked.patches[0].action, Action::NewRecord { .. }));
+    }
+
+    /// T-109: `area` + `on enter` is one simple trigger that reads the party position, tests the
+    /// polygon and keeps an outside/inside flag; an unknown area or a short polygon is an error.
+    #[test]
+    fn area_and_on_enter_make_one_trigger_and_name_the_errors() {
+        let checked = run("mod m\narea box [(0, 0), (10, 0), (10, 10)]\non enter box {\n}\n").unwrap();
+        assert_eq!(checked.patches.len(), 1);
+        let patch = &checked.patches[0];
+        assert_eq!(
+            (patch.module.as_str(), patch.var.as_str(), patch.entry.as_str()),
+            ("module_simple_triggers", "simple_triggers", "")
+        );
+        let Action::NewSimpleTrigger { interval, comment } = &patch.action else { panic!("{:?}", patch.action) };
+        assert_eq!(interval, "0.25");
+        assert!(comment.as_deref().unwrap_or("").contains("quarter game-hour"), "{comment:?}");
+        let names: Vec<&str> = patch.ops.iter().map(|op| op.name.as_str()).collect();
+        for op in ["set_fixed_point_multiplier", "party_get_position", "position_get_x", "position_get_y", "try_begin", "try_end", "assign"] {
+            assert!(names.contains(&op), "missing {op}: {names:?}");
+        }
+        assert!(patch
+            .ops
+            .iter()
+            .any(|op| op.args.contains(&Value::Ref("$uw_area_box_inside".into()))));
+        let errs = run("on enter nowhere {\n}\n").unwrap_err();
+        assert!(errs.join("\n").contains("there is no `area nowhere`"), "{errs:?}");
+        let errs = run("area line [(0, 0), (1, 1)]\n").unwrap_err();
+        assert!(errs.join("\n").contains("polygon needs at least 3"), "{errs:?}");
     }
 }

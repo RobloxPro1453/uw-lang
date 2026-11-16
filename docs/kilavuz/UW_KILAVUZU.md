@@ -10,7 +10,7 @@ geldiğinde bu belgeye de eklenecek; sonundaki "Bu belge nasıl güncellenir" no
 2. Kurulum ve ilk mod (`praven_start`) — ve sıfırdan yeni mod: `uw create <ad>`, `cd`, `uw build`
 3. Dil: `mod <ad>`, `override menu`, `on game.<kanca>`, işlem çağrısı, atama ve hesap, `if`,
    menü metni/seçenekleri, `new menu_…`, `fn`, kütüphane kelimeleri, nesne yazımı, `save`,
-   `every day / hour / <N> hours`
+   `every day / hour / <N> hours`, `area` + `on enter`
 4. Değer türleri
 5. Yorumlar
 6. Komutlar (`create`, `build`, `explain`, `browse`, `graph`, `build-project`, `roundtrip`, `new`, `find`)
@@ -845,6 +845,61 @@ Aynı dosyada sırayla `6`, `1` ve `0.5` aralıklı tetikler gelir.
 | Sayıdan sonra başka bir birim: `` `every` counts hours, so the unit is `hours`, not `days` `` | E0100 |
 | `every`'den sonra `day`, `hour` ya da bir sayı yok: `` expected `day`, `hour` or `<N> hours` after `every` `` | E0100 |
 | Ondalık noktasından sonra rakam yok: `` expected the digits after '.' in the interval of `every` `` | E0100 |
+
+### 3.14. Haritada bölge: `area` + `on enter`
+
+**Sözdizimi**
+
+```uw
+area <ad> [(x, y), (x, y), …]
+
+on enter <ad> [when <koşul>] { … }
+```
+
+`area` bir harita poligonudur: köşeler dünya haritası birimidir (partilerin konumuyla aynı;
+Praven `(-96, 26.4)`, `module_parties.py:82`). En az **3** köşe gerekir; sayılar negatif ve ondalık
+olabilir (`-96`, `26.4`). `on enter`, oyuncunun partisi poligonun **dışından içine** geçtiği her
+seferde bir kez çalışır.
+
+**Ne yapar?** UW her `on enter` için `module_simple_triggers.py`'ye yeni bir tetik ekler. Tetik
+0.25 oyun saatinde bir çalışır (haritada "her adım" kancası yoktur), partinin konumunu okur
+(`party_get_position` + `position_get_x/y`, çarpan 100), noktanın poligonun içinde olup olmadığını
+tamsayı işlemlerle (ışın/ray-cast) hesaplar ve yalnız dışarıdan içeri geçişte bloğu çalıştırır.
+Geçiş durumu `$uw_area_<ad>_inside` globalinde saklanır; blok içeride kalırken tekrar etmez.
+
+**Örnek** (`crates/uw_cli/tests/golden/area_enter/input.uw`)
+
+```uw
+mod area_enter
+
+area mountain_road [(10, 20), (40, 20), (40, 60), (10, 60)]
+
+on enter mountain_road when time.hour >= 12 {
+    if player.gold >= 10 {
+        player.gold -= 10
+        say("@Bandits took your toll.")
+    }
+}
+```
+
+`time.hour` dilin kütüphanesinden gelir (`store_time_of_day`); `player.gold` ve `say` de 3.10'da
+anlatılan kütüphane kelimeleridir. Golden klasöründeki `lib` işareti bunu söyler.
+
+**Kurallar**
+
+- `area` ve `on enter` üst düzey deyimlerdir (`mod`, `every` gibi); başka bir bloğun içine yazılmaz.
+- `on enter` bir `area` adı ister; ad aynı modun başka dosyasında da tanımlı olabilir.
+- Aynı ada iki `area` yazılamaz; ad bir kez tanımlanır.
+- `when` isteğe bağlıdır; koşul sağlanmazsa giriş "görülmüş" sayılır ama blok çalışmaz.
+
+**Sık hata ve kodu**
+
+| Hata | Kod |
+|---|---|
+| `on enter` var olmayan bir bölgeyi anıyor: ``there is no `area mountain_road` `` | E0219 |
+| Bölgenin 3'ten az köşesi var: `` `area line` has 2 corner(s); a polygon needs at least 3 `` | E0220 |
+| Aynı bölge adı iki kez: `` `area mountain_road` is already defined at input.uw:3 `` | E0202 |
+| Köşe listesi `[` ile başlamıyor: `` expected '[' and the corner list after `area line` `` | E0100 |
 
 ---
 
