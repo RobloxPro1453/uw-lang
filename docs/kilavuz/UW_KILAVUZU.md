@@ -9,14 +9,15 @@ geldiğinde bu belgeye de eklenecek; sonundaki "Bu belge nasıl güncellenir" no
 1. Giriş
 2. Kurulum ve ilk mod (`praven_start`) — ve sıfırdan yeni mod: `uw create <ad>`, `cd`, `uw build`
 3. Dil: `mod <ad>`, `override menu`, `on game.<kanca>`, işlem çağrısı, atama ve hesap, `if`,
-   menü metni/seçenekleri, `new menu_…`, `fn`, kütüphane kelimeleri, nesne yazımı
+   menü metni/seçenekleri, `new menu_…`, `fn`, kütüphane kelimeleri, nesne yazımı, `save`,
+   `every day / hour / <N> hours`
 4. Değer türleri
 5. Yorumlar
 6. Komutlar (`create`, `build`, `explain`, `browse`, `graph`, `build-project`, `roundtrip`, `new`)
 7. Hata mesajları tablosu
 8. Sınırlar (bugün yapılamayanlar)
 9. Bu belge nasıl güncellenir?
-10. Kayıt dosyaları, oyun adları (`names.uw`) ve proje klasörü
+10. Kayıt dosyaları, oyun adları (`names.uw`), çeviriler (`languages/`) ve proje klasörü
 11. `require`, `attempt` ve `for`
 
 ---
@@ -697,6 +698,154 @@ override menu start_phase_2 {
 }
 ```
 
+### 3.12. Kalıcı değişken: `save rich = false`
+
+**Sözdizimi**
+
+```uw
+save <ad> = <tam sayı | true | false>
+```
+
+**Ne yapar?** `save`, kayıtlı oyunda yaşayan bir `$global` tanımlar. Başlangıç değeri oyun başında
+**bir kez** yazılır; sonra adı her yerde düz yazarsınız, UW onu `$<ad>` yapar:
+
+| Yazdığınız | Üretilen işlem |
+|---|---|
+| `rich = true` | `(assign, "$rich", 1)` |
+| `gold += 5` | `(val_add, "$gold", 5)` |
+| `$g_total = gold + 1` | `(store_add, "$g_total", "$gold", 1)` (değer olarak okumak) |
+| `if rich { }` | `(neq, "$rich", 0)` |
+| `when not rich` | `(eq, "$rich", 0)` |
+
+**Örnek** (`crates/uw_cli/tests/golden/save_values/input.uw`)
+
+```uw
+save rich = false
+save gold = 0
+
+on game.start {
+    rich = true               // $rich = 1
+    gold += 5                 // $gold += 5
+    $g_total = gold + 1       // $gold as an operand
+    if rich {                 // $rich != 0
+        display_message("@Still rich.")
+    }
+}
+
+override menu start_phase_2 {
+    option uw_poor "Ask for gold." when not rich {   // $rich == 0
+        display_message("@No gold.")
+    }
+}
+```
+
+Başlangıç değerleri `game_start` script'ine, sizin `on game.start` kodunuzdan **önce** yazılır
+(`crates/uw_cli/tests/golden/save_values/expected/module_scripts.py`: ilk blok):
+
+```python
+scripts = _uw.append_ops(scripts, "game_start", 1, [
+    (assign, "$rich", 0),  # input.uw:5
+    (assign, "$gold", 0),  # input.uw:6
+])
+```
+
+Yani `on game.start` bloğunuz `rich`i okuduğunda değeri çoktan yazılmıştır. Menü seçeneğinin koşulu da
+aynı dosyanın `expected/module_game_menus.py` çıktısında `(eq, "$rich", 0)` olur.
+
+**Kurallar**
+
+- Başlangıç değeri bir **tam sayı**, `true` (1) ya da `false` (0) olmalıdır.
+- Ad bütün modda geçerlidir (her dosyada), `fn` gibi.
+
+**Sık hata ve kodu**
+
+| Hata | Kod |
+|---|---|
+| Başlangıç değeri tam sayı değil: `` expected an integer, `true` or `false` as the start value of `save rich` `` | E0100 |
+| `true` / `false` bir `save` adı olarak yazılmış: değer olarak 1 ve 0 demektirler | E0100 |
+| Ad kitin kullandığı bir ad (Native işlemi, kit sabiti ya da kit kimliği): `` `save eq` has the name of a Native operation `` — `save` adı her yerde `$<ad>` demek olacağı için iki anlama gelmemeli | E0217 |
+| Aynı ad iki kez `save` edilmiş: `` `save rich` is already defined at input.uw:5 `` | E0202 |
+
+### 3.13. Zamanlı kod: `every day`, `every 6 hours`
+
+**Sözdizimi**
+
+```uw
+every day { … }
+every hour { … }
+every <N> hours { … }
+```
+
+`<N>` tam sayı ya da ondalık olabilir (`0.5`).
+
+**Ne yapar?** Gövdedeki işlemler oyun boyunca düzenli aralıklarla çalışır. UW her `every` için
+`module_simple_triggers.py`'ye **yeni bir tetik** ekler: `(aralık, işlemler)`. Aralık **oyun saatidir**,
+`24` bir gündür:
+
+| Yazım | Aralık |
+|---|---|
+| `every day` | `24` |
+| `every hour` | `1` |
+| `every 6 hours` | `6` |
+| `every 0.5 hours` | `0.5` |
+
+Yeni tetik listenin **sonuna** eklenir; Native'in kendi tetikleri yerinde kalır (indeksleri kaymaz).
+
+**Örnek** (`crates/uw_cli/tests/golden/every_day/input.uw`)
+
+```uw
+mod every_day
+
+every day {
+    if player.gold < 100 {
+        player.gold += 10
+    }
+}
+every 6 hours {
+    say("@Six hours passed.")
+}
+every hour {
+    say("@An hour passed.")
+}
+every 0.5 hours {
+    say("@Half an hour passed.")
+}
+```
+
+Bu dosya `say` ve `player.gold` kelimelerini kullanır; ikisi de UW'nin kendi kütüphanesinden gelir
+(3.10, `lib/core.uw`). Golden klasöründeki `lib` işareti bunu söyler.
+
+Üretilen dosya (`crates/uw_cli/tests/golden/every_day/expected/module_simple_triggers.py`); ilk tetik:
+
+```python
+# input.uw:5
+simple_triggers = _uw.append_entry(simple_triggers, (
+    24,
+    [
+        (store_troop_gold, ":_uw_get0", "trp_player"),  # core.uw:66
+        try_begin,  # input.uw:6
+        (lt, ":_uw_get0", 100),  # input.uw:6
+        (troop_add_gold, "trp_player", 10),  # core.uw:6
+        try_end,  # input.uw:6
+    ],
+))
+```
+
+Aynı dosyada sırayla `6`, `1` ve `0.5` aralıklı tetikler gelir.
+
+**Kurallar**
+
+- `every` bir üst düzey deyimdir (`mod`, `on`, `fn`, `save` gibi); başka bir bloğun içine yazılmaz.
+- Gövde normal bir işlem bloğudur: `if`, atama, kelime çağrıları orada geçerlidir.
+
+**Sık hata ve kodu**
+
+| Hata | Kod |
+|---|---|
+| Sayıdan sonra başka bir birim: `` `every` counts hours, so the unit is `hours`, not `days` `` | E0100 |
+| `every`'den sonra `day`, `hour` ya da bir sayı yok: `` expected `day`, `hour` or `<N> hours` after `every` `` | E0100 |
+| Ondalık noktasından sonra rakam yok: `` expected the digits after '.' in the interval of `every` `` | E0100 |
+
 ---
 
 ## 4. Değer türleri
@@ -760,7 +909,7 @@ ve kullanım özeti yazılır; bu durumda çıkış kodu `0`'dır. Gerçek hatal
 | `uw build [klasör] ...` | `.uw` dosyalarını denetler, kit ile derler ve modu kurar. Klasör verilmezse bulunduğunuz klasör; proje klasöründe (`uw.lock` varsa) bütün tablolar derlenir. |
 | `uw build-project <klasör> ...` | Proje klasörünün bütün tablolarını kit ile derler ve modu kurar. |
 | `uw graph <şey> ...` | Bir şeyin nereye götürdüğünü ağaç, Mermaid veya HTML olarak gösterir; `--json` ile bütün menü akışını yazar. |
-| `uw explain <şey> ...` | Native'de bir şeyin ne olduğunu, nerede tanımlandığını ve kimin kullandığını anlatır. |
+| `uw explain <şey> ...` | Native'de bir şeyin ne olduğunu, nerede tanımlandığını ve kimin kullandığını anlatır; oyun adıyla da (`uw explain praven`). |
 | `uw browse ...` | Terminalde aranabilir bir Native tarayıcısı açar. |
 | `uw roundtrip ...` | Native'in bütün işlem bloklarını UW'ye çevirip geri derler ve karşılaştırır. |
 | `uw new <klasör> --from native` / `uw new --check <klasör>` | Native'in bütün kayıtlarını proje klasörü olarak yazar / böyle bir klasörü geri okur (bölüm 10.4). |
@@ -889,6 +1038,8 @@ uw explain [--all] [--atlas <atlas.json>] [--tr <tr klasörü>] <şey>
 - Bir işlem: `call_script`
 - Bir sabit: `reg0`
 - Oyun içi metin: `Praven` (tam eşleşme ve tek kayıt ise)
+- Bir **oyun adı**: `praven`, `swadia` (bölüm 10.5'teki adlar). Sonuçta kaydın kit kimliği ile oyun
+  adı birlikte yazılır: `p_town_6 (praven)`.
 
 Birden çok kelime verirseniz aralarında boşlukla birleştirilir.
 
@@ -912,6 +1063,28 @@ menu_start  ·  "Hi"
 ```
 
 `--all` verirseniz kayıtlarda ayrıca bir `value:` satırı ve bütün kullanım yerleri görünür.
+
+**Oyun adıyla**
+
+```
+uw explain praven
+```
+
+Çıktının ilk satırı kitin kimliğini ve oyun adını birlikte yazar (test atlası,
+`crates/uw_cli/tests/explain.rs`):
+
+```
+p_town_6 (praven)  ·  "Praven"
+  what:     party (parties #0)
+  note:     written in code as "p_town_6"
+  defined:  module_parties.py:82
+```
+
+`note:` satırı kaydın kodda hangi adla çağrıldığını söyler; kalan satırlar (`used by:`, varsa
+`leads to:`) yukarıdaki gibidir. `uw explain p_town_6` de aynı satırla başlar: iki yazım da eşleşir.
+Oyun içi metinden türetilemeyen adlar da çalışır: `uw explain swadia` çıktısı
+`fac_kingdom_1 (swadia)  ·  "Kingdom of Swadia"` ile başlar (aynı test dosyası). Adlar `uw browse` ve
+`uw graph`'ta da geçerlidir.
 
 Nereye götürdüğü varsa ayrıca şu bölüm gelir:
 
@@ -948,6 +1121,7 @@ uw browse [--atlas <atlas.json>] [--tr <tr klasörü>] [arama]
 | Bayrak | Değer | Ne yapar? |
 |---|---|---|
 | `--atlas` | dosya | Kullanılacak atlas dosyası. |
+| `--tr` | klasör | Oyunun resmî Türkçe çeviri klasörü (`Modules/Native/languages/tr`). Verilmezse Steam'deki varsayılan kurulum kullanılır; o da yoksa yalnız İngilizce gösterilir. Türkçe metin ayrı bir `tr` satırında görünür; aramada Türkçe kelime de bulunur. |
 
 **Ne yapar?** Terminalde bir tarama ekranı açar. Solda sonuçlar, sağda seçilen şeyin ne olduğu,
 nerede tanımlandığı ve kimin kullandığı görünür.
@@ -1205,6 +1379,7 @@ Her hatanın bir kodu (`E....`), bir satır/sütun işareti, çoğu zaman bir `h
 | **E0214** | `uw_check` | `fn` adı bir Native işleminin adı. | `` `fn troop_add_gold` has the name of a Native operation `` — çağrıları Native işlemi sayılacağı için başka ad seçin (`fn uw_…`). |
 | **E0215** | `uw_check` | `fn` kendini çağırıyor ya da zincir çok derin. | `` `fn a` never ends: a -> b -> a `` / `` `fn` calls nest more than 16 deep: … `` — zinciri kısaltın ya da işlemi doğrudan yazın. |
 | **E0216** | `uw_check` | Nesne kelimesinin karşılığı olan `fn` yok ya da biçim yok. | ``'player.gold' needs `fn player.gold.get` `` (yardım: o `fn`i yazın) / ``'player.gold' has no `*=` form`` (dotted word `=`, `+=` ve `-=` alır). |
+| **E0217** | `uw_check` | Bir `save` adı kitin zaten kullandığı bir ad (Native işlemi, kit sabiti ya da kit kimliği). | `` `save eq` has the name of a Native operation ``; yardım: `save` adı her yerde `$<ad>` demek olacağı için başka ad seçin (bkz. 3.12). |
 
 > `uw explain`, `uw browse` ve `uw graph`'ın kendi hataları kod taşımaz; düz `error: ...` metni
 > olarak yazılır (ör. atlas bulunamadı, ad bulunamadı).
@@ -1395,6 +1570,7 @@ kimliğidir** (`parties/towns/town_6.uw`), görünen ad değil (`praven`).
 | `factions/`, `items/`, `party_templates/`, `quests/`, `scenes/`, `scene_props/`, `menus/`, `scripts/`, `mission_templates/`, `presentations/`, `map_icons/` | Kayıt başına bir dosya: `<tablo>/<kimlik>.uw`. |
 | `dialogs/<durum>.uw` | Diyaloglar başlangıç durumuna göre gruplanır. |
 | `strings.uw`, `sounds.uw`, `meshes.uw`, `animations.uw`, `music.uw`, `skills.uw`, `skins.uw`, `postfx_params.uw`, `particle_systems.uw`, `info_pages.uw`, `tableau_materials.uw`, `triggers.uw`, `simple_triggers.uw` | Küçük arama tabloları: tablo başına tek dosya. |
+| `languages/<dil>/<tablo>.csv` | Native'in çevirileri, olduğu gibi kopya (10.7). |
 
 ### 10.5. Oyun adları: `names.uw`
 
@@ -1461,6 +1637,39 @@ Proje klasörü hâlâ `uw new`in yazdığı gibi duruyorsa Native ile aynı der
 
 Yama kipi (`uw.lock` olmayan klasör; `examples/praven_start` gibi) bundan ayrıdır: orada `uw build`
 klasörün içindeki `.uw` dosyalarını okur ve Native'in üzerine yalnız o değişiklikleri koyar.
+
+### 10.7. Çeviriler: `languages/`
+
+Bir Warband modunun çevirileri mod klasörünün `languages/<dil>/<tablo>.csv` dosyalarında durur; her
+satır `<anahtar>|<metin>` biçimindedir (`p_town_6|Praven`). Anahtar, kaydın kit kimliğidir
+(`p_town_6`; çoğul adı olan kayıtlarda `trp_swadian_recruit_pl` gibi `<kimlik>_pl`).
+
+**`uw create` / `uw new`:** Native'in bütün `languages/` klasörü proje klasörüne olduğu gibi kopyalanır.
+Oyunun kurulu olmadığı makinede tek satır yazılır ve bu hata değildir:
+`languages skipped: Warband's Modules folder not found`.
+
+**`uw build` / `uw build-project` (proje klasörü):** modu kurarken `Modules/<ad>/languages` klasörü
+silinir ve yerine **projenizdeki** `languages/` kopyalanır. Proje klasöründe `languages/` yoksa modun
+`languages/` klasörü de olmaz (Native'den gelen kopya geri silinir). `--no-install` verirseniz bu adım
+hiç çalışmaz. Proje dosyalarınız yalnız **okunur**; UW onları değiştirmez.
+
+**Adı değiştirilen kaydın çevirisi.** Bir kaydın `name` alanını (ya da `plural_name` alanını)
+değiştirdiyseniz, o kaydın Native çevirisindeki satırı artık yeni adı karşılamaz. UW satırı kurulan
+moda **koymaz** ve hangi satırı çıkardığını yazar:
+
+```
+translation dropped: p_town_6 (languages/tr/parties.csv): renamed in the project
+```
+
+Bu satırın anlamı: `languages/tr/parties.csv` dosyasındaki `p_town_6` anahtarlı satır projede adı
+değiştiği için kurulan moda konmadı. Yani o kayıt oyunda artık eski Türkçe metniyle değil, yeni
+İngilizce metniyle görünür; modun kendi `languages/` kopyasından o anahtar her kurulumda çıkarılır.
+Proje dosyaları değişmediği için uyarı her derlemede tekrar eder.
+
+**Oyunun resmî Türkçesi.** `uw explain --tr <klasör>` (6.3) ve `uw browse --tr <klasör>` (6.4) oyunun
+resmî çevirisini (`Modules/Native/languages/tr`) okur ve Türkçe metni de gösterir. Bu, projenin
+`languages/` kopyasından ayrı bir şeydir: `--tr` yalnız aracın çıktısında görünür, moda bir şey
+kopyalamaz.
 
 ---
 
