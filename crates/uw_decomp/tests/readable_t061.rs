@@ -37,12 +37,12 @@ fn schemas_type_the_fields_the_kit_explains() {
     let parties = schema("parties");
     let flags = field(&parties, "party_flags");
     assert_eq!(flags.ty, "bits");
-    // bits 8-26 are the pf_* flags (header_parties.py:14-32), bits 0-7 the icon index
-    // (header_parties.py:13); a shifted `flags` part cannot match absolute constant values.
+    // bits 0-7 are the icon (header_parties.py:13), bits 8-26 the pf_* flags (header_parties.py:14-32).
     assert_eq!(
         part_layout(flags),
         [
-            ("flags", 0, 27, Some("flags:pf_")),
+            ("icon", 0, 8, Some("ref:map_icons")),
+            ("flags", 8, 19, Some("flags:pf_")),
             ("carry_goods", 48, 8, None),
             ("carry_gold", 56, 8, None),
         ]
@@ -71,11 +71,15 @@ fn schemas_type_the_fields_the_kit_explains() {
         (Some(0xFF), "ai_bhvr_")
     );
 
-    for name in ["id", "name", "menu", "ai_target", "initial_coordinates", "stacks", "direction"] {
+    for name in ["id", "name", "initial_coordinates", "stacks", "direction"] {
         assert_eq!(field(&parties, name).ty, "raw", "`{name}` stays raw");
     }
+    assert_eq!(field(&parties, "menu").ty, "ref:menus");
+    assert_eq!(field(&parties, "menu").none.as_ref().and_then(toml::Value::as_integer), Some(0));
+    assert_eq!(field(&parties, "ai_target").ty, "ref:parties");
+    assert_eq!(field(&parties, "ai_target").none.as_ref().and_then(toml::Value::as_integer), Some(0));
     assert!(parties.fields.iter().all(|field| field.source.starts_with("module_parties.py:")));
-    assert_eq!(parties.fields.iter().filter(|field| field.ty != "raw").count(), 5);
+    assert_eq!(parties.fields.iter().filter(|field| field.ty != "raw").count(), 7);
 
     let templates = schema("party_templates");
     let flags = field(&templates, "party_flags");
@@ -83,7 +87,8 @@ fn schemas_type_the_fields_the_kit_explains() {
     assert_eq!(
         part_layout(flags),
         [
-            ("flags", 0, 27, Some("flags:pf_")),
+            ("icon", 0, 8, Some("ref:map_icons")),
+            ("flags", 8, 19, Some("flags:pf_")),
             ("carry_goods", 48, 8, None),
             ("carry_gold", 56, 8, None),
         ]
@@ -95,11 +100,13 @@ fn schemas_type_the_fields_the_kit_explains() {
         part_layout(personality),
         [("courage", 0, 4, None), ("aggressiveness", 4, 4, None), ("banditness", 8, 1, None)]
     );
-    for name in ["id", "name", "menu", "stacks"] {
+    for name in ["id", "name", "stacks"] {
         assert_eq!(field(&templates, name).ty, "raw", "`{name}` stays raw");
     }
+    assert_eq!(field(&templates, "menu").ty, "ref:menus");
+    assert_eq!(field(&templates, "menu").none.as_ref().and_then(toml::Value::as_integer), Some(0));
     assert!(templates.fields.iter().all(|field| field.source.starts_with("module_party_templates.py:")));
-    assert_eq!(templates.fields.iter().filter(|field| field.ty != "raw").count(), 3);
+    assert_eq!(templates.fields.iter().filter(|field| field.ty != "raw").count(), 4);
 }
 
 /// A tiny atlas with the kit's real bit layouts, so the typed party fields are checked even on a
@@ -115,6 +122,12 @@ const TYPED_ATLAS: &str = r#"{
     {"name":"ai_bhvr_hold","value":0,"module":"header_parties","line":52}
   ],
   "tables": {
+    "map_icons": {"module":"module_map_icons","var":"map_icons","id_file":"ID_map_icons","id_prefix":"icon_","entries":[
+      {"index":0,"name":"player","id":"icon_player","dup":null,"line":1,"value":[]},
+      {"index":2,"name":"gray_knight","id":"icon_gray_knight","dup":null,"line":3,"value":[]},
+      {"index":12,"name":"town","id":"icon_town","dup":null,"line":13,"value":[]},
+      {"index":38,"name":"cattle","id":"icon_cattle","dup":null,"line":39,"value":[]}
+    ]},
     "factions": {"module":"module_factions","var":"factions","id_file":"ID_factions","id_prefix":"fac_","entries":[
       {"index":0,"name":"no_faction","id":"fac_no_faction","dup":null,"line":1,"value":[0]},
       {"index":1,"name":"commoners","id":"fac_commoners","dup":null,"line":2,"value":[1]},
@@ -146,13 +159,13 @@ fn typed_fields_print_readably_and_read_back_exactly() {
             "party main_party {\n",
             "  id main_party\n",
             "  name \"Main Party\"\n",
-            "  party_flags {flags [pf_limit_members], carry_goods 0, carry_gold 0}\n",
-            "  menu 0\n",
+            "  party_flags {icon icon_player, flags [pf_limit_members], carry_goods 0, carry_gold 0}\n",
+            "  menu none\n",
             "  party_template pt_none\n",
             "  faction fac_neutral\n",
             "  personality {courage 0, aggressiveness 0, banditness 0}\n",
             "  ai_behavior [ai_bhvr_hold]\n",
-            "  ai_target 0\n",
+            "  ai_target none\n",
             "  initial_coordinates (17, 52.5)\n",
             "  stacks []\n",
             "}\n",
@@ -161,14 +174,14 @@ fn typed_fields_print_readably_and_read_back_exactly() {
     let town = printed(&atlas, &parties, "p_town_6");
     assert!(
         town.contains(
-            "  party_flags {flags [pf_is_static, pf_label_large, pf_always_visible, \
-             pf_show_faction, rest 12], carry_goods 0, carry_gold 0}\n"
+            "  party_flags {icon icon_town, flags [pf_is_static, pf_label_large, pf_always_visible, \
+             pf_show_faction], carry_goods 0, carry_gold 0}\n"
         ),
         "{town}"
     );
     let report = roundtrip_table(&atlas, &parties);
     assert_eq!((report.records, report.exact, report.failed), (2, 2, 0), "{:?}", report.first_failures);
-    assert_eq!((report.typed_fields, report.fields, report.raw_rest), (5, 12, 13));
+    assert_eq!((report.typed_fields, report.fields, report.raw_rest), (7, 12, 9));
 
     let templates = schema("party_templates");
     let text = printed(&atlas, &templates, "pt_cattle_herd");
@@ -178,8 +191,8 @@ fn typed_fields_print_readably_and_read_back_exactly() {
             "party_template cattle_herd {\n",
             "  id cattle_herd\n",
             "  name \"Cattle Herd\"\n",
-            "  party_flags {flags [rest 38], carry_goods 10, carry_gold 0}\n",
-            "  menu 0\n",
+            "  party_flags {icon icon_cattle, flags [], carry_goods 10, carry_gold 0}\n",
+            "  menu none\n",
             "  faction fac_neutral\n",
             "  personality {courage 7, aggressiveness 0, banditness 0}\n",
             "  stacks []\n",
@@ -188,7 +201,7 @@ fn typed_fields_print_readably_and_read_back_exactly() {
     );
     let report = roundtrip_table(&atlas, &templates);
     assert_eq!((report.records, report.exact, report.failed), (2, 2, 0), "{:?}", report.first_failures);
-    assert_eq!((report.typed_fields, report.fields, report.raw_rest), (3, 7, 8));
+    assert_eq!((report.typed_fields, report.fields, report.raw_rest), (4, 7, 6));
 }
 
 #[test]
@@ -208,13 +221,13 @@ fn real_atlas_parties_round_trip() {
     assert_eq!(report.exact, report.records, "{:?}", report.first_failures);
     assert_eq!(report.failed, 0, "{:?}", report.first_failures);
     assert_eq!(
-        report.raw_rest, 1639,
+        report.raw_rest, 1159,
         "parties: typed {}/{} fields, raw-rest {}",
         report.typed_fields, report.fields, report.raw_rest
     );
     let main = printed(&atlas, &schema, "p_main_party");
     for line in [
-        "  party_flags {flags [pf_limit_members], carry_goods 0, carry_gold 0}\n",
+        "  party_flags {icon icon_player, flags [pf_limit_members], carry_goods 0, carry_gold 0}\n",
         "  party_template pt_none\n",
         "  faction fac_player_faction\n",
         "  personality {courage 0, aggressiveness 0, banditness 0}\n",
@@ -224,8 +237,8 @@ fn real_atlas_parties_round_trip() {
     }
     let town = printed(&atlas, &schema, "p_town_6");
     for line in [
-        "  party_flags {flags [pf_is_static, pf_label_large, pf_always_visible, \
-         pf_show_faction, rest 12], carry_goods 0, carry_gold 0}\n",
+        "  party_flags {icon icon_town, flags [pf_is_static, pf_label_large, pf_always_visible, \
+         pf_show_faction], carry_goods 0, carry_gold 0}\n",
         "  faction fac_neutral\n",
     ] {
         assert!(town.contains(line), "{line:?} missing from:\n{town}");
@@ -249,13 +262,13 @@ fn real_atlas_party_templates_round_trip() {
     assert_eq!(report.exact, report.records, "{:?}", report.first_failures);
     assert_eq!(report.failed, 0, "{:?}", report.first_failures);
     assert_eq!(
-        report.raw_rest, 252,
+        report.raw_rest, 189,
         "party_templates: typed {}/{} fields, raw-rest {}",
         report.typed_fields, report.fields, report.raw_rest
     );
     let herd = printed(&atlas, &schema, "pt_cattle_herd");
     for line in [
-        "  party_flags {flags [rest 38], carry_goods 10, carry_gold 0}\n",
+        "  party_flags {icon icon_cattle, flags [], carry_goods 10, carry_gold 0}\n",
         "  faction fac_neutral\n",
         "  personality {courage 7, aggressiveness 0, banditness 0}\n",
     ] {
