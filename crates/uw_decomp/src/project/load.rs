@@ -70,6 +70,20 @@ pub fn load_with_owners(
     dir: &Path,
     parse: &mut dyn FnMut(&Schema, &str) -> Result<(String, Json), String>,
 ) -> Result<(BTreeMap<String, Vec<Json>>, BTreeMap<String, String>), Vec<String>> {
+    load_with_owners_and_names(atlas, schemas, dir, parse).map(|(records, owners, _names)| (records, owners))
+}
+
+/// [`load_with_owners`], plus the project's `name_<code> "…"` lines (T-113): each record's own text
+/// per language, read before schema parsing so the schema never sees them.
+pub fn load_with_owners_and_names(
+    atlas: &Atlas,
+    schemas: &[Schema],
+    dir: &Path,
+    parse: &mut dyn FnMut(&Schema, &str) -> Result<(String, Json), String>,
+) -> Result<
+    (BTreeMap<String, Vec<Json>>, BTreeMap<String, String>, Vec<super::LanguageName>),
+    Vec<String>,
+> {
     let lock_path = dir.join(LOCK_FILE);
     let text = std::fs::read_to_string(&lock_path).map_err(|e| vec![format!("{}: {e}", lock_path.display())])?;
     let lock: Lock = toml::from_str(&text).map_err(|e| vec![format!("{}: {e}", lock_path.display())])?;
@@ -89,6 +103,7 @@ pub fn load_with_owners(
     files.sort();
     let mut records: Vec<Parsed> = Vec::new();
     let mut owners: BTreeMap<String, String> = BTreeMap::new();
+    let mut names: Vec<super::LanguageName> = Vec::new();
     let mut seq = 0usize;
     for file in &files {
         let text = match std::fs::read_to_string(file) {
@@ -107,6 +122,7 @@ pub fn load_with_owners(
                 continue;
             };
             let owner = if schema.table == "parties" { super::take_owner(&mut record) } else { None };
+            let record_names = super::take_names(&mut record, schema);
             match parse(schema, &record) {
                 Ok((id, value)) => {
                     if let Some((owner, offset)) = owner {
@@ -122,6 +138,15 @@ pub fn load_with_owners(
                                 start + offset
                             )),
                         }
+                    }
+                    let full_id = format!("{}{id}", schema.id_prefix);
+                    for (language, text) in record_names {
+                        names.push(super::LanguageName {
+                            table: schema.table.clone(),
+                            id: full_id.clone(),
+                            language,
+                            text,
+                        });
                     }
                     records.push(Parsed { table: schema.table.clone(), id, value, file: file.clone(), seq });
                     seq += 1;
@@ -216,7 +241,7 @@ pub fn load_with_owners(
     }
 
     if errors.is_empty() {
-        Ok((result, owners))
+        Ok((result, owners, names))
     } else {
         Err(errors)
     }

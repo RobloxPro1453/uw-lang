@@ -59,9 +59,10 @@ const USAGE: &str = "usage:
       write every Native record into a project folder as UW text (an export; not compiled yet, see P3b)
   uw new --check <dir>
       read such a folder back: how many records are still exactly the atlas value
-  uw build-project <dir> [--compare-native] [--no-install]
+  uw build-project <dir> [--compare-native] [--no-install] [--verbose]
       write the project folder's whole tables, build them with the kit and install the mod;
-      --compare-native: say how many output files are byte-identical to Native
+      --compare-native: say how many output files are byte-identical to Native;
+      --verbose: print every translation line a suffix rule changed
   uw build-project --native-check
       the same, but the modules come from the atlas values themselves
   uw rename <record> \"<new name>\" [--list] [--yes] [--texts all|1,3]
