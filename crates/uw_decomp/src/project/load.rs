@@ -195,17 +195,39 @@ pub fn load(
     }
 }
 
-/// Every `.uw` file under `dir`, so a user may move records between folders.
+/// Every `.uw` file under `dir`, so a user may move records between folders. `names.uw` and the
+/// `fns/` words folder hold no records (T-084).
 fn collect_uw_files(dir: &Path, files: &mut Vec<PathBuf>) {
     let Ok(entries) = std::fs::read_dir(dir) else { return };
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
-            collect_uw_files(&path, files);
+            if path.file_name().and_then(|name| name.to_str()) != Some("fns") {
+                collect_uw_files(&path, files);
+            }
         } else if path.extension().and_then(|ext| ext.to_str()) == Some("uw")
             && path.file_name().and_then(|name| name.to_str()) != Some(crate::names::FILE)
         {
             files.push(path);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_fns_folder_is_not_read_as_records() {
+        let dir = std::env::temp_dir().join(format!("uw-load-fns-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("fns")).unwrap();
+        std::fs::write(dir.join("fns").join("mine.uw"), "fn give_gold() {}\n").unwrap();
+        std::fs::write(dir.join("record.uw"), "faction x {}\n").unwrap();
+        std::fs::write(dir.join(crate::names::FILE), "x = y\n").unwrap();
+        let mut files = Vec::new();
+        collect_uw_files(&dir, &mut files);
+        assert_eq!(files, vec![dir.join("record.uw")]);
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

@@ -213,6 +213,24 @@ fn native_check() -> ExitCode {
     }
 }
 
+/// The `fn` sources a project's record blocks may call: `lib/*.uw` (UW's own words) and the
+/// project's `fns/*.uw` files, in that order so a project `fn` cannot replace a lib one (T-084).
+fn word_sources(dir: &Path) -> Result<Vec<uw_check::Source>, String> {
+    let mut entries: Vec<(PathBuf, bool)> =
+        crate::build::lib_files(dir)?.into_iter().map(|path| (path, true)).collect();
+    let words = dir.join("fns");
+    if words.is_dir() {
+        let mut paths: Vec<PathBuf> = std::fs::read_dir(&words)
+            .map_err(|e| format!("{}: {e}", words.display()))?
+            .filter_map(|entry| entry.ok().map(|entry| entry.path()))
+            .filter(|path| path.extension().is_some_and(|ext| ext == "uw"))
+            .collect();
+        paths.sort();
+        entries.extend(paths.into_iter().map(|path| (path, true)));
+    }
+    crate::build::parse_sources(&entries)
+}
+
 /// `uw build-project <dir>`: the same build, from the project folder.
 fn build_project(dir: &Path, args: &Args) -> ExitCode {
     let root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
@@ -224,7 +242,12 @@ fn build_project(dir: &Path, args: &Args) -> ExitCode {
         return crate::fail(&message);
     }
     let atlas = atlas;
-    let mut compile = |text: &str| crate::roundtrip::compile(&atlas, text).map(|ops| records::ops_to_json(&ops));
+    let words = match word_sources(dir) {
+        Ok(words) => words,
+        Err(message) => return crate::fail(&message),
+    };
+    let mut compile =
+        |text: &str| crate::roundtrip::compile_with(&atlas, text, &words).map(|ops| records::ops_to_json(&ops));
     let mut parse = |schema: &Schema, text: &str| records::parse_with_blocks(&atlas, schema, text, &mut compile);
     let records = match uw_decomp::project::load::load(&atlas, &schemas, dir, &mut parse) {
         Ok(records) => records,
@@ -412,6 +435,44 @@ mod tests {
         assert!(lines.iter().any(|l| l.contains("differs  scripts.txt")), "{lines:?}");
         assert!(lines.iter().any(|l| l.contains("extra    extra.txt")), "{lines:?}");
         assert_eq!(outputs_line(same, want, 1.0), "outputs  1/2 byte-identical to Native (1 s)");
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn a_project_block_calls_a_word_from_lib_and_its_fns_folder() {
+        let root = std::env::temp_dir().join(format!("uw-build-project-words-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(root.join("lib")).unwrap();
+        std::fs::create_dir_all(root.join("fns")).unwrap();
+        std::fs::write(
+            root.join("lib").join("core.uw"),
+            "fn give_gold(:amount) {\n    troop_add_gold(trp_player, :amount)\n}\n",
+        )
+        .unwrap();
+        std::fs::write(
+            root.join("fns").join("mine.uw"),
+            "fn tip(:amount) {\n    give_gold(:amount)\n}\n\
+             fn player.gold.add(:value) {\n    give_gold(:value)\n}\n",
+        )
+        .unwrap();
+
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/atlas_golden.json");
+        let atlas = uw_atlas::Atlas::from_path(path).unwrap();
+        let words = word_sources(&root).expect("lib and fns parse");
+        let names: Vec<&str> = words.iter().map(|source| source.file.name.as_str()).collect();
+        assert_eq!(names, ["core.uw", "mine.uw"]);
+
+        let ops = crate::roundtrip::compile_with(&atlas, "tip(5)\nplayer.gold += 5", &words)
+            .expect("the project's words inline");
+        let text = uw_decomp::decompile::decompile(&atlas, &ops, uw_decomp::decompile::Mode::Structured);
+        assert_eq!(text.matches("troop_add_gold").count(), 2, "{text}");
+
+        // The module built from the record holds the operation the word inlined to (1528).
+        let value = serde_json::json!([null, null, null, null, [], records::ops_to_json(&ops)]);
+        let records = BTreeMap::from([("menus".to_owned(), vec![value])]);
+        let modules = modules(&atlas, &records);
+        assert!(modules[0].1.contains("1528"), "{}", modules[0].1);
+
         let _ = std::fs::remove_dir_all(&root);
     }
 }
