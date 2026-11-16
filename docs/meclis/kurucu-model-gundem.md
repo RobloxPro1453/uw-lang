@@ -4,6 +4,25 @@ Toplanma: haftalık kota yenilenince (21 Kasım 2026'dan sonra), uzun ve tam mec
 başlatmıyor. Bu belge meclisin tek girdi dosyasıdır; kararlar `docs/meclis/` altına KARAR belgesi olarak,
 özetleri VISION/ROADMAP/KARARNAMELER'e yazılır.
 
+## 0. ÇERÇEVE — önce bunu oku (sahibi, 2026-11-16 gece, itirazla)
+
+"Hâlâ çok spesifik şeylere takılıyorsun." Sahibi örnek vermek istemiyor, çünkü örnek görev gibi alınıyor:
+o tek örnek yapılınca "her şey bitti" deniyor, oysa biten bir şey yok. Modcunun yapmak isteyeceği şeyin sınırı
+yok (en azından teoride): Native'e yama da yapabilir, bomboş dünyada kendi haritasını da kurabilir, bütün
+krallıkları silip sıfırdan krallık, lord, leydi ve yoldaş da yapabilir… **"Tek tek bakarsan sonsuza kadar sürer."**
+
+Bu yüzden meclisin işi bir özellik listesi değil, **genel bir sistem**:
+- Aşağıdaki §2 (Praven) ve §4 (envanter) **yalnız kanıt ve ilhamdır, kapsam değildir**. Bitti ölçüsü olarak
+  kullanılmaz.
+- Soru "şu alanı nasıl ekleriz" değil: "modcu Module System'in yapabildiği **her şeyi**, sıfırdan ya da yama
+  olarak, Native bilmeden yapabiliyor mu ve bunu **sistematik** olarak nasıl garanti ve ölçeriz?"
+- Tasarım tek tek durumlarla değil, genel mekanizmalarla cevaplanmalı. Örneğin: her kayıt türü için
+  oluştur/değiştir/sil; Native'in kayıtlar arası bağları (oyun başı adımları dahil) için genel bir "başlangıç
+  durumu" modeli; her kararda `auto`; her yerde ham kaçış kapısı, böylece hiçbir şey imkânsız olmaz.
+- Bitti ölçüsü de genel olmalı: kapsama oranı (Module System'in ne kadarı ifade edilebiliyor), çok farklı
+  modlarla stres testi (proje kökündeki `ornek mod mekanik arastirmasi (stres testi)/`), "her şeyi sil,
+  sıfırdan kur" denemesi. Tek bir örnek kabul ölçüsü olamaz.
+
 ## 1. Sahibinin sözü (2026-11-16, oyun denemesinden sonra; aynen özet)
 
 - "Sıfırdan birisi base açtığını düşün: şehir koydu bir yere, faction'ını kendi oluşturduğu faction'a bağladı,
@@ -42,7 +61,7 @@ VISION.md (2026-11-16 maddesi) ve ROADMAP en üst maddesi "KURUCU MODEL" bu söz
 4. Ham alan dökülmez: motor alanları (ör. `faction neutral` şehirde) gizlenir ya da tek cümleyle anlamlandırılır.
 5. Kanıt: her parça bir oyun deneyiyle kapanır (CHECKUP), byte eşitliği ayrıca korunur (değişmeyen proje = Native).
 
-## 4. Kapsam envanteri (meclisin tamamlayacağı liste; "?" = nerede yaşadığı araştırılacak)
+## 4. Örnek envanter (KAPSAM DEĞİL, yalnız ilham; bkz. §0. "?" = nerede yaşadığı araştırılacak)
 
 ### Krallık (faction)
 ad (+çeviri), renk, kültür (`slot_faction_culture`?), sancak/arma?, lider (`slot_faction_leader`, game_start'ta?),
@@ -69,6 +88,10 @@ birlik ağaçları (yükseltme), eşyalar, parti şablonları, haritadaki grupla
 T-109 `area`), oyun başı (oyuncunun başlangıcı), görevler.
 
 ## 5. Meclisin cevaplayacağı sorular
+
+0. **Genellik (en önce):** Hangi genel mekanizmalar, tek tek alan eklemeden, "modcu her şeyi yapabilir"
+   hedefini sağlar? Kapsama sistematik olarak nasıl ölçülür (ör. Module System'in her tablosu, alanı ve işlemi
+   için "UW'de ifade edilebilir mi" tablosu, otomatik)? Aşağıdaki sorular bu cevabın içinde yer alır.
 
 1. **Gizli adım haritası:** her alan için Native'de hangi kayıt alanı + hangi game_start/başka betik adımı onu
    belirliyor? (Kanıt dosya:satır; araştırma işini DeepSeek'e "salt okuma rapor" olarak vermek ucuz — T-106
