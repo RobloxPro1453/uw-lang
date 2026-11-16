@@ -119,9 +119,9 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 - Örnek modlarla dayanıklılık: `ornek-modlar/` (6 mod) üzerinde atlas dökümü ve boş yama gidiş-dönüşü (D2'nin genişletilmişi).
 
 - `ui` DSL'i (bildirimsel arayüz → presentation): VN diyalog ve HUD'ların anahtarı; Faz 3-4 arası.
-- UW Studio (Tauri + Monaco): eşya yöneticisi, harita üstünde şehir yerleştirme; LSP'den sonra.
+- **UW Studio — kendi editörümüz (sahibi 2026-11-16):** açık kaynak bir editörü temel alıp UW'ye özel hâle getir; bütün araçlar içinde gelir (`uw create`/`build`/`explain`/`browse`/`graph`, akış çizimi, `names.uw` düzenleyici, kayıt formları, eşya yöneticisi, harita üstünde şehir yerleştirme, hata listesi, oyunu başlat). Kod emeği DeepSeek şeritlerine (çok paralel). Aday tabanlar (karar öncesi lisans + boyut + Rust uyumu taraması): Code-OSS/VSCodium (MIT), Lapce (Apache-2.0, Rust), Zed (bileşenleri GPL/Apache karışık: dikkat), Tauri + Monaco (MIT, sıfırdan kabuk), Theia (EPL-2.0). Ön koşul: LSP (`tower-lsp`) — hem VS Code eklentisi hem Studio onu kullanır. **O zamana kadar:** VS Code eklentisiyle devam (renklendirme + tamamlama + hata gösterimi).
 
-- VS Code eklentisi (renklendirme + tamamlama) — Faz 2 sonrası, küçük iş.
+- VS Code eklentisi (renklendirme + tamamlama + hata gösterimi) — UW Studio gelene kadar asıl editör; önce bu (küçük iş, LSP ile).
 - Hikâye grafiği (görev/diyalog dallarını çizer, ulaşılamayan aşamayı bulur) — Faz 3 ile.
 - DeepSeek ile ~900 operasyonun açıklamasını toplu üretmek (birkaç dolar) — dil belgesi ve hata mesajları için.
 
