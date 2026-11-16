@@ -97,17 +97,10 @@ simple_triggers = _uw.append_entry(simple_triggers, (
         (eq, "$uw_area_mountain_road_inside", 0),  # input.uw:7
         (store_time_of_day, ":_uw_get0"),  # core.uw:107
         (ge, ":_uw_get0", 12),  # input.uw:7
-        (store_troop_gold, ":_uw_get1", "trp_player"),  # core.uw:66
         try_begin,  # input.uw:8
-        (ge, ":_uw_get1", 10),  # input.uw:8
-        (store_troop_gold, ":gold__fn3", "trp_player"),  # core.uw:11
-        try_begin,  # core.uw:12
-        (ge, ":gold__fn3", 10),  # core.uw:12
-        (troop_remove_gold, "trp_player", 10),  # core.uw:13
-        else_try,  # core.uw:12
-        (troop_remove_gold, "trp_player", ":gold__fn3"),  # core.uw:15
-        try_end,  # core.uw:12
-        (display_message, "@Bandits took your toll."),  # core.uw:61
+        (player_has_item, "itm_iron_shield"),  # core.uw:113
+        (troop_remove_item, "trp_player", "itm_iron_shield"),  # core.uw:26
+        (display_message, "Bandits took your shield!"),  # core.uw:61
         try_end,  # input.uw:8
         try_end,  # input.uw:7
         (assign, "$uw_area_mountain_road_inside", ":__uw_area_inside"),  # input.uw:7

@@ -106,3 +106,19 @@ fn player.level.get(:out) {
 fn time.hour.get(:out) {
     store_time_of_day(:out)
 }
+
+// Does the player carry this item? — docs/bilgi/anlam/oyuncu-varliklari.md:46,56 (`player_has_item`).
+// A `test fn` is a condition word: write `if player.has(iron_shield) { … }` (T-114).
+test fn player.has(:item) {
+    player_has_item(:item)
+}
+
+// Give the player an item, as `player.give(iron_shield)` — docs/bilgi/anlam/oyuncu-varliklari.md:49.
+fn player.give(:item) {
+    give_item(:item)
+}
+
+// Take an item from the player, as `player.remove(iron_shield)` — docs/bilgi/anlam/oyuncu-varliklari.md:50.
+fn player.remove(:item) {
+    take_item(:item)
+}

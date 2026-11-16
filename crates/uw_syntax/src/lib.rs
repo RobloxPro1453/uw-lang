@@ -54,8 +54,9 @@ pub enum Item {
     /// `on a.b { body }`
     On { path: Vec<Ident>, body: Block, span: Span },
     /// `fn <name>(:p1, :p2) { body }`: a named piece of code used as one line; a call to it is
-    /// replaced by its body at check time (T-078).
-    Fn { name: Ident, params: Vec<Ident>, body: Block, span: Span },
+    /// replaced by its body at check time (T-078). `test fn <name>(…) { body }` is the same item
+    /// with `test: true`: a condition word, usable in `if`/`when` (T-114).
+    Fn { name: Ident, params: Vec<Ident>, body: Block, span: Span, test: bool },
     /// `save <name> = <int | true | false>`: a named global that lives in the save game, set to
     /// its start value once at game start (T-085).
     Save { name: Ident, value: Expr, span: Span },
@@ -851,12 +852,27 @@ impl Parser {
                 Tok::Ident(kw) if kw == "fn" => {
                     let start = t.span.start;
                     self.bump();
-                    let name = self.ident("a name after `fn`, e.g. `fn give_gold(:amount)`")?;
-                    let name = self.dotted_after(name)?;
-                    let params = self.params(&name.text)?;
-                    let body = self.block(&format!("fn {}", name.text))?;
+                    let (name, params, body) = self.fn_after()?;
                     let end = body.span.end;
-                    file.items.push(Item::Fn { name, params, body, span: Span { start, end } });
+                    file.items.push(Item::Fn { name, params, body, span: Span { start, end }, test: false });
+                }
+                // `test fn player.has(:item) { … }`: a condition word (T-114). `?` is not a name
+                // character, so the marker goes before `fn` instead of in the name.
+                Tok::Ident(kw) if kw == "test" => {
+                    let start = t.span.start;
+                    self.bump();
+                    let kw = self.ident("`fn` after `test`")?;
+                    if kw.text != "fn" {
+                        return Err(err(
+                            E0100_UNEXPECTED,
+                            format!("expected `fn` after `test`, found `{}`", kw.text),
+                            kw.span,
+                        )
+                        .with_help("a condition word is written `test fn player.has(:item) { ... }`"));
+                    }
+                    let (name, params, body) = self.fn_after()?;
+                    let end = body.span.end;
+                    file.items.push(Item::Fn { name, params, body, span: Span { start, end }, test: true });
                 }
                 Tok::Ident(kw) if kw == "save" => {
                     let start = t.span.start;
@@ -1150,6 +1166,16 @@ impl Parser {
             err(E0103_BAD_TOKEN, format!("'{literal}' is not a number"), Span { start: t.span.start, end })
         })?;
         Ok((value * 100.0).round() as i64)
+    }
+
+    /// The name, parameters and body after `fn` in `fn <name>(:p1, :p2) { … }` (also used by
+    /// `test fn`, T-114).
+    fn fn_after(&mut self) -> Result<(Ident, Vec<Ident>, Block), Diagnostic> {
+        let name = self.ident("a name after `fn`, e.g. `fn give_gold(:amount)`")?;
+        let name = self.dotted_after(name)?;
+        let params = self.params(&name.text)?;
+        let body = self.block(&format!("fn {}", name.text))?;
+        Ok((name, params, body))
     }
 
     /// The `(:p1, :p2, …)` parameters of `fn <name>`; each one is a `:local` the body uses.
@@ -1754,6 +1780,15 @@ impl Parser {
                 }
             }
             Tok::Newline | Tok::Semi | Tok::RBrace | Tok::Eof => {}
+            // `say "Bandits took your shield!"` is `say("…")`: a one-value word may take its
+            // string without parentheses when that string is on the same line (T-114).
+            Tok::Str(_) => {
+                let t = self.bump();
+                if let Tok::Str(text) = t.tok {
+                    end = t.span.end;
+                    args.push(Arg::Str(text, t.span));
+                }
+            }
             Tok::Colon => {
                 return Err(err(E0104_PYTHON_BLOCK, format!("`{}` is not a UW block; blocks use {{ }}", op.text), self.peek().span)
                     .with_help("operation calls are plain lines, e.g. `name(a, b)`"));
@@ -2055,19 +2090,21 @@ impl Parser {
     fn cond_operand(&mut self) -> Result<CondOperand, Diagnostic> {
         let t = self.peek().clone();
         if let Tok::Ident(name) = &t.tok {
-            let after = self.toks.get(self.pos + 1).map(|t| &t.tok);
             let op = Ident { text: name.clone(), span: t.span };
             self.check_flag_prefix(&op)?;
-            if matches!(after, Some(Tok::LParen)) {
-                self.bump();
+            let saved = self.pos;
+            self.bump();
+            let op = self.dotted_after(op)?;
+            // A dotted word is a call too (`if player.has(iron_shield)`, T-114).
+            if self.peek().tok == Tok::LParen {
                 return Ok(CondOperand::Call(self.call_after(op)?));
             }
             // A bare name is a condition operation without operands (`if game_over {`); a dotted
             // word is a value instead (`if player.gold >= 100`, T-082).
-            if !matches!(after, Some(Tok::Bin(_)) | Some(Tok::Cmp(_)) | Some(Tok::Dot)) {
-                self.bump();
-                return Ok(CondOperand::Call(Call { span: t.span, op, args: Vec::new() }));
+            if !op.text.contains('.') && !matches!(self.peek().tok, Tok::Bin(_) | Tok::Cmp(_)) {
+                return Ok(CondOperand::Call(Call { span: op.span, op, args: Vec::new() }));
             }
+            self.pos = saved;
         }
         Ok(CondOperand::Expr(self.expr()?))
     }

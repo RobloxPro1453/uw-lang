@@ -194,7 +194,8 @@ fn the_real_lib_parses_and_checks_against_the_fixture_atlas() {
                  move_near(praven)\n    show_map()\n    say(\"@Hello\")\n    \
                  player.gold += 1000\n    player.gold -= 50\n    player.renown += 10\n    \
                  player.honor += 1\n    if player.gold >= 100 {\n        say(\"@Still rich.\")\n    }\n    \
-                 :level = player.level\n    :renown = player.renown\n    :honor = player.honor\n}\n";
+                 :level = player.level\n    :renown = player.renown\n    :honor = player.honor\n    \
+                 player.give(0)\n    player.remove(0)\n    if player.has(0) {\n        say(\"@Has it.\")\n    }\n}\n";
     let files = run(input, false, true).expect("the real lib/core.uw parses and checks");
     let scripts = files.iter().find(|(name, _)| name == "module_scripts.py").expect("module_scripts.py");
     for expected in [
@@ -215,6 +216,7 @@ fn the_real_lib_parses_and_checks_against_the_fixture_atlas() {
         "(troop_get_slot, \":_uw_get2\", \"trp_player\", slot_troop_renown)",
         "(assign, \":_uw_get3\", \"$player_honor\")",
         "(store_character_level, \":_uw_get1\", \"trp_player\")",
+        "(player_has_item, 0)",
     ] {
         assert!(scripts.1.contains(expected), "missing {expected} in:\n{}", scripts.1);
     }
