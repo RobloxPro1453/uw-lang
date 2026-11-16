@@ -104,6 +104,14 @@ class Runtime(unittest.TestCase):
         self.assertEqual(uw.remove_where(lst, lambda i, e: i == 1), ["a", "c"])
         self.assertEqual(lst, ["a", "b", "c"])
 
+    def test_append_entry_keeps_the_existing_entries(self):
+        """A simple trigger is `(check_interval, ops)`: unnamed, so it needs no name check."""
+        lst = [(24, [(1,)]), (6, [(2,)])]
+        out = uw.append_entry(lst, (1, [(3,)]))
+        self.assertEqual(out, [(24, [(1,)]), (6, [(2,)]), (1, [(3,)])])
+        self.assertIs(out[0], lst[0])
+        self.assertEqual(len(lst), 2)
+
 
 class Menus(unittest.TestCase):
     """Menu layout module_game_menus.py:20-32: (id, flags, text, mesh, enter ops, options)."""
