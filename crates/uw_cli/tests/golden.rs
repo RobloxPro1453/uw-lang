@@ -17,6 +17,8 @@ use uw_diag::SourceFile;
 
 const ATLAS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/atlas_golden.json");
 const GOLDEN: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden");
+/// UW's own word library at the repository root (T-079): a case with a `lib` marker file gets it.
+const LIB: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../lib");
 
 /// The generated file kept for every run; comparing it would only copy `py/uw_runtime.py`.
 const RUNTIME: &str = "uw_runtime.py";
@@ -37,8 +39,29 @@ fn cases() -> Vec<PathBuf> {
     dirs
 }
 
-/// Parses, checks and emits `input.uw`: the generated wrappers by name, or the rendered errors.
-fn run(input: &str, debug: bool) -> Result<Vec<(String, String)>, String> {
+/// The parsed real `lib/*.uw` files, in file order: UW's own words, before the mod's source.
+fn lib_sources() -> Vec<uw_check::Source> {
+    let mut paths: Vec<PathBuf> = fs::read_dir(LIB)
+        .unwrap_or_else(|e| panic!("{LIB}: {e}"))
+        .filter_map(|entry| entry.ok().map(|entry| entry.path()))
+        .filter(|path| path.extension().is_some_and(|ext| ext == "uw"))
+        .collect();
+    paths.sort();
+    paths
+        .into_iter()
+        .map(|path| {
+            let text = fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+            let name = path.file_name().unwrap().to_string_lossy().into_owned();
+            let file = SourceFile::new(name, text);
+            let tree = uw_syntax::parse(&file.text).unwrap_or_else(|d| panic!("{}", d.render(&file)));
+            uw_check::Source { file, tree }
+        })
+        .collect()
+}
+
+/// Parses, checks and emits `input.uw` (with UW's own words when `with_lib`): the generated
+/// wrappers by name, or the rendered errors.
+fn run(input: &str, debug: bool, with_lib: bool) -> Result<Vec<(String, String)>, String> {
     let mut atlas = uw_atlas::Atlas::from_path(ATLAS).expect("the golden atlas fixture loads");
     // The game names `uw build` installs (P5b): the mod's `names.uw`, or the derived Native ones.
     atlas.set_game_names(&uw_decomp::names::pairs(&uw_decomp::names::derive(&atlas)));
@@ -47,7 +70,8 @@ fn run(input: &str, debug: bool) -> Result<Vec<(String, String)>, String> {
         Ok(tree) => tree,
         Err(d) => return Err(d.render(&file)),
     };
-    let sources = [uw_check::Source { file: file.clone(), tree }];
+    let mut sources = if with_lib { lib_sources() } else { Vec::new() };
+    sources.push(uw_check::Source { file: file.clone(), tree });
     let checked = uw_check::check(&atlas, &sources, "golden").map_err(|errors| {
         errors.iter().map(|e| e.diag.render(&sources[e.file].file)).collect::<Vec<_>>().join("\n")
     })?;
@@ -113,9 +137,10 @@ fn generated_wrappers_match_the_golden_files() {
         let case = dir.file_name().unwrap().to_string_lossy().into_owned();
         let input = norm(&fs::read_to_string(dir.join("input.uw")).expect("every case has an input.uw"));
         let debug = dir.join("debug").is_file();
+        let with_lib = dir.join("lib").is_file();
         let expected = dir.join("expected");
         let error_case = expected.join("error.txt").is_file();
-        match run(&input, debug) {
+        match run(&input, debug, with_lib) {
             Ok(files) => {
                 if error_case {
                     failures.push(format!("{case}: expected an error, but parse/check/emit succeeded"));
@@ -147,4 +172,32 @@ fn generated_wrappers_match_the_golden_files() {
         }
     }
     assert!(failures.is_empty(), "\n{}", failures.join("\n"));
+}
+
+/// T-079: the real `lib/core.uw` parses and checks with no error, and every word inlines to its
+/// Native operations. Calling all of them forces the check into every fn body.
+#[test]
+fn the_real_lib_parses_and_checks_against_the_fixture_atlas() {
+    let input = "mod lib_words\n\non game.start {\n    give_gold(1000)\n    take_gold(250)\n    \
+                 give_item(0)\n    take_item(0)\n    add_troops(trp_player, 10)\n    \
+                 remove_troops(trp_player, 5)\n    add_renown(10)\n    add_honor(5)\n    \
+                 move_near(praven)\n    show_map()\n    say(\"@Hello\")\n}\n";
+    let files = run(input, false, true).expect("the real lib/core.uw parses and checks");
+    let scripts = files.iter().find(|(name, _)| name == "module_scripts.py").expect("module_scripts.py");
+    for expected in [
+        "(troop_add_gold, \"trp_player\", 1000)",
+        "(store_troop_gold, \":gold__fn1\", \"trp_player\")",
+        "(ge, \":gold__fn1\", 250)",
+        "(troop_add_item, \"trp_player\", 0)",
+        "(troop_remove_item, \"trp_player\", 0)",
+        "(party_add_members, \"p_main_party\", \"trp_player\", 10)",
+        "(party_remove_members, \"p_main_party\", \"trp_player\", 5)",
+        "(call_script, \"script_change_troop_renown\", \"trp_player\", 10)",
+        "(call_script, \"script_change_player_honor\", 5)",
+        "(party_relocate_near_party, \"p_main_party\", \"p_town_6\", 1)",
+        "change_screen_map,",
+        "(display_message, \"@Hello\")",
+    ] {
+        assert!(scripts.1.contains(expected), "missing {expected} in:\n{}", scripts.1);
+    }
 }

@@ -1,0 +1,62 @@
+// UW's own words (T-079): every mod may call these without defining them. Each `fn` is plain UW
+// and its comment names the Native operation and the anlam page line it comes from.
+
+// Give the player gold — docs/bilgi/anlam/oyuncu-varliklari.md:23 (`troop_add_gold`).
+fn give_gold(:amount) {
+    troop_add_gold(trp_player, :amount)
+}
+
+// Take at most what the player has — docs/bilgi/anlam/oyuncu-varliklari.md:27-30 (`store_troop_gold` + `ge`).
+fn take_gold(:amount) {
+    store_troop_gold(:gold, trp_player)
+    if :gold >= :amount {
+        troop_remove_gold(trp_player, :amount)
+    } else {
+        troop_remove_gold(trp_player, :gold)
+    }
+}
+
+// Give the player an item — docs/bilgi/anlam/oyuncu-varliklari.md:49 (`troop_add_item`).
+fn give_item(:item) {
+    troop_add_item(trp_player, :item)
+}
+
+// Take an item from the player — docs/bilgi/anlam/oyuncu-varliklari.md:50 (`troop_remove_item`).
+fn take_item(:item) {
+    troop_remove_item(trp_player, :item)
+}
+
+// Add troops to the player's party — docs/bilgi/anlam/oyuncu-varliklari.md:87 (`party_add_members`).
+fn add_troops(:troop, :count) {
+    party_add_members(p_main_party, :troop, :count)
+}
+
+// Remove troops from the player's party — docs/bilgi/anlam/oyuncu-varliklari.md:88 (`party_remove_members`).
+fn remove_troops(:troop, :count) {
+    party_remove_members(p_main_party, :troop, :count)
+}
+
+// Add renown — docs/bilgi/anlam/oyuncu-varliklari.md:119-120 (`script_change_troop_renown`).
+fn add_renown(:amount) {
+    call_script("script_change_troop_renown", trp_player, :amount)
+}
+
+// Add honor — docs/bilgi/anlam/oyuncu-varliklari.md:121-122 (`script_change_player_honor`).
+fn add_honor(:amount) {
+    call_script("script_change_player_honor", :amount)
+}
+
+// Move the player's party next to another party — docs/bilgi/anlam/hareket-ve-harita.md:37 (`party_relocate_near_party`).
+fn move_near(:party) {
+    party_relocate_near_party(p_main_party, :party, 1)
+}
+
+// Return to the map — docs/bilgi/anlam/menuler.md:130 (`change_screen_map`).
+fn show_map() {
+    change_screen_map()
+}
+
+// Show a message — docs/bilgi/anlam/zaman-ve-olaylar.md:90 (`display_message`).
+fn say(:text) {
+    display_message(:text)
+}
