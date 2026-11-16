@@ -202,7 +202,9 @@ fn collect_uw_files(dir: &Path, files: &mut Vec<PathBuf>) {
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
-            if path.file_name().and_then(|name| name.to_str()) != Some("fns") {
+            // `fns/` holds words, dot folders (.uw-backup from `uw rename`, .git) never hold records.
+            let name = path.file_name().and_then(|name| name.to_str()).unwrap_or("");
+            if name != "fns" && !name.starts_with('.') {
                 collect_uw_files(&path, files);
             }
         } else if path.extension().and_then(|ext| ext.to_str()) == Some("uw")

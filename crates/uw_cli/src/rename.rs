@@ -20,8 +20,11 @@ const USAGE: &str = "usage:
       texts and its languages/<lang>/*.csv translations; the old name is replaced inside each
       text, so \"Praven Şehri\" becomes \"Adam Siken Şehri\"
       --list: only list what would change; --yes: write every group without asking
+      every changed file is first copied to .uw-backup/rename-<time>/ in the project
   uw rename <dir> <record> \"<new name>\" [--list] [--yes] [--atlas <atlas.json>]
-      the same, for the project folder <dir>";
+      the same, for the project folder <dir>
+  uw rename --undo [<dir>]
+      put back the files of the last rename (only files nobody changed since)";
 
 /// What the command line asked for.
 struct Args {
@@ -32,6 +35,8 @@ struct Args {
     new_name: String,
     list: bool,
     yes: bool,
+    /// `--undo`: restore the last rename's backup instead.
+    undo: bool,
     atlas: Option<PathBuf>,
 }
 
@@ -39,12 +44,14 @@ fn parse(args: &[String]) -> Result<Args, String> {
     let mut words: Vec<String> = Vec::new();
     let mut list = false;
     let mut yes = false;
+    let mut undo = false;
     let mut atlas = None;
     let mut it = args.iter();
     while let Some(arg) = it.next() {
         match arg.as_str() {
             "--list" => list = true,
             "--yes" => yes = true,
+            "--undo" => undo = true,
             "--atlas" => match it.next() {
                 Some(path) => atlas = Some(PathBuf::from(path)),
                 None => return Err(format!("--atlas needs a path\n{USAGE}")),
@@ -52,6 +59,14 @@ fn parse(args: &[String]) -> Result<Args, String> {
             other if other.starts_with('-') => return Err(format!("unknown argument `{other}`\n{USAGE}")),
             other => words.push(other.to_owned()),
         }
+    }
+    if undo {
+        let dir = match words.as_slice() {
+            [] => None,
+            [dir] => Some(PathBuf::from(dir)),
+            _ => return Err(USAGE.to_owned()),
+        };
+        return Ok(Args { dir, record: String::new(), new_name: String::new(), list, yes, undo, atlas });
     }
     let (dir, record, new_name) = match words.as_slice() {
         [record, new_name] => (None, record.clone(), new_name.clone()),
@@ -65,7 +80,7 @@ fn parse(args: &[String]) -> Result<Args, String> {
     {
         return Err("the new name may not be empty or hold `\"`, `\\` or a line break".to_owned());
     }
-    Ok(Args { dir, record, new_name, list, yes, atlas })
+    Ok(Args { dir, record, new_name, list, yes, undo, atlas })
 }
 
 pub fn cmd(args: &[String]) -> ExitCode {
@@ -78,7 +93,8 @@ pub fn cmd(args: &[String]) -> ExitCode {
         Err(message) => return crate::fail(&message),
     };
     let dir = crate::plain(dir.canonicalize().unwrap_or(dir));
-    match run(&dir, &args) {
+    let result = if args.undo { undo(&dir) } else { run(&dir, &args) };
+    match result {
         Ok(()) => ExitCode::SUCCESS,
         Err(message) => crate::fail(&message),
     }
@@ -156,14 +172,110 @@ fn run(dir: &Path, args: &Args) -> Result<(), String> {
         println!("nothing written");
         return Ok(());
     }
+    // Every new text first, then the backup, then the writes: nothing is written unless all of it
+    // could be computed and every original is safely copied (rule 1: data loss is the worst error).
+    let mut planned: Vec<(PathBuf, String)> = Vec::new();
     for (path, hits) in &written {
         let text = std::fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
-        let renamed = replace_spans(&text, hits, &old, &args.new_name);
-        write_atomic(path, &renamed, dir)?;
+        planned.push((path.clone(), replace_spans(&text, hits, &old, &args.new_name)));
+    }
+    let backup = back_up(dir, &planned)?;
+    for (path, renamed) in &planned {
+        write_atomic(path, renamed, dir)?;
     }
     let lines: usize = written.values().map(Vec::len).sum();
     println!("wrote {} line(s) in {} file(s)", lines, written.len());
+    println!("backup   {}   (undo: uw rename --undo)", relative(dir, &backup));
     Ok(())
+}
+
+/// The project folder that holds every rename backup (a dot folder: no command reads it as records).
+const BACKUP_DIR: &str = ".uw-backup";
+const MANIFEST: &str = "manifest.tsv";
+
+/// Copies every file about to change into `.uw-backup/rename-<time>/<same relative path>` and writes a
+/// manifest (`relative path<TAB>fingerprint of the new text`) so `--undo` knows which files are still
+/// exactly what the rename wrote. Returns the backup folder.
+fn back_up(dir: &Path, planned: &[(PathBuf, String)]) -> Result<PathBuf, String> {
+    let seconds = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let mut folder = dir.join(BACKUP_DIR).join(format!("rename-{seconds}"));
+    let mut n = 1;
+    while folder.exists() || folder.with_file_name(format!("{}.undone", folder.file_name().and_then(|f| f.to_str()).unwrap_or(""))).exists() {
+        n += 1;
+        folder = dir.join(BACKUP_DIR).join(format!("rename-{seconds}-{n}"));
+    }
+    let mut manifest = String::new();
+    for (path, renamed) in planned {
+        let rel = path.strip_prefix(dir).map_err(|_| format!("{} is outside the project folder", path.display()))?;
+        let target = folder.join(rel);
+        if let Some(parent) = target.parent() {
+            std::fs::create_dir_all(parent).map_err(|e| format!("{}: {e}", parent.display()))?;
+        }
+        std::fs::copy(path, &target).map_err(|e| format!("backup {}: {e}", path.display()))?;
+        manifest.push_str(&format!("{}\t{:016x}\n", relative(dir, path), fingerprint(renamed.as_bytes())));
+    }
+    std::fs::write(folder.join(MANIFEST), manifest).map_err(|e| format!("{}: {e}", folder.display()))?;
+    Ok(folder)
+}
+
+/// `uw rename --undo`: the newest backup not undone yet goes back. A file changed since the rename
+/// (its fingerprint differs) is left alone and named, so no later work of the owner is overwritten.
+fn undo(dir: &Path) -> Result<(), String> {
+    let root = dir.join(BACKUP_DIR);
+    let mut backups: Vec<PathBuf> = std::fs::read_dir(&root)
+        .map_err(|_| format!("no rename backup in {}", dir.display()))?
+        .flatten()
+        .map(|entry| entry.path())
+        .filter(|path| path.is_dir() && path.join(MANIFEST).is_file())
+        .filter(|path| !path.to_string_lossy().ends_with(".undone"))
+        .collect();
+    // Folder names hold the time (`rename-<seconds>[-n]`): the newest sorts last.
+    backups.sort_by_key(|path| {
+        let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("").trim_start_matches("rename-").to_owned();
+        let mut parts = name.split('-');
+        let seconds: u64 = parts.next().and_then(|t| t.parse().ok()).unwrap_or(0);
+        let n: u64 = parts.next().and_then(|t| t.parse().ok()).unwrap_or(1);
+        (seconds, n)
+    });
+    let Some(last) = backups.pop() else {
+        return Err(format!("no rename backup left to undo in {}", dir.display()));
+    };
+    let manifest = std::fs::read_to_string(last.join(MANIFEST)).map_err(|e| format!("{}: {e}", last.display()))?;
+    let (mut restored, mut kept) = (0, 0);
+    for line in manifest.lines().filter(|line| !line.is_empty()) {
+        let Some((rel, wanted)) = line.split_once('\t') else { continue };
+        let current = dir.join(rel);
+        let original = last.join(rel);
+        let now = std::fs::read(&current).map(|bytes| format!("{:016x}", fingerprint(&bytes))).unwrap_or_default();
+        if now != wanted {
+            println!("kept     {rel}: changed after the rename; its old copy is {}", relative(dir, &original));
+            kept += 1;
+            continue;
+        }
+        let bytes = std::fs::read(&original).map_err(|e| format!("{}: {e}", original.display()))?;
+        let text = String::from_utf8(bytes).map_err(|_| format!("{}: not UTF-8 text", original.display()))?;
+        write_atomic(&current, &text, dir)?;
+        restored += 1;
+    }
+    // Marked as undone (not deleted): the copies stay until the owner removes .uw-backup.
+    let name = last.file_name().and_then(|n| n.to_str()).unwrap_or("rename").to_owned();
+    let done = last.with_file_name(format!("{name}.undone"));
+    std::fs::rename(&last, &done).map_err(|e| format!("{}: {e}", last.display()))?;
+    println!("undo     {restored} file(s) restored, {kept} kept (changed since)");
+    Ok(())
+}
+
+/// FNV-1a 64: a stable fingerprint of a file's bytes (not for security; only "unchanged since").
+fn fingerprint(bytes: &[u8]) -> u64 {
+    let mut hash: u64 = 0xcbf29ce484222325;
+    for byte in bytes {
+        hash ^= u64::from(*byte);
+        hash = hash.wrapping_mul(0x100000001b3);
+    }
+    hash
 }
 
 /// The name the project currently uses (`""` when unknown). When it already is the new name, the
@@ -429,6 +541,10 @@ fn files_with(dir: &Path, extension: &str) -> Vec<PathBuf> {
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
+            // Dot folders (.uw-backup, .git) are never project texts.
+            if path.file_name().and_then(|n| n.to_str()).is_some_and(|n| n.starts_with('.')) {
+                continue;
+            }
             files.extend(files_with(&path, extension));
         } else if path.extension().is_some_and(|ext| ext == extension) {
             files.push(path);
@@ -472,4 +588,64 @@ pub(crate) fn replace_word(text: &str, old: &str, new: &str) -> Option<String> {
 /// A character a word continues with; `Praven's` still matches `Praven`.
 pub(crate) fn is_word_char(c: char) -> bool {
     c.is_alphanumeric() || c == '_'
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn temp(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("uw-rename-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("menus")).unwrap();
+        dir
+    }
+
+    #[test]
+    fn undo_puts_back_exactly_what_the_rename_changed() {
+        let dir = temp("undo");
+        let a = dir.join("menus").join("a.uw");
+        let b = dir.join("b.uw");
+        std::fs::write(&a, "text \"to Praven\"\r\n").unwrap();
+        std::fs::write(&b, "name \"Praven\"\n").unwrap();
+        let planned = vec![(a.clone(), "text \"to Adam\"\r\n".to_owned()), (b.clone(), "name \"Adam\"\n".to_owned())];
+        let backup = back_up(&dir, &planned).unwrap();
+        for (path, text) in &planned {
+            write_atomic(path, text, &dir).unwrap();
+        }
+        assert!(backup.join("menus").join("a.uw").is_file());
+        undo(&dir).unwrap();
+        assert_eq!(std::fs::read(&a).unwrap(), b"text \"to Praven\"\r\n");
+        assert_eq!(std::fs::read(&b).unwrap(), b"name \"Praven\"\n");
+        // Undone once: nothing left to undo, and the copies are kept (marked, not deleted).
+        assert!(undo(&dir).is_err());
+        assert!(backup.with_file_name(format!("{}.undone", backup.file_name().unwrap().to_str().unwrap())).is_dir());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn undo_never_overwrites_a_file_changed_after_the_rename() {
+        let dir = temp("kept");
+        let a = dir.join("a.uw");
+        std::fs::write(&a, "name \"Praven\"\n").unwrap();
+        let planned = vec![(a.clone(), "name \"Adam\"\n".to_owned())];
+        back_up(&dir, &planned).unwrap();
+        write_atomic(&a, &planned[0].1, &dir).unwrap();
+        // The owner keeps working on the file after the rename.
+        std::fs::write(&a, "name \"Adam\"\nlevel 5\n").unwrap();
+        undo(&dir).unwrap();
+        assert_eq!(std::fs::read_to_string(&a).unwrap(), "name \"Adam\"\nlevel 5\n");
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn backups_are_not_read_as_project_texts() {
+        let dir = temp("dot");
+        std::fs::create_dir_all(dir.join(".uw-backup").join("rename-1")).unwrap();
+        std::fs::write(dir.join(".uw-backup").join("rename-1").join("x.uw"), "old").unwrap();
+        std::fs::write(dir.join("y.uw"), "new").unwrap();
+        let files = uw_files(&dir);
+        assert_eq!(files, vec![dir.join("y.uw")]);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 }

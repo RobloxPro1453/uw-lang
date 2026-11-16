@@ -5,6 +5,7 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
+- `uw rename` güvenli: değiştirmeden önce her dosyanın kopyası projede `.uw-backup/rename-<zaman>/` altına alınır; `uw rename --undo` son değişikliği geri koyar (rename'den sonra elle değiştirdiğin dosyaya dokunmaz, adını söyler). Yedekler silinmez, yalnız "geri alındı" diye işaretlenir.
 - `uw rename praven "Adam Siken"`: adın geçtiği her yeri bulur (kaydın adı, "join a caravan to Praven…" gibi metinler, "Merchant of Praven", bütün dillerdeki çeviriler), grup grup sorar, sonra değiştirir; `--list` yalnız gösterir, `--yes` sormadan yapar. Çeviride kalıp korunur ("Praven Şehri" → "Adam Siken Şehri"); `uw.toml`'da `[languages.tr] town_suffix = ""` ile şehir eklerini toptan kaldırabilirsin.
 - `town riverhold like praven { name "Riverhold"  initial_coordinates (35, -12) }`: var olan şehirden yeni şehir (ayrıca `castle`, `village`, `party`).
 - VS Code eklentisi v0 (`editors/vscode/`): `.uw` dosyaları renkli; kurulum README'de.
