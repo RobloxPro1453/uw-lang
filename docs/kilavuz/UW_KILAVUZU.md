@@ -4,6 +4,21 @@ Bu belge, UW'nin **bugün** yapabildiklerini anlatır. UW henüz ilk hâlinde; b
 karşılığı olan şeyler yazılıdır (plan, yol haritası veya "ileride olacak" yok). Yeni bir özellik
 geldiğinde bu belgeye de eklenecek; sonundaki "Bu belge nasıl güncellenir" notuna bakın.
 
+## İçindekiler
+
+1. Giriş
+2. Kurulum ve ilk mod (`praven_start`) — ve sıfırdan yeni mod: `uw create <ad>`, `cd`, `uw build`
+3. Dil: `mod <ad>`, `override menu`, `on game.<kanca>`, işlem çağrısı, atama ve hesap, `if`,
+   menü metni/seçenekleri, `new menu_…`, `fn`, kütüphane kelimeleri, nesne yazımı
+4. Değer türleri
+5. Yorumlar
+6. Komutlar (`create`, `build`, `explain`, `browse`, `graph`, `build-project`, `roundtrip`, `new`)
+7. Hata mesajları tablosu
+8. Sınırlar (bugün yapılamayanlar)
+9. Bu belge nasıl güncellenir?
+10. Kayıt dosyaları, oyun adları (`names.uw`) ve proje klasörü
+11. `require`, `attempt` ve `for`
+
 ---
 
 ## 1. Giriş
@@ -180,6 +195,61 @@ kopyalanır, sonra `atlas_dump.py` ile `target/uw-staging/atlas.json` üretilir.
   böyle bir dosyadır).
 - Ad yalnızca ASCII harf, rakam ve `_` içerebilir; boş olamaz ve `Native` olamaz.
 - Aynı modun iki ayrı dosyasında farklı `mod` adı yazarsanız **E0205** alırsınız.
+
+### Sıfırdan yeni mod: `uw create <ad>`
+
+Hazır bir örneği değiştirmek yerine kendi modunuza başlamak için üç adım yeter:
+
+1. **Klasörü kurun.** Terminali istediğiniz yerde açın ve yazın:
+
+   ```
+   uw create modum
+   ```
+
+   UW, terminalin açık olduğu yere `modum` adlı klasörü kurar; adı yalnız harf (A-Z, a-z), rakam ve
+   `_` içerebilir. İçinde **Native'in tamamı UW metni olarak** (partiler, birlikler, menüler,
+   scriptler ...) ve oyun adlarını tutan `names.uw` dosyası olur. Son satırlar şöyledir (sayılar
+   sizde farklıdır):
+
+   ```
+   <dosya> files, <kayıt> records, <ad> game names -> C:\...\modum
+   next:  cd modum   then   uw build
+   ```
+
+   UW var olan bir klasörü ezmez: hedef boş değilse
+   `<klasör> is not empty; refusing to overwrite it (choose a new folder)` der.
+
+2. **İçine girin.**
+
+   ```
+   cd modum
+   ```
+
+3. **Derleyin ve kurun.**
+
+   ```
+   uw build
+   ```
+
+   Klasör verilmezse `uw build` **bulunduğunuz klasörü** derler. Bu klasörde `uw.lock` olduğu için
+   UW onu bir proje klasörü sayar: bütün tabloları (bölüm 10) kit ile derler ve modu kurar. Son
+   satırlar:
+
+   ```
+   modules  <N> written from C:\...\modum
+   built    42 files in 28 s
+   installed C:\...\Modules\modum
+   done      pick 'modum' in the Warband launcher
+   ```
+
+Klasörü adıyla da verebilirsiniz: `uw build modum` (aynısı: `uw build-project modum`). Bundan sonrası
+metin düzenlemektir: kayıtları ve kodu değiştirin, bir kaydın adını değiştirmek için `names.uw`
+satırını değiştirin (bölüm 10.5), sonra yine `uw build`.
+
+`uw create <ad>`, `uw new <ad> --from native` komutunun kısa hâlidir; ikisi de **atlas**
+(`target/uw-staging/atlas.json`) ve **kayıt şemaları** (`kit-meta/records`) olmadan çalışmaz. UW
+klasörünü (`kit-meta/` olan klasör) hiç görmemişse
+`the UW folder (with kit-meta/) was not found; run uw from inside it once` hatası verir.
 
 ### Sık görülen kurulum hataları
 
@@ -461,6 +531,172 @@ new menu_uw_ask "Where are you from?" {
 Yeni bir menü kaydı ekler (listenin sonuna). Kimlik `menu_` ile başlar ve Native'de olmamalıdır.
 Başka bir yerden `jump_to_menu(mnu_uw_ask)` ile açılır. **Oyunda henüz denenmedi** (CHECKUP).
 
+### 3.9. Kendi kelimeniz: `fn <ad>(:p1, :p2) { … }`
+
+**Sözdizimi**
+
+```uw
+fn <ad>(:p1, :p2) {
+    <işlemler>
+}
+```
+
+**Ne yapar?** Bir kod parçasına ad verir. Gövde, çağrıldığı yere **derleme sırasında** konur: kit
+ortada `fn` görmez, yalnız Native işlemlerini görür. Kurallar:
+
+- Bir `fn`, aynı modun **bütün** dosyalarından görünür (tanımın sırası önemli değil).
+- Parametreler `:p1`, `:p2` gibi yazılır; çağrıdaki değer gövdedeki her `:p1` yerine geçer.
+- Gövdenin öteki yerelleri her çağrı yerinde ayrı ad alır: `:half` → `:half__fn1`, `:half__fn2` …
+  Böylece iki çağrı birbirinin yerelini ezmez.
+- Kütüphane dosyaları (bölüm 3.10) yalnız `fn` tutar; mod dosyaları `fn` ile işlemleri karıştırabilir.
+
+**Örnek** (`crates/uw_cli/tests/golden/fn_words/input.uw`)
+
+```uw
+fn give_gold(:who, :amount) {
+    troop_add_gold(:who, :amount)
+    display_message("@You got gold.")
+}
+
+fn reward_player(:bonus) {
+    give_gold(trp_player, :bonus)
+    :half = :bonus / 2
+    troop_add_gold(trp_player, :half)
+}
+
+on game.start {
+    give_gold(trp_player, 1000)
+    reward_player(9)
+    reward_player(11)
+}
+```
+
+Bu dosya derlenince `game_start` script'ine yazılanların ilk satırları
+(`crates/uw_cli/tests/golden/fn_words/expected/module_scripts.py`):
+
+```python
+(troop_add_gold, "trp_player", 1000),  # input.uw:7
+(display_message, "@You got gold."),  # input.uw:8
+(troop_add_gold, "trp_player", 9),  # input.uw:7
+```
+
+Yani `give_gold(trp_player, 1000)` çağrısı gövdesiyle, `reward_player(9)` de içindeki
+`give_gold` çağrısıyla birlikte açıldı; `:half` yereli `:half__fn1` oldu.
+
+**Sık hata ve kodu**
+
+| Hata | Kod |
+|---|---|
+| Değer sayısı tutmuyor: `` `fn give_gold` takes 2 value(s), got 1 `` (yardım: ``call it as `give_gold(:who, :amount)` ``) | E0213 |
+| Ad bir Native işleminin adı: `` `fn troop_add_gold` has the name of a Native operation `` (yardım: `fn uw_troop_add_gold` gibi adlandırın) | E0214 |
+| `fn` kendini çağırıyor: `` `fn a` never ends: a -> b -> a ``; ya da zincir 16'dan derin: `` `fn` calls nest more than 16 deep: … `` | E0215 |
+| Aynı ad iki kez tanımlı (kütüphanedeki ad dahil): `` `fn give_gold` is already defined at core.uw:5 `` | E0202 |
+
+### 3.10. Kütüphane kelimeleri: `lib/core.uw`
+
+**Sözdizimi**
+
+```uw
+give_gold(1000)
+```
+
+**Ne yapar?** UW'nin kendi kelime kütüphanesi `lib/core.uw`, modunuzun dosyalarından **önce**
+okunur; oradaki `fn`ler tanımlamadan çağrılır. Bugün on bir kelime var:
+
+| Kelime | Ne yapar? (altındaki Native işlemi) |
+|---|---|
+| `give_gold(:amount)` | Oyuncuya altın verir (`troop_add_gold`). |
+| `take_gold(:amount)` | Oyuncudan altın alır; elindekinden fazlasını almaz (`store_troop_gold`, `troop_remove_gold`). |
+| `give_item(:item)` | Oyuncuya eşya verir (`troop_add_item`). |
+| `take_item(:item)` | Oyuncudan eşya alır (`troop_remove_item`). |
+| `add_troops(:troop, :count)` | Oyuncunun partisine asker ekler (`party_add_members`). |
+| `remove_troops(:troop, :count)` | Oyuncunun partisinden asker çıkarır (`party_remove_members`). |
+| `add_renown(:amount)` | Ün ekler (`script_change_troop_renown`). |
+| `add_honor(:amount)` | Onur ekler (`script_change_player_honor`). |
+| `move_near(:party)` | Oyuncunun partisini verilen partinin yanına taşır (`party_relocate_near_party`). |
+| `show_map()` | Haritaya döner (`change_screen_map`). |
+| `say(:text)` | Mesaj gösterir (`display_message`). |
+
+**Örnek** (`crates/uw_cli/tests/golden/lib_words/input.uw`)
+
+```uw
+on game.start {
+    give_gold(1000)
+    take_gold(250)
+    move_near(praven)
+    show_map()
+}
+```
+
+`examples/menu_demo/menu_demo.uw` de aynı kelimeleri kullanır: `give_gold(1000)`,
+`say("@UW: arithmetic and if work.")`, `move_near(praven)`, `show_map()`.
+
+**Kurallar**
+
+- `lib` klasörü, mod klasörünün ya da çalıştığınız klasörün içinde veya üstünde aranır (atlas gibi).
+- `lib` dosyaları yalnız `fn` tutabilir; içinde `mod` satırı ya da başka bir şey olursa derleme
+  ``<dosya>: a lib file may only hold `fn` items`` ile durur.
+- Kütüphanedeki bir adı kendiniz tanımlarsanız **E0202** alırsınız; kütüphane önce geldiği için
+  ileti `` `fn give_gold` is already defined at core.uw:5 `` der. Başka ad seçin.
+
+### 3.11. Nesne yazımı: `player.gold += 1000`
+
+**Sözdizimi**
+
+```uw
+<nesne>.<alan> = <değer>        // .set
+<nesne>.<alan> += <değer>       // .add
+<nesne>.<alan> -= <değer>       // .remove
+```
+
+**Ne yapar?** Bir kütüphane `player.gold` için `fn player.gold.get(:out)`, `fn player.gold.add(:amount)`
+gibi `fn`ler tanımlarsa, siz bu kelimeyi günlük alan gibi yazarsınız; UW onu fn çağrısına çevirir:
+
+- `player.gold += 1000` → `player.gold.add(1000)`
+- `player.gold -= 50` → `player.gold.remove(50)`
+- `player.level = 5` → `player.level.set(5)`
+- Değer olarak okumak (`$g_total = player.gold + 1`, `if player.gold >= 100`): UW önce
+  `player.gold.get(:tmp)` çağırır, sonucu `:_uw_get0` gibi bir ara yerele koyar ve asıl satır onu
+  kullanır. Bu yüzden bu ara adlar (`:_uw...`) size kapalıdır (**E0210**).
+- `*=`, `/=`, `%=` biçimleri **yoktur** (**E0216**); kelimenin karşılığı olan `fn` yazılmamışsa yine
+  **E0216** ve yardım satırı eksik `fn`in adını söyler: ``'player.gold' needs `fn player.gold.get` ``.
+
+**Örnek** (`crates/uw_cli/tests/golden/object_words/input.uw`)
+
+```uw
+fn player.gold.get(:out) {
+    assign(:out, $g_gold)
+}
+
+fn player.gold.add(:amount) {
+    $g_gold += :amount
+}
+
+fn player.gold.remove(:amount) {
+    $g_gold -= :amount
+}
+
+fn player.level.set(:value) {
+    $g_level = :value
+}
+
+on game.start {
+    player.gold += 1000        // player.gold.add(1000)
+    player.gold -= 50          // player.gold.remove(50)
+    player.level = 5           // player.level.set(5)
+    $g_total = player.gold + 1 // player.gold.get(:tmp) first, then store_add
+    if player.gold >= 100 {    // player.gold.get(:tmp) before the comparison
+        display_message("@Still rich.")
+    }
+}
+
+override menu start_phase_2 {
+    option uw_rich "Ask for gold." when player.gold >= 1000 {
+        player.gold += 100
+    }
+}
+```
+
 ---
 
 ## 4. Değer türleri
@@ -514,16 +750,20 @@ rakam geliyorsa adın parçası sayılır. Örneğin `camp#2` "aynı ada sahip i
 
 ## 6. Komutlar
 
-UW'nin bugün beş girişi vardır. Komut tek başına (ya da tanınmayan bir komutla) çalıştırılırsa sürüm
+UW'nin bugün dokuz girişi vardır. Komut tek başına (ya da tanınmayan bir komutla) çalıştırılırsa sürüm
 ve kullanım özeti yazılır; bu durumda çıkış kodu `0`'dır. Gerçek hatalarda çıkış kodu `1`'dir.
 
 | Komut | Ne yapar? |
 |---|---|
 | `uw --version` / `uw -V` | Sürümü yazar. |
-| `uw build <klasör> ...` | `.uw` dosyalarını denetler, kit ile derler ve modu kurar. |
+| `uw create <ad>` | Terminalin açık olduğu klasöre yeni bir proje klasörü kurar: Native'in tamamı UW metni + `names.uw`. Sonra `cd <ad>` ve `uw build`. |
+| `uw build [klasör] ...` | `.uw` dosyalarını denetler, kit ile derler ve modu kurar. Klasör verilmezse bulunduğunuz klasör; proje klasöründe (`uw.lock` varsa) bütün tablolar derlenir. |
+| `uw build-project <klasör> ...` | Proje klasörünün bütün tablolarını kit ile derler ve modu kurar. |
+| `uw graph <şey> ...` | Bir şeyin nereye götürdüğünü ağaç, Mermaid veya HTML olarak gösterir; `--json` ile bütün menü akışını yazar. |
 | `uw explain <şey> ...` | Native'de bir şeyin ne olduğunu, nerede tanımlandığını ve kimin kullandığını anlatır. |
 | `uw browse ...` | Terminalde aranabilir bir Native tarayıcısı açar. |
-| `uw graph <şey> ...` | Bir şeyin nereye götürdüğünü ağaç, Mermaid veya HTML olarak gösterir; `--json` ile bütün menü akışını yazar. |
+| `uw roundtrip ...` | Native'in bütün işlem bloklarını UW'ye çevirip geri derler ve karşılaştırır. |
+| `uw new <klasör> --from native` / `uw new --check <klasör>` | Native'in bütün kayıtlarını proje klasörü olarak yazar / böyle bir klasörü geri okur (bölüm 10.4). |
 
 ### 6.1. `uw --version` / `uw -V`
 
@@ -548,6 +788,11 @@ uw build <mod klasörü> [--debug] [--no-install] [--atlas <atlas.json>]
                        [--kit <kit klasörü>] [--python <python27.exe>]
                        [--modules <Warband/Modules>]
 ```
+
+Klasör verilmezse **bulunduğunuz klasör** derlenir (`uw build`). Klasörün içinde `uw.lock` varsa
+(böyle bir klasörü `uw create` / `uw new` kurar) UW onu bir **proje klasörü** sayar ve bütün tabloları
+derler; ayrıntısı 6.7'de. `uw.lock` yoksa klasör bir yama modudur: `.uw` dosyaları Native'in üzerine
+değişiklik koyar.
 
 **Bayraklar**
 
@@ -820,6 +1065,102 @@ Ad hiç bulunamazsa:
 error: no single thing is called "<ad>"; try `uw explain <ad>`
 ```
 
+### 6.6. `uw create <ad>`
+
+**Sözdizimi**
+
+```
+uw create <ad>
+```
+
+**Ne yapar?** Terminalin açık olduğu klasöre `<ad>` adlı proje klasörünü kurar (adım adım anlatım:
+bölüm 2, "Sıfırdan yeni mod"). İçine Native'in bütün kayıtlarını UW metni olarak ve oyun adları
+dosyası `names.uw`'yu yazar; boş olmayan bir klasörü ezmez.
+
+**Örnek**
+
+```
+uw create modum
+```
+
+Biçim (sayılar sizde farklıdır):
+
+```
+<dosya> files, <kayıt> records, <ad> game names -> C:\...\modum
+next:  cd modum   then   uw build
+```
+
+**Sık hata**
+
+| Mesaj | Anlamı |
+|---|---|
+| `error: usage: uw create <mod name>   (makes the folder <mod name> in this folder)` | Ad verilmedi ya da birden çok kelime verildi. |
+| `error: mod name '<ad>' may only use letters, digits and _` | Adda harf (A-Z, a-z), rakam ve `_` dışında karakter var. |
+| `error: <klasör> is not empty; refusing to overwrite it (choose a new folder)` | Aynı adda dolu bir klasör var; UW onu ezmez. |
+| `error: no atlas found (target/uw-staging/atlas.json in this or a parent folder)` / `error: no record schemas found (kit-meta/records in this or a parent folder)` | Atlas ya da kayıt şemaları yok (bölüm 2, "Gerekenler"). |
+
+### 6.7. `uw build-project <klasör>`
+
+**Sözdizimi**
+
+```
+uw build-project <proje klasörü> [--compare-native] [--no-install]
+uw build-project --native-check
+```
+
+**Bayraklar**
+
+| Bayrak | Değer | Ne yapar? |
+|---|---|---|
+| `--compare-native` | yok | Derlenen dosyalardan kaçının Native ile bayt bayt aynı olduğunu söyler. |
+| `--no-install` | yok | Derler ama `Modules` klasörüne kurmaz. |
+| `--native-check` | yok | Modülleri proje klasöründen değil, doğrudan atlastaki değerlerden üretir. |
+
+**Ne yapar?** Proje klasörünün bütün tablolarını `uw.lock` sırasıyla okur, kit ile derler ve
+`Modules/<klasör adı>` olarak kurar; modun adı klasörün adıdır. Proje klasörünün içinde
+`uw build` (klasör vermeden) da aynı işi yapar, çünkü klasörde `uw.lock` vardır.
+
+**Örnek**
+
+```
+uw build-project modum --no-install
+```
+
+Örnek çıktı:
+
+```
+modules  <N> written from C:\...\modum
+built    42 files in 28 s
+done      output in C:\...\target\uw-build\modum\staging\out (not installed: --no-install)
+```
+
+Bir kayıt okunamazsa hiçbir şey derlenmez: her sorun `  <dosya>: <sorun>` satırı olarak yazılır, sonra
+`error: N problems in <klasör>; nothing was built` gelir.
+
+### 6.8. `uw roundtrip`
+
+**Sözdizimi**
+
+```
+uw roundtrip [--atlas <atlas.json>] [--out <klasör>] [--failures N]
+             [--schemas <şema klasörü>] [--names]
+```
+
+**Bayraklar**
+
+| Bayrak | Değer | Ne yapar? |
+|---|---|---|
+| `--atlas` | dosya | Kullanılacak atlas dosyası. |
+| `--out` | klasör | Çevrilen metnin yazılacağı klasör (varsayılan `target/uw-native`). |
+| `--failures` | sayı | Kaç uyuşmazlığın ayrıntı yazılacağı (varsayılan `20`). |
+| `--schemas` | klasör | Kayıt şemaları (varsayılan `kit-meta/records`): her kayıt da basılıp geri okunur ve `target/uw-native/records` altına yazılır. |
+| `--names` | yok | Kitin kimlikleri (`p_town_6`) yerine oyun adlarını (`praven`) yazar. |
+
+**Ne yapar?** Geliştirici ölçüm aracıdır: Native'in bütün işlem bloklarını UW metnine çevirir, geri
+derler ve karşılaştırır; birebir geri dönen payı tablolar hâlinde yazar. Metin `target/uw-native`
+altına düşer (`summary.txt`, `raw.txt`, `failures.txt`, `records/`); en son satır `text: <klasör>`
+olur. Bir blok ya da kayıt geri dönmezse çıkış kodu `1`'dir.
+
 ---
 
 ## 7. Hata mesajları tablosu
@@ -860,6 +1201,10 @@ Her hatanın bir kodu (`E....`), bir satır/sütun işareti, çoğu zaman bir `h
 | **E0210** | `uw_check` | `:_` ile başlayan yerel ad. | Bu adlar UW'nin ara yerellerine ayrılmıştır; başka ad seçin. |
 | **E0211** | `uw_check` | Aynı menüye iki `text` / iki `on enter` (ya da bir seçeneğe iki aynı parça). | İki yer de gösterilir; birini silin. |
 | **E0212** | `uw_check` | Atamanın sol tarafı değişken değil. | Sol taraf `$global`, `:yerel` ya da `reg0` gibi bir yazmaç olmalı. |
+| **E0213** | `uw_check` | Bir `fn` çağrısına yanlış sayıda değer verilmiş. | `` `fn give_gold` takes 2 value(s), got 1 ``; yardım satırı çağrının doğrusunu yazar: ``call it as `give_gold(:who, :amount)` ``. |
+| **E0214** | `uw_check` | `fn` adı bir Native işleminin adı. | `` `fn troop_add_gold` has the name of a Native operation `` — çağrıları Native işlemi sayılacağı için başka ad seçin (`fn uw_…`). |
+| **E0215** | `uw_check` | `fn` kendini çağırıyor ya da zincir çok derin. | `` `fn a` never ends: a -> b -> a `` / `` `fn` calls nest more than 16 deep: … `` — zinciri kısaltın ya da işlemi doğrudan yazın. |
+| **E0216** | `uw_check` | Nesne kelimesinin karşılığı olan `fn` yok ya da biçim yok. | ``'player.gold' needs `fn player.gold.get` `` (yardım: o `fn`i yazın) / ``'player.gold' has no `*=` form`` (dotted word `=`, `+=` ve `-=` alır). |
 
 > `uw explain`, `uw browse` ve `uw graph`'ın kendi hataları kod taşımaz; düz `error: ...` metni
 > olarak yazılır (ör. atlas bulunamadı, ad bulunamadı).
@@ -898,6 +1243,7 @@ Yeni bir özellik geldiğinde:
      ekleyin; örnek çıktıyı da yazın.
    - Yeni bir hata kodu → **7. Hata mesajları tablosuna** satır ekleyin.
    - Artık yapılabilen bir şey → **8. Sınırlar** listesinden o maddeyi çıkarın.
+   - Yeni bir bölüm ya da alt başlık → baştaki **İçindekiler** listesine de ekleyin.
 2. **Yalnızca kodda olanı yazın.** Her cümlenin karşılığı ya koddadır ya da çalıştırdığınız bir
    komuttur. Plan, yol haritası ve "yakında" yazmayın.
 3. **Gerçek adlar kullanın.** Yeni bir Native adı, işlem, menü veya kanca uydurmayın; örneğini
@@ -913,24 +1259,26 @@ Yeni bir özellik geldiğinde:
 ## 10. Kayıt dosyaları ve `uw new` (dışa aktarma)
 
 Native'in veri tabloları (birlikler, eşyalar, partiler, krallıklar ...) UW metni olarak da yazılır.
-Bugün bu metinler **yalnız dışa aktarılır**: `uw roundtrip` onları ölçmek için
-`target/uw-native/records/<tablo>.uw` altına yazar; `uw new --from native` ise aynı biçimde bir
-proje klasörü üretir. Üretilen klasör henüz `uw build` ile derlenmez (bkz. 10.5).
+`uw roundtrip` onları ölçmek için `target/uw-native/records/<tablo>.uw` altına yazar; `uw new --from
+native` (ve `uw create`) ise aynı biçimde bir proje klasörü üretir. Proje klasörü `uw build` /
+`uw build-project` ile derlenir (bkz. 10.6).
 
 ### 10.1. Bir kayıt nasıl yazılır?
 
-Bir kayıt üç parçadır: tür, kimlik ve süslü parantez içinde alanlar.
+Bir kayıt üç parçadır: tür, ad ve süslü parantez içinde alanlar.
 
 ```uw
-<tür> <kimlik> {
+<tür> <ad> {
   <alan> <değer>
   <alan> <değer>
 }
 ```
 
 - **tür**: kaydın tablosu; şemadaki `kind` değeri (`faction`, `party`, `troop`, `item` ...).
-- **kimlik**: Native kimliğinin öneksiz hâli. Kit `fac_commoners` diyorsa burada `commoners`,
-  `p_town_1` diyorsa `town_1` yazar. Proje klasöründeki dosya adı da bu kimliktir.
+- **ad**: kaydın **oyun adı** (`praven`, `swadia`; bölüm 10.5) ya da o ad yoksa Native kimliğinin
+  öneksiz hâli. Kit `fac_commoners` diyorsa `commoners`, `p_town_1` diyorsa `town_1` yazar. İçindeki
+  `id` satırı her zaman kitin kimliğidir (`id town_6`); proje klasöründeki dosya adı da bu kimliktir
+  (`parties/towns/town_6.uw`).
 - **alan**: şemadaki (`kit-meta/records/<tablo>.toml`) alan adı. Alanlar **şemadaki sırayla**
   gelir; isteğe bağlı son alan (örneğin `faction_color`) yoksa hiç yazılmaz.
 
@@ -938,18 +1286,20 @@ Aynı dosyada birden çok kayıt olabilir; kayıtlar arasında bir boş satır v
 
 ### 10.2. Bir kayıt nasıl okunur?
 
-Değerler dört biçimde gelir:
+Değerler beş biçimde gelir:
 
 | Biçim | Örnek | Anlamı |
 |---|---|---|
-| sayı | `coherence 0.1`, `party_flags 4219916` | Ham değer. Bayraklar ve paketlenmiş sayılar bu ilk turda sayı kalır. |
+| sayı | `coherence 0.1`, `direction 155` | Ham değer. Şeması olmayan (ya da `raw` diyen) alan böyle kalır. |
 | metin | `name "Sargoth"` | Çift tırnak içinde oyun metni. |
 | ad | `none`, `player_faction` | Kitin/atlasın adı: bir sabit ya da başka bir kaydın kimliği. |
 | liste / demet | `stacks []`, `relations [(player_faction, 0.1)]` | `[ ]` liste, `( )` demet; ikisi ayrı şeydir. |
+| paketli alan | `personality {courage 0, aggressiveness 0, banditness 0}` | Şemanın `bits` dediği alan: paketlenmiş sayı parçalarına ayrılır; simge ve bayraklar **adıyla** yazılır (`party_flags {icon icon_town, flags [pf_is_static, …], …}`, 10.3). |
 
-İlk turda her alan "ham"dır: bir yabancı anahtar bazen adla (`player_faction`), bazen sayıyla
-(`faction 3`) görünebilir. Alanın anlamını ve sırasını `kit-meta/records/` altındaki şema dosyası
-söyler.
+Alanın şeması varsa değer okunur biçimde yazılır: harita simgesi `icon_town` gibi adıyla, bayraklar
+`pf_…` listesi olarak, "yok" değeri `none` olarak. Şeması olmayan alan ham kalır; orada bir yabancı
+anahtar bazen adla (`player_faction`), bazen sayıyla görünebilir. Alanın anlamını ve sırasını
+`kit-meta/records/` altındaki şema dosyası söyler.
 
 **`ops { … }`** işlem bloğu tutan alanlar içindir: bir menünün `operations` alanı, bir script'in
 gövdesi, bir diyaloğun kodu gibi. O alan sayı listesi yerine 3.4'teki işlem çağrıları olarak
@@ -978,24 +1328,50 @@ faction commoners {
 }
 ```
 
-Bir şehir kaydı (`parties.uw`; şehirler `party` tablosundadır):
+Bir şehir kaydı (`parties/towns/town_6.uw`; şehirler `party` tablosundadır). Proje klasöründe her
+kayıt kendi dosyasındadır: dosyanın başında bir sayım, kaydın üstünde oyun adı ve oyun başındaki
+sahibi yorum olarak durur.
 
 ```uw
-party town_1 {
-  id town_1
-  name "Sargoth"
-  party_flags 4219916
-  menu 0
-  party_template 0
-  faction 3
-  personality 0
-  ai_behavior 0
-  ai_target 0
-  initial_coordinates (-17.6, 79.7)
+// parties: 1 records
+
+// Praven
+// at game start: owned by swadia (game_start script)
+party praven {
+  id town_6
+  name "Praven"
+  party_flags {icon icon_town, flags [pf_is_static, pf_label_large, pf_always_visible, pf_show_faction], carry_goods 0, carry_gold 0}
+  menu none
+  party_template pt_none
+  faction fac_neutral
+  personality {courage 0, aggressiveness 0, banditness 0}
+  ai_behavior [ai_bhvr_hold]
+  ai_target none
+  initial_coordinates (-96, 26.4)
   stacks []
-  direction 170
+  direction 155
 }
 ```
+
+Satır satır:
+
+- `party praven`: kaydın türü ve **oyun adı** (`names.uw`'dan, bölüm 10.5). `id town_6` kitin
+  kimliğidir (`p_town_6`; `p_` öneki yazılmaz) ve değişmez.
+- `party_flags {icon icon_town, flags [...], carry_goods 0, carry_gold 0}`: haritadaki simge
+  **adıyla** yazılır (`icon_town`; eskiden `4219916` gibi ham bir sayıydı). `flags` listesi `pf_`
+  bayraklarıdır; `carry_goods` / `carry_gold` paketlenmiş sayılardır.
+- `menu none`: partinin karşılaşma menüsü yok (`no_menu`; **`menu 0` değil** — 0 `menu_start_game_0`
+  demek olurdu).
+- `party_template pt_none`, `faction fac_neutral`: başka kayıtlara **adla** verilen değerler.
+- `personality {courage 0, aggressiveness 0, banditness 0}`: paketlenmiş kişilik sayısının
+  parçalarına ayrılmış hâli (eskiden `personality 0`).
+- `ai_behavior [ai_bhvr_hold]`, `ai_target none`: yapay zekâ davranışı ve hedefi; hedef yoksa `none`.
+- `initial_coordinates (-96, 26.4)`, `stacks []`, `direction 155`: haritadaki yer, parti envanteri
+  (boş) ve bakış yönü.
+- `// at game start: owned by swadia (game_start script)`: oyun başında Praven'in sahibi; kaynağı
+  `game_start` script'i. Bu satır yalnız **parti** kayıtlarında ve sahibi bilindiğinde yazılır.
+- `// Praven`: kaydın oyun adı. Bir açıklama dosyası (`kit-meta/aciklama`) varsa satır
+  `// Praven — <kısa Türkçe açıklama>` olur.
 
 ### 10.4. `uw new --from native` ve `uw new --check`
 
@@ -1020,11 +1396,71 @@ kimliğidir** (`parties/towns/town_6.uw`), görünen ad değil (`praven`).
 | `dialogs/<durum>.uw` | Diyaloglar başlangıç durumuna göre gruplanır. |
 | `strings.uw`, `sounds.uw`, `meshes.uw`, `animations.uw`, `music.uw`, `skills.uw`, `skins.uw`, `postfx_params.uw`, `particle_systems.uw`, `info_pages.uw`, `tableau_materials.uw`, `triggers.uw`, `simple_triggers.uw` | Küçük arama tabloları: tablo başına tek dosya. |
 
-### 10.5. Bugün sınır: yalnız dışa aktarma
+### 10.5. Oyun adları: `names.uw`
 
-`uw new` bir proje klasörü **yazar ve geri okur**; o klasörü `uw build` ile derlemez. Derleme
-geldiğinde bu bölüm güncellenecek. Bugüne kadar `uw build` yalnız yama kipinde çalışır: `.uw`
-dosyaları Native'in üzerine değişiklik koyar.
+`uw new` / `uw create` her kayda **oyunda görünen adından** bir ad verir (`swadia`, `praven`,
+`count_klargus`) ve bu adları proje klasörünün kökündeki `names.uw` dosyasına yazar. Her satır
+`oyun_adı = kit_kimliği` biçimindedir:
+
+```uw
+praven = p_town_6
+```
+
+Adı **değiştirmek** için satırın sol tarafını değiştirin: `praven` yerine `baslangic_sehri` yazarsanız
+kayıtlarda ve kodda `baslangic_sehri` geçer. Satırı **silmek** o kaydı kitin kimliğine (`p_town_6`)
+geri döndürür. `names.uw` bir kaynak dosya değildir: `uw build` onu `.uw` kodu gibi derlemez, yalnız
+adları okur. Mod klasöründe `names.uw` yoksa `uw build` adları kitin görünen adlarından kendisi
+türetir.
+
+**Ad kuralı.** Bir ad **küçük harf, rakam ve `_`** içerir ve **rakamla başlamaz**. Her ad tek olmalı
+ve şunlardan biri olmamalı: dilin kendi kelimesi (`if`, `mod`, `menu` ...), bir Native işlemi, bir
+kit sabiti ya da bir kit kimliği. Sağ taraf kitte gerçekten var olan bir kayıt olmalı.
+
+`uw new`in kullandığı türetme kuralı (dosyanın başında İngilizce yazar): kaydın oyunda görünen adı
+küçük harfe çevrilir, öteki karakter yığınları `_` olur ("Count Klargus" → `count_klargus`); krallık
+adlarının başındaki "Kingdom of" / "The" atılır. Şu adlar **verilmez** (kayıt kitin kimliğiyle
+kalır): oyunda hiç görünmeyen (`{!}...`, "Error - ..."), yer tutucu içeren (`{s1}`), ASCII olmayan,
+rakamla başlayan, iki kaydın paylaştığı ya da yukarıdaki yasaklılardan biri olan adlar.
+
+**Hatalı `names.uw`** derlemeyi durdurur (kitin kimliklerine sessizce dönülmez); sorunlar dosya adıyla
+birlikte satır satır yazılır:
+
+| Mesaj | Anlamı |
+|---|---|
+| ``satır N: `ad = kit_kimliği` bekleniyordu: `...` `` | Satırda `=` yok. |
+| ``satır N: `Ad` ad olamaz (küçük harf, rakam ve `_`; rakamla başlamaz)`` | Ad kuralı tutmuyor. |
+| ``satır N: `p_town_99` kitte bir kayıt değil`` | Sağ taraf atlasta yok. |
+| ``satır N: `if` zaten a language word; başka bir ad seçin`` | Ad dilin kelimesi; yerine `an operation` (işlem), `a constant` (sabit) ya da `a kit reference` (kimlik) de yazabilir. |
+| ``satır N: `praven` adı 3. satırda da var; her ad tek olmalı`` | Aynı ad iki satırda. |
+| ``satır N: `p_town_6` kaydına 3. satırda zaten ad verildi`` | Aynı kayda iki ad. |
+
+Adlar kayıtlarda (`party praven {`, bölüm 10.3) ve kodda geçerlidir:
+
+```uw
+on game.start {
+    party_relocate_near_party(praven, p_main_party, 3)
+}
+```
+
+(`crates/uw_cli/tests/golden/game_names/input.uw`; `praven` = `p_town_6`. Üretilen Python yine kitin
+kimliğini yazar.) Yanlış yazılan bir ada UW `did you mean 'praven'?` önerisi verir (**E0001**).
+
+### 10.6. Proje klasörünü derlemek
+
+Proje klasörü **derlenir**: `cd <klasör>` sonra `uw build` (ya da `uw build <klasör>`,
+`uw build-project <klasör>`). Klasörde `uw.lock` olduğu için UW onu proje klasörü sayar, bütün
+tabloları `uw.lock` sırasıyla okur, kit ile derler ve `Modules/<klasör adı>` olarak kurar. Klasörün
+adı modun adıdır (harf, rakam ve `_`).
+
+Proje klasörü hâlâ `uw new`in yazdığı gibi duruyorsa Native ile aynı derlenir; bir kaydı ya da bir
+`names.uw` satırını değiştirdiğinizde değişiklik moda geçer. Kayıt çözülemezse hiçbir şey derlenmez
+(`error: N problems in <klasör>; nothing was built`).
+
+> **Not:** klasörün içindeki `README.md` hâlâ "bu klasör derlenmiyor" diyor; o cümle eskidir —
+> klasör `uw build` / `uw build-project` ile derlenir.
+
+Yama kipi (`uw.lock` olmayan klasör; `examples/praven_start` gibi) bundan ayrıdır: orada `uw build`
+klasörün içindeki `.uw` dosyalarını okur ve Native'in üzerine yalnız o değişiklikleri koyar.
 
 ---
 
