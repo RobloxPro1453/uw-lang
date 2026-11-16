@@ -8,7 +8,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use uw_diag::SourceFile;
+use uw_diag::{Diagnostic, SourceFile};
 
 /// Marker file in an installed mod folder; without it `uw build` never deletes the folder.
 pub const MOD_MARKER: &str = ".uw-mod";
@@ -25,9 +25,32 @@ pub struct Options {
     pub debug: bool,
 }
 
-/// Runs the build, printing progress. `Err` is the message for the user.
-pub fn run(opts: Options) -> Result<(), String> {
-    let dir = opts.dir.canonicalize().map_err(|e| format!("{}: {e}", opts.dir.display()))?;
+/// One source error, with the file and the diagnostic span `uw check --json` needs.
+pub struct Problem {
+    pub path: PathBuf,
+    pub file: SourceFile,
+    pub diag: Diagnostic,
+}
+
+/// Why parse+check stopped: a setup message, or source errors (parse errors are kept apart because
+/// `uw build` ends them with its own "fix the errors" line).
+pub enum CheckFailure {
+    Message(String),
+    Parse(Vec<Problem>),
+    Errors(Vec<Problem>),
+}
+
+/// The parse+check result for a mod folder; no kit, no emit.
+pub struct Checked {
+    pub sources: Vec<uw_check::Source>,
+    pub model: crate::model::Model,
+    pub checked: uw_check::Checked,
+}
+
+/// The folder's plain absolute path and its `.uw` files (sorted; `names.uw` is game names, not a
+/// source file).
+pub fn folder(dir: &Path) -> Result<(PathBuf, Vec<PathBuf>), String> {
+    let dir = dir.canonicalize().map_err(|e| format!("{}: {e}", dir.display()))?;
     // Windows canonical paths start with \\?\ ; plain paths read better and work the same here.
     let dir = match dir.to_str().and_then(|s| s.strip_prefix(r"\\?\")) {
         Some(plain) => PathBuf::from(plain),
@@ -37,41 +60,68 @@ pub fn run(opts: Options) -> Result<(), String> {
         .map_err(|e| format!("{}: {e}", dir.display()))?
         .filter_map(|e| e.ok().map(|e| e.path()))
         .filter(|p| p.extension().is_some_and(|x| x == "uw"))
-        // `names.uw` is the mod's game names (P5b), not a source file.
         .filter(|p| p.file_name().and_then(|n| n.to_str()) != Some(uw_decomp::names::FILE))
         .collect();
     paths.sort();
     if paths.is_empty() {
         return Err(format!("no .uw files in {}", dir.display()));
     }
+    Ok((dir, paths))
+}
 
+/// Steps 1-2 of `uw build` (parse, check), callable without the kit.
+pub fn check_sources(dir: &Path, paths: &[PathBuf], atlas: Option<PathBuf>) -> Result<Checked, CheckFailure> {
     // 1. Parse: UW's own words (`lib/*.uw`) first, so every mod sees them (T-079), then the mod's
     // files.
-    let mut entries: Vec<(PathBuf, bool)> = lib_files(&dir)?.into_iter().map(|path| (path, true)).collect();
+    let mut entries: Vec<(PathBuf, bool)> = lib_files(dir).map_err(CheckFailure::Message)?.into_iter().map(|path| (path, true)).collect();
     entries.extend(paths.iter().cloned().map(|path| (path, false)));
-    let sources = parse_sources(&entries)?;
+    let sources = parse_sources_collect(&entries)?;
 
     // 2. Check against the atlas, with game names (P5b): the mod's own `names.uw`, otherwise the
     // names `uw new` derives from the kit's display names.
-    let mut model = crate::load(opts.atlas.or_else(|| find_up(&dir, crate::ATLAS_REL)))?;
-    install_game_names(&mut model.atlas, &dir)?;
+    let mut model = crate::load(atlas.or_else(|| find_up(dir, crate::ATLAS_REL))).map_err(CheckFailure::Message)?;
+    install_game_names(&mut model.atlas, dir).map_err(CheckFailure::Message)?;
     // The record schemas (`kit-meta/records`): `troop … like …` writes its fields through the
     // troop layout, so a mod without them is told that instead of a guess (T-092).
-    let schemas = match crate::roundtrip::find_schemas_from(&dir) {
-        Some(schemas) => crate::roundtrip::load_schemas(&schemas)?,
+    let schemas = match crate::roundtrip::find_schemas_from(dir) {
+        Some(schemas) => crate::roundtrip::load_schemas(&schemas).map_err(CheckFailure::Message)?,
         None => Vec::new(),
     };
     let fallback = dir.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| "uw_mod".into());
-    let checked = match uw_check::check_with_schemas(&model.atlas, &sources, &fallback, &schemas) {
+    match uw_check::check_with_schemas(&model.atlas, &sources, &fallback, &schemas) {
+        Ok(checked) => Ok(Checked { sources, model, checked }),
+        Err(errors) => Err(CheckFailure::Errors(
+            errors
+                .into_iter()
+                .map(|e| {
+                    let source = &sources[e.file];
+                    Problem { path: entries[e.file].0.clone(), file: source.file.clone(), diag: e.diag }
+                })
+                .collect(),
+        )),
+    }
+}
+
+/// Runs the build, printing progress. `Err` is the message for the user.
+pub fn run(opts: Options) -> Result<(), String> {
+    let (dir, paths) = folder(&opts.dir)?;
+    let Checked { sources, model, checked } = match check_sources(&dir, &paths, opts.atlas) {
         Ok(checked) => checked,
-        Err(errors) => {
-            for e in &errors {
-                eprintln!("{}\n", e.diag.render(&sources[e.file].file));
+        Err(CheckFailure::Message(message)) => return Err(message),
+        Err(CheckFailure::Parse(problems)) => {
+            for p in &problems {
+                eprintln!("{}\n", p.diag.render(&p.file));
+            }
+            return Err("fix the errors above and run `uw build` again".into());
+        }
+        Err(CheckFailure::Errors(problems)) => {
+            for p in &problems {
+                eprintln!("{}\n", p.diag.render(&p.file));
             }
             return Err(format!(
                 "{} {} found; nothing was built",
-                errors.len(),
-                if errors.len() == 1 { "error" } else { "errors" }
+                problems.len(),
+                if problems.len() == 1 { "error" } else { "errors" }
             ));
         }
     };
@@ -262,10 +312,24 @@ pub fn install(out: &Path, modules: &Path, name: &str) -> Result<PathBuf, String
 /// Parses `(path, from_lib)` pairs in order. A lib file may hold only `fn` items (T-079): it is
 /// UW's own word library, not a mod.
 pub(crate) fn parse_sources(entries: &[(PathBuf, bool)]) -> Result<Vec<uw_check::Source>, String> {
+    match parse_sources_collect(entries) {
+        Ok(sources) => Ok(sources),
+        Err(CheckFailure::Message(message)) => Err(message),
+        Err(CheckFailure::Parse(problems)) | Err(CheckFailure::Errors(problems)) => {
+            for p in &problems {
+                eprintln!("{}\n", p.diag.render(&p.file));
+            }
+            Err("fix the errors above and run `uw build` again".into())
+        }
+    }
+}
+
+/// [`parse_sources`] without the printing: `Err` is what the caller should show.
+fn parse_sources_collect(entries: &[(PathBuf, bool)]) -> Result<Vec<uw_check::Source>, CheckFailure> {
     let mut sources = Vec::new();
-    let mut failed = false;
+    let mut problems = Vec::new();
     for (path, from_lib) in entries {
-        let text = fs::read_to_string(path).map_err(|e| format!("{}: {e}", path.display()))?;
+        let text = fs::read_to_string(path).map_err(|e| CheckFailure::Message(format!("{}: {e}", path.display())))?;
         let name = path.file_name().unwrap().to_string_lossy().into_owned();
         let file = SourceFile::new(name, text);
         match uw_syntax::parse(&file.text) {
@@ -274,20 +338,18 @@ pub(crate) fn parse_sources(entries: &[(PathBuf, bool)]) -> Result<Vec<uw_check:
                     && (tree.module.is_some()
                         || tree.items.iter().any(|item| !matches!(item, uw_syntax::Item::Fn { .. })))
                 {
-                    return Err(format!("{}: a lib file may only hold `fn` items", path.display()));
+                    return Err(CheckFailure::Message(format!("{}: a lib file may only hold `fn` items", path.display())));
                 }
                 sources.push(uw_check::Source { file, tree });
             }
-            Err(d) => {
-                eprintln!("{}\n", d.render(&file));
-                failed = true;
-            }
+            Err(diag) => problems.push(Problem { path: path.clone(), file, diag }),
         }
     }
-    if failed {
-        return Err("fix the errors above and run `uw build` again".into());
+    if problems.is_empty() {
+        Ok(sources)
+    } else {
+        Err(CheckFailure::Parse(problems))
     }
-    Ok(sources)
 }
 
 /// Every `.uw` file of the nearest `lib` folder (UW's own words), sorted.

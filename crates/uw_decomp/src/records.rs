@@ -830,13 +830,15 @@ struct Parser<'t, 'c> {
     chars: std::str::Chars<'t>,
     peeked: Option<char>,
     line: usize,
+    /// 1-based column of the next character to read.
+    col: usize,
     /// Reads an `ops { … }` body back; `None` in the plain [`parse`], which has no blocks.
     compile: Option<&'c mut dyn FnMut(&str) -> Result<Json, String>>,
 }
 
 impl<'t, 'c> Parser<'t, 'c> {
     fn new(text: &'t str, compile: Option<&'c mut dyn FnMut(&str) -> Result<Json, String>>) -> Self {
-        Parser { chars: text.chars(), peeked: None, line: 1, compile }
+        Parser { chars: text.chars(), peeked: None, line: 1, col: 1, compile }
     }
 
     fn peek(&mut self) -> Option<char> {
@@ -851,6 +853,9 @@ impl<'t, 'c> Parser<'t, 'c> {
         self.peeked = None;
         if c == Some('\n') {
             self.line += 1;
+            self.col = 1;
+        } else if c.is_some() {
+            self.col += 1;
         }
         c
     }
@@ -937,9 +942,13 @@ impl<'t, 'c> Parser<'t, 'c> {
                     self.skip_gaps();
                     if self.peek() == Some('{') {
                         self.bump();
+                        // Where the body starts: a compile error's line/column is relative to it.
+                        let (open_line, open_col) = (self.line, self.col);
                         let inner = self.block_text()?;
                         let compile = self.compile.as_mut().expect("checked just above");
-                        return compile(&inner).map(Value::Block);
+                        return compile(&inner)
+                            .map(Value::Block)
+                            .map_err(|error| shift_position(error, open_line, open_col));
                     }
                 }
                 Ok(number_or_ident(&word))
@@ -1042,6 +1051,28 @@ impl<'t, 'c> Parser<'t, 'c> {
                 Some(c) => text.push(c),
             }
         }
+    }
+}
+
+/// Shifts a `line N[:C]: message` from an `ops` body to the record's own lines and columns. An error
+/// on the body's first line also shifts the column (the body starts right after `{`).
+fn shift_position(error: String, open_line: usize, open_col: usize) -> String {
+    let Some(rest) = error.strip_prefix("line ") else { return error };
+    let Some((line, tail)) = rest.split_once(':') else { return error };
+    let Ok(line) = line.parse::<usize>() else { return error };
+    let line = open_line + line - 1;
+    let (column, tail) = match tail.split_once(':') {
+        Some((column, tail)) if !column.is_empty() && column.chars().all(|c| c.is_ascii_digit()) => {
+            (Some(column.parse::<usize>().unwrap_or(1)), tail)
+        }
+        _ => (None, tail),
+    };
+    match column {
+        Some(column) if line == open_line => {
+            format!("line {line}:{}:{tail}", open_col + column - 1)
+        }
+        Some(column) => format!("line {line}:{column}:{tail}"),
+        None => format!("line {line}:{tail}"),
     }
 }
 
@@ -1616,6 +1647,14 @@ fn divide_small(limbs: &mut Vec<u32>, divisor: u32) -> u32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_block_error_moves_to_the_record_position() {
+        // The body starts after `{` on line 3, column 9; its own line 1 is the record's line 3.
+        assert_eq!(shift_position("line 1:5: error[E0001]: x".into(), 3, 9), "line 3:13: error[E0001]: x");
+        assert_eq!(shift_position("line 2:5: error[E0001]: x".into(), 3, 9), "line 4:5: error[E0001]: x");
+        assert_eq!(shift_position("unterminated".into(), 3, 9), "unterminated");
+    }
 
     /// A tiny atlas shaped like the real dump, with every value shape the format has to keep:
     /// a tuple, a list, a negative int, a 2^200 int, a float, a string with a quote, an extra
