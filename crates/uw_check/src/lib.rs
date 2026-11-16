@@ -312,7 +312,9 @@ impl Ctx<'_> {
                     let candidates = refs
                         .iter()
                         .map(String::as_str)
-                        .chain(self.atlas.constants.iter().map(|c| c.name.as_str()));
+                        .chain(self.atlas.constants.iter().map(|c| c.name.as_str()))
+                        // Game names installed for this mod (P5b) are suggestions too.
+                        .chain(refs.iter().filter_map(|r| self.atlas.game_name(r)));
                     let help = suggest(&name.text, candidates).map(|s| format!("did you mean '{s}'?"));
                     self.error(diag(
                         E0001_UNKNOWN_NAME,
@@ -1446,6 +1448,18 @@ mod tests {
         assert!(all.contains("did you mean 'change_screen_map'?"), "{all}");
         assert!(all.contains("'p_town_7' is not a Native name"), "{all}");
         assert!(all.contains("did you mean 'p_town_6'?"), "{all}");
+    }
+
+    #[test]
+    fn an_unknown_name_suggests_the_installed_game_names_too() {
+        // With `names.uw` installed, `praven` means `p_town_6`; a typo of it should hear `praven`.
+        let mut atlas = atlas();
+        atlas.set_game_names(&[("praven".to_owned(), "p_town_6".to_owned())]);
+        let file = SourceFile::new("start.uw", "on game.start { party_relocate_near_party(pravn, p_main_party, 3) }");
+        let tree = uw_syntax::parse(&file.text).expect("parses");
+        let errs = check(&atlas, &[Source { file: file.clone(), tree }], "folder").unwrap_err();
+        let all: Vec<String> = errs.iter().map(|e| e.diag.render(&file)).collect();
+        assert!(all.join("\n").contains("did you mean 'praven'?"), "{all:?}");
     }
 
     #[test]

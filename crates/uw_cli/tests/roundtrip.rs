@@ -132,6 +132,43 @@ fn real_atlas_menus_and_scripts_records_show_their_blocks() {
 }
 
 #[test]
+fn the_names_option_roundtrips_the_real_atlas_with_game_names() {
+    if !Path::new(REAL).exists() {
+        eprintln!("skipped: no atlas at {REAL}");
+        return;
+    }
+    let root = scratch("real-names");
+    let out = Command::new(env!("CARGO_BIN_EXE_uw"))
+        .arg("roundtrip")
+        .args(["--atlas", REAL])
+        .arg("--names")
+        .arg("--schemas")
+        .arg(REAL_SCHEMAS)
+        .arg("--out")
+        .arg(root.join("out"))
+        .output()
+        .expect("uw runs");
+    let stdout = String::from_utf8(out.stdout).expect("utf-8 stdout");
+    let stderr = String::from_utf8(out.stderr).expect("utf-8 stderr");
+    assert!(out.status.success(), "{stdout}\n{stderr}");
+
+    // P5b: printed with game names (`praven`), every block still comes back identical: the count
+    // that round-trips equals the block count and nothing fails.
+    let ops = stdout.split("\nrecords\n").next().expect("an ops summary");
+    let total = words(ops, "TOTAL");
+    let number = |at: usize| total[at].parse::<usize>().unwrap_or_else(|_| panic!("no number in {total:?}"));
+    assert_eq!((number(4) + number(7), number(9)), (number(1), 0), "{ops}");
+
+    let records = stdout.split("\nrecords\n").nth(1).expect("a records block");
+    let total = words(records, "TOTAL");
+    assert_eq!(total[2], "records,", "{records}");
+    assert_eq!(total[4].trim_end_matches(','), total[1], "{records}");
+    assert_eq!(total[6], "0", "{records}");
+
+    std::fs::remove_dir_all(&root).ok();
+}
+
+#[test]
 fn a_record_that_does_not_round_trip_fails_the_run() {
     let root = scratch("failed");
     let schemas = root.join("schemas");

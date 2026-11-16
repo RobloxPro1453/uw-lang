@@ -1,0 +1,8 @@
+// P5b: a mod writes the game name (`praven`, derived from the kit's display name "Praven") instead
+// of the kit reference (`p_town_6`); the generated Python keeps the kit reference, which is what the
+// kit's own headers export.
+mod golden_names
+
+on game.start {
+    party_relocate_near_party(praven, p_main_party, 3)
+}
