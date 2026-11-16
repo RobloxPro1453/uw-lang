@@ -214,7 +214,7 @@ pub(crate) fn reset_dir(dir: &Path, marker: &str) -> Result<(), String> {
     write(&dir.join(marker), "made by uw; deleted and rebuilt on every `uw build`\n")
 }
 
-fn copy_tree(from: &Path, to: &Path) -> Result<(), String> {
+pub(crate) fn copy_tree(from: &Path, to: &Path) -> Result<(), String> {
     fs::create_dir_all(to).map_err(|e| format!("{}: {e}", to.display()))?;
     for entry in fs::read_dir(from).map_err(|e| format!("{}: {e}", from.display()))? {
         let entry = entry.map_err(|e| e.to_string())?;

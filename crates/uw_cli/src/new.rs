@@ -40,6 +40,25 @@ pub(crate) fn install_names(atlas: &mut Atlas, dir: &Path) -> Result<usize, Stri
     Ok(names.len())
 }
 
+/// Copies Native's `languages/` (all languages, unchanged) into `<dir>/languages/` (T-089).
+/// A missing game install is one printed line, not an error.
+fn copy_native_languages(dir: &Path) -> Result<Option<String>, String> {
+    let Some(modules) = crate::build::find_modules() else {
+        return Ok(Some("languages skipped: Warband's Modules folder not found".to_owned()));
+    };
+    copy_languages(&modules, dir)
+}
+
+/// The path-parameterised half of [`copy_native_languages`], so a test can pass a fake install.
+fn copy_languages(modules: &Path, dir: &Path) -> Result<Option<String>, String> {
+    let from = modules.join("Native").join("languages");
+    if !from.is_dir() {
+        return Ok(Some(format!("languages skipped: {} not found", from.display())));
+    }
+    crate::build::copy_tree(&from, &dir.join("languages"))?;
+    Ok(None)
+}
+
 /// `uw new <dir> --from native [--atlas <path>]`: writes the folder.
 fn export_project(dir: &Path, atlas_path: Option<PathBuf>) -> ExitCode {
     let (mut atlas, schemas) = match atlas_and_schemas(atlas_path) {
@@ -62,6 +81,11 @@ fn export_project(dir: &Path, atlas_path: Option<PathBuf>) -> ExitCode {
             let names_path = dir.join(uw_decomp::names::FILE);
             if let Err(e) = std::fs::write(&names_path, uw_decomp::names::print(&names)) {
                 return crate::fail(&format!("{}: {e}", names_path.display()));
+            }
+            match copy_native_languages(dir) {
+                Ok(Some(line)) => println!("{line}"),
+                Ok(None) => {}
+                Err(message) => return crate::fail(&message),
             }
             println!(
                 "{} files, {} records, {} game names -> {}",
@@ -155,5 +179,45 @@ pub fn cmd(args: &[String]) -> ExitCode {
         Some("native") => export_project(&dir, atlas_path),
         Some(other) => crate::fail(&format!("`--from {other}` is not supported; only `--from native`")),
         None => crate::fail("from where? `uw new <dir> --from native`"),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn scratch(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("uw-new-languages-{}-{name}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    #[test]
+    fn the_projects_languages_are_a_copy_of_the_games() {
+        let root = scratch("copy");
+        let modules = root.join("Modules");
+        let tr = modules.join("Native").join("languages").join("tr");
+        std::fs::create_dir_all(&tr).unwrap();
+        std::fs::write(tr.join("parties.csv"), "p_town_6|Praven Şehri\n").unwrap();
+        let project = root.join("proje");
+        std::fs::create_dir_all(&project).unwrap();
+
+        assert_eq!(copy_languages(&modules, &project), Ok(None));
+        let copied = project.join("languages").join("tr").join("parties.csv");
+        assert_eq!(std::fs::read_to_string(&copied).unwrap(), "p_town_6|Praven Şehri\n");
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn a_missing_game_install_is_one_skipped_line_not_an_error() {
+        let root = scratch("missing");
+        let project = root.join("proje");
+        std::fs::create_dir_all(&project).unwrap();
+
+        let line = copy_languages(&root.join("Modules"), &project).unwrap().unwrap();
+        assert!(line.starts_with("languages skipped:"), "{line}");
+        assert!(!project.join("languages").exists());
+        let _ = std::fs::remove_dir_all(&root);
     }
 }
