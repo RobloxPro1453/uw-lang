@@ -36,14 +36,15 @@ fn real_atlas_troops_print_typed_fields() {
     let report = roundtrip_table(&atlas, &schema);
     assert_eq!(report.exact, report.records, "{:?}", report.first_failures);
     assert_eq!(report.failed, 0, "{:?}", report.first_failures);
-    // troop_flags, scene, faction, inventory, attributes, weapon_proficiencies, skills.
-    assert_eq!((report.typed_fields, report.fields), (7, 14));
+    // troop_flags, scene, faction, inventory, attributes, weapon_proficiencies, skills and the two
+    // upgrade targets.
+    assert_eq!((report.typed_fields, report.fields), (9, 16));
 
     // trp_player (module_troops.py:244): wp(15) fills one_handed..throwing with 15, no scene, no
     // inventory, no skills.
     let player = troop_text(&atlas, &schema, "trp_player");
     assert!(player.contains("  troop_flags [tf_hero, tf_unmoveable_in_party_window]\n"), "{player}");
-    assert!(player.contains("  scene {site 0, entry 0}\n"), "{player}");
+    assert!(player.contains("  scene {site none, entry 0}\n"), "{player}");
     assert!(player.contains("  inventory []\n"), "{player}");
     assert!(player.contains("  weapon_proficiencies {one_handed 15, two_handed 15, "), "{player}");
     assert!(player.contains("  skills {trade 0, leadership 0, "), "{player}");
@@ -59,7 +60,7 @@ fn real_atlas_troops_print_typed_fields() {
     // trp_tournament_master (module_troops.py:805): `scn_zendar_center|entry(1)`, and ID_scenes.py
     // line 52 makes scn_zendar_center scene 51.
     let master = troop_text(&atlas, &schema, "trp_tournament_master");
-    assert!(master.contains("  scene {site 51, entry 1}\n"), "{master}");
+    assert!(master.contains("  scene {site scn_zendar_center, entry 1}\n"), "{master}");
 }
 
 /// A tiny atlas with only the tables and constants the troops schema names, so the typed fields
@@ -96,6 +97,9 @@ fn tiny_atlas() -> Atlas {
         "items": {{"module":"module_items","var":"items","id_file":"ID_items","id_prefix":"itm_","entries":[
           {{"index":0,"name":"guard_helmet","id":"itm_guard_helmet","dup":null,"line":1,"value":[0]}}
         ]}},
+        "scenes": {{"module":"module_scenes","var":"scenes","id_file":"ID_scenes","id_prefix":"scn_","entries":[
+          {{"index":51,"name":"zendar_center","id":"scn_zendar_center","dup":null,"line":52,"value":[]}}
+        ]}},
         "troops": {{"module":"module_troops","var":"troops","id_file":"ID_troops","id_prefix":"trp_","entries":[
           {{"index":0,"name":"player","id":"trp_player","dup":null,"line":244,
            "value":{{"list":["player","Player","Player",{flags},0,0,0,{{"list":[]}},{attributes},{wp},{skills},0]}}}},
@@ -124,7 +128,7 @@ fn tiny_atlas_troops_print_and_read_back_the_typed_fields() {
     let schema = Schema::from_path(SCHEMA).expect("troops schema loads");
     let report = roundtrip_table(&atlas, &schema);
     assert_eq!((report.records, report.exact, report.failed), (4, 4, 0), "{:?}", report.first_failures);
-    assert_eq!((report.typed_fields, report.fields), (7, 14));
+    assert_eq!((report.typed_fields, report.fields), (9, 16));
 
     let player = troop_text(&atlas, &schema, "trp_player");
     // tf_center_justify (header_presentations.py) shares tf_hero's bits and must not print here.
@@ -152,11 +156,11 @@ fn tiny_atlas_troops_print_and_read_back_the_typed_fields() {
         ymira.contains("  troop_flags [tf_female, tf_hero, tf_unmoveable_in_party_window]\n"),
         "{ymira}"
     );
-    assert!(ymira.contains("  scene {site 51, entry 1}\n"), "{ymira}");
+    assert!(ymira.contains("  scene {site scn_zendar_center, entry 1}\n"), "{ymira}");
     assert!(ymira.contains("  inventory [itm_guard_helmet]\n"), "{ymira}");
-    // Past the layout comment the two upgrade targets have no kit meaning: they print as field_15
-    // and field_16 and read back unchanged.
-    assert!(ymira.contains("  field_15 1\n  field_16 0\n"), "{ymira}");
+    // Past the layout comment the two upgrade targets are troop refs (header_troops.py:266-296);
+    // troop 1 of this atlas is trp_npc3_4 and the padding 0 prints `none`.
+    assert!(ymira.contains("  upgrade_1 trp_npc3_4\n  upgrade_2 none\n"), "{ymira}");
 
     let farmer = troop_text(&atlas, &schema, "trp_farmer");
     assert!(farmer.contains("  troop_flags [tf_male]\n"), "{farmer}");

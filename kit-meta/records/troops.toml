@@ -1,9 +1,9 @@
 # Troop records: readable fields (T-059). Field names and order follow the layout comment at the top
 # of the kit's module_troops.py (`source` points at it); docs/meclis/YON2-KARAR.md §2.
-# Typed: troop_flags (a flag set), scene (site/entry packed number), faction (a faction ref),
-# inventory (item refs), attributes, weapon_proficiencies and skills (packed numbers).
-# The face codes (module_troops.py:30-32 says only "from the face generator") and the upgrade
-# targets that upgrade() appends past position 14 (header_troops.py:266-273) stay raw.
+# Typed: troop_flags (a flag set), scene (site ref + entry packed number), faction (a faction ref),
+# inventory (item refs), attributes, weapon_proficiencies and skills (packed numbers), and the two
+# upgrade targets that upgrade()/upgrade2() append past position 14 (header_troops.py:266-296).
+# The face codes (module_troops.py:30-32 says only "from the face generator") stay raw.
 table = "troops"
 kind = "troop"
 id_prefix = "trp_"
@@ -34,17 +34,19 @@ zero = "tf_male"
 source = "module_troops.py:16"
 
 # `scn_reyvadin_castle|entry(1)` (module_troops.py:17): the site id is the low 16 bits and the entry
-# point bits 16..23 (header_troops.py:82-87). The site stays a number: no_scene is 0
-# (module_troops.py:133) but scenes index 0 is scn_random_scene (ID_scenes.py:1).
+# point bits 16..23 (header_troops.py:82-87). The site is a scenes ref; `no_scene = 0`
+# (module_troops.py:133) prints `none` (scenes index 0 is the real scn_random_scene, ID_scenes.py:1).
 [[fields]]
 name = "scene"
 ty = "bits"
+none = 0
 source = "module_troops.py:17"
 
 [[fields.parts]]
 name = "site"
 shift = 0
 width = 16
+ty = "ref:scenes"
 source = "header_troops.py:82"
 
 [[fields.parts]]
@@ -431,3 +433,19 @@ name = "troop_image"
 ty = "raw"
 optional = true
 source = "module_troops.py:33"
+
+# upgrade()/upgrade2() append the target troop indices past position 14
+# (header_troops.py:266-296); 0 is a padding "no target" and prints `none`.
+[[fields]]
+name = "upgrade_1"
+ty = "ref:troops"
+optional = true
+none = 0
+source = "header_troops.py:267-273"
+
+[[fields]]
+name = "upgrade_2"
+ty = "ref:troops"
+optional = true
+none = 0
+source = "header_troops.py:290-296"

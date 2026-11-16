@@ -31,7 +31,9 @@ fn troops_schema_follows_the_kit_layout_comment() {
             "skills",
             "face_code",
             "face_code_2",
-            "troop_image"
+            "troop_image",
+            "upgrade_1",
+            "upgrade_2"
         ]
     );
     let ty = |name: &str| {
@@ -39,6 +41,8 @@ fn troops_schema_follows_the_kit_layout_comment() {
     };
     assert_eq!(ty("faction"), Some("ref:factions"));
     assert_eq!(ty("attributes"), Some("bits"));
+    assert_eq!(ty("upgrade_1"), Some("ref:troops"));
+    assert_eq!(ty("upgrade_2"), Some("ref:troops"));
     // Since P5 (T-059) more troop fields are typed; every field still cites a kit file.
     assert!(schema.fields.iter().all(|field| field.source.contains(".py:")));
     let attributes = schema.fields.iter().find(|field| field.name == "attributes").expect("attributes");
@@ -56,6 +60,7 @@ fn troops_schema_follows_the_kit_layout_comment() {
     );
     assert!(attributes.parts.iter().all(|part| part.source.starts_with("header_troops.py:")));
     assert!(schema.fields[12].optional && schema.fields[13].optional);
+    assert!(schema.fields[14].optional && schema.fields[15].optional);
 }
 
 #[test]
