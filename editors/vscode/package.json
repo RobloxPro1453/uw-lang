@@ -1,0 +1,36 @@
+{
+  "name": "uw-lang",
+  "displayName": "UW (Universal Warband)",
+  "description": "Universal Warband `.uw` dili için söz dizimi renklendirmesi, parantez eşleme ve `//` yorumu.",
+  "version": "0.1.0",
+  "publisher": "uw-lang",
+  "license": "MIT OR Apache-2.0",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "uw",
+        "aliases": [
+          "UW",
+          "uw"
+        ],
+        "extensions": [
+          ".uw"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "uw",
+        "scopeName": "source.uw",
+        "path": "./syntaxes/uw.tmLanguage.json"
+      }
+    ]
+  }
+}
