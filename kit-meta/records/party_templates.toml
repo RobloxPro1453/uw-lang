@@ -16,17 +16,25 @@ name = "name"
 ty = "raw"
 source = "module_party_templates.py:13"
 
-# The same packed word as `parties`: bits 8-26 are the `pf_*` flags (header_parties.py:14-32),
-# bits 0-7 the map icon (header_parties.py:13, no atlas constant) and 48-63 the carry numbers.
+# The same packed word as `parties`: bits 0-7 the map icon (`pf_icon_mask`, header_parties.py:13,
+# map_icons ids from ID_map_icons.py), bits 8-26 the `pf_*` flags (header_parties.py:14-32) and
+# 48-63 the carry numbers.
 [[fields]]
 name = "party_flags"
 ty = "bits"
 source = "module_party_templates.py:14"
 
 [[fields.parts]]
-name = "flags"
+name = "icon"
 shift = 0
-width = 27
+width = 8
+ty = "ref:map_icons"
+source = "header_parties.py:13"
+
+[[fields.parts]]
+name = "flags"
+shift = 8
+width = 19
 ty = "flags:pf_"
 source = "header_parties.py:14"
 
@@ -42,10 +50,12 @@ shift = 56
 width = 8
 source = "header_parties.py:36"
 
-# A value of 0 uses the default encounter system (module_party_templates.py:15).
+# A value of 0 is `no_menu` (module_parties.py:28), the default encounter system
+# (module_party_templates.py:15), not menu 0 (`menu_start_game_0`, ID_menus.py:1).
 [[fields]]
 name = "menu"
-ty = "raw"
+ty = "ref:menus"
+none = 0
 source = "module_party_templates.py:15"
 
 [[fields]]

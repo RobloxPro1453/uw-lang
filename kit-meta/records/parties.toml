@@ -16,19 +16,25 @@ name = "name"
 ty = "raw"
 source = "module_parties.py:12"
 
-# Bits 8-26 are the `pf_*` flags (header_parties.py:14-32); bits 0-7 are the map icon index
-# (header_parties.py:13), whose `icon_*` names are not atlas constants, so they print as `rest`.
-# The 27-bit part must start at bit 0: a `flags` value compares absolute kit constant values and
-# cannot be shifted. `pf_carry_goods_bits`/`pf_carry_gold_bits` are the packed numbers.
+# Bits 0-7 are the map icon index (`pf_icon_mask`, header_parties.py:13), whose `icon_*` ids are
+# the map_icons table (ID_map_icons.py:13); bits 8-26 are the `pf_*` flags (header_parties.py:14-32).
+# `pf_carry_goods_bits`/`pf_carry_gold_bits` are the packed numbers.
 [[fields]]
 name = "party_flags"
 ty = "bits"
 source = "module_parties.py:13"
 
 [[fields.parts]]
-name = "flags"
+name = "icon"
 shift = 0
-width = 27
+width = 8
+ty = "ref:map_icons"
+source = "header_parties.py:13"
+
+[[fields.parts]]
+name = "flags"
+shift = 8
+width = 19
 ty = "flags:pf_"
 source = "header_parties.py:14"
 
@@ -44,11 +50,12 @@ shift = 56
 width = 8
 source = "header_parties.py:36"
 
-# A value of 0 uses the default party encounter system (module_parties.py:14), so `ref:menus`
-# would misprint it as `menu_start_game_0` (ID_menus.py:1).
+# A value of 0 is `no_menu` (module_parties.py:28), the default party encounter system
+# (module_parties.py:14), not menu 0 (`menu_start_game_0`, ID_menus.py:1).
 [[fields]]
 name = "menu"
-ty = "raw"
+ty = "ref:menus"
+none = 0
 source = "module_parties.py:14"
 
 [[fields]]
@@ -96,11 +103,12 @@ source = "module_parties.py:18"
 enums = [{ mask = 0xFF, prefix = "ai_bhvr_" }]
 zero = "ai_bhvr_hold"
 
-# The target is a party id, but 0 is the default "none" (process_parties.py:34-42), so
-# `ref:parties` would misprint it as the index-0 party.
+# The target is a party id (process_parties.py:34-42); the kit writes 0 for "no target"
+# (module_parties.py:19), though party 0 is the real p_main_party.
 [[fields]]
 name = "ai_target"
-ty = "raw"
+ty = "ref:parties"
+none = 0
 source = "module_parties.py:19"
 
 [[fields]]

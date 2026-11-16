@@ -141,6 +141,9 @@ pub struct Field {
     pub optional: bool,
     /// Where the kit says this: `<file>:<line>`.
     pub source: String,
+    /// `ref:` the value that means "nothing" (`no_menu = 0`): it prints `none` and reads back as it.
+    #[serde(default)]
+    pub none: Option<toml::Value>,
     /// `flags:` enum groups: `value & mask` names one constant with `prefix`.
     #[serde(default)]
     pub enums: Vec<FlagEnum>,
@@ -248,6 +251,11 @@ impl Schema {
         let schema: Schema = toml::from_str(text).map_err(|e| format!("schema: {e}"))?;
         for (i, field) in schema.fields.iter().enumerate() {
             parse_ty(&field.ty, field).map_err(|e| format!("field `{}`: {e}", field.name))?;
+            if let Some(none) = &field.none {
+                if !matches!(none, toml::Value::Integer(value) if *value >= 0) {
+                    return Err(format!("field `{}`: `none` must be a non-negative integer", field.name));
+                }
+            }
             for (j, part) in field.parts.iter().enumerate() {
                 if part.width == 0 {
                     return Err(format!("field `{}`: part `{}` has width 0", field.name, part.name));
@@ -1108,7 +1116,7 @@ fn encode_field(atlas: &Atlas, field: &Field, value: &Value) -> Option<Value> {
 fn decode_ty(atlas: &Atlas, ty: &Ty, field: &Field, value: &Value) -> Option<Value> {
     match ty {
         Ty::Raw => Some(value.clone()),
-        Ty::Ref(table) => decode_ref(atlas, table, value),
+        Ty::Ref(table) => decode_ref(atlas, table, field, value),
         Ty::Flags(prefixes) => decode_flags(atlas, field, prefixes, value),
         Ty::Bits => decode_bits(atlas, field, value),
         Ty::List(inner) => match value {
@@ -1122,7 +1130,7 @@ fn decode_ty(atlas: &Atlas, ty: &Ty, field: &Field, value: &Value) -> Option<Val
 fn encode_ty(atlas: &Atlas, ty: &Ty, field: &Field, value: &Value) -> Option<Value> {
     match ty {
         Ty::Raw => Some(value.clone()),
-        Ty::Ref(table) => encode_ref(atlas, table, value),
+        Ty::Ref(table) => encode_ref(atlas, table, field, value),
         Ty::Flags(prefixes) => encode_flags(atlas, field, prefixes, value),
         Ty::Bits => encode_bits(atlas, field, value),
         Ty::List(inner) => match value {
@@ -1141,9 +1149,21 @@ fn encode_items(atlas: &Atlas, ty: &Ty, field: &Field, items: &[Value]) -> Optio
     items.iter().map(|item| encode_ty(atlas, ty, field, item)).collect()
 }
 
-/// A table index to the atlas id of that entry (`3` -> `fac_kingdom_1`).
-fn decode_ref(atlas: &Atlas, table: &str, value: &Value) -> Option<Value> {
+/// The integer a field's `none` names, when it holds one.
+fn field_none(field: &Field) -> Option<Big> {
+    match field.none.as_ref()? {
+        toml::Value::Integer(value) if *value >= 0 => Some(Big::from_u64(*value as u64)),
+        _ => None,
+    }
+}
+
+/// A table index to the atlas id of that entry (`3` -> `fac_kingdom_1`); the field's `none` value
+/// prints `none` instead.
+fn decode_ref(atlas: &Atlas, table: &str, field: &Field, value: &Value) -> Option<Value> {
     let Value::Int(text) = value else { return None };
+    if field_none(field).is_some_and(|none| Big::parse(text).is_some_and(|value| value == none)) {
+        return Some(Value::Ident("none".into()));
+    }
     let index: usize = text.parse().ok()?;
     let entries = &atlas.tables.get(table)?.entries;
     let entry = entries.iter().find(|entry| entry.index == index)?;
@@ -1155,9 +1175,15 @@ fn decode_ref(atlas: &Atlas, table: &str, value: &Value) -> Option<Value> {
     Some(Value::Ident(atlas.game_name(id).unwrap_or(id).to_string()))
 }
 
-/// An atlas id (or a project's game name for one) of that table back to its index.
-fn encode_ref(atlas: &Atlas, table: &str, value: &Value) -> Option<Value> {
+/// An atlas id (or a project's game name for one) of that table back to its index; `none` reads
+/// back as the field's `none` value.
+fn encode_ref(atlas: &Atlas, table: &str, field: &Field, value: &Value) -> Option<Value> {
     let Value::Ident(id) = value else { return None };
+    if id == "none" {
+        if let Some(none) = field_none(field) {
+            return Some(Value::Int(none.to_decimal()));
+        }
+    }
     let id = atlas.reference_for(id).unwrap_or(id.as_str());
     let entries = &atlas.tables.get(table)?.entries;
     let entry = entries.iter().find(|entry| entry.id.as_deref() == Some(id))?;
@@ -1281,13 +1307,7 @@ fn decode_bits(atlas: &Atlas, field: &Field, value: &Value) -> Option<Value> {
     for part in &field.parts {
         let mask = Big::one().shl(part.width).sub(&Big::one())?;
         let raw = number.shr(part.shift).and(&mask);
-        let readable = match &part.ty {
-            Some(text) => {
-                let ty = parse_ty(text, field).ok()?;
-                decode_ty(atlas, &ty, field, &Value::Int(raw.to_decimal()))?
-            }
-            None => Value::Int(raw.to_decimal()),
-        };
+        let readable = decode_part(atlas, field, part, &raw)?;
         pairs.push((part.name.clone(), readable));
         covered = covered.or(&mask.shl(part.shift));
     }
@@ -1296,6 +1316,18 @@ fn decode_bits(atlas: &Atlas, field: &Field, value: &Value) -> Option<Value> {
         pairs.push(("rest".into(), Value::Int(rest.to_decimal())));
     }
     Some(Value::Struct(pairs))
+}
+
+/// One packed part's readable value. A `flags:` word holds absolute kit constants, so it is
+/// shifted back up before decoding; every other part is the extracted number as it is.
+fn decode_part(atlas: &Atlas, field: &Field, part: &BitPart, raw: &Big) -> Option<Value> {
+    let Some(text) = &part.ty else { return Some(Value::Int(raw.to_decimal())) };
+    let ty = parse_ty(text, field).ok()?;
+    let number = match &ty {
+        Ty::Flags(_) => raw.shl(part.shift),
+        Ty::Raw | Ty::Ref(_) | Ty::Bits | Ty::List(_) => raw.clone(),
+    };
+    decode_ty(atlas, &ty, field, &Value::Int(number.to_decimal()))
 }
 
 fn encode_bits(atlas: &Atlas, field: &Field, value: &Value) -> Option<Value> {
@@ -1313,25 +1345,42 @@ fn encode_bits(atlas: &Atlas, field: &Field, value: &Value) -> Option<Value> {
             return None;
         }
         seen[index] = true;
-        let part = &field.parts[index];
-        let raw = match &part.ty {
-            Some(text) => {
-                let ty = parse_ty(text, field).ok()?;
-                encode_ty(atlas, &ty, field, pair_value)?
-            }
-            None => pair_value.clone(),
-        };
-        let Value::Int(text) = raw else { return None };
-        let part_value = Big::parse(&text)?;
-        if !part_value.shr(part.width).is_zero() {
-            return None;
-        }
-        total = total.or(&part_value.shl(part.shift));
+        total = total.or(&encode_part(atlas, field, &field.parts[index], pair_value)?);
     }
     if seen.iter().any(|seen| !seen) {
         return None;
     }
     Some(Value::Int(total.to_decimal()))
+}
+
+/// The packed number of one part. A `flags:` word is an absolute kit constant value, so it is
+/// shifted back down before packing; every other part is the extracted number itself.
+fn encode_part(atlas: &Atlas, field: &Field, part: &BitPart, value: &Value) -> Option<Big> {
+    let raw = match &part.ty {
+        Some(text) => {
+            let ty = parse_ty(text, field).ok()?;
+            let Value::Int(text) = encode_ty(atlas, &ty, field, value)? else { return None };
+            let number = Big::parse(&text)?;
+            match &ty {
+                Ty::Flags(_) => {
+                    let low = Big::one().shl(part.shift).sub(&Big::one())?;
+                    if !number.and(&low).is_zero() {
+                        return None;
+                    }
+                    number.shr(part.shift)
+                }
+                Ty::Raw | Ty::Ref(_) | Ty::Bits | Ty::List(_) => number,
+            }
+        }
+        None => match value {
+            Value::Int(text) => Big::parse(text)?,
+            _ => return None,
+        },
+    };
+    if !raw.shr(part.width).is_zero() {
+        return None;
+    }
+    Some(raw.shl(part.shift))
 }
 
 /// Unsigned arbitrary-precision integer for bit masks and shifts: 32-bit limbs, little-endian.
@@ -1787,6 +1836,39 @@ source = "module_factions.py:7"
         let report = roundtrip_table(&atlas, &schema);
         assert_eq!((report.records, report.exact, report.failed), (1, 1, 0), "{:?}", report.first_failures);
         assert_eq!((report.typed_fields, report.fields, report.raw_rest), (4, 9, 5));
+    }
+
+    #[test]
+    fn a_ref_none_value_prints_none_and_reads_back_as_that_value() {
+        let atlas = Atlas::from_str(
+            r#"{
+              "schema": 1, "kit_hash": "none", "ops": [], "hooks": [], "ranges": [],
+              "tables": {
+                "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","entries":[
+                  {"index":0,"name":"start_game_0","id":"menu_start_game_0","dup":null,"line":1,"value":[]},
+                  {"index":1,"name":"reports","id":"menu_reports","dup":null,"line":2,"value":[]}
+                ]}
+              }
+            }"#,
+        )
+        .expect("tiny atlas loads");
+        let schema = Schema::from_toml(
+            "table = \"menus\"\nkind = \"menu\"\nid_prefix = \"menu_\"\n\
+             [[fields]]\nname = \"menu\"\nty = \"ref:menus\"\nnone = 0\nsource = \"module_parties.py:14\"\n",
+        )
+        .expect("schema loads");
+        let field = &schema.fields[0];
+        assert_eq!(typed_value(&atlas, field, &Value::Int("0".into())), Some(Value::Ident("none".into())));
+        assert_eq!(typed_value(&atlas, field, &Value::Int("1".into())), Some(Value::Ident("menu_reports".into())));
+        assert_eq!(encode_field(&atlas, field, &Value::Ident("none".into())), Some(Value::Int("0".into())));
+
+        // Without `none` the same 0 is the real first menu.
+        let mut plain = schema.clone();
+        plain.fields[0].none = None;
+        assert_eq!(
+            typed_value(&atlas, &plain.fields[0], &Value::Int("0".into())),
+            Some(Value::Ident("menu_start_game_0".into()))
+        );
     }
 
     #[test]
