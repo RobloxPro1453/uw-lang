@@ -15,13 +15,16 @@
         {"name":"troop_add_item","code":1530,"line":613,"signature":"(troop_add_item,<troop_id>,<item_id>,[modifier]),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"troop_remove_item","code":1531,"line":614,"signature":"(troop_remove_item,<troop_id>,<item_id>),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"party_add_members","code":1610,"line":651,"signature":"(party_add_members,<party_id>,<troop_id>,<number>),","lhs":false,"can_fail":false,"global_lhs":false},
-        {"name":"party_remove_members","code":1615,"line":657,"signature":"(party_remove_members,<party_id>,<troop_id>,<number>),","lhs":false,"can_fail":false,"global_lhs":false}
+        {"name":"party_remove_members","code":1615,"line":657,"signature":"(party_remove_members,<party_id>,<troop_id>,<number>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"troop_get_slot","code":520,"line":252,"signature":"(troop_get_slot,<destination>,<troop_id>,<slot_no>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"store_character_level","code":2171,"line":1221,"signature":"(store_character_level,<destination>,[troop_id]),","lhs":false,"can_fail":false,"global_lhs":false}
       ],
       "hooks": ["game_start"],
       "ranges": [],
       "constants": [
         {"name":"reg0","value":1,"module":"header_common","line":563},
-        {"name":"tf_male","value":0,"module":"header_troops","line":25}
+        {"name":"tf_male","value":0,"module":"header_troops","line":25},
+        {"name":"slot_troop_renown","value":7,"module":"module_constants","line":659}
       ],
       "tables": {
         "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","ref_tag":"mnu",

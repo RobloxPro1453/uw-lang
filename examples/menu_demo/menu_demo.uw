@@ -1,8 +1,9 @@
 // menu_demo: grammar 2 in one menu. After character creation the game opens menu_start_phase_2
 // ("You hear about Calradia ..."), whose Native options town_1 ... town_6 pick the starting town.
 // This mod changes the menu text, renames one option, removes one, and adds a new option that uses
-// a condition, arithmetic and if/else. Its words come from lib/core.uw (`give_gold`, `move_near`,
-// `show_map`, `say`) and the town is named as in game (`praven`).
+// a condition, the easy-language object words and if/else. Its words come from lib/core.uw
+// (`player.gold`, `player.renown`, `player.honor`, `say`, `move_near`, `show_map`) and the town is
+// named as in game (`praven`).
 mod menu_demo
 
 override menu_start_phase_2 {
@@ -15,13 +16,13 @@ override menu_start_phase_2 {
     remove option town_6
 
     option uw_rich "Start rich: 1000 denars, next to Praven." when $g_uw_rich == 0 after town_1 {
-        give_gold(1000)
+        player.gold += 1000
         $g_uw_rich = 1
-        :bonus = 2 * 250 + 500
-        if :bonus >= 1000 and $g_uw_rich == 1 {
-            say("@UW: arithmetic and if work.")
-        } else {
-            say("@UW: something is wrong.")
+        if player.gold >= 100 {
+            player.gold -= 50 // the fee the town takes
+            player.renown += 10
+            player.honor += 1
+            say("@UW: player.gold, renown and honor work.")
         }
         move_near(praven)
         show_map()

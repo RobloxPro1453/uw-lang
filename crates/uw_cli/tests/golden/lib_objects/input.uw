@@ -1,0 +1,17 @@
+// T-083: the `player.*` objects of lib/core.uw. `player.gold += 1000` is the call
+// `player.gold.add(1000)`, `player.gold -= 50` is `player.gold.remove(50)`, and a dotted word read
+// as a value is `player.gold.get(:tmp)` on the line just before the statement that uses it.
+mod lib_objects
+
+on game.start {
+    player.gold += 1000
+    player.gold -= 50
+    player.renown += 10
+    player.honor += 1
+    if player.gold >= 100 {
+        say("@Still rich.")
+    }
+    :level = player.level
+    :renown = player.renown
+    :honor = player.honor
+}
