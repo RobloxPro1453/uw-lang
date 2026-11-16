@@ -1,6 +1,12 @@
 # Devir: sonraki oturum buradan başlar
 
-## 0000000000. AKŞAM (2026-11-16, döngü 7) — önce bunu oku
+## 00000000000. GECE SONU (2026-11-16) — ÖNCE BUNU OKU
+
+Sahibi: haftalık kota yenilenene kadar (21 Kasım) **yeni iş yok**; yenilenince uzun, tam meclis:
+**docs/meclis/kurucu-model-gundem.md** (kurucu model, "sonsuz ihtimal", Praven iki adım kanıtı, kapsam
+envanteri, 8 soru). Meclisten önce §6: cv/T-115 ve cv/T-116 dallarını denetle, birleştir, ölç, push.
+
+## 0000000000. AKŞAM (2026-11-16, döngü 7)
 
 T-100..T-114 birleşti (owner alanı, dialog, area/on enter, koşul sözcükleri, uw check/words/find, rename
 --texts, name_tr + strip/add_suffix, VS Code hata/tamamlama/hover, 3 denetim raporu + tur 1 düzeltme).
