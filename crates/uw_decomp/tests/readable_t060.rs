@@ -76,7 +76,7 @@ fn items_schema_follows_the_kit_layout_comment() {
             "item_stats",
             "modifier_bits",
             "triggers",
-            "factions"
+            "sold_in"
         ]
     );
     let ty = |name: &str| {
@@ -86,7 +86,7 @@ fn items_schema_follows_the_kit_layout_comment() {
     assert_eq!(ty("item_capabilities"), Some("flags:itcf_"));
     assert_eq!(ty("item_stats"), Some("bits"));
     assert_eq!(ty("modifier_bits"), Some("flags:imodbit_"));
-    assert_eq!(ty("factions"), Some("list:ref:factions"));
+    assert_eq!(ty("sold_in"), Some("list:ref:factions"));
     for raw in ["id", "name", "meshes", "value", "triggers"] {
         assert_eq!(ty(raw), Some("raw"), "`{raw}` has no kit meaning");
     }
@@ -136,7 +136,7 @@ fn typed_item_fields_print_readably_and_read_back() {
     assert!(text.contains("weight 6, difficulty 0, hit_points 16384"), "{text}");
     assert!(text.contains("swing_damage 16, swing_damage_type 2"), "{text}");
     assert!(text.contains("  modifier_bits [imodbit_tattered, imodbit_thick]\n"), "{text}");
-    assert!(text.contains("  factions [fac_kingdom_2, fac_kingdom_3]\n"), "{text}");
+    assert!(text.contains("  sold_in [fac_kingdom_2, fac_kingdom_3]\n"), "{text}");
 }
 
 #[test]
@@ -175,7 +175,7 @@ fn real_atlas_items_round_trip() {
     assert!(boots.contains("leg_armor 10"), "{boots}");
 
     let horse = text("itm_steppe_horse");
-    assert!(horse.contains("  factions [fac_kingdom_2, fac_kingdom_3]\n"), "{horse}");
+    assert!(horse.contains("  sold_in [fac_kingdom_2, fac_kingdom_3]\n"), "{horse}");
     assert!(horse.contains("hit_points 120"), "{horse}");
 
     let end = text("itm_ccoop_new_items_end");
