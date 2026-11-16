@@ -131,7 +131,12 @@ fn tiny_atlas_troops_print_and_read_back_the_typed_fields() {
     assert!(player.contains("  troop_flags [tf_hero, tf_unmoveable_in_party_window]\n"), "{player}");
     assert!(player.contains("  faction fac_commoners\n"), "{player}");
     assert!(player.contains("  inventory []\n"), "{player}");
-    assert!(player.contains("  attributes {str 5, agi 6, int 4, cha 5, level 3}\n"), "{player}");
+    assert!(
+        player.contains(
+            "  attributes {strength 5, agility 6, intelligence 4, charisma 5, level 3}\n"
+        ),
+        "{player}"
+    );
     assert!(
         player.contains(
             "  weapon_proficiencies {one_handed 15, two_handed 0, polearm 0, archery 0, crossbow 24, throwing 0, firearm 5}\n"

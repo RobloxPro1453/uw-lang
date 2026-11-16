@@ -97,7 +97,7 @@ fn real_atlas_animations_readable() {
     // amf_rider_rot_bow (module_animations.py:707).
     let bow = printed(&atlas, &schema, "anim_ready_bow");
     assert!(
-        bow.contains("  animation_flags {flags [acf_rot_vertical_bow], anim_length 100}"),
+        bow.contains("  animation_flags {flags [acf_rot_vertical_bow], animation_length 100}"),
         "{bow}"
     );
     assert!(
@@ -107,7 +107,7 @@ fn real_atlas_animations_readable() {
         "{bow}"
     );
     let stand = printed(&atlas, &schema, "anim_stand");
-    assert!(stand.contains("  animation_flags {flags [], anim_length 0}"), "{stand}");
+    assert!(stand.contains("  animation_flags {flags [], animation_length 0}"), "{stand}");
 }
 
 #[test]

@@ -46,7 +46,13 @@ fn troops_schema_follows_the_kit_layout_comment() {
         attributes.parts.iter().map(|part| (part.name.as_str(), part.shift, part.width)).collect();
     assert_eq!(
         parts,
-        [("str", 0, 8), ("agi", 8, 8), ("int", 16, 8), ("cha", 24, 8), ("level", 32, 8)]
+        [
+            ("strength", 0, 8),
+            ("agility", 8, 8),
+            ("intelligence", 16, 8),
+            ("charisma", 24, 8),
+            ("level", 32, 8)
+        ]
     );
     assert!(attributes.parts.iter().all(|part| part.source.starts_with("header_troops.py:")));
     assert!(schema.fields[12].optional && schema.fields[13].optional);
@@ -74,5 +80,5 @@ fn real_atlas_troops_round_trip() {
         &mut |_| unreachable!("no blocks"),
     );
     assert!(text.contains("  faction fac_"), "{text}");
-    assert!(text.contains("  attributes {str "), "{text}");
+    assert!(text.contains("  attributes {strength "), "{text}");
 }
