@@ -26,3 +26,7 @@ docs/graph_viewer/program/
 
 # Gemini/Antigravity çalışma kopyası (sahibi buraya koyar; Claude dosya dosya alır, depoya girmez)
 geminiversion/
+
+# Sahibinin yerel denemeleri (uw new çıktısı, akış dökümü: Native metinleri içerir)
+hikayem/
+flow_*.json

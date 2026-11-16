@@ -216,10 +216,14 @@ fn native_check() -> ExitCode {
 /// `uw build-project <dir>`: the same build, from the project folder.
 fn build_project(dir: &Path, args: &Args) -> ExitCode {
     let root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-    let (atlas, schemas) = match crate::new::atlas_and_schemas(None) {
+    let (mut atlas, schemas) = match crate::new::atlas_and_schemas(None) {
         Ok(found) => found,
         Err(message) => return crate::fail(&message),
     };
+    if let Err(message) = crate::new::install_names(&mut atlas, dir) {
+        return crate::fail(&message);
+    }
+    let atlas = atlas;
     let mut compile = |text: &str| crate::roundtrip::compile(&atlas, text).map(|ops| records::ops_to_json(&ops));
     let mut parse = |schema: &Schema, text: &str| records::parse_with_blocks(&atlas, schema, text, &mut compile);
     let records = match uw_decomp::project::load::load(&atlas, &schemas, dir, &mut parse) {

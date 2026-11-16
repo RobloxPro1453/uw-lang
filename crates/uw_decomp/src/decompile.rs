@@ -121,7 +121,9 @@ impl<'a> Printer<'a> {
                 None => n.to_string(),
             },
             RawArg::Str(s) if s.starts_with('$') || s.starts_with(':') => s.clone(),
-            RawArg::Str(s) if is_identifier(s) && self.atlas.resolve_ref(s).is_some() => s.clone(),
+            RawArg::Str(s) if is_identifier(s) && self.atlas.resolve_ref(s).is_some() => {
+                self.atlas.game_name(s).unwrap_or(s).to_string()
+            }
             RawArg::Str(s) => quote(s),
         }
     }

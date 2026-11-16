@@ -202,7 +202,9 @@ fn collect_uw_files(dir: &Path, files: &mut Vec<PathBuf>) {
         let path = entry.path();
         if path.is_dir() {
             collect_uw_files(&path, files);
-        } else if path.extension().and_then(|ext| ext.to_str()) == Some("uw") {
+        } else if path.extension().and_then(|ext| ext.to_str()) == Some("uw")
+            && path.file_name().and_then(|name| name.to_str()) != Some(crate::names::FILE)
+        {
             files.push(path);
         }
     }

@@ -8,7 +8,6 @@ Otomatik testin göremediği, sahibinin bir kez gözle bakması gereken şeyler.
 
 **Oyun deneyi kuyruğu.** Döngü soru sormaz; oyunu açmayı gerektiren deneyleri buraya **tek tek**, adım adım yazar ve beklemeden başka işe geçer. Sahibi sırayla yapar, sonucu (ve ekran görüntüsünü) maddenin altına yazar; sonraki çevrim okur, `docs/bilgi/`'ye [DENEY] olarak işler ve maddeyi siler. Her madde: hangi test modu klasörü, oyunda nereye gidilir, neye bakılır, ne yazılır.
 
-- [ ] **Kayıt uyumu (P3b).** `Belgeler/Mount&Blade Warband Savegames/Native/sg00.sav` dosyasını `.../hikayem/` klasörüne **`sg05.sav` adıyla** kopyala (oradaki `sg00.sav`'ı ezme). `hikayem` modunu aç, "Yükle"de "purnaci" kaydı görünüyor mu, açılıyor mu, şehir/lord adları doğru mu? Sonucu buraya yaz.
 
 
 ## Bilinen hatalar

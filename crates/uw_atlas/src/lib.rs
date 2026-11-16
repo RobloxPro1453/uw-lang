@@ -122,6 +122,12 @@ pub struct Atlas {
     /// `neg | this_or_next`, from the atlas' own op list.
     #[serde(skip)]
     flag_mask: u64,
+    /// Game names of a project (`names.uw`, P5b): game name -> kit reference (`swadia` -> `fac_kingdom_1`).
+    #[serde(skip)]
+    name_to_ref: HashMap<String, String>,
+    /// The other way: kit reference -> game name.
+    #[serde(skip)]
+    ref_to_name: HashMap<String, String>,
 }
 
 /// One place where an operation block mentions something (see [`Atlas::references`]).
@@ -230,6 +236,24 @@ impl Atlas {
         self.hook_set = hook_set;
     }
 
+    /// Installs a project's game names (`(game name, kit reference)` pairs, P5b). From then on
+    /// [`Atlas::resolve_ref`] accepts the game name too, and printers ask [`Atlas::game_name`].
+    /// Replaces any names set before; an empty list turns the layer off.
+    pub fn set_game_names(&mut self, pairs: &[(String, String)]) {
+        self.name_to_ref = pairs.iter().map(|(name, reference)| (name.clone(), reference.clone())).collect();
+        self.ref_to_name = pairs.iter().map(|(name, reference)| (reference.clone(), name.clone())).collect();
+    }
+
+    /// The game name a project gave this kit reference (`fac_kingdom_1` -> `swadia`), if any.
+    pub fn game_name(&self, reference: &str) -> Option<&str> {
+        self.ref_to_name.get(reference).map(String::as_str)
+    }
+
+    /// The kit reference behind a game name (`swadia` -> `fac_kingdom_1`), if it is one.
+    pub fn reference_for(&self, name: &str) -> Option<&str> {
+        self.name_to_ref.get(name).map(String::as_str)
+    }
+
     /// The operation with this header name, if the kit has one.
     pub fn op(&self, name: &str) -> Option<&Op> {
         self.ops.get(*self.op_index.get(name)?)
@@ -276,6 +300,9 @@ impl Atlas {
     /// entry names and the FIRST match wins (`header_common.find_object`). Note the contrast with
     /// [`Atlas::entry_by_id`], where a repeated name keeps only the last occurrence's id.
     pub fn resolve_ref(&self, text: &str) -> Option<(&str, &Entry)> {
+        if let Some(reference) = self.name_to_ref.get(text) {
+            return self.resolve_ref(reference);
+        }
         let (tag, rest) = text.split_once('_')?;
         if tag.is_empty() {
             return None;

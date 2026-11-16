@@ -4,7 +4,11 @@
   (yeni oyun, Praven, şehir menüsü, lord konuşması). Beklenen sonuç: çıktılar bayt bayt aynı.
 - [DENEY] Kayıtlı oyunlar **mod klasörü başına** tutulur: `Belgeler/Mount&Blade Warband Savegames/<mod>/sgNN.sav`.
   Native'de alınan kayıt `hikayem` modunda görünmez; kopyalamak gerekir (hedefte aynı ad varsa ezmeden
-  başka numarayla, ör. `sg01.sav`). Kayıt uyumu deneyi bu yüzden henüz yapılmadı.
+  başka numarayla, ör. `sg01.sav`).
+- [DENEY] Kayıt uyumu (2026-11-16, sahibi): Native'de alınan "purnaci" kaydı `hikayem/` klasörüne `sg05.sav`
+  olarak kopyalandı; `hikayem` modunda listede göründü, açıldı ve denendiği kadarıyla sorunsuz oynandı.
+  Yani bayt eşit proje çıktısı Native kayıtlarıyla uyumlu (bayt eşitliğin beklenen sonucu; adı ya da sırası
+  değişen kayıtla kayıt uyumu ayrıca denenmeli).
 - [DENEY] `town_6` adı `"Adam Siken"` yapıldı: üretilen `parties.txt`'de `town_6 Adam_Siken` (Praven yok),
   ama oyun Türkçe oynandığında haritada **"Praven Şehri"** göründü. Neden [KİT/ÖLÇÜ]: kurulum Native'in
   `languages/` klasörünü kopyalıyor; `languages/tr/parties.csv` satırı `p_town_6|Praven Şehri` İngilizce

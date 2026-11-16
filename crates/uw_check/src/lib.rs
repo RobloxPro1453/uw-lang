@@ -291,7 +291,9 @@ impl Ctx<'_> {
             }
             Arg::Name(name) => {
                 if self.atlas.resolve_ref(&name.text).is_some() {
-                    Some(Value::Ref(name.text.clone()))
+                    // A game name (`praven`, P5b) goes to the kit as its reference (`p_town_6`).
+                    let reference = self.atlas.reference_for(&name.text).unwrap_or(&name.text);
+                    Some(Value::Ref(reference.to_string()))
                 } else if let Some(c) = self.atlas.constant(&name.text) {
                     Some(Value::Const { name: c.name.clone(), module: c.module.clone() })
                 } else {

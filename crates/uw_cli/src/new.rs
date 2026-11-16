@@ -25,12 +25,31 @@ pub(crate) fn atlas_and_schemas(atlas_path: Option<PathBuf>) -> Result<(Atlas, V
     Ok((atlas, schemas))
 }
 
+/// Installs the project's game names (`names.uw`, P5b) into the atlas when the folder has the file.
+/// Returns how many names; a bad file is an error (one line per problem).
+pub(crate) fn install_names(atlas: &mut Atlas, dir: &Path) -> Result<usize, String> {
+    let path = dir.join(uw_decomp::names::FILE);
+    if !path.exists() {
+        return Ok(0);
+    }
+    let text = std::fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let names = uw_decomp::names::parse(atlas, &text)
+        .map_err(|errors| errors.iter().map(|e| format!("{}: {e}", path.display())).collect::<Vec<_>>().join("
+"))?;
+    atlas.set_game_names(&uw_decomp::names::pairs(&names));
+    Ok(names.len())
+}
+
 /// `uw new <dir> --from native [--atlas <path>]`: writes the folder.
 fn export_project(dir: &Path, atlas_path: Option<PathBuf>) -> ExitCode {
-    let (atlas, schemas) = match atlas_and_schemas(atlas_path) {
+    let (mut atlas, schemas) = match atlas_and_schemas(atlas_path) {
         Ok(found) => found,
         Err(message) => return crate::fail(&message),
     };
+    // Game names first (P5b): every record and block below prints them.
+    let names = uw_decomp::names::derive(&atlas);
+    atlas.set_game_names(&uw_decomp::names::pairs(&names));
+    let atlas = atlas;
     // Operation blocks print as readable `ops { … }` (T-043), the same text `uw roundtrip` measures.
     let blocks = uw_decomp::extract::all(&atlas);
     let paths = crate::roundtrip::block_paths(&blocks);
@@ -40,10 +59,15 @@ fn export_project(dir: &Path, atlas_path: Option<PathBuf>) -> ExitCode {
     };
     match project::export(&atlas, &schemas, dir, &mut render) {
         Ok(summary) => {
+            let names_path = dir.join(uw_decomp::names::FILE);
+            if let Err(e) = std::fs::write(&names_path, uw_decomp::names::print(&names)) {
+                return crate::fail(&format!("{}: {e}", names_path.display()));
+            }
             println!(
-                "{} files, {} records -> {} (not compiled yet: P3b)",
+                "{} files, {} records, {} game names -> {}",
                 summary.files,
                 summary.records,
+                names.len(),
                 dir.display()
             );
             ExitCode::SUCCESS
@@ -54,10 +78,14 @@ fn export_project(dir: &Path, atlas_path: Option<PathBuf>) -> ExitCode {
 
 /// `uw new --check <dir>`: reads the folder back and says how many records are exact.
 fn check_project(dir: &Path, atlas_path: Option<PathBuf>) -> ExitCode {
-    let (atlas, schemas) = match atlas_and_schemas(atlas_path) {
+    let (mut atlas, schemas) = match atlas_and_schemas(atlas_path) {
         Ok(found) => found,
         Err(message) => return crate::fail(&message),
     };
+    if let Err(message) = install_names(&mut atlas, dir) {
+        return crate::fail(&message);
+    }
+    let atlas = atlas;
     let mut compile = |text: &str| crate::roundtrip::compile(&atlas, text).map(|ops| records::ops_to_json(&ops));
     let mut parse = |schema: &Schema, text: &str| records::parse_with_blocks(&atlas, schema, text, &mut compile);
     let blocks = uw_decomp::extract::all(&atlas);

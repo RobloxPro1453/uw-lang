@@ -1116,14 +1116,16 @@ fn decode_ref(atlas: &Atlas, table: &str, value: &Value) -> Option<Value> {
     if id.is_empty() || !is_word(id) {
         return None;
     }
-    Some(Value::Ident(id.to_string()))
+    // The project's game name when it has one (`fac_kingdom_1` -> `swadia`, P5b).
+    Some(Value::Ident(atlas.game_name(id).unwrap_or(id).to_string()))
 }
 
-/// An atlas id of that table back to its index.
+/// An atlas id (or a project's game name for one) of that table back to its index.
 fn encode_ref(atlas: &Atlas, table: &str, value: &Value) -> Option<Value> {
     let Value::Ident(id) = value else { return None };
+    let id = atlas.reference_for(id).unwrap_or(id.as_str());
     let entries = &atlas.tables.get(table)?.entries;
-    let entry = entries.iter().find(|entry| entry.id.as_deref() == Some(id.as_str()))?;
+    let entry = entries.iter().find(|entry| entry.id.as_deref() == Some(id))?;
     Some(Value::Int(entry.index.to_string()))
 }
 

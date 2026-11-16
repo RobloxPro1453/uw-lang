@@ -5,6 +5,7 @@
 //! turned into [`RawOp`]s again ([`to_raw`]). The block round-trips when both lists are equal.
 
 pub mod decompile;
+pub mod names;
 pub mod extract;
 pub mod project;
 pub mod records;
