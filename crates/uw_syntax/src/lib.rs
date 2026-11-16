@@ -56,6 +56,9 @@ pub enum Item {
     /// `fn <name>(:p1, :p2) { body }`: a named piece of code used as one line; a call to it is
     /// replaced by its body at check time (T-078).
     Fn { name: Ident, params: Vec<Ident>, body: Block, span: Span },
+    /// `save <name> = <int | true | false>`: a named global that lives in the save game, set to
+    /// its start value once at game start (T-085).
+    Save { name: Ident, value: Expr, span: Span },
 }
 
 /// `on <event> { body }` inside an override.
@@ -703,6 +706,23 @@ impl Parser {
                     let end = body.span.end;
                     file.items.push(Item::Fn { name, params, body, span: Span { start, end } });
                 }
+                Tok::Ident(kw) if kw == "save" => {
+                    let start = t.span.start;
+                    self.bump();
+                    let name = self.ident("a name after `save`, e.g. `save rich = false`")?;
+                    if name.text == "true" || name.text == "false" {
+                        return Err(err(
+                            E0100_UNEXPECTED,
+                            format!("`{}` is 1 or 0 in a value, so it cannot name a save", name.text),
+                            name.span,
+                        )
+                        .with_help(format!("pick another name, e.g. `save rich = {}`", name.text)));
+                    }
+                    let value = self.save_value(&name.text)?;
+                    let end = expr_span(&value).end;
+                    self.end_of_stmt("this `save` line")?;
+                    file.items.push(Item::Save { name, value, span: Span { start, end } });
+                }
                 Tok::RBrace => {
                     return Err(err(E0102_STRAY_CLOSE, "this '}' has no matching '{'", t.span)
                         .with_help("remove it, or check which block above was closed early"));
@@ -710,12 +730,45 @@ impl Parser {
                 other => {
                     return Err(err(
                         E0100_UNEXPECTED,
-                        format!("expected `mod`, `override`, `new`, `on` or `fn` at the top level, found {}", describe(other)),
+                        format!("expected `mod`, `override`, `new`, `on`, `fn` or `save` at the top level, found {}", describe(other)),
                         t.span,
                     ));
                 }
             }
         }
+    }
+
+    /// `save <name> = <int | true | false>`: the start value written once at game start, so it is a
+    /// whole number; `true`/`false` are 1/0 (T-085).
+    fn save_value(&mut self, name: &str) -> Result<Expr, Diagnostic> {
+        self.skip_newlines();
+        let t = self.peek().clone();
+        if t.tok != Tok::Assign(AssignOp::Set) {
+            return Err(err(
+                E0100_UNEXPECTED,
+                format!("expected '=' and a start value after `save {name}`, found {}", describe(&t.tok)),
+                t.span,
+            )
+            .with_help("write e.g. `save rich = false`"));
+        }
+        self.bump();
+        self.skip_newlines();
+        let t = self.peek().clone();
+        let value = match &t.tok {
+            Tok::Int(n) => Arg::Int(*n, t.span),
+            Tok::Ident(word) if word == "true" => Arg::Int(1, t.span),
+            Tok::Ident(word) if word == "false" => Arg::Int(0, t.span),
+            other => {
+                return Err(err(
+                    E0100_UNEXPECTED,
+                    format!("expected an integer, `true` or `false` as the start value of `save {name}`, found {}", describe(other)),
+                    t.span,
+                )
+                .with_help("a save starts at a whole number, e.g. `save rich = false`"));
+            }
+        };
+        self.bump();
+        Ok(Expr::Value(value))
     }
 
     /// The `(:p1, :p2, …)` parameters of `fn <name>`; each one is a `:local` the body uses.
@@ -1638,6 +1691,7 @@ mod tests {
                 Item::On { body, .. } => vec![body],
                 Item::New { handlers, .. } => handlers.into_iter().map(|h| h.body).collect(),
                 Item::Fn { body, .. } => vec![body],
+                Item::Save { .. } => Vec::new(),
             };
             for b in blocks {
                 for s in b.stmts.iter().filter_map(Stmt::as_call) {

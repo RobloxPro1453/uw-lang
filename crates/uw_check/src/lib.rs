@@ -37,6 +37,8 @@ pub const E0215_FN_CYCLE: &str = "E0215";
 /// A dotted object word (`player.gold`) the fns do not cover: the fn its form calls is missing, or
 /// the form has no verb (T-082).
 pub const E0216_OBJECT_WORD: &str = "E0216";
+/// A `save` name that a game name, a kit constant or a Native operation already uses (T-085).
+pub const E0217_SAVE_NAME: &str = "E0217";
 
 /// How deep `fn` calls may nest before the body is expanded, so a runaway chain stops.
 const FN_DEPTH: usize = 16;
@@ -173,6 +175,15 @@ fn origin_in(file: &SourceFile, span: Span) -> String {
     format!("{}:{line}", file.name)
 }
 
+/// A `save` of the mod (T-085): one named `$global` that lives in the save game, with the value
+/// written once at game start.
+struct SaveDef {
+    name: String,
+    start: i64,
+    /// `file:line` of `save <name>`, for "two saves with one name" and the start operation.
+    origin: String,
+}
+
 struct Ctx<'a> {
     atlas: &'a Atlas,
     errors: Vec<Error>,
@@ -194,6 +205,8 @@ struct Ctx<'a> {
     /// The `:_…` temporaries lowering made itself, so [`Ctx::local`] accepts them and no other
     /// `:_` name (an object word's `get` fills one through a fn parameter, T-082).
     temps: Vec<String>,
+    /// Every `save` of the mod: its bare name means `$<name>` in every file (T-085).
+    saves: &'a [SaveDef],
 }
 
 impl Ctx<'_> {
@@ -359,6 +372,9 @@ impl Ctx<'_> {
         match target {
             Arg::Global(g) | Arg::Local(g) => self.local(g),
             Arg::Name(name) => {
+                if let Some(global) = self.save_global(&name.text) {
+                    return Some(global);
+                }
                 let constant = self.atlas.constant(&name.text).map(|c| (c.name.clone(), c.module.clone()));
                 match constant {
                     Some((constant, module)) if is_register(&name.text) => Some(Value::Const { name: constant, module }),
@@ -399,6 +415,19 @@ impl Ctx<'_> {
         } else {
             Some(Value::Ref(ident.text.clone()))
         }
+    }
+
+    /// The `$global` a `save` name stands for (`rich` -> `$rich`), if it is one (T-085).
+    fn save_global(&self, name: &str) -> Option<Value> {
+        self.saves.iter().any(|save| save.name == name).then(|| Value::Ref(format!("${name}")))
+    }
+
+    /// A `save` name used as a condition: a bare name is a call without operands (`if rich`).
+    fn save_cond(&self, call: &Call) -> Option<Value> {
+        if !call.args.is_empty() {
+            return None;
+        }
+        self.save_global(&call.op.text)
     }
 
     // ----------------------------------------------------------- object words (T-082)
@@ -544,6 +573,12 @@ impl Ctx<'_> {
                 Some(Value::Text(text.clone()))
             }
             Arg::Name(name) => {
+                if let Some(n) = bool_value(&name.text) {
+                    return Some(Value::Int(n));
+                }
+                if let Some(global) = self.save_global(&name.text) {
+                    return Some(global);
+                }
                 if self.atlas.resolve_ref(&name.text).is_some() {
                     // A game name (`praven`, P5b) goes to the kit as its reference (`p_town_6`).
                     let reference = self.atlas.reference_for(&name.text).unwrap_or(&name.text);
@@ -615,7 +650,18 @@ impl Ctx<'_> {
                 right: self.expr(right)?,
                 origin: self.origin(*span),
             }),
-            Cond::Call(call) => self.call(call).map(uw_lower::Cond::Op),
+            // A bare `save` name is `rich != 0`; `not` then flips it to `eq` (T-085).
+            Cond::Call(call) => {
+                if let Some(global) = self.save_cond(call) {
+                    return Some(uw_lower::Cond::Cmp {
+                        op: uw_lower::CmpOp::Ne,
+                        left: uw_lower::Expr::Value(global),
+                        right: uw_lower::Expr::Value(Value::Int(0)),
+                        origin: self.origin(call.span),
+                    });
+                }
+                self.call(call).map(uw_lower::Cond::Op)
+            }
             Cond::Not(inner, _) => Some(uw_lower::Cond::Not(Box::new(self.cond(inner)?))),
             Cond::And(parts) => {
                 let mut out = Vec::new();
@@ -655,6 +701,10 @@ impl Ctx<'_> {
                 Some(())
             }
             Cond::Call(call) => {
+                if let Some(global) = self.save_cond(call) {
+                    out.push(Op { name: "neq".into(), args: vec![global, Value::Int(0)], origin: self.origin(call.span) });
+                    return Some(());
+                }
                 let op = self.call(call)?;
                 out.push(op);
                 Some(())
@@ -683,6 +733,10 @@ impl Ctx<'_> {
                 Some(())
             }
             Cond::Call(call) => {
+                if let Some(global) = self.save_cond(call) {
+                    out.push(Op { name: "eq".into(), args: vec![global, Value::Int(0)], origin: self.origin(call.span) });
+                    return Some(());
+                }
                 let op = self.call(call)?;
                 out.push(Op { name: format!("neg|{}", op.name), args: op.args, origin: op.origin });
                 Some(())
@@ -1126,6 +1180,15 @@ fn assign_op_sign(op: uw_syntax::AssignOp) -> &'static str {
     }
 }
 
+/// `true`/`false` as the number they stand for, wherever a value is written (T-085).
+fn bool_value(name: &str) -> Option<i64> {
+    match name {
+        "true" => Some(1),
+        "false" => Some(0),
+        _ => None,
+    }
+}
+
 /// `player.gold`: a name the parser read across dots, an object word (T-082).
 fn is_dotted(name: &Ident) -> bool {
     name.text.contains('.')
@@ -1382,6 +1445,75 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
         }
     }
 
+    // A `save` names one `$global` of the whole mod too, so its names come first as well: a bare
+    // name means `$<name>` in every file and its start value is written once, at game start
+    // (T-085). A name the kit already uses would make the bare name mean two things.
+    let mut saves: Vec<SaveDef> = Vec::new();
+    for (index, source) in sources.iter().enumerate() {
+        for item in &source.tree.items {
+            let Item::Save { name, value, .. } = item else { continue };
+            let clash = if atlas.op(&name.text).is_some() {
+                Some("a Native operation")
+            } else if atlas.constant(&name.text).is_some() {
+                Some("a kit constant")
+            } else if atlas.resolve_ref(&name.text).is_some() {
+                Some("a kit name")
+            } else {
+                None
+            };
+            if let Some(what) = clash {
+                errors.push(Error {
+                    file: index,
+                    diag: diag(
+                        E0217_SAVE_NAME,
+                        format!("`save {}` has the name of {what}", name.text),
+                        name.span,
+                        Some(format!("a save is also written as `${}`, so pick a name the kit does not use", name.text)),
+                    ),
+                });
+                continue;
+            }
+            if let Some(first) = saves.iter().find(|save| save.name == name.text) {
+                let existing = first.origin.clone();
+                errors.push(Error {
+                    file: index,
+                    diag: diag(
+                        E0202_DUPLICATE,
+                        format!("`save {}` is already defined at {existing}", name.text),
+                        name.span,
+                        Some("a save name is used once in a mod; rename one of them".into()),
+                    ),
+                });
+                continue;
+            }
+            // The parser only lets an integer (or `true`/`false`) through here.
+            let Expr::Value(Arg::Int(start, _)) = value else { continue };
+            let origin = origin_in(&source.file, name.span);
+            saves.push(SaveDef { name: name.text.clone(), start: *start, origin });
+        }
+    }
+    // The start values go to the `game_start` script, the way `on game.start` is emitted; they are
+    // the first patches, so a `game_start` handler of the mod already reads them.
+    if let Some(first) = saves.first() {
+        let ops = saves
+            .iter()
+            .map(|save| Op {
+                name: "assign".into(),
+                args: vec![Value::Ref(format!("${}", save.name)), Value::Int(save.start)],
+                origin: save.origin.clone(),
+            })
+            .collect();
+        patches.push(Patch {
+            module: "module_scripts".into(),
+            var: "scripts".into(),
+            entry: "game_start".into(),
+            path: vec![SCRIPT_BODY_FIELD],
+            action: Action::Append,
+            ops,
+            origin: first.origin.clone(),
+        });
+    }
+
     for (index, source) in sources.iter().enumerate() {
         let mut ctx = Ctx {
             atlas,
@@ -1395,6 +1527,7 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
             stack: Vec::new(),
             rename: 0,
             temps: Vec::new(),
+            saves: &saves,
         };
         if let Some(m) = &source.tree.module {
             match &name {
@@ -1730,6 +1863,8 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
                 }
                 // A `fn` adds no patch of its own: its body lands wherever it is called.
                 Item::Fn { .. } => {}
+                // A `save` adds no patch here: its start value is written at game start above.
+                Item::Save { .. } => {}
                 Item::On { path, body, span } => {
                     let words: Vec<&str> = path.iter().map(|p| p.text.as_str()).collect();
                     let hook = match words.as_slice() {
@@ -1796,6 +1931,7 @@ pub fn check_block(atlas: &Atlas, file: &SourceFile, stmts: &[Stmt]) -> Result<V
         stack: Vec::new(),
         rename: 0,
         temps: Vec::new(),
+        saves: &[],
     };
     let ops = ctx.ops(stmts);
     if ctx.errors.is_empty() {
@@ -1995,6 +2131,7 @@ mod tests {
             stack: Vec::new(),
             rename: 0,
             temps: Vec::new(),
+            saves: &[],
         };
         let tree = ctx.stmts(&stmts);
         if ctx.errors.is_empty() {
@@ -2766,5 +2903,60 @@ mod tests {
         assert_eq!(option.condition[0].args, [Value::Ref(":_uw_get0".into()), Value::Ref("$g_level".into())]);
         assert_eq!(option.condition[1].args[0], Value::Ref(":_uw_get0".into()));
         assert_eq!(option.condition[1].args[1], Value::Int(5));
+    }
+
+    #[test]
+    fn a_save_name_means_a_dollar_global_and_starts_at_game_start() {
+        let checked = run(
+            "mod saves\n\
+             save rich = false\n\
+             save gold = 5\n\
+             on game.start {\n rich = true\n gold += 1\n if rich { change_screen_map() }\n}\n\
+             override menu start_phase_2 {\n option uw_poor \"Poor?\" when not rich { display_message(\"@no\") }\n}",
+        )
+        .unwrap();
+        // The start values are the first patch, appended to the `game_start` script.
+        let start = &checked.patches[0];
+        assert_eq!((start.entry.as_str(), &start.action), ("game_start", &Action::Append));
+        assert_eq!(start.path, vec![SCRIPT_BODY_FIELD]);
+        let args: Vec<&[Value]> = start.ops.iter().map(|op| op.args.as_slice()).collect();
+        assert_eq!(
+            args,
+            [
+                &[Value::Ref("$rich".into()), Value::Int(0)][..],
+                &[Value::Ref("$gold".into()), Value::Int(5)][..],
+            ]
+        );
+        // Every bare name is the global: an assignment target, an operand and a condition.
+        let hook = &checked.patches[1];
+        let names: Vec<&str> = hook.ops.iter().map(|op| op.name.as_str()).collect();
+        assert_eq!(names, ["assign", "val_add", "try_begin", "neq", "change_screen_map", "try_end"]);
+        assert_eq!(hook.ops[0].args, [Value::Ref("$rich".into()), Value::Int(1)]);
+        assert_eq!(hook.ops[1].args, [Value::Ref("$gold".into()), Value::Int(1)]);
+        assert_eq!(hook.ops[3].args, [Value::Ref("$rich".into()), Value::Int(0)]);
+        let Action::InsertOption { option, .. } = &checked.patches[2].action else {
+            panic!("{:?}", checked.patches[2].action)
+        };
+        assert_eq!(option.condition[0].name, "eq");
+        assert_eq!(option.condition[0].args, [Value::Ref("$rich".into()), Value::Int(0)]);
+    }
+
+    #[test]
+    fn a_save_name_is_used_once_and_never_for_a_kit_name() {
+        let errs = run("save rich = 0\nsave rich = 1").unwrap_err();
+        assert!(errs[0].starts_with("error[E0202]"), "{errs:?}");
+        assert!(errs[0].contains("already defined at start.uw:1"), "{errs:?}");
+        let errs = run("save eq = 0").unwrap_err();
+        assert!(errs[0].starts_with("error[E0217]"), "{errs:?}");
+        assert!(errs[0].contains("a Native operation"), "{errs:?}");
+        let errs = run("save tf_male = 0").unwrap_err();
+        assert!(errs[0].contains("a kit constant"), "{errs:?}");
+        // A name `names.uw` installed is taken as well (T-077).
+        let mut atlas = atlas();
+        atlas.set_game_names(&[("praven".to_owned(), "p_town_6".to_owned())]);
+        let file = SourceFile::new("start.uw", "save praven = 0");
+        let tree = uw_syntax::parse(&file.text).expect("parses");
+        let errs = check(&atlas, &[Source { file: file.clone(), tree }], "folder").unwrap_err();
+        assert!(errs[0].diag.message.contains("a kit name"), "{:?}", errs[0].diag);
     }
 }
