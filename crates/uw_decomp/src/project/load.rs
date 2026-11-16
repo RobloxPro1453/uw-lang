@@ -84,6 +84,26 @@ pub fn load_with_owners_and_names(
     (BTreeMap<String, Vec<Json>>, BTreeMap<String, String>, Vec<super::LanguageName>),
     Vec<String>,
 > {
+    load_with_owners_names_and_lords(atlas, schemas, dir, parse)
+        .map(|(records, owners, names, _lords)| (records, owners, names))
+}
+
+/// [`load_with_owners_and_names`], plus the project's `lord` lines (T-116): the lord each center
+/// starts with (`lord <game name>` or `lord auto`), read before schema parsing.
+pub fn load_with_owners_names_and_lords(
+    atlas: &Atlas,
+    schemas: &[Schema],
+    dir: &Path,
+    parse: &mut dyn FnMut(&Schema, &str) -> Result<(String, Json), String>,
+) -> Result<
+    (
+        BTreeMap<String, Vec<Json>>,
+        BTreeMap<String, String>,
+        Vec<super::LanguageName>,
+        Vec<super::LordLine>,
+    ),
+    Vec<String>,
+> {
     let lock_path = dir.join(LOCK_FILE);
     let text = std::fs::read_to_string(&lock_path).map_err(|e| vec![format!("{}: {e}", lock_path.display())])?;
     let lock: Lock = toml::from_str(&text).map_err(|e| vec![format!("{}: {e}", lock_path.display())])?;
@@ -104,6 +124,7 @@ pub fn load_with_owners_and_names(
     let mut records: Vec<Parsed> = Vec::new();
     let mut owners: BTreeMap<String, String> = BTreeMap::new();
     let mut names: Vec<super::LanguageName> = Vec::new();
+    let mut lords: Vec<super::LordLine> = Vec::new();
     let mut seq = 0usize;
     for file in &files {
         let text = match std::fs::read_to_string(file) {
@@ -122,6 +143,7 @@ pub fn load_with_owners_and_names(
                 continue;
             };
             let owner = if schema.table == "parties" { super::take_owner(&mut record) } else { None };
+            let lord = if schema.table == "parties" { super::take_lord(&mut record) } else { None };
             let record_names = super::take_names(&mut record, schema);
             match parse(schema, &record) {
                 Ok((id, value)) => {
@@ -137,6 +159,32 @@ pub fn load_with_owners_and_names(
                                 file.display(),
                                 start + offset
                             )),
+                        }
+                    }
+                    if let Some((lord, offset)) = lord {
+                        let party = format!("{}{id}", schema.id_prefix);
+                        let line = start + offset;
+                        if lord == "auto" {
+                            lords.push(super::LordLine {
+                                party,
+                                troop: None,
+                                file: file.display().to_string(),
+                                line,
+                            });
+                        } else {
+                            match troop_id(atlas, &lord) {
+                                Some(troop) => lords.push(super::LordLine {
+                                    party,
+                                    troop: Some(troop),
+                                    file: file.display().to_string(),
+                                    line,
+                                }),
+                                None => errors.push(format!(
+                                    "{}: line {line}: lord `{lord}` tanınmıyor; oyun adı ya da kitle \
+                                     kimliği yaz (ör. king_harlaus, trp_kingdom_1_lord)",
+                                    file.display()
+                                )),
+                            }
                         }
                     }
                     let full_id = format!("{}{id}", schema.id_prefix);
@@ -241,7 +289,7 @@ pub fn load_with_owners_and_names(
     }
 
     if errors.is_empty() {
-        Ok((result, owners, names))
+        Ok((result, owners, names, lords))
     } else {
         Err(errors)
     }
@@ -250,15 +298,26 @@ pub fn load_with_owners_and_names(
 /// The faction reference behind an `owner` value: a game name (`swadia`), a kit id
 /// (`fac_kingdom_4`) or a bare kit id (`kingdom_4`). `None` when the atlas has no such faction.
 fn faction_id(atlas: &Atlas, name: &str) -> Option<String> {
+    reference_id(atlas, "factions", name)
+}
+
+/// The troop reference behind a `lord` value, resolved like [`faction_id`]: a game name
+/// (`king_harlaus`), a kit id (`trp_kingdom_1_lord`) or a bare kit id (`kingdom_1_lord`).
+fn troop_id(atlas: &Atlas, name: &str) -> Option<String> {
+    reference_id(atlas, "troops", name)
+}
+
+/// The id of `name` in `table`, trying it as it is, its game name and its prefixed kit id.
+fn reference_id(atlas: &Atlas, table: &str, name: &str) -> Option<String> {
     let mut candidates = vec![name.to_owned()];
     if let Some(reference) = atlas.reference_for(name) {
         candidates.push(reference.to_owned());
     }
-    if let Some(prefix) = atlas.tables.get("factions").and_then(|table| table.id_prefix.as_deref()) {
+    if let Some(prefix) = atlas.tables.get(table).and_then(|table| table.id_prefix.as_deref()) {
         candidates.push(format!("{prefix}{name}"));
     }
     candidates.into_iter().find_map(|candidate| match atlas.entry_by_id(&candidate) {
-        Some(("factions", entry)) => entry.id.clone(),
+        Some((found, entry)) if found == table => entry.id.clone(),
         _ => None,
     })
 }

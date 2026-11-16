@@ -9,6 +9,7 @@ pub mod pymodule;
 use std::collections::{BTreeMap, HashMap};
 use std::path::Path;
 
+use serde_json::json;
 use serde_json::Value as Json;
 use uw_atlas::{Atlas, Entry};
 
@@ -26,6 +27,13 @@ const OWNER_SCRIPTS: [&str; 2] =
 
 /// The script that runs once when a new game starts.
 const GAME_START: &str = "game_start";
+
+/// The script that gives a center to a lord at game start (T-116).
+const LORD_SCRIPT: &str = "script_give_center_to_lord";
+
+/// The script that gives every center without a lord to a lord of its own faction; a new lord
+/// call goes before it (T-116).
+const ASSIGN_LORDS_SCRIPT: &str = "script_assign_lords_to_empty_centers";
 
 /// What one export wrote.
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -69,6 +77,7 @@ pub fn export(
     std::fs::create_dir_all(out).map_err(|e| format!("{}: {e}", out.display()))?;
     let descriptions = descriptions();
     let owners = owners(atlas);
+    let lords = lords(atlas);
     let files = group_by_path(atlas, schemas);
     let mut summary = ExportSummary::default();
     for (relative, records) in &files {
@@ -82,10 +91,17 @@ pub fn export(
             }
             let mut body = render(schema, entry).trim_end().to_owned();
             if schema.table == "parties" {
+                let mut extra = String::new();
                 if let Some(line) = owner_line(atlas, &owners, entry) {
-                    // Inside the record, as its first field: the modder changes the owner here.
+                    extra.push_str(&format!("  {line}\n"));
+                }
+                if is_center(relative) {
+                    extra.push_str(&format!("  {}\n", lord_line(atlas, &lords, entry)));
+                }
+                // Inside the record, before the fields: the modder changes the owner and the lord here.
+                if !extra.is_empty() {
                     if let Some(index) = body.find('\n') {
-                        body.insert_str(index + 1, &format!("  {line}\n"));
+                        body.insert_str(index + 1, &extra);
                     }
                 }
             }
@@ -133,9 +149,11 @@ pub fn verify_with(
         let mut found = vec![false; expected.len()];
         summary.records += expected.len();
         for (_start, mut record) in split_records(&text) {
-            // A parties record carries the project-only `owner` field; it is not part of the atlas value.
+            // A parties record carries the project-only `owner` and `lord` fields; they are not part
+            // of the atlas value.
             if schema.table == "parties" {
                 take_owner(&mut record);
+                take_lord(&mut record);
             }
             // `name_<code>` lines are project-only too (T-113); they are not part of the atlas value.
             take_names(&mut record, schema);
@@ -249,6 +267,44 @@ pub(crate) fn take_owner(record: &mut String) -> Option<(String, usize)> {
         *record = kept;
     }
     taken
+}
+
+/// Takes the project-only `lord` field out of a parties record, blanking its line so the record's
+/// own line numbers still point at the file. `None` when the record has no lord line; the value is
+/// the lord's game name or kit reference, or `auto` (the game assigns one).
+pub(crate) fn take_lord(record: &mut String) -> Option<(String, usize)> {
+    let mut taken: Option<(String, usize)> = None;
+    let mut kept = String::with_capacity(record.len());
+    let mut depth = 0i32;
+    let mut in_string = false;
+    for (line_number, line) in record.split_inclusive('\n').enumerate() {
+        let trimmed = line.trim_start();
+        if taken.is_none() && depth == 1 && trimmed.starts_with("lord ") {
+            let value = trimmed["lord ".len()..].split_whitespace().next().unwrap_or("").to_owned();
+            taken = Some((value, line_number));
+            kept.push('\n');
+        } else {
+            kept.push_str(line);
+        }
+        scan_braces(line, &mut depth, &mut in_string);
+    }
+    if taken.is_some() {
+        *record = kept;
+    }
+    taken
+}
+
+/// One project-only `lord` line (T-116): the lord who holds a center at game start.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LordLine {
+    /// Full party id (`p_town_6`).
+    pub party: String,
+    /// Full troop id (`trp_kingdom_1_lord`); `None` for `lord auto`.
+    pub troop: Option<String>,
+    /// The project file the line sits in, for an error message.
+    pub file: String,
+    /// The 1-based line in that file.
+    pub line: usize,
 }
 
 /// One project-only `name_<code> "…"` line (T-113): the record's text in one language.
@@ -406,6 +462,36 @@ fn owners(atlas: &Atlas) -> HashMap<String, String> {
     owners
 }
 
+/// party id -> lord troop id, from the `game_start` script and the scripts it calls directly (one
+/// level). The Native call is `call_script script_give_center_to_lord <party> <troop> 0`.
+fn lords(atlas: &Atlas) -> HashMap<String, String> {
+    let mut lords = HashMap::new();
+    let Some(code) = atlas.op("call_script").map(|op| op.code) else {
+        return lords;
+    };
+    let mut called: Vec<String> = Vec::new();
+    for entry in atlas.entries_named("scripts", GAME_START) {
+        let Some(ops) = script_body(entry) else { continue };
+        for (target, party, troop) in calls(&ops, code) {
+            if target == LORD_SCRIPT {
+                lord_pair(party, troop, &mut lords);
+            } else if target.starts_with("script_") && !called.iter().any(|seen| seen == target) {
+                called.push(target.to_owned());
+            }
+        }
+    }
+    for id in called {
+        let Some(("scripts", entry)) = atlas.entry_by_id(&id) else { continue };
+        let Some(ops) = script_body(entry) else { continue };
+        for (target, party, troop) in calls(&ops, code) {
+            if target == LORD_SCRIPT {
+                lord_pair(party, troop, &mut lords);
+            }
+        }
+    }
+    lords
+}
+
 /// The operation block of a scripts entry (`module_scripts.py:22`: name, body).
 fn script_body(entry: &Entry) -> Option<Vec<crate::RawOp>> {
     crate::parse_ops(crate::items(&entry.value)?.get(1)?)
@@ -429,6 +515,13 @@ fn owner_pair(party: &str, faction: &str, owners: &mut HashMap<String, String>) 
     }
 }
 
+/// Adds `party -> lord` when the two operands are literal kit references.
+fn lord_pair(party: &str, troop: &str, lords: &mut HashMap<String, String>) {
+    if party.starts_with("p_") && troop.starts_with("trp_") {
+        lords.insert(party.to_owned(), troop.to_owned());
+    }
+}
+
 /// `owner <faction>  // who gets it at game start (game_start script); change it here`: the
 /// project's game name for the faction (`swadia`) when it has one, the kit id (`fac_kingdom_1`)
 /// otherwise.
@@ -436,6 +529,27 @@ fn owner_line(atlas: &Atlas, owners: &HashMap<String, String>, entry: &Entry) ->
     let faction = owners.get(entry.id.as_deref()?)?;
     let owner = atlas.game_name(faction).unwrap_or(faction);
     Some(format!("owner {owner}  // who gets it at game start (game_start script); change it here"))
+}
+
+/// `lord <game name>  // …` for a center: the lord the `game_start` script gives it to, or `auto`
+/// (the game assigns one of the owner's lords).
+fn lord_line(atlas: &Atlas, lords: &HashMap<String, String>, entry: &Entry) -> String {
+    const COMMENT: &str = "  // who holds it at game start; auto = the game picks one";
+    match entry.id.as_deref().and_then(|id| lords.get(id)) {
+        Some(troop) => {
+            let lord = atlas.game_name(troop).unwrap_or(troop);
+            format!("lord {lord}{COMMENT}")
+        }
+        None => format!("lord auto{COMMENT}"),
+    }
+}
+
+/// True for the party sub-folders that hold centers (`parties/towns/…`, `parties/castles/…`,
+/// `parties/villages/…`).
+fn is_center(relative: &str) -> bool {
+    ["parties/towns/", "parties/castles/", "parties/villages/"]
+        .iter()
+        .any(|folder| relative.starts_with(folder))
 }
 
 /// One `owner` line the build applied to a `game_start` give-center call.
@@ -532,6 +646,250 @@ pub fn apply_owners(
         }
     }
     Ok(changes)
+}
+
+/// Rewrites the `game_start` `script_give_center_to_lord` calls from the project's `lord` lines and
+/// each center's owner: a named lord rewrites (or, for a center without one, adds) the call, and
+/// `auto` removes it so the game assigns one. A project that still names the old lord after the
+/// owner changed to another faction is treated as `auto` and gets a Turkish notice; any other
+/// chosen lord must belong to the owner's faction. Those notices are returned for the build to
+/// print; a bad lord line is an error.
+pub fn apply_lords(
+    atlas: &Atlas,
+    records: &mut BTreeMap<String, Vec<Json>>,
+    center_owners: &BTreeMap<String, String>,
+    wanted: &[LordLine],
+) -> Result<Vec<String>, Vec<String>> {
+    if wanted.is_empty() {
+        return Ok(Vec::new());
+    }
+    let Some(code) = atlas.op("call_script").map(|op| op.code) else {
+        return Ok(Vec::new());
+    };
+    let original_lords = lords(atlas);
+    let original_owners = owners(atlas);
+    // (record, statement, party, troop) of every give-center-to-lord call, in `game_start` and in
+    // the scripts it calls directly: the same scan the lord lines come from.
+    let mut calls: Vec<(usize, usize, String, String)> = Vec::new();
+    let game_start: Option<usize>;
+    {
+        let Some(scripts) = records.get("scripts") else {
+            return Ok(Vec::new());
+        };
+        let starts: Vec<usize> = (0..scripts.len())
+            .filter(|&index| {
+                crate::items(&scripts[index]).and_then(|items| items.first()).and_then(Json::as_str)
+                    == Some(GAME_START)
+            })
+            .collect();
+        game_start = starts.first().copied();
+        let mut called: Vec<usize> = Vec::new();
+        for &index in &starts {
+            for (statement, target, first, second) in script_calls(&scripts[index], code) {
+                if target == LORD_SCRIPT {
+                    calls.push((index, statement, first, second));
+                } else if target.starts_with("script_") {
+                    if let Some(("scripts", entry)) = atlas.entry_by_id(&target) {
+                        if !called.contains(&entry.index) {
+                            called.push(entry.index);
+                        }
+                    }
+                }
+            }
+        }
+        for index in called {
+            let Some(value) = scripts.get(index) else { continue };
+            for (statement, target, first, second) in script_calls(value, code) {
+                if target == LORD_SCRIPT {
+                    calls.push((index, statement, first, second));
+                }
+            }
+        }
+    }
+
+    let mut remove: Vec<(usize, usize)> = Vec::new();
+    let mut add: Vec<(String, String)> = Vec::new();
+    let mut notices = Vec::new();
+    let mut errors = Vec::new();
+    for line in wanted {
+        let Some(want) = line.troop.as_deref() else {
+            // `lord auto`: the game picks one, so the explicit call goes.
+            remove.extend(calls.iter().filter(|call| call.2 == line.party).map(|call| (call.0, call.1)));
+            continue;
+        };
+        let Some(owner) = center_owners.get(&line.party) else {
+            // Without an owner line there is no faction to check the lord against.
+            write_lord(&mut calls, records, line, want, &mut add);
+            continue;
+        };
+        let Some(faction) = troop_faction(atlas, want) else {
+            write_lord(&mut calls, records, line, want, &mut add);
+            continue;
+        };
+        if &faction != owner {
+            let still_old_lord = original_lords.get(&line.party).is_some_and(|old| old == want);
+            if still_old_lord {
+                // The project did not choose this lord. A changed owner makes it foreign: the game
+                // assigns one instead; an unchanged owner keeps the call exactly as it was.
+                if original_owners.get(&line.party) != Some(owner) {
+                    remove.extend(calls.iter().filter(|call| call.2 == line.party).map(|call| (call.0, call.1)));
+                    notices.push(foreign_lord_notice(atlas, line, want, owner));
+                }
+            } else {
+                errors.push(foreign_lord_error(atlas, line, want, owner));
+            }
+            continue;
+        }
+        write_lord(&mut calls, records, line, want, &mut add);
+    }
+    if !errors.is_empty() {
+        return Err(errors);
+    }
+
+    remove.sort_unstable();
+    remove.dedup();
+    let scripts = records.get_mut("scripts").expect("present when calls were found");
+    for &(index, statement) in remove.iter().rev() {
+        if let Some(statements) = script_statements_mut(&mut scripts[index]) {
+            if statement < statements.len() {
+                statements.remove(statement);
+            }
+        }
+    }
+    if !add.is_empty() {
+        if let Some(index) = game_start {
+            if let Some(statements) = scripts.get_mut(index).and_then(script_statements_mut) {
+                let at = lord_insertion_point(statements, code);
+                for (offset, (party, troop)) in add.into_iter().enumerate() {
+                    statements.insert(at + offset, json!([code, LORD_SCRIPT, party, troop, 0]));
+                }
+            }
+        }
+    }
+    Ok(notices)
+}
+
+/// Writes one chosen lord: rewrite every existing call for the center, or remember a new call.
+fn write_lord(
+    calls: &[(usize, usize, String, String)],
+    records: &mut BTreeMap<String, Vec<Json>>,
+    line: &LordLine,
+    troop: &str,
+    add: &mut Vec<(String, String)>,
+) {
+    let existing: Vec<(usize, usize)> =
+        calls.iter().filter(|call| call.2 == line.party).map(|call| (call.0, call.1)).collect();
+    if existing.is_empty() {
+        add.push((line.party.clone(), troop.to_owned()));
+    } else {
+        for (script, statement) in existing {
+            rewrite_troop(records, script, statement, troop);
+        }
+    }
+}
+
+/// Puts `troop` in the 4th operand (the lord) of one `call_script` statement.
+fn rewrite_troop(records: &mut BTreeMap<String, Vec<Json>>, script: usize, statement: usize, troop: &str) {
+    if let Some(Json::Array(parts)) = records
+        .get_mut("scripts")
+        .and_then(|scripts| scripts.get_mut(script))
+        .and_then(script_statements_mut)
+        .and_then(|statements| statements.get_mut(statement))
+    {
+        if parts.len() > 3 {
+            parts[3] = Json::String(troop.to_owned());
+        }
+    }
+}
+
+/// Where a new `script_give_center_to_lord` call goes: before `script_assign_lords_to_empty_centers`,
+/// else right after the last lord call, else at the end of the script.
+fn lord_insertion_point(statements: &[Json], code: u64) -> usize {
+    if let Some(index) = statements
+        .iter()
+        .position(|statement| call_target(statement, code) == Some(ASSIGN_LORDS_SCRIPT))
+    {
+        return index;
+    }
+    statements
+        .iter()
+        .rposition(|statement| call_target(statement, code) == Some(LORD_SCRIPT))
+        .map_or(statements.len(), |index| index + 1)
+}
+
+/// The called script of a `call_script` statement, if the statement is one.
+fn call_target(statement: &Json, code: u64) -> Option<&str> {
+    let parts = crate::items(statement)?;
+    if parts.first()?.as_u64()? != code {
+        return None;
+    }
+    parts.get(1)?.as_str()
+}
+
+/// The faction reference of a troop (`module_troops.py:19`, the 7th value). The atlas stores the
+/// faction table index; a string value is already a reference.
+fn troop_faction(atlas: &Atlas, troop: &str) -> Option<String> {
+    let (_, entry) = atlas.entry_by_id(troop)?;
+    let value = crate::items(&entry.value)?.get(6)?;
+    let index = match value {
+        Json::String(text) => text.parse::<usize>().ok(),
+        other => other.as_u64().map(|index| index as usize),
+    };
+    match index {
+        Some(index) => {
+            atlas.tables.get("factions")?.entries.iter().find(|entry| entry.index == index)?.id.clone()
+        }
+        None => value.as_str().map(str::to_owned),
+    }
+}
+
+/// The name a player sees for a record (the 2nd tuple item), else its id.
+fn record_display(atlas: &Atlas, id: &str) -> String {
+    let Some((_, entry)) = atlas.entry_by_id(id) else { return id.to_owned() };
+    let Some(values) = crate::items(&entry.value) else { return id.to_owned() };
+    values.get(1).and_then(Json::as_str).unwrap_or(id).to_owned()
+}
+
+/// The faction name as the message shows it: the game name (`vaegirs`) capitalised, else the kit
+/// reference.
+fn faction_label(atlas: &Atlas, faction: &str) -> String {
+    let name = atlas.game_name(faction).unwrap_or(faction);
+    let mut chars = name.chars();
+    match chars.next() {
+        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+        None => String::new(),
+    }
+}
+
+/// `Vaegirs` -> `Vaegir`, for the "bir Vaegir lordu atayacak" half of the Turkish notice.
+fn faction_person(label: &str) -> &str {
+    label.strip_suffix('s').unwrap_or(label)
+}
+
+/// The Turkish notice for an owner change that leaves the old, now foreign lord in place.
+fn foreign_lord_notice(atlas: &Atlas, line: &LordLine, troop: &str, owner: &str) -> String {
+    let town = record_display(atlas, &line.party);
+    let lord = record_display(atlas, troop);
+    let lord_faction = troop_faction(atlas, troop).map(|faction| faction_label(atlas, &faction)).unwrap_or_default();
+    let owner_label = faction_label(atlas, owner);
+    format!(
+        "{town}: lordu {lord} ({lord_faction}) yeni sahibe ({owner_label}) uymuyor; oyun bir {} lordu \
+         atayacak. Kendin seçmek için: lord <ad>",
+        faction_person(&owner_label)
+    )
+}
+
+/// The Turkish error for a chosen lord who does not belong to the center's owner.
+fn foreign_lord_error(atlas: &Atlas, line: &LordLine, troop: &str, owner: &str) -> String {
+    let town = record_display(atlas, &line.party);
+    let lord = record_display(atlas, troop);
+    let lord_faction = troop_faction(atlas, troop).map(|faction| faction_label(atlas, &faction)).unwrap_or_default();
+    let owner_label = faction_label(atlas, owner);
+    format!(
+        "{}: line {}: {town}: lordu {lord} ({lord_faction}) sahibine ({owner_label}) uymuyor; lord \
+         satırını düzelt",
+        line.file, line.line
+    )
 }
 
 /// Every three-operand `call_script` in a script value: `(statement index, target, first, second)`.

@@ -718,11 +718,29 @@ pub fn load_records_with_owners_and_names(
     (BTreeMap<String, Vec<Json>>, BTreeMap<String, String>, Vec<uw_decomp::project::LanguageName>),
     LoadFailure,
 > {
+    load_records_with_owners_names_and_lords(dir, atlas, schemas)
+        .map(|(records, owners, names, _lords)| (records, owners, names))
+}
+
+/// [`load_records_with_owners_and_names`], plus the project's `lord` lines (T-116).
+pub fn load_records_with_owners_names_and_lords(
+    dir: &Path,
+    atlas: &uw_atlas::Atlas,
+    schemas: &[Schema],
+) -> Result<
+    (
+        BTreeMap<String, Vec<Json>>,
+        BTreeMap<String, String>,
+        Vec<uw_decomp::project::LanguageName>,
+        Vec<uw_decomp::project::LordLine>,
+    ),
+    LoadFailure,
+> {
     let words = word_sources(dir).map_err(LoadFailure::Words)?;
     let mut compile =
         |text: &str| crate::roundtrip::compile_with(atlas, text, &words).map(|ops| records::ops_to_json(&ops));
     let mut parse = |schema: &Schema, text: &str| records::parse_with_blocks(atlas, schema, text, &mut compile);
-    uw_decomp::project::load::load_with_owners_and_names(atlas, schemas, dir, &mut parse)
+    uw_decomp::project::load::load_with_owners_names_and_lords(atlas, schemas, dir, &mut parse)
         .map_err(LoadFailure::Records)
 }
 
@@ -733,7 +751,7 @@ fn build_project(dir: &Path, args: &Args) -> ExitCode {
         Ok(found) => found,
         Err(message) => return crate::fail(&message),
     };
-    let (mut records, owners, names) = match load_records_with_owners_and_names(dir, &atlas, &schemas) {
+    let (mut records, owners, names, lords) = match load_records_with_owners_names_and_lords(dir, &atlas, &schemas) {
         Ok(records) => records,
         Err(LoadFailure::Words(message)) => return crate::fail(&message),
         Err(LoadFailure::Records(errors)) => {
@@ -761,6 +779,22 @@ fn build_project(dir: &Path, args: &Args) -> ExitCode {
             ));
         }
     };
+    let notices = match uw_decomp::project::apply_lords(&atlas, &mut records, &owners, &lords) {
+        Ok(notices) => notices,
+        Err(errors) => {
+            for line in &errors {
+                eprintln!("  {line}");
+            }
+            return crate::fail(&format!(
+                "{} lord sorunu in {}; hiçbir şey derlenmedi",
+                errors.len(),
+                dir.display()
+            ));
+        }
+    };
+    for notice in &notices {
+        eprintln!("{notice}");
+    }
     if !changes.is_empty() {
         let towns = town_names(&atlas, &schemas, &records);
         for change in &changes {
