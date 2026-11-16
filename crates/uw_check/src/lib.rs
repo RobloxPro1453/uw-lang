@@ -175,6 +175,46 @@ fn origin_in(file: &SourceFile, span: Span) -> String {
     format!("{}:{line}", file.name)
 }
 
+/// Every `fn` of `sources` by name, and the errors its definitions make: a fn may not take the
+/// name of a Native operation, and one name is defined once (T-078).
+fn collect_fns<'a>(atlas: &Atlas, sources: &'a [Source]) -> (BTreeMap<String, FnDef<'a>>, Vec<Error>) {
+    let mut fns: BTreeMap<String, FnDef> = BTreeMap::new();
+    let mut errors = Vec::new();
+    for (index, source) in sources.iter().enumerate() {
+        for item in &source.tree.items {
+            let Item::Fn { name, params, body, .. } = item else { continue };
+            if atlas.op(&name.text).is_some() {
+                errors.push(Error {
+                    file: index,
+                    diag: diag(
+                        E0214_FN_OP_NAME,
+                        format!("`fn {}` has the name of a Native operation", name.text),
+                        name.span,
+                        Some(format!("its calls would be the Native operation; name it e.g. `fn uw_{}`", name.text)),
+                    ),
+                });
+                continue;
+            }
+            if let Some(first) = fns.get(&name.text) {
+                let existing = first.origin.clone();
+                errors.push(Error {
+                    file: index,
+                    diag: diag(
+                        E0202_DUPLICATE,
+                        format!("`fn {}` is already defined at {existing}", name.text),
+                        name.span,
+                        Some("a fn name is used once in a mod; rename one of them".into()),
+                    ),
+                });
+                continue;
+            }
+            let origin = origin_in(&source.file, name.span);
+            fns.insert(name.text.clone(), FnDef { file: index, origin, params, body });
+        }
+    }
+    (fns, errors)
+}
+
 /// A `save` of the mod (T-085): one named `$global` that lives in the save game, with the value
 /// written once at game start.
 struct SaveDef {
@@ -1411,39 +1451,8 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
 
     // Every `fn` of the mod is visible from every file, so the table comes first; a call is
     // replaced by the body when the block that holds it is checked (`Ctx::inline`).
-    let mut fns: BTreeMap<String, FnDef> = BTreeMap::new();
-    for (index, source) in sources.iter().enumerate() {
-        for item in &source.tree.items {
-            let Item::Fn { name, params, body, .. } = item else { continue };
-            if atlas.op(&name.text).is_some() {
-                errors.push(Error {
-                    file: index,
-                    diag: diag(
-                        E0214_FN_OP_NAME,
-                        format!("`fn {}` has the name of a Native operation", name.text),
-                        name.span,
-                        Some(format!("its calls would be the Native operation; name it e.g. `fn uw_{}`", name.text)),
-                    ),
-                });
-                continue;
-            }
-            if let Some(first) = fns.get(&name.text) {
-                let existing = first.origin.clone();
-                errors.push(Error {
-                    file: index,
-                    diag: diag(
-                        E0202_DUPLICATE,
-                        format!("`fn {}` is already defined at {existing}", name.text),
-                        name.span,
-                        Some("a fn name is used once in a mod; rename one of them".into()),
-                    ),
-                });
-                continue;
-            }
-            let origin = origin_in(&source.file, name.span);
-            fns.insert(name.text.clone(), FnDef { file: index, origin, params, body });
-        }
-    }
+    let (fns, fn_errors) = collect_fns(atlas, sources);
+    errors.extend(fn_errors);
 
     // A `save` names one `$global` of the whole mod too, so its names come first as well: a bare
     // name means `$<name>` in every file and its start value is written once, at game start
@@ -1918,7 +1927,20 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
 /// and is kept as written, the header signature count is not enforced (Native is the reference) and
 /// non-ASCII text is allowed. Names still resolve in the atlas.
 pub fn check_block(atlas: &Atlas, file: &SourceFile, stmts: &[Stmt]) -> Result<Vec<Op>, Vec<Diagnostic>> {
-    let fns = BTreeMap::new();
+    check_block_with(atlas, file, stmts, &[])
+}
+
+/// [`check_block`] with the `fn`s of `sources` visible: a block of a project may call a word from
+/// `lib/*.uw` or its own `fns/*.uw`, and an object word is opened by the fn it names (T-087). The
+/// fns are collected by the same rules as [`check`]. Without sources this is exactly
+/// [`check_block`].
+pub fn check_block_with(
+    atlas: &Atlas,
+    file: &SourceFile,
+    stmts: &[Stmt],
+    sources: &[Source],
+) -> Result<Vec<Op>, Vec<Diagnostic>> {
+    let (fns, mut errors) = collect_fns(atlas, sources);
     let mut ctx = Ctx {
         atlas,
         errors: Vec::new(),
@@ -1927,17 +1949,18 @@ pub fn check_block(atlas: &Atlas, file: &SourceFile, stmts: &[Stmt]) -> Result<V
         temp: 0,
         native: true,
         fns: &fns,
-        sources: &[],
+        sources,
         stack: Vec::new(),
         rename: 0,
         temps: Vec::new(),
         saves: &[],
     };
     let ops = ctx.ops(stmts);
-    if ctx.errors.is_empty() {
+    errors.extend(ctx.errors);
+    if errors.is_empty() {
         Ok(ops)
     } else {
-        Err(ctx.errors.into_iter().map(|e| e.diag).collect())
+        Err(errors.into_iter().map(|e| e.diag).collect())
     }
 }
 
@@ -2885,6 +2908,25 @@ mod tests {
         // The `get` fills the temporary before the comparison reads it.
         assert_eq!(ops[0].args, [Value::Ref(":_uw_get0".into()), Value::Ref("$g_gold".into())]);
         assert_eq!(ops[2].args, [Value::Ref(":_uw_get0".into()), Value::Int(100)]);
+    }
+
+    #[test]
+    fn check_block_with_opens_object_words_from_the_lib() {
+        // A project's record block is checked on its own, so the lib's fns come with it (T-087):
+        // the `get` of `player.gold` in an `if` condition fills the temporary before the comparison.
+        let lib = SourceFile::new("lib/player.uw", "fn player.gold.get(:out) { assign(:out, $g_gold) }");
+        let tree = uw_syntax::parse(&lib.text).expect("parses");
+        let sources = [Source { file: lib, tree }];
+        let file = SourceFile::new("block.uw", "if player.gold >= 100 { change_screen_map() }");
+        let stmts = uw_syntax::parse_block(&file.text).expect("parses");
+        let ops = check_block_with(&atlas(), &file, &stmts, &sources).unwrap();
+        let names: Vec<&str> = ops.iter().map(|o| o.name.as_str()).collect();
+        assert_eq!(names, ["assign", "try_begin", "ge", "change_screen_map", "try_end"], "{ops:?}");
+        assert_eq!(ops[0].args, [Value::Ref(":_uw_get0".into()), Value::Ref("$g_gold".into())]);
+        assert_eq!(ops[2].args, [Value::Ref(":_uw_get0".into()), Value::Int(100)]);
+        // Without the lib the word has no `get` fn: E0216, as `check_block` says.
+        let errs = check_block(&atlas(), &file, &stmts).unwrap_err();
+        assert!(errs[0].render(&file).contains("needs `fn player.gold.get`"), "{errs:?}");
     }
 
     #[test]
