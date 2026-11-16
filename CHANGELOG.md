@@ -5,6 +5,9 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
+- Var olan askerden yeni asker: `troop elite_crossbowman like swadian_crossbowman { name "Elite Crossbowman"  level 22  agility 18 }`; listenin sonuna eklenir, kodda `elite_crossbowman` diye kullanılır (gerçek kitle derlendi: çeviklik 18, seviye 22).
+- `in menu camp { option "Party report" { … } }`: seçeneğe kimlik vermek gerekmez (metinden `uw_party_report` üretilir).
+- Kılavuz: `every`, `save`, çeviriler, `uw explain praven`.
 - `every day { }`, `every 6 hours { }`, `every hour { }`: düzenli çalışan kod (Native'in zamanlı tetiklerine eklenir).
 - Çeviriler adla birlikte: `uw create` Native'in `languages/` klasörünü projeye kopyalar; adını değiştirdiğin kaydın eski çevirisi kurulan modda çıkarılır (artık "Praven Şehri" kalmaz) ve hangi satırın çıktığı yazılır. Proje dosyaların değişmez.
 - `uw explain praven`, `uw browse`, `uw graph` oyun adlarını tanır; sonuçta `p_town_6 (praven)` yazar.

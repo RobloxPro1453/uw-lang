@@ -2287,7 +2287,12 @@ pub fn check_with_schemas(
                     }
                     // `<other>` is a Native troop, written as a game name (`swadian_crossbowman`)
                     // or as its kit reference (`trp_swadian_crossbowman`); nothing is guessed.
-                    let Some((table, copied)) = atlas.resolve_ref(&like.text) else {
+                    // A troop's bare kit name (`swadian_crossbowman`) works too: its game name may be
+                    // left out of names.uw when two records share it.
+                    let found = atlas
+                        .resolve_ref(&like.text)
+                        .or_else(|| atlas.resolve_ref(&format!("trp_{}", like.text)));
+                    let Some((table, copied)) = found else {
                         let names: Vec<String> = atlas
                             .tables
                             .get("troops")
@@ -3499,6 +3504,20 @@ mod tests {
             value,
             "[\"elite\", \"Swadian Crossbowman\", \"Swadian Crossbowmen\", 1041, 0, 0, 15, [], 107374184469, 153, 0, \"face_a\", \"face_b\"]"
         );
+    }
+
+    #[test]
+    fn a_troop_like_takes_the_bare_kit_name_when_names_uw_left_it_out() {
+        // Real Native: `swadian_crossbowman` can be missing from names.uw (two records share the
+        // display name), and `like swadian_crossbowman` still has to find trp_swadian_crossbowman.
+        let mut atlas = troop_atlas();
+        atlas.set_game_names(&[]);
+        let text = "troop elite like swadian_crossbowman { }";
+        let file = SourceFile::new("start.uw", text);
+        let tree = uw_syntax::parse(text).unwrap();
+        let checked = check_with_schemas(&atlas, &[Source { file, tree }], "folder", &[troops_schema()])
+            .unwrap_or_else(|_| panic!("the bare kit name is accepted"));
+        assert!(matches!(checked.patches[0].action, Action::NewTroop { .. }));
     }
 
     #[test]
