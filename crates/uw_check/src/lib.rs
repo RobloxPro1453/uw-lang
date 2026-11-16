@@ -34,6 +34,9 @@ pub const E0212_ASSIGN_TARGET: &str = "E0212";
 pub const E0213_FN_ARITY: &str = "E0213";
 pub const E0214_FN_OP_NAME: &str = "E0214";
 pub const E0215_FN_CYCLE: &str = "E0215";
+/// A dotted object word (`player.gold`) the fns do not cover: the fn its form calls is missing, or
+/// the form has no verb (T-082).
+pub const E0216_OBJECT_WORD: &str = "E0216";
 
 /// How deep `fn` calls may nest before the body is expanded, so a runaway chain stops.
 const FN_DEPTH: usize = 16;
@@ -188,6 +191,9 @@ struct Ctx<'a> {
     stack: Vec<String>,
     /// Next `__fnN` suffix, so two calls never share the locals of one body.
     rename: usize,
+    /// The `:_…` temporaries lowering made itself, so [`Ctx::local`] accepts them and no other
+    /// `:_` name (an object word's `get` fills one through a fn parameter, T-082).
+    temps: Vec<String>,
 }
 
 impl Ctx<'_> {
@@ -231,9 +237,20 @@ impl Ctx<'_> {
                     }
                 }
                 Stmt::Assign { target, op, value, span } => {
+                    // `player.gold += 1000` is a call to the fn the word names (T-082).
+                    if let Arg::Name(name) = target {
+                        if is_dotted(name) {
+                            self.dotted_assign(name, *op, value, *span, &mut out);
+                            continue;
+                        }
+                    }
+                    // A dotted word in the value is read into a temporary before this statement.
+                    let mut pre = Vec::new();
+                    let value = self.hoisted_value(value, &mut pre);
                     let checked_target = self.assign_target(target);
-                    let checked_value = self.expr(value);
+                    let checked_value = self.expr(&value);
                     if let (Some(target), Some(value)) = (checked_target, checked_value) {
+                        out.extend(pre);
                         out.push(uw_lower::Stmt::Assign {
                             target,
                             op: lower_assign_op(*op),
@@ -243,10 +260,11 @@ impl Ctx<'_> {
                     }
                 }
                 Stmt::If { arms, otherwise, span } => {
+                    let mut pre = Vec::new();
                     let mut checked_arms = Vec::new();
                     let mut ok = true;
                     for (cond, body) in arms {
-                        let checked_cond = self.cond(cond);
+                        let checked_cond = self.cond_with_reads(cond, &mut pre);
                         let checked_body = self.stmts(&body.stmts);
                         match checked_cond {
                             Some(cond) => checked_arms.push((cond, checked_body)),
@@ -255,11 +273,15 @@ impl Ctx<'_> {
                     }
                     let otherwise = otherwise.as_ref().map(|body| self.stmts(&body.stmts));
                     if ok {
+                        // The reads of a dotted word come before the condition's operations.
+                        out.extend(pre);
                         out.push(uw_lower::Stmt::If { arms: checked_arms, otherwise, origin: self.origin(*span) });
                     }
                 }
                 Stmt::Require { cond, span } => {
-                    if let Some(cond) = self.cond(cond) {
+                    let mut pre = Vec::new();
+                    if let Some(cond) = self.cond_with_reads(cond, &mut pre) {
+                        out.extend(pre);
                         out.push(uw_lower::Stmt::Require { cond, origin: self.origin(*span) });
                     }
                 }
@@ -363,9 +385,10 @@ impl Ctx<'_> {
         }
     }
 
-    /// A `$global` / `:local`; `:_` names are reserved for lowering.
+    /// A `$global` / `:local`; `:_` names are reserved for lowering, so only the temporaries
+    /// lowering made itself (an object word's `get`, T-082) get through.
     fn local(&mut self, ident: &Ident) -> Option<Value> {
-        if ident.text.starts_with(":_") {
+        if ident.text.starts_with(":_") && !self.temps.iter().any(|temp| temp == &ident.text) {
             self.error(diag(
                 E0210_LOCAL_TEMP,
                 format!("'{}' starts with `:_`, which lowering uses for temporaries", ident.text),
@@ -375,6 +398,137 @@ impl Ctx<'_> {
             None
         } else {
             Some(Value::Ref(ident.text.clone()))
+        }
+    }
+
+    // ----------------------------------------------------------- object words (T-082)
+
+    /// `x.y = e`, `x.y += e`, `x.y -= e`: the fn the word names (`.set`, `.add`, `.remove`) is
+    /// called with the value, after the value's own reads.
+    fn dotted_assign(
+        &mut self,
+        name: &Ident,
+        op: uw_syntax::AssignOp,
+        value: &Expr,
+        span: Span,
+        out: &mut Vec<uw_lower::Stmt>,
+    ) {
+        let verb = match op {
+            uw_syntax::AssignOp::Set => "set",
+            uw_syntax::AssignOp::Add => "add",
+            uw_syntax::AssignOp::Sub => "remove",
+            // `*=` `/=` `%=` have no verb yet: naming one would be a guess (T-082).
+            uw_syntax::AssignOp::Mul | uw_syntax::AssignOp::Div | uw_syntax::AssignOp::Mod => {
+                self.error(diag(
+                    E0216_OBJECT_WORD,
+                    format!("'{}' has no `{}` form", name.text, assign_op_sign(op)),
+                    span,
+                    Some("a dotted word takes `=`, `+=` and `-=`".into()),
+                ));
+                return;
+            }
+        };
+        let mut pre = Vec::new();
+        let value = self.hoisted_value(value, &mut pre);
+        out.extend(pre);
+        // A fn takes one value, so an expression becomes a temporary of its own first.
+        let arg = match value {
+            Expr::Value(arg) => arg,
+            other => {
+                let Some(value) = self.expr(&other) else { return };
+                let temp = self.object_temp("val", span);
+                out.push(uw_lower::Stmt::Assign {
+                    target: Value::Ref(temp.text.clone()),
+                    op: uw_lower::AssignOp::Set,
+                    value,
+                    origin: self.origin(span),
+                });
+                Arg::Local(temp)
+            }
+        };
+        self.object_call(name, verb, vec![arg], out);
+    }
+
+    /// `x.y` used as a value: `x.y.get(:tmp)` runs before the statement and `:tmp` holds the value.
+    fn dotted_read(&mut self, name: &Ident, out: &mut Vec<uw_lower::Stmt>) -> Arg {
+        let temp = self.object_temp("get", name.span);
+        self.object_call(name, "get", vec![Arg::Local(temp.clone())], out);
+        Arg::Local(temp)
+    }
+
+    /// The body of `x.y.<verb>(…)` inlined where the word stands; a fn that is not defined is one
+    /// error naming it.
+    fn object_call(&mut self, word: &Ident, verb: &str, args: Vec<Arg>, out: &mut Vec<uw_lower::Stmt>) {
+        let name = format!("{}.{verb}", word.text);
+        if !self.fns.contains_key(&name) {
+            self.object_fn_error(word, verb);
+            return;
+        }
+        let call = Call { op: Ident { text: name, span: word.span }, args, span: word.span };
+        let body = self.inline(&call);
+        out.extend(body);
+    }
+
+    /// The error for a dotted word whose fn is missing: it names the fn the word would need.
+    fn object_fn_error(&mut self, word: &Ident, verb: &str) {
+        let name = format!("{}.{verb}", word.text);
+        let params = if verb == "get" { ":out" } else { ":value" };
+        self.error(diag(
+            E0216_OBJECT_WORD,
+            format!("'{}' needs `fn {name}`", word.text),
+            word.span,
+            Some(format!("write `fn {name}({params}) {{ … }}` to give the word its {verb} form")),
+        ));
+    }
+
+    /// A temporary the object-word form fills before the statement that reads it (`:_uw_get0`).
+    /// The word between `:_uw` and the number keeps it apart from the `:_uwN` temporaries
+    /// `uw_lower` numbers from 0 in every block.
+    fn object_temp(&mut self, kind: &str, span: Span) -> Ident {
+        let text = format!("{}_{kind}{}", uw_lower::TEMP_PREFIX, self.temp);
+        self.temp += 1;
+        self.temps.push(text.clone());
+        Ident { text, span }
+    }
+
+    /// The expression with every dotted word read into a temporary first; those `get` calls go into
+    /// `pre`, in the order the words are read.
+    fn hoisted_value(&mut self, expr: &Expr, pre: &mut Vec<uw_lower::Stmt>) -> Expr {
+        match expr {
+            Expr::Value(Arg::Name(name)) if is_dotted(name) => {
+                Expr::Value(self.dotted_read(name, pre))
+            }
+            Expr::Value(arg) => Expr::Value(arg.clone()),
+            Expr::Neg(inner, span) => Expr::Neg(Box::new(self.hoisted_value(inner, pre)), *span),
+            Expr::Bin { op, left, right, span } => Expr::Bin {
+                op: *op,
+                left: Box::new(self.hoisted_value(left, pre)),
+                right: Box::new(self.hoisted_value(right, pre)),
+                span: *span,
+            },
+        }
+    }
+
+    /// A checked `if`/`require` condition whose dotted words are read into `pre` first, so they are
+    /// filled before the condition's own operations.
+    fn cond_with_reads(&mut self, cond: &Cond, pre: &mut Vec<uw_lower::Stmt>) -> Option<uw_lower::Cond> {
+        let cond = self.hoisted_cond(cond, pre);
+        self.cond(&cond)
+    }
+
+    fn hoisted_cond(&mut self, cond: &Cond, pre: &mut Vec<uw_lower::Stmt>) -> Cond {
+        match cond {
+            Cond::Cmp { op, left, right, span } => Cond::Cmp {
+                op: *op,
+                left: self.hoisted_value(left, pre),
+                right: self.hoisted_value(right, pre),
+                span: *span,
+            },
+            // The values of a condition operation are not expressions (T-082 reads only those).
+            Cond::Call(call) => Cond::Call(call.clone()),
+            Cond::Not(inner, span) => Cond::Not(Box::new(self.hoisted_cond(inner, pre)), *span),
+            Cond::And(parts) => Cond::And(parts.iter().map(|part| self.hoisted_cond(part, pre)).collect()),
+            Cond::Or(parts) => Cond::Or(parts.iter().map(|part| self.hoisted_cond(part, pre)).collect()),
         }
     }
 
@@ -583,6 +737,8 @@ impl Ctx<'_> {
     /// One expression as a value, writing `store_*` operations for its sub-expressions.
     fn expr_value(&mut self, expr: &Expr, out: &mut Vec<Op>) -> Option<Value> {
         match expr {
+            // A dotted word is read before the comparison it takes part in (T-082).
+            Expr::Value(Arg::Name(name)) if is_dotted(name) => Some(self.dotted_read_ops(name, out)),
             Expr::Value(arg) => self.value(arg),
             Expr::Neg(inner, span) => {
                 if let Expr::Value(Arg::Int(n, _)) = &**inner {
@@ -611,6 +767,28 @@ impl Ctx<'_> {
         let name = format!("{}{}", uw_lower::TEMP_PREFIX, self.temp);
         self.temp += 1;
         Value::Ref(name)
+    }
+
+    /// `x.y` in a `when` condition: `x.y.get(:tmp)` goes into `out` first — before the condition's
+    /// own operations — and `:tmp` is the value read.
+    fn dotted_read_ops(&mut self, name: &Ident, out: &mut Vec<Op>) -> Value {
+        let temp = self.object_temp("get", name.span);
+        let fn_name = format!("{}.get", name.text);
+        if !self.fns.contains_key(&fn_name) {
+            self.object_fn_error(name, "get");
+            return Value::Ref(temp.text);
+        }
+        let call = Call {
+            op: Ident { text: fn_name, span: name.span },
+            args: vec![Arg::Local(temp.clone())],
+            span: name.span,
+        };
+        let body = self.inline(&call);
+        // The get's own temporaries continue this list's numbering, never restarting at 0.
+        let (ops, next) = uw_lower::lower_from(&body, self.temp);
+        out.extend(ops);
+        self.temp = next;
+        Value::Ref(temp.text)
     }
 
     /// The bare option id; `mno_` is the kit's prefix, never the source form.
@@ -936,6 +1114,23 @@ fn lower_assign_op(op: uw_syntax::AssignOp) -> uw_lower::AssignOp {
     }
 }
 
+/// `=` `+=` … as the source spells the operator of an assignment target (T-082).
+fn assign_op_sign(op: uw_syntax::AssignOp) -> &'static str {
+    match op {
+        uw_syntax::AssignOp::Set => "=",
+        uw_syntax::AssignOp::Add => "+=",
+        uw_syntax::AssignOp::Sub => "-=",
+        uw_syntax::AssignOp::Mul => "*=",
+        uw_syntax::AssignOp::Div => "/=",
+        uw_syntax::AssignOp::Mod => "%=",
+    }
+}
+
+/// `player.gold`: a name the parser read across dots, an object word (T-082).
+fn is_dotted(name: &Ident) -> bool {
+    name.text.contains('.')
+}
+
 fn lower_bin_op(op: uw_syntax::BinOp) -> uw_lower::BinOp {
     match op {
         uw_syntax::BinOp::Add => uw_lower::BinOp::Add,
@@ -1199,6 +1394,7 @@ pub fn check(atlas: &Atlas, sources: &[Source], fallback_name: &str) -> Result<C
             sources,
             stack: Vec::new(),
             rename: 0,
+            temps: Vec::new(),
         };
         if let Some(m) = &source.tree.module {
             match &name {
@@ -1599,6 +1795,7 @@ pub fn check_block(atlas: &Atlas, file: &SourceFile, stmts: &[Stmt]) -> Result<V
         sources: &[],
         stack: Vec::new(),
         rename: 0,
+        temps: Vec::new(),
     };
     let ops = ctx.ops(stmts);
     if ctx.errors.is_empty() {
@@ -1797,6 +1994,7 @@ mod tests {
             sources: &[],
             stack: Vec::new(),
             rename: 0,
+            temps: Vec::new(),
         };
         let tree = ctx.stmts(&stmts);
         if ctx.errors.is_empty() {
@@ -2497,5 +2695,76 @@ mod tests {
         text.push_str("on game.start { f0() }");
         let errs = run(&text).unwrap_err();
         assert!(errs[0].contains(&format!("nest more than {FN_DEPTH} deep: f0 -> f1")), "{errs:?}");
+    }
+
+    #[test]
+    fn object_words_name_the_fn_they_need() {
+        let errs = run("on game.start {\n player.gold += 1000\n}").unwrap_err();
+        assert!(errs[0].starts_with("error[E0216]"), "{errs:?}");
+        assert!(errs[0].contains("'player.gold' needs `fn player.gold.add`"), "{errs:?}");
+        assert!(errs[0].contains("write `fn player.gold.add(:value)"), "{errs:?}");
+        let errs = run("on game.start {\n player.gold -= 50\n}").unwrap_err();
+        assert!(errs[0].contains("needs `fn player.gold.remove`"), "{errs:?}");
+        let errs = run("on game.start {\n player.level = 5\n}").unwrap_err();
+        assert!(errs[0].contains("needs `fn player.level.set`"), "{errs:?}");
+        // A word read as a value needs its `get`.
+        let errs = run("on game.start {\n $g_total = player.gold + 1\n}").unwrap_err();
+        assert!(errs[0].contains("needs `fn player.gold.get`"), "{errs:?}");
+        assert!(errs[0].contains("write `fn player.gold.get(:out)"), "{errs:?}");
+        // `*=` has no verb yet: no fn name is guessed for it.
+        let errs = run("on game.start {\n player.gold *= 2\n}").unwrap_err();
+        assert!(errs[0].contains("'player.gold' has no `*=` form"), "{errs:?}");
+    }
+
+    #[test]
+    fn an_object_word_takes_a_computed_value_through_a_temporary() {
+        // A fn takes one value, so `player.gold += $g_bonus * 2` stores the product first. The
+        // temporary is not one of `uw_lower`'s `:_uwN` numbers: both land in the same block.
+        let checked = run(
+            "fn player.gold.add(:amount) { $g_gold += :amount }\n\
+             on game.start {\n player.gold += $g_bonus * 2\n}",
+        )
+        .unwrap();
+        let ops = &checked.patches[0].ops;
+        let names: Vec<&str> = ops.iter().map(|o| o.name.as_str()).collect();
+        assert_eq!(names, ["store_mul", "val_add"], "{ops:?}");
+        assert_eq!(
+            ops[0].args,
+            [Value::Ref(":_uw_val0".into()), Value::Ref("$g_bonus".into()), Value::Int(2)]
+        );
+        assert_eq!(ops[1].args, [Value::Ref("$g_gold".into()), Value::Ref(":_uw_val0".into())]);
+    }
+
+    #[test]
+    fn a_dotted_word_in_an_if_is_read_before_the_comparison() {
+        let checked = run(
+            "fn player.gold.get(:out) { assign(:out, $g_gold) }\n\
+             on game.start {\n if player.gold >= 100 { change_screen_map() }\n}",
+        )
+        .unwrap();
+        let ops = &checked.patches[0].ops;
+        let names: Vec<&str> = ops.iter().map(|o| o.name.as_str()).collect();
+        assert_eq!(names, ["assign", "try_begin", "ge", "change_screen_map", "try_end"], "{ops:?}");
+        // The `get` fills the temporary before the comparison reads it.
+        assert_eq!(ops[0].args, [Value::Ref(":_uw_get0".into()), Value::Ref("$g_gold".into())]);
+        assert_eq!(ops[2].args, [Value::Ref(":_uw_get0".into()), Value::Int(100)]);
+    }
+
+    #[test]
+    fn a_dotted_word_in_a_when_is_read_before_the_condition() {
+        let checked = run(
+            "fn player.level.get(:out) { assign(:out, $g_level) }\n\
+             override menu start_phase_2 {\n\
+             option check_level \"Gold?\" when player.level >= 5 { display_message(\"@ok\") }\n}",
+        )
+        .unwrap();
+        let Action::InsertOption { option, .. } = &checked.patches[0].action else {
+            panic!("{:?}", checked.patches[0].action)
+        };
+        let names: Vec<&str> = option.condition.iter().map(|o| o.name.as_str()).collect();
+        assert_eq!(names, ["assign", "ge"], "{:?}", option.condition);
+        assert_eq!(option.condition[0].args, [Value::Ref(":_uw_get0".into()), Value::Ref("$g_level".into())]);
+        assert_eq!(option.condition[1].args[0], Value::Ref(":_uw_get0".into()));
+        assert_eq!(option.condition[1].args[1], Value::Int(5));
     }
 }

@@ -98,9 +98,15 @@ pub const TEMP_PREFIX: &str = ":_uw";
 /// Lowers one operation block (a menu's enter code, an option's condition or consequence, a hook
 /// body). Temporaries are numbered from 0 per block.
 pub fn lower(body: &[Stmt]) -> Vec<Op> {
-    let mut lower = Lower { out: Vec::new(), next_temp: 0 };
+    lower_from(body, 0).0
+}
+
+/// The same for a block lowered inside another one: temporaries are numbered from `next_temp`, and
+/// the number after the last one is returned, so the two never share a `:local` (T-082).
+pub fn lower_from(body: &[Stmt], next_temp: usize) -> (Vec<Op>, usize) {
+    let mut lower = Lower { out: Vec::new(), next_temp };
     lower.stmts(body);
-    lower.out
+    (lower.out, lower.next_temp)
 }
 
 /// One lowering pass: the operations written so far and the next temporary number.

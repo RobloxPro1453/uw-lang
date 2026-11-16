@@ -579,6 +579,22 @@ impl Parser {
         }
     }
 
+    /// `a.b.c`: a `.` after a name continues it. A dotted word is one name — `fn player.gold.add`,
+    /// the target `player.gold`, the value `player.gold` (T-082).
+    fn dotted_after(&mut self, first: Ident) -> Result<Ident, Diagnostic> {
+        let start = first.span.start;
+        let mut text = first.text;
+        let mut end = first.span.end;
+        while self.peek().tok == Tok::Dot {
+            self.bump();
+            let part = self.ident("a name after '.'")?;
+            text.push('.');
+            text.push_str(&part.text);
+            end = part.span.end;
+        }
+        Ok(Ident { text, span: Span { start, end } })
+    }
+
     /// `neg|eq` / `this_or_next|party_is_active`: only `neg` and `this_or_next` may come before `|`.
     fn check_flag_prefix(&self, op: &Ident) -> Result<(), Diagnostic> {
         let parts: Vec<&str> = op.text.split('|').collect();
@@ -681,6 +697,7 @@ impl Parser {
                     let start = t.span.start;
                     self.bump();
                     let name = self.ident("a name after `fn`, e.g. `fn give_gold(:amount)`")?;
+                    let name = self.dotted_after(name)?;
                     let params = self.params(&name.text)?;
                     let body = self.block(&format!("fn {}", name.text))?;
                     let end = body.span.end;
@@ -1061,6 +1078,8 @@ impl Parser {
         if matches!(op.text.as_str(), "elif" | "else" | "while") {
             return Err(self.keyword_error(op));
         }
+        // `player.gold += 1000`: a dotted word is one target (T-082).
+        let op = self.dotted_after(op)?;
         if matches!(self.peek().tok, Tok::Assign(_)) {
             return self.assign_after(Arg::Name(op));
         }
@@ -1427,8 +1446,9 @@ impl Parser {
                 self.bump();
                 return Ok(CondOperand::Call(self.call_after(op)?));
             }
-            // A bare name is a condition operation without operands (`if game_over {`).
-            if !matches!(after, Some(Tok::Bin(_)) | Some(Tok::Cmp(_))) {
+            // A bare name is a condition operation without operands (`if game_over {`); a dotted
+            // word is a value instead (`if player.gold >= 100`, T-082).
+            if !matches!(after, Some(Tok::Bin(_)) | Some(Tok::Cmp(_)) | Some(Tok::Dot)) {
                 self.bump();
                 return Ok(CondOperand::Call(Call { span: t.span, op, args: Vec::new() }));
             }
@@ -1488,10 +1508,15 @@ impl Parser {
 
     fn primary(&mut self) -> Result<Expr, Diagnostic> {
         let t = self.peek().clone();
+        // `player.gold`: a dotted word is one value (T-082).
+        if let Tok::Ident(text) = &t.tok {
+            self.bump();
+            let name = self.dotted_after(Ident { text: text.clone(), span: t.span })?;
+            return Ok(Expr::Value(Arg::Name(name)));
+        }
         let value = match t.tok {
             Tok::Int(n) => Arg::Int(n, t.span),
             Tok::Str(s) => Arg::Str(s, t.span),
-            Tok::Ident(text) => Arg::Name(Ident { text, span: t.span }),
             Tok::Global(text) => Arg::Global(Ident { text, span: t.span }),
             Tok::Local(text) => Arg::Local(Ident { text, span: t.span }),
             Tok::LParen => {
