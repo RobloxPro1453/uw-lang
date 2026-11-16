@@ -271,16 +271,22 @@ fn field(value: &Json, index: usize) -> Option<&Json> {
 
 /// Replaces `<dest>/languages` with the project's own `languages/`, leaving out the lines of the
 /// renamed records in `drop`. The project's files are only read. Returns one warning per dropped
-/// line. With no project `languages/`, Native's copied folder is removed too (the project owns its
-/// translations).
+/// line. With no project `languages/`, Native's own (`<Modules>/Native/languages`) is used, filtered the same way.
 fn install_languages(project: &Path, dest: &Path, drop: &BTreeSet<String>) -> Result<Vec<String>, String> {
-    let from = project.join("languages");
     let to = dest.join("languages");
+    // The project's own translations; a project made before it had them (or with none) uses Native's,
+    // so the game never loses its language (the owner's test: the whole game turned English).
+    let own = project.join("languages");
+    let native = dest.parent().map(|modules| modules.join("Native").join("languages"));
+    let from = if own.is_dir() {
+        own
+    } else if let Some(native) = native.filter(|path| path.is_dir()) {
+        native
+    } else {
+        return Ok(Vec::new()); // nothing to install from: leave the installed copy as it is
+    };
     if to.exists() {
         std::fs::remove_dir_all(&to).map_err(|e| format!("{}: {e}", to.display()))?;
-    }
-    if !from.is_dir() {
-        return Ok(Vec::new());
     }
     let mut warnings = Vec::new();
     copy_languages_filtered(&from, &to, &from, drop, &mut warnings)?;
@@ -748,5 +754,36 @@ source = "module_troops.py:16"
                 "translation dropped: p_town_6 (languages/tr/parties.csv): renamed in the project"
             ]
         );
+    }
+
+    #[test]
+    fn a_project_without_languages_installs_natives_filtered_never_none() {
+        // The owner's test: an older project had no languages/, the install removed Native's copy and
+        // the whole game turned English. Now Native's own languages are installed, filtered.
+        let root = std::env::temp_dir().join(format!("uw-lang-fallback-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let project = root.join("proje_src");
+        let modules = root.join("Modules");
+        let native_tr = modules.join("Native").join("languages").join("tr");
+        let dest = modules.join("proje");
+        std::fs::create_dir_all(&project).unwrap();
+        std::fs::create_dir_all(&native_tr).unwrap();
+        std::fs::create_dir_all(dest.join("languages").join("tr")).unwrap();
+        std::fs::write(native_tr.join("parties.csv"), "p_town_5|Uxkhal
+p_town_6|Praven Şehri
+").unwrap();
+        std::fs::write(native_tr.join("ui.csv"), "ui_x|Tamam
+").unwrap();
+        let drop = BTreeSet::from(["p_town_6".to_owned()]);
+        let warnings = install_languages(&project, &dest, &drop).unwrap();
+        assert_eq!(warnings.len(), 1, "{warnings:?}");
+        let tr = dest.join("languages").join("tr");
+        assert_eq!(std::fs::read_to_string(tr.join("parties.csv")).unwrap(), "p_town_5|Uxkhal
+");
+        assert_eq!(std::fs::read_to_string(tr.join("ui.csv")).unwrap(), "ui_x|Tamam
+");
+        // Native's own files are only read.
+        assert!(std::fs::read_to_string(native_tr.join("parties.csv")).unwrap().contains("Praven"));
+        let _ = std::fs::remove_dir_all(&root);
     }
 }

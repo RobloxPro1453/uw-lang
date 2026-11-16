@@ -16,3 +16,4 @@
   `game_menus.csv` 1, `troops.csv` 1 satır "Praven"; İngilizcede ör. `str_journey_to_praven`): kaydın
   adını değiştirmek onları değiştirmez.
 - Sonuç: proje kipi çeviri dosyalarını da sahiplenmeli (ROADMAP P3b kalanı: "dil dosyaları").
+- [DENEY] Çeviri deneyi 1 (2026-11-16, sahibi, T-089 sonrası): `name "Adam Siken"` → harita ve yerler menüsü "Adam Siken". Ama oyun tamamen İngilizce açıldı: kurulan modda `languages/` yoktu (proje dil klasörsüz, kurulum Native'in kopyasını sildi). Ad başka metinlerde kaldı: başlangıç menüsü seçenekleri ("join a caravan to Praven…"), "Merchant of Praven". Derleme ~1 dk 20 sn.
