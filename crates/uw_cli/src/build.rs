@@ -255,7 +255,7 @@ pub fn install(out: &Path, modules: &Path, name: &str) -> Result<PathBuf, String
 
 /// Parses `(path, from_lib)` pairs in order. A lib file may hold only `fn` items (T-079): it is
 /// UW's own word library, not a mod.
-fn parse_sources(entries: &[(PathBuf, bool)]) -> Result<Vec<uw_check::Source>, String> {
+pub(crate) fn parse_sources(entries: &[(PathBuf, bool)]) -> Result<Vec<uw_check::Source>, String> {
     let mut sources = Vec::new();
     let mut failed = false;
     for (path, from_lib) in entries {
@@ -285,7 +285,7 @@ fn parse_sources(entries: &[(PathBuf, bool)]) -> Result<Vec<uw_check::Source>, S
 }
 
 /// Every `.uw` file of the nearest `lib` folder (UW's own words), sorted.
-fn lib_files(dir: &Path) -> Result<Vec<PathBuf>, String> {
+pub(crate) fn lib_files(dir: &Path) -> Result<Vec<PathBuf>, String> {
     let Some(lib) = find_lib(dir) else { return Ok(Vec::new()) };
     let mut paths: Vec<PathBuf> = fs::read_dir(&lib)
         .map_err(|e| format!("{}: {e}", lib.display()))?

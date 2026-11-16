@@ -3,6 +3,7 @@
 //! Every record of a table that has a schema (`kit-meta/records/<table>.toml`) is printed and parsed
 //! back the same way.
 
+use std::collections::BTreeMap;
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -15,6 +16,7 @@ use uw_decomp::records::{
 use uw_decomp::roundtrip::{first_difference, run, Outcome, Report};
 use uw_decomp::{Block, RawOp};
 use uw_diag::SourceFile;
+use uw_syntax::{Arg, Block as StmtBlock, Call, Cond, Expr, Ident, Stmt};
 
 /// Where the record schemas live unless `--schemas` says otherwise (this or a parent folder).
 const SCHEMA_REL: &str = "kit-meta/records";
@@ -162,12 +164,249 @@ fn measure_records(atlas: &uw_atlas::Atlas, schemas: &[Schema]) -> Records {
 
 /// UW block text -> operations, the way a mod's block is checked and lowered.
 pub fn compile(atlas: &uw_atlas::Atlas, text: &str) -> Result<Vec<RawOp>, String> {
+    compile_with(atlas, text, &[])
+}
+
+/// [`compile`] with the `fn`s of `sources` visible: a project's record block may call a word from
+/// `lib/*.uw` or its own `fns/*.uw` (T-084). Without sources this is exactly [`compile`].
+pub fn compile_with(
+    atlas: &uw_atlas::Atlas,
+    text: &str,
+    sources: &[uw_check::Source],
+) -> Result<Vec<RawOp>, String> {
     let file = SourceFile::new("block.uw", text);
     let one_line = |s: String| s.lines().find(|l| l.contains("error")).unwrap_or(&s).trim().to_string();
     let stmts = uw_syntax::parse_block(text).map_err(|d| one_line(d.render(&file)))?;
+    let mut expand = Expand { words: collect_words(sources), stack: Vec::new(), rename: 0, error: None };
+    let stmts: Vec<Stmt> = stmts.iter().flat_map(|stmt| expand.statement(stmt)).collect();
+    if let Some(error) = expand.error {
+        return Err(error);
+    }
     let ops = uw_check::check_block(atlas, &file, &stmts)
         .map_err(|ds| ds.first().map(|d| one_line(d.render(&file))).unwrap_or_default())?;
     uw_decomp::to_raw(atlas, &ops)
+}
+
+/// Deepest chain of `fn` calls expanded here, like `uw_check::check`'s own limit.
+const FN_DEPTH: usize = 16;
+
+/// One `fn` a project block may call: its parameters and body.
+struct Word<'a> {
+    params: &'a [Ident],
+    body: &'a StmtBlock,
+}
+
+/// Every `fn` of `sources` by name; the first definition wins (`lib` comes before the project).
+fn collect_words<'a>(sources: &'a [uw_check::Source]) -> BTreeMap<String, Word<'a>> {
+    let mut words = BTreeMap::new();
+    for source in sources {
+        for item in &source.tree.items {
+            if let uw_syntax::Item::Fn { name, params, body, .. } = item {
+                words.entry(name.text.clone()).or_insert(Word { params, body });
+            }
+        }
+    }
+    words
+}
+
+/// Expands `fn` calls in a project's record block before it is checked: `uw_check::check_block`
+/// checks one block alone and cannot see the project's fns (T-084).
+struct Expand<'a> {
+    words: BTreeMap<String, Word<'a>>,
+    stack: Vec<String>,
+    rename: usize,
+    error: Option<String>,
+}
+
+impl Expand<'_> {
+    fn block(&mut self, block: &StmtBlock) -> StmtBlock {
+        StmtBlock {
+            stmts: block.stmts.iter().flat_map(|stmt| self.statement(stmt)).collect(),
+            span: block.span,
+        }
+    }
+
+    fn statement(&mut self, stmt: &Stmt) -> Vec<Stmt> {
+        match stmt {
+            Stmt::Call(call) if self.words.contains_key(&call.op.text) => self.inline(call),
+            Stmt::Assign { target: Arg::Name(name), op, value, span } if is_dotted(name) => {
+                let verb = match op {
+                    uw_syntax::AssignOp::Set => "set",
+                    uw_syntax::AssignOp::Add => "add",
+                    uw_syntax::AssignOp::Sub => "remove",
+                    // `*=` `/=` `%=` have no object word; `check_block` reports them.
+                    _ => return vec![stmt.clone()],
+                };
+                let Expr::Value(arg) = value else { return vec![stmt.clone()] };
+                let call = Call {
+                    op: Ident { text: format!("{}.{verb}", name.text), span: name.span },
+                    args: vec![arg.clone()],
+                    span: *span,
+                };
+                if self.words.contains_key(&call.op.text) {
+                    self.inline(&call)
+                } else {
+                    vec![stmt.clone()]
+                }
+            }
+            Stmt::If { arms, otherwise, span } => vec![Stmt::If {
+                arms: arms.iter().map(|(cond, body)| (cond.clone(), self.block(body))).collect(),
+                otherwise: otherwise.as_ref().map(|body| self.block(body)),
+                span: *span,
+            }],
+            Stmt::Attempt { arms, span } => vec![Stmt::Attempt {
+                arms: arms.iter().map(|body| self.block(body)).collect(),
+                span: *span,
+            }],
+            Stmt::For { var, kind, args, body, span } => vec![Stmt::For {
+                var: var.clone(),
+                kind: kind.clone(),
+                args: args.clone(),
+                body: self.block(body),
+                span: *span,
+            }],
+            _ => vec![stmt.clone()],
+        }
+    }
+
+    fn inline(&mut self, call: &Call) -> Vec<Stmt> {
+        let name = call.op.text.clone();
+        let (params, body) = match self.words.get(&name) {
+            Some(word) => (word.params.iter().map(|param| param.text.clone()).collect::<Vec<_>>(), word.body.clone()),
+            None => return vec![Stmt::Call(call.clone())],
+        };
+        if self.error.is_some() {
+            return Vec::new();
+        }
+        if call.args.len() != params.len() {
+            let help = if params.is_empty() {
+                format!("call it as `{name}()`")
+            } else {
+                format!("call it as `{name}({})`", params.join(", "))
+            };
+            self.error = Some(format!(
+                "`fn {name}` takes {} value(s), got {}; {help}",
+                params.len(),
+                call.args.len()
+            ));
+            return Vec::new();
+        }
+        if self.stack.iter().any(|seen| seen == &name) {
+            let mut chain = self.stack.clone();
+            chain.push(name.clone());
+            chain.push(name);
+            self.error = Some(format!("`fn` never ends: {}", chain.join(" -> ")));
+            return Vec::new();
+        }
+        if self.stack.len() >= FN_DEPTH {
+            let mut chain = self.stack.clone();
+            chain.push(name.clone());
+            self.error = Some(format!("`fn` calls nest more than {FN_DEPTH} deep: {}", chain.join(" -> ")));
+            return Vec::new();
+        }
+        let binds: Vec<(String, Arg)> = params.iter().cloned().zip(call.args.iter().cloned()).collect();
+        let site = self.rename;
+        self.rename += 1;
+        let body = substituted_block(&body, &binds, site);
+        self.stack.push(name);
+        let out = body.stmts.iter().flat_map(|stmt| self.statement(stmt)).collect();
+        self.stack.pop();
+        out
+    }
+}
+
+/// `x.y` used as a word (`player.gold += 100`).
+fn is_dotted(name: &Ident) -> bool {
+    name.text.contains('.')
+}
+
+/// A `fn` body copied for one call site: `binds` holds the call's argument per parameter and
+/// `site` numbers the copy, so the body's own `:locals` stay apart from every other call.
+fn substituted_stmt(stmt: &Stmt, binds: &[(String, Arg)], site: usize) -> Stmt {
+    match stmt {
+        Stmt::Call(call) => Stmt::Call(substituted_call(call, binds, site)),
+        Stmt::Assign { target, op, value, span } => Stmt::Assign {
+            target: substituted_arg(target, binds, site),
+            op: *op,
+            value: substituted_expr(value, binds, site),
+            span: *span,
+        },
+        Stmt::If { arms, otherwise, span } => Stmt::If {
+            arms: arms
+                .iter()
+                .map(|(cond, body)| (substituted_cond(cond, binds, site), substituted_block(body, binds, site)))
+                .collect(),
+            otherwise: otherwise.as_ref().map(|body| substituted_block(body, binds, site)),
+            span: *span,
+        },
+        Stmt::Require { cond, span } => Stmt::Require { cond: substituted_cond(cond, binds, site), span: *span },
+        Stmt::Attempt { arms, span } => Stmt::Attempt {
+            arms: arms.iter().map(|body| substituted_block(body, binds, site)).collect(),
+            span: *span,
+        },
+        Stmt::For { var, kind, args, body, span } => Stmt::For {
+            var: substituted_arg(var, binds, site),
+            kind: kind.clone(),
+            args: args.iter().map(|arg| substituted_arg(arg, binds, site)).collect(),
+            body: substituted_block(body, binds, site),
+            span: *span,
+        },
+    }
+}
+
+fn substituted_block(block: &StmtBlock, binds: &[(String, Arg)], site: usize) -> StmtBlock {
+    StmtBlock {
+        stmts: block.stmts.iter().map(|stmt| substituted_stmt(stmt, binds, site)).collect(),
+        span: block.span,
+    }
+}
+
+fn substituted_call(call: &Call, binds: &[(String, Arg)], site: usize) -> Call {
+    Call {
+        op: call.op.clone(),
+        args: call.args.iter().map(|arg| substituted_arg(arg, binds, site)).collect(),
+        span: call.span,
+    }
+}
+
+fn substituted_cond(cond: &Cond, binds: &[(String, Arg)], site: usize) -> Cond {
+    match cond {
+        Cond::Cmp { op, left, right, span } => Cond::Cmp {
+            op: *op,
+            left: substituted_expr(left, binds, site),
+            right: substituted_expr(right, binds, site),
+            span: *span,
+        },
+        Cond::Call(call) => Cond::Call(substituted_call(call, binds, site)),
+        Cond::Not(inner, span) => Cond::Not(Box::new(substituted_cond(inner, binds, site)), *span),
+        Cond::And(list) => Cond::And(list.iter().map(|cond| substituted_cond(cond, binds, site)).collect()),
+        Cond::Or(list) => Cond::Or(list.iter().map(|cond| substituted_cond(cond, binds, site)).collect()),
+    }
+}
+
+fn substituted_expr(expr: &Expr, binds: &[(String, Arg)], site: usize) -> Expr {
+    match expr {
+        Expr::Value(arg) => Expr::Value(substituted_arg(arg, binds, site)),
+        Expr::Neg(inner, span) => Expr::Neg(Box::new(substituted_expr(inner, binds, site)), *span),
+        Expr::Bin { op, left, right, span } => Expr::Bin {
+            op: *op,
+            left: Box::new(substituted_expr(left, binds, site)),
+            right: Box::new(substituted_expr(right, binds, site)),
+            span: *span,
+        },
+    }
+}
+
+/// A parameter becomes the call's argument; any other `:local` of the body gets a `__fn<site>`
+/// suffix, like `uw_check::check` does for a mod's blocks.
+fn substituted_arg(arg: &Arg, binds: &[(String, Arg)], site: usize) -> Arg {
+    match arg {
+        Arg::Local(ident) => match binds.iter().find(|(param, _)| param == &ident.text) {
+            Some((_, value)) => value.clone(),
+            None => Arg::Local(Ident { text: format!("{}__fn{site}", ident.text), span: ident.span }),
+        },
+        other => other.clone(),
+    }
 }
 
 /// Writes one `<table>.uw` per table (every block under a `// label (outcome)` line) and
