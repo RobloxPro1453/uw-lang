@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-16 · P5b ad katmanı + `uw create` + `fn` (Claude + DeepSeek, tur 7)
+Claude: names.uw çekirdeği (atlas'ta oyun adı katmanı, 1111 ad), `uw create`, klasörü tanıyan `uw build`. DeepSeek T-075..T-078 (~$0.21): tam İngilizce alan adları, başlıkta oyun adı, `uw build`'de adlar + `roundtrip --names`, `fn` satır içi kelimeler. Ölçü: adlı proje 12815/12815, build-project 32/32 bayt eşit; testler 352/352. Kayıt uyumu deneyi (sahibi) başarılı → bilgi. Stres testi raporu özetlendi (`docs/bilgi/ornek-modlar.md`), depoya alınmadı. Sıradaki: T-079 `lib/core.uw` ilk kelimeler (şeritte), sonra P6 nesne yazımı (`player.gold`).
+
 ## 2026-11-16 · P5 (okunaklı alanlar) ilk tur + odak değişikliği (Claude + DeepSeek)
 T-058 çekirdek (`ref`, `flags`, `bits`, `list` türleri; çözülemeyen bit `rest`), T-059..T-066 tablo şemaları (~$0.8). Ölçü: 12815/12815, 9113/9113, kit 32/32; kapsam: 58 alan türlü (ör. troops 7/14, items 5/10, parties 5/12). Şeritlerin durduğu 4 eski "hep ham" testi Claude güncelledi. Testler 339/339. Sahibi: kolaylığa odaklan → `docs/meclis/kolay-dil-taslak.md`, kararname "önce temel, sözdizimi en son". Oyun deneyi: TR çeviri dosyası adı eziyor (`docs/bilgi/proje-kipi-deneyi.md`). Gece: anlam kütüphanesi araştırması T-067..T-074. Sıradaki: araştırmaları birleştir, P5b ad katmanı.
 

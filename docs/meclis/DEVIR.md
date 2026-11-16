@@ -1,5 +1,13 @@
 # Devir: sonraki oturum buradan başlar
 
+## 00000000. ÖĞLE (2026-11-16, tur 7) — önce bunu oku
+
+BİTTİ: P5b v1 (names.uw, başlık, alan adları), `uw create` + `uw build` (klasörsüz), `fn` (T-078). Testler 352/352.
+ŞERİTTE: T-079 (`lib/core.uw` ilk kelimeler + menu_demo yeni yazımla). Döngü: `cv delegate status` → verify →
+birleştir → test → `cv round end`. Sonra P6 nesne yazımı: `player.gold += 1000` (fn üstüne; tasarım Claude'da,
+kolay-dil-taslak.md örnek 1-2). Sahibi `uw create` ile kendi klasöründe deneyecek: `uw` cargo install ile PATH'te.
+Stres testi raporu depoda değil; sahibine sorulacak (SORULAR değil, raporda söylendi).
+
 ## 0000000. SABAH (2026-11-16) — önce bunu oku
 
 Sahibi uyudu; ilk mesajında kısa durum + tahmini yüzde ister (hafıza: progress-percent-each-cycle).
