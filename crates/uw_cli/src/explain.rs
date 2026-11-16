@@ -23,6 +23,35 @@ pub fn explain(model: &Model, query: &str, all: bool) -> Result<String, String> 
     }
 }
 
+/// [`explain`] as one JSON object (`uw explain --json`, for the editor hovers): the name, what it is,
+/// its Native id when it has one (`p_town_6`) and `text`, the plain output above.
+pub fn explain_json(model: &Model, query: &str, all: bool) -> Result<String, String> {
+    let text = explain(model, query, all)?;
+    let (name, kind, native_id) = match model.resolve(query) {
+        Some(target) => {
+            let detail = model.describe(&target);
+            (detail.label, detail.kind, native_id(model, &target))
+        }
+        // Not an exact name: `text` lists what matches, so there is no kind and no id.
+        None => (query.trim().to_owned(), String::new(), None),
+    };
+    Ok(serde_json::json!({
+        "name": name,
+        "kind": kind,
+        "native_id": native_id,
+        "text": text,
+    })
+    .to_string())
+}
+
+/// The kit id a target is written as (`p_town_6`); a global, an operation and a constant have none.
+fn native_id(model: &Model, target: &Target) -> Option<String> {
+    match target {
+        Target::Entry { table, index } => model.atlas.tables[table].entries[*index].id.clone(),
+        Target::Global(_) | Target::Op(_) | Target::Const(_) => None,
+    }
+}
+
 /// Not an exact name: the things that match (Ok), or an error when nothing does.
 fn matches(model: &Model, query: &str) -> Result<String, String> {
     let hits = model.search(query, MATCHES);

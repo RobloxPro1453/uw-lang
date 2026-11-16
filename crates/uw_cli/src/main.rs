@@ -39,9 +39,11 @@ const USAGE: &str = "usage:
       <thing> (optional) becomes the starting point, otherwise the game's own starts
   uw browse [--atlas <atlas.json>] [--tr <languages/tr dir>] [search]
       look around Native in a window: type to search, Enter to follow who uses what
-  uw explain [--all] [--atlas <atlas.json>] [--tr <languages/tr dir>] <thing>
+  uw explain [--all] [--json] [--atlas <atlas.json>] [--tr <languages/tr dir>] <thing> [folder]
       <thing>: a name or part of one (praven, p_town_6, mnu_camp, merchant), a global
       ($g_player_luck), an operation (call_script) or a constant
+      --json: one object {\"name\",\"kind\",\"native_id\",\"text\"} (text = the plain output)
+      [folder]: with --json, the project folder whose names.uw is read (default: this folder)
       --tr: the official Turkish csv folder (Modules/Native/languages/tr), to show the
       Turkish in-game text too (the default install is used when it is not given)
   uw words [folder] [--json] [--atlas <atlas.json>]
@@ -150,15 +152,21 @@ pub fn load(path: Option<PathBuf>) -> Result<model::Model, String> {
     Ok(model::Model::new(atlas))
 }
 
-/// [`load`] with the game names installed before the model is built (rows keep their labels): the
-/// working folder's own `names.uw` when it has one, otherwise the derived Native names. A bad
-/// `names.uw` is an error, never a silent fallback (same rule as `uw build`).
+/// [`load_named_in`] for the working folder.
 fn load_named(path: Option<PathBuf>) -> Result<model::Model, String> {
-    let path = atlas_path(path)?;
-    let mut atlas = uw_atlas::Atlas::from_path(&path).map_err(|err| format!("{}: {err}", path.display()))?;
     let dir = std::env::current_dir().map_err(|err| format!("current folder: {err}"))?;
+    load_named_in(path, &dir)
+}
+
+/// [`load`] with the game names installed before the model is built (rows keep their labels): `dir`'s
+/// own `names.uw` when it has one, otherwise the derived Native names. A bad `names.uw` is an error,
+/// never a silent fallback (same rule as `uw build`). The atlas is looked for from `dir` too, so a
+/// project folder can be explained from anywhere.
+fn load_named_in(path: Option<PathBuf>, dir: &Path) -> Result<model::Model, String> {
+    let path = atlas_path(path.or_else(|| build::find_up(dir, ATLAS_REL)))?;
+    let mut atlas = uw_atlas::Atlas::from_path(&path).map_err(|err| format!("{}: {err}", path.display()))?;
     if dir.join(uw_decomp::names::FILE).is_file() {
-        new::install_names(&mut atlas, &dir)?;
+        new::install_names(&mut atlas, dir)?;
     } else {
         let names = uw_decomp::names::derive(&atlas);
         atlas.set_game_names(&uw_decomp::names::pairs(&names));
@@ -185,18 +193,52 @@ fn add_tr(model: model::Model, dir: Option<PathBuf>) -> Result<model::Model, Str
 }
 
 fn cmd_explain(args: &[String]) -> ExitCode {
-    let common = match parse(args) {
+    // `--json` and the trailing project folder are read here: the shared parse joins every other word
+    // into the thing to explain, so "merchant quest" keeps working.
+    let mut json = false;
+    let mut plain: Vec<String> = Vec::new();
+    for arg in args {
+        if arg == "--json" {
+            json = true;
+        } else {
+            plain.push(arg.clone());
+        }
+    }
+    let common = match parse(&plain) {
         Ok(common) => common,
         Err(message) => return fail(&message),
     };
     if common.words.is_empty() {
         return fail(&format!("what should I explain?\n{USAGE}"));
     }
-    let thing = common.words.join(" ");
-    let model = match load_named(common.atlas).and_then(|model| add_tr(model, common.tr)) {
+    let mut words = common.words;
+    // `uw explain --json <thing> [folder]`: the last word is the project folder when it is one on
+    // disk (a name like "merchant quest" is not).
+    let mut folder = None;
+    if json && words.len() > 1 && Path::new(&words[words.len() - 1]).is_dir() {
+        folder = words.pop().map(PathBuf::from);
+    }
+    let thing = words.join(" ");
+    let dir = match folder {
+        Some(dir) => dir,
+        None => match std::env::current_dir() {
+            Ok(dir) => dir,
+            Err(err) => return fail(&format!("current folder: {err}")),
+        },
+    };
+    let model = match load_named_in(common.atlas, &dir).and_then(|model| add_tr(model, common.tr)) {
         Ok(model) => model,
         Err(message) => return fail(&message),
     };
+    if json {
+        return match explain::explain_json(&model, &thing, common.all) {
+            Ok(object) => {
+                println!("{object}");
+                ExitCode::SUCCESS
+            }
+            Err(message) => fail(&message),
+        };
+    }
     match explain::explain(&model, &thing, common.all) {
         Ok(text) => {
             print!("{text}");

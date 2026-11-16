@@ -92,6 +92,24 @@ Klasör kuralı "Hataları görme" bölümündeki gibidir; komut `uw.path` ayar�
 başına **bir kez** çalışır: `names.uw` ya da `lib/` / `fns/` altındaki bir dosya kaydedilince
 tazelenir. `uw` bulunamazsa tamamlama sessizce boş kalır (uyarıyı "Hataları görme" verir).
 
+## Üstüne gelince açıklama
+
+Bir adın üstüne gelince (imleci üstünde tutunca) kısa bir Türkçe açıklama görünür: ne olduğu, Native
+kimliği (`p_town_6`) ve nerede tanımlı olduğu — `uw explain` ile aynı bilgi, markdown olarak.
+
+- Ad, imlecin altındaki kelimedir: `praven`, `king_harlaus`, `$g_player_luck`, noktalı nesne adı
+  (`player.gold`), `#dup` eki (`menu_camp#1`) ve `fn` kelimeleri (`say`).
+- Uzun metin `uw explain --json <ad> <klasör>` çıktısından gelir ve ad başına **bir kez** çalışır
+  (önbellek). `uw` adı bilmiyorsa (yerel bir `fn` gibi) "Otomatik tamamlama" listesindeki tek
+  satırlık ipucu gösterilir.
+- `names.uw`, `lib/` ya da `fns/` altındaki bir dosya kaydedilince iki önbellek de tazelenir.
+- Klasör kuralı ve `uw.path` ayarı yukarıdaki bölümlerdeki gibidir. `uw` bulunamazsa hover sessizce
+  boş kalır (uyarıyı "Hataları görme" verir).
+
+`uw explain --json <ad>` tek bir JSON nesnesi yazar:
+`{"name","kind","native_id","text"}` (`native_id`, Native'de karşılığı olmayan `$global` /
+operasyon / sabit için `null`; `text` düz `uw explain` çıktısıdır).
+
 ## Denetim
 
 Söz dizimi dosyalarının (`syntaxes/uw.tmLanguage.json`, `language-configuration.json`,
@@ -104,20 +122,23 @@ cargo test -p uw_cli --test vscode_grammar
 
 Test Node.js gerektirmez.
 
-`extension.js` içindeki `parseCheckOutput` (CLI çıktısını tanılara çeviren saf fonksiyon) ayrıca
-`node` ile denenir; bir örnek satır yanlış aralığa düşerse test sıfırdan farklı çıkış kodu verir:
+`extension.js` içindeki saf fonksiyonlar (`parseCheckOutput`, `parseWords`, `hoverMarkdown`) ayrıca
+`node` ile denenir; bir örnek satır yanlış aralığa düşerse ya da hover metni yanlış çıkarsa test
+sıfırdan farklı çıkış kodu verir:
 
 ```sh
 node editors/vscode/test/parse.test.js
 node editors/vscode/test/words.test.js
+node editors/vscode/test/hover.test.js
 ```
 
 ## Dosyalar
 
 - `package.json`: eklenti bildirimi (ad `uw-lang`, `.uw` uzantısı, dil bilgisi yolu, `main`, `uw.path`)
-- `extension.js`: `uw check --json` çalıştırıp tanıları (dalgalı çizgi + Problems) gösteren ve
-  `uw words --json` ile otomatik tamamlama sunan uzantı
+- `extension.js`: `uw check --json` çalıştırıp tanıları (dalgalı çizgi + Problems) gösteren,
+  `uw words --json` ile otomatik tamamlama ve `uw explain --json` ile hover açıklaması sunan uzantı
 - `test/parse.test.js`: `parseCheckOutput` testi (düz `node`, çerçeve yok)
 - `test/words.test.js`: `parseWords` testi (düz `node`, çerçeve yok)
+- `test/hover.test.js`: `hoverMarkdown` / `parseExplain` testi (düz `node`, çerçeve yok)
 - `language-configuration.json`: yorumlar, parantezler, otomatik kapanan çiftler, kelime deseni
 - `syntaxes/uw.tmLanguage.json`: TextMate dil bilgisi

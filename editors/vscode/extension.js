@@ -11,6 +11,9 @@ const path = require('path');
 
 const SOURCE = 'uw';
 const DEFAULT_COMMAND = 'uw';
+/// İmlecin altındaki ad: `$global`, `:local`, noktalı nesne adı (`player.gold`), `#dup` eki
+/// (`language-configuration.json` içindeki kelime deseniyle aynı).
+const WORD_PATTERN = /(?:[$:][A-Za-z0-9_]+)|(?:[A-Za-z_][A-Za-z0-9_]*(?:#[0-9]+)?(?:\.[A-Za-z_][A-Za-z0-9_]*)*)/;
 
 /// `uw check --json` çıktısı: satır başına bir JSON nesnesi, son satır `{"summary":{...}}`.
 /// Nesneleri VS Code'un beklediği biçime çevirir: satır/sütun 0 tabanlı, `help` mesaja eklenir.
@@ -76,6 +79,41 @@ function parseWords(text) {
   return words;
 }
 
+/// `uw explain --json` çıktısı: tek bir JSON nesnesi `{"name","kind","native_id","text"}`.
+/// Boş ya da JSON olmayan çıktıda `undefined` döner (açıklama yok).
+function parseExplain(text) {
+  const stdout = String(text == null ? '' : text).trim();
+  if (stdout === '') return undefined;
+  let item;
+  try {
+    item = JSON.parse(stdout);
+  } catch (e) {
+    return undefined; // JSON değil (kullanım metni, yarım çıktı): açıklama yok
+  }
+  return typeof item === 'object' && item !== null ? item : undefined;
+}
+
+/// Hover'da görünecek markdown: `uw explain --json` nesnesinden (`{name,kind,native_id,text}`) adı,
+/// ne olduğunu, Native kimliğini ve düz metni yazar. `vscode` çağırmaz; gösterilecek bir şey yoksa
+/// `undefined` döner.
+function hoverMarkdown(obj) {
+  if (typeof obj !== 'object' || obj === null) return undefined;
+  const name = typeof obj.name === 'string' ? obj.name : '';
+  const kind = typeof obj.kind === 'string' ? obj.kind : '';
+  const id = typeof obj.native_id === 'string' ? obj.native_id : '';
+  const text = typeof obj.text === 'string' ? obj.text : '';
+  if (name === '' && text === '') return undefined;
+  const lines = [];
+  if (name !== '') lines.push(kind === '' ? `**${name}**` : `**${name}** — *${kind}*`);
+  else if (kind !== '') lines.push(`*${kind}*`);
+  if (id !== '') lines.push(`Native: \`${id}\``);
+  if (text !== '') {
+    if (lines.length > 0) lines.push('');
+    lines.push('```text', text.replace(/\s+$/, ''), '```');
+  }
+  return lines.join('\n');
+}
+
 /// Dosyanın en yakın `uw.toml` içeren üst klasörü; yoksa dosyanın kendi klasörü.
 function projectFolder(file) {
   const own = path.dirname(file);
@@ -108,6 +146,22 @@ function runCheck(command, folder) {
 function runWords(command, folder) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, ['words', '--json'], { cwd: folder, windowsHide: true });
+    let stdout = '';
+    child.stdout.setEncoding('utf8');
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.on('data', () => {});
+    child.on('error', reject);
+    child.on('close', () => resolve(stdout));
+  });
+}
+
+/// `uw explain --json <ad> <klasör>`: çözülünce stdout. Komut projenin klasöründe çalışır ve klasörü
+/// de verir, böylece CLI projenin kendi `names.uw` dosyasını okur.
+function runExplain(command, name, folder) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, ['explain', '--json', name, folder], { cwd: folder, windowsHide: true });
     let stdout = '';
     child.stdout.setEncoding('utf8');
     child.stdout.on('data', (chunk) => {
@@ -194,7 +248,38 @@ function activate(context) {
     }
     return words.get(folder);
   };
+
+  // T-110: üstüne gelince açıklama. `uw explain --json <ad> <klasör>` ad başına bir kez çalışır
+  // (önbellek); CLI adı bilmiyorsa (yerel bir `fn` gibi) kelime önbelleğinin tek satırı gösterilir.
+  const explanations = new Map();
+  const explainFor = (folder, name) => {
+    const key = folder + '\u0000' + name;
+    if (!explanations.has(key)) {
+      const configured = vscode.workspace.getConfiguration('uw').get('path', DEFAULT_COMMAND);
+      const command = configured || DEFAULT_COMMAND;
+      explanations.set(key, runExplain(command, name, folder).then(parseExplain).catch(() => undefined));
+    }
+    return explanations.get(key);
+  };
   context.subscriptions.push(
+    vscode.languages.registerHoverProvider('uw', {
+      async provideHover(document, position) {
+        if (!document || document.uri.scheme !== 'file') return undefined;
+        const range = document.getWordRangeAtPosition(position, WORD_PATTERN);
+        if (!range) return undefined;
+        const name = document.getText(range);
+        if (name === '') return undefined;
+        const folder = projectFolder(document.uri.fsPath);
+        let markdown = hoverMarkdown(await explainFor(folder, name));
+        if (markdown === undefined) {
+          const found = (await wordsFor(folder)).find((word) => word.label === name);
+          if (!found) return undefined;
+          markdown = hoverMarkdown({ name, kind: found.kind, native_id: '', text: found.detail });
+        }
+        if (markdown === undefined) return undefined;
+        return new vscode.Hover(new vscode.MarkdownString(markdown), range);
+      },
+    }),
     vscode.languages.registerCompletionItemProvider('uw', {
       async provideCompletionItems(document) {
         const folder = projectFolder(document.uri.fsPath);
@@ -214,11 +299,22 @@ function activate(context) {
       const file = document.uri.fsPath;
       const name = path.basename(file);
       const parent = path.basename(path.dirname(file));
-      if (name === 'names.uw' || parent === 'lib' || parent === 'fns') words.clear();
+      if (name === 'names.uw' || parent === 'lib' || parent === 'fns') {
+        words.clear();
+        explanations.clear();
+      }
     }),
   );
 }
 
 function deactivate() {}
 
-module.exports = { activate, deactivate, parseCheckOutput, parseWords };
+module.exports = {
+  activate,
+  deactivate,
+  parseCheckOutput,
+  parseWords,
+  parseExplain,
+  hoverMarkdown,
+  WORD_PATTERN,
+};
