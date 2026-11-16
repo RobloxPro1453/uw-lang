@@ -1,5 +1,16 @@
 # Devir: sonraki oturum buradan başlar
 
+## 000000000. GECE (2026-11-16 sonu) — önce bunu oku
+
+Sahibi uyudu, "yeni iş ekleme" dedi; döngü durduruldu. Birleşmemiş dallar: **cv/T-101** (VS Code'da hata
+gösterimi, done; README'si ana daldaki .vsix anlatımıyla çakışabilir: ikisini birleştir), **cv/T-100**
+(`uw check --json`, blocked; raporunu oku, T-101 buna bağlı), **cv/T-102** (dialog, oturum kapanırken
+çalışıyordu). Sıra: `cv delegate status` → verify → T-100 düzelt/birleştir → T-101 → T-102 (oyun deneyi
+CHECKUP'a) → ana dalda tam ölçü (test + new --check + build-project --compare-native + roundtrip --names) →
+`python editors/vscode/pack.py` + `code --install-extension … --force` (sahibinin VS Code'u). Kota: haftalık
+%81 (21 Kasım sıfırlanır). Sahibinin kararları bu gün ROADMAP'te: editör (UW Studio/TurboUW, canlı
+önizleme), çeviri ekleri esnek, owner alanı, genel akıllı checkup, derleme hızı.
+
 ## 00000000. ÖĞLE (2026-11-16, tur 7) — önce bunu oku
 
 BİTTİ: P5b v1 (names.uw, başlık, alan adları), `uw create` + `uw build` (klasörsüz), `fn` (T-078). Testler 352/352.
