@@ -53,6 +53,9 @@ pub enum Item {
     New { id: Ident, text: Option<(String, Span)>, handlers: Vec<Handler>, members: Vec<Member>, span: Span },
     /// `on a.b { body }`
     On { path: Vec<Ident>, body: Block, span: Span },
+    /// `fn <name>(:p1, :p2) { body }`: a named piece of code used as one line; a call to it is
+    /// replaced by its body at check time (T-078).
+    Fn { name: Ident, params: Vec<Ident>, body: Block, span: Span },
 }
 
 /// `on <event> { body }` inside an override.
@@ -674,6 +677,15 @@ impl Parser {
                     let end = body.span.end;
                     file.items.push(Item::On { path, body, span: Span { start, end } });
                 }
+                Tok::Ident(kw) if kw == "fn" => {
+                    let start = t.span.start;
+                    self.bump();
+                    let name = self.ident("a name after `fn`, e.g. `fn give_gold(:amount)`")?;
+                    let params = self.params(&name.text)?;
+                    let body = self.block(&format!("fn {}", name.text))?;
+                    let end = body.span.end;
+                    file.items.push(Item::Fn { name, params, body, span: Span { start, end } });
+                }
                 Tok::RBrace => {
                     return Err(err(E0102_STRAY_CLOSE, "this '}' has no matching '{'", t.span)
                         .with_help("remove it, or check which block above was closed early"));
@@ -681,9 +693,66 @@ impl Parser {
                 other => {
                     return Err(err(
                         E0100_UNEXPECTED,
-                        format!("expected `mod`, `override`, `new` or `on` at the top level, found {}", describe(other)),
+                        format!("expected `mod`, `override`, `new`, `on` or `fn` at the top level, found {}", describe(other)),
                         t.span,
                     ));
+                }
+            }
+        }
+    }
+
+    /// The `(:p1, :p2, …)` parameters of `fn <name>`; each one is a `:local` the body uses.
+    fn params(&mut self, name: &str) -> Result<Vec<Ident>, Diagnostic> {
+        self.skip_newlines();
+        let t = self.peek().clone();
+        if t.tok != Tok::LParen {
+            return Err(err(
+                E0100_UNEXPECTED,
+                format!("expected '(' after `fn {name}`, found {}", describe(&t.tok)),
+                t.span,
+            )
+            .with_help(format!("write `fn {name}(:amount) {{ … }}`, or `fn {name}() {{ … }}`")));
+        }
+        self.bump();
+        let mut params = Vec::new();
+        loop {
+            self.skip_newlines();
+            let t = self.peek().clone();
+            match t.tok {
+                Tok::RParen => {
+                    self.bump();
+                    return Ok(params);
+                }
+                Tok::Local(text) => {
+                    self.bump();
+                    params.push(Ident { text, span: t.span });
+                    self.skip_newlines();
+                    let next = self.peek().clone();
+                    match next.tok {
+                        Tok::Comma => {
+                            self.bump();
+                        }
+                        Tok::RParen => {}
+                        other => {
+                            return Err(err(
+                                E0100_UNEXPECTED,
+                                format!("expected ',' or ')' in the parameters of `fn {name}`, found {}", describe(&other)),
+                                next.span,
+                            ));
+                        }
+                    }
+                }
+                Tok::Eof | Tok::LBrace | Tok::RBrace => {
+                    return Err(err(E0101_UNCLOSED, format!("this '(' of `fn {name}` is never closed"), t.span)
+                        .with_help("add the missing ')'"));
+                }
+                other => {
+                    return Err(err(
+                        E0100_UNEXPECTED,
+                        format!("expected a parameter like `:amount` in `fn {name}`, found {}", describe(&other)),
+                        t.span,
+                    )
+                    .with_help("parameters are locals, e.g. `fn give_gold(:amount) { … }`"));
                 }
             }
         }
@@ -1543,6 +1612,7 @@ mod tests {
                 Item::Override { handlers, .. } => handlers.into_iter().map(|h| h.body).collect(),
                 Item::On { body, .. } => vec![body],
                 Item::New { handlers, .. } => handlers.into_iter().map(|h| h.body).collect(),
+                Item::Fn { body, .. } => vec![body],
             };
             for b in blocks {
                 for s in b.stmts.iter().filter_map(Stmt::as_call) {
