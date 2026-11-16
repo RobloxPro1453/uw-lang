@@ -329,37 +329,48 @@ fn count_braces(line: &str, depth: &mut i32) {
     }
 }
 
-/// The first occurrence of `needle` in `text` as character indices, whole word unless `part`.
-fn found(text: &str, needle: &str, part: bool) -> Option<(usize, usize)> {
-    // The lower-case copy plus, per byte, the original character index it came from (a lower-case
-    // character may grow, e.g. `İ`), so the match maps back to the real characters.
+/// Every occurrence of `needle` in `text` as byte ranges, case-insensitive; whole word unless
+/// `part`. `uw find` and `uw rename` share this one matcher.
+pub(crate) fn word_spans(text: &str, needle: &str, part: bool) -> Vec<(usize, usize)> {
+    // The lower-case copy plus, per byte, the original character's byte range it came from (a
+    // lower-case character may grow, e.g. `İ`), so the match maps back to the real bytes.
     let mut lower = String::with_capacity(text.len());
-    let mut origin: Vec<usize> = Vec::with_capacity(text.len());
-    for (index, c) in text.chars().enumerate() {
+    let mut origin: Vec<(usize, usize)> = Vec::with_capacity(text.len());
+    let mut offset = 0;
+    for c in text.chars() {
+        let end = offset + c.len_utf8();
         for lower_char in c.to_lowercase() {
             lower.push(lower_char);
-            origin.extend(std::iter::repeat(index).take(lower_char.len_utf8()));
+            origin.extend(std::iter::repeat((offset, end)).take(lower_char.len_utf8()));
         }
+        offset = end;
     }
     let lowered = needle.to_lowercase();
+    let mut spans = Vec::new();
     if lowered.is_empty() {
-        return None;
+        return spans;
     }
-    let chars: Vec<char> = text.chars().collect();
     let mut from = 0;
     while let Some(at) = lower[from..].find(&lowered) {
         let start_byte = from + at;
         let end_byte = start_byte + lowered.len();
-        let start = origin[start_byte];
-        let end = origin[end_byte - 1] + 1;
-        let before = start.checked_sub(1).and_then(|i| chars.get(i)).is_none_or(|&c| !crate::rename::is_word_char(c));
-        let after = chars.get(end).is_none_or(|&c| !crate::rename::is_word_char(c));
+        let (start, end) = (origin[start_byte].0, origin[end_byte - 1].1);
+        let before = text[..start].chars().next_back().is_none_or(|c| !crate::rename::is_word_char(c));
+        let after = text[end..].chars().next().is_none_or(|c| !crate::rename::is_word_char(c));
         if part || (before && after) {
-            return Some((start, end));
+            spans.push((start, end));
         }
         from = end_byte;
     }
-    None
+    spans
+}
+
+/// The first occurrence of `needle` in `text` as character indices, whole word unless `part`.
+fn found(text: &str, needle: &str, part: bool) -> Option<(usize, usize)> {
+    let (start_byte, end_byte) = *word_spans(text, needle, part).first()?;
+    let start = text[..start_byte].chars().count();
+    let end = start + text[start_byte..end_byte].chars().count();
+    Some((start, end))
 }
 
 /// `text` around the match `[start, end)` (character indices), at most `max` chars, with an

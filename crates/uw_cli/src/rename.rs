@@ -15,13 +15,14 @@ use uw_decomp::project::layout;
 use uw_decomp::records::Schema;
 
 const USAGE: &str = "usage:
-  uw rename <record> \"<new name>\" [--list] [--yes] [--atlas <atlas.json>]
+  uw rename <record> \"<new name>\" [--list] [--yes] [--texts all|1,3] [--atlas <atlas.json>]
       rename a record and every text that mentions it: its own name, the project's other record
       texts and its languages/<lang>/*.csv translations; the old name is replaced inside each
       text, so \"Praven Şehri\" becomes \"Adam Siken Şehri\"
       --list: only list what would change; --yes: write every group without asking
+      --texts all|1,3: write only the numbered other texts (the record's own name is renamed too)
       every changed file is first copied to .uw-backup/rename-<time>/ in the project
-  uw rename <dir> <record> \"<new name>\" [--list] [--yes] [--atlas <atlas.json>]
+  uw rename <dir> <record> \"<new name>\" [--list] [--yes] [--texts all|1,3] [--atlas <atlas.json>]
       the same, for the project folder <dir>
   uw rename --undo [<dir>]
       put back the files of the last rename (only files nobody changed since)";
@@ -35,6 +36,8 @@ struct Args {
     new_name: String,
     list: bool,
     yes: bool,
+    /// `--texts all|1,3,…`: the numbered other texts to rewrite too.
+    texts: Option<String>,
     /// `--undo`: restore the last rename's backup instead.
     undo: bool,
     atlas: Option<PathBuf>,
@@ -44,6 +47,7 @@ fn parse(args: &[String]) -> Result<Args, String> {
     let mut words: Vec<String> = Vec::new();
     let mut list = false;
     let mut yes = false;
+    let mut texts = None;
     let mut undo = false;
     let mut atlas = None;
     let mut it = args.iter();
@@ -51,6 +55,10 @@ fn parse(args: &[String]) -> Result<Args, String> {
         match arg.as_str() {
             "--list" => list = true,
             "--yes" => yes = true,
+            "--texts" => match it.next() {
+                Some(choice) => texts = Some(choice.clone()),
+                None => return Err(format!("--texts needs `all` or numbers (1,3)\n{USAGE}")),
+            },
             "--undo" => undo = true,
             "--atlas" => match it.next() {
                 Some(path) => atlas = Some(PathBuf::from(path)),
@@ -61,12 +69,15 @@ fn parse(args: &[String]) -> Result<Args, String> {
         }
     }
     if undo {
+        if texts.is_some() {
+            return Err(format!("--texts cannot be used with --undo\n{USAGE}"));
+        }
         let dir = match words.as_slice() {
             [] => None,
             [dir] => Some(PathBuf::from(dir)),
             _ => return Err(USAGE.to_owned()),
         };
-        return Ok(Args { dir, record: String::new(), new_name: String::new(), list, yes, undo, atlas });
+        return Ok(Args { dir, record: String::new(), new_name: String::new(), list, yes, texts, undo, atlas });
     }
     let (dir, record, new_name) = match words.as_slice() {
         [record, new_name] => (None, record.clone(), new_name.clone()),
@@ -80,7 +91,7 @@ fn parse(args: &[String]) -> Result<Args, String> {
     {
         return Err("the new name may not be empty or hold `\"`, `\\` or a line break".to_owned());
     }
-    Ok(Args { dir, record, new_name, list, yes, undo, atlas })
+    Ok(Args { dir, record, new_name, list, yes, texts, undo, atlas })
 }
 
 pub fn cmd(args: &[String]) -> ExitCode {
@@ -153,18 +164,31 @@ fn run(dir: &Path, args: &Args) -> Result<(), String> {
         println!("{name}");
         print_hits(hits);
     }
+    let other_hits: Vec<&Hit> = text_hits.iter().chain(translation_hits.iter()).collect();
+    print_other_hits(&other_hits, &old, args);
     if args.list {
         println!("--list: nothing written");
         return Ok(());
     }
     let mut written: BTreeMap<PathBuf, Vec<&Hit>> = BTreeMap::new();
-    for (name, hits) in groups {
-        if hits.is_empty() {
-            continue;
+    if let Some(texts) = &args.texts {
+        let chosen = chosen_texts(texts, other_hits.len())?;
+        for hit in &own_hits {
+            written.entry(hit.path.clone()).or_default().push(hit);
         }
-        if args.yes || ask(name, hits.len()) {
-            for hit in hits {
-                written.entry(hit.path.clone()).or_default().push(hit);
+        for index in chosen {
+            let hit = other_hits[index];
+            written.entry(hit.path.clone()).or_default().push(hit);
+        }
+    } else {
+        for (name, hits) in groups {
+            if hits.is_empty() {
+                continue;
+            }
+            if args.yes || ask(name, hits.len()) {
+                for hit in hits {
+                    written.entry(hit.path.clone()).or_default().push(hit);
+                }
             }
         }
     }
@@ -183,11 +207,61 @@ fn run(dir: &Path, args: &Args) -> Result<(), String> {
     for (path, renamed) in &planned {
         write_atomic(path, renamed, dir)?;
     }
+    for hit in written.values().flatten() {
+        let changed = replace_in(&hit.text, &old, &args.new_name);
+        println!("  changed  {}:{}  \"{changed}\"", hit.file, hit.line);
+    }
     let lines: usize = written.values().map(Vec::len).sum();
     println!("wrote {} line(s) in {} file(s)", lines, written.len());
     println!("backup   {}   (undo: uw rename --undo)", relative(dir, &backup));
     Ok(())
 }
+
+/// `--texts`: `all` or 1-based numbers over the numbered other texts, as 0-based indices.
+fn chosen_texts(texts: &str, count: usize) -> Result<Vec<usize>, String> {
+    if texts == "all" {
+        return Ok((0..count).collect());
+    }
+    let mut chosen = Vec::new();
+    for part in texts.split(',') {
+        let number: usize = part
+            .trim()
+            .parse()
+            .map_err(|_| format!("--texts takes `all` or numbers (1,3), not `{texts}`\n{USAGE}"))?;
+        if number == 0 || number > count {
+            return Err(format!("--texts {number} is not in the list (1..{count})\n{USAGE}"));
+        }
+        if !chosen.contains(&(number - 1)) {
+            chosen.push(number - 1);
+        }
+    }
+    Ok(chosen)
+}
+
+/// The numbered list of the other texts that still hold the old name, and the two ways to change
+/// them. The record's own name is not in this list (it is renamed with the record).
+fn print_other_hits(hits: &[&Hit], old: &str, args: &Args) {
+    if hits.is_empty() {
+        return;
+    }
+    println!("\"{old}\" şu metinlerde de geçiyor (değiştirilmedi):");
+    for (index, hit) in hits.iter().enumerate() {
+        println!("  {:>2}  {}:{}  \"{}\"", index + 1, hit.file, hit.line, mention(hit));
+    }
+    let dir = match &args.dir {
+        Some(dir) => format!("{} ", dir.display()),
+        None => String::new(),
+    };
+    let command = format!("uw rename {dir}{} \"{}\"", args.record, args.new_name);
+    println!("  Hepsini değiştirmek için:  {command} --texts all");
+    println!("  Seçerek:                   {command} --texts 1,3");
+}
+
+/// A hit's text without a translation's `key|` prefix.
+fn mention(hit: &Hit) -> &str {
+    hit.text.split_once('|').map_or(&hit.text, |(_, text)| text)
+}
+
 
 /// The project folder that holds every rename backup (a dot folder: no command reads it as records).
 const BACKUP_DIR: &str = ".uw-backup";
@@ -423,7 +497,7 @@ fn quoted_hits(text: &str, old: &str) -> Vec<(usize, usize, usize, String)> {
             match bytes[i] {
                 b'\\' => i += 2,
                 b'"' => {
-                    if contains_word(&text[start..i], old) {
+                    if !crate::find::word_spans(&text[start..i], old, false).is_empty() {
                         let line = line_of(text, start);
                         hits.push((start, i, line, source_line(text, line)));
                     }
@@ -456,7 +530,7 @@ fn translation_hits(text: &str, old: &str) -> Vec<(usize, usize, usize, String)>
     let mut offset = 0;
     for (index, line) in text.split_inclusive('\n').enumerate() {
         if let Some(bar) = line.find('|') {
-            if contains_word(&line[bar + 1..], old) {
+            if !crate::find::word_spans(&line[bar + 1..], old, false).is_empty() {
                 let start = offset + bar + 1;
                 hits.push((start, offset + line.len(), index + 1, line.trim_end().to_owned()));
             }
@@ -473,9 +547,22 @@ fn replace_spans(text: &str, hits: &[&Hit], old: &str, new: &str) -> String {
     let mut out = String::with_capacity(text.len());
     let mut last = 0;
     for (start, end) in spans {
-        let replaced = replace_word(&text[start..end], old, new).unwrap_or_else(|| text[start..end].to_owned());
+        let replaced = replace_in(&text[start..end], old, new);
         out.push_str(&text[last..start]);
         out.push_str(&replaced);
+        last = end;
+    }
+    out.push_str(&text[last..]);
+    out
+}
+
+/// `text` with every whole-word mention of `old` replaced by `new`, matched as `uw find` does.
+fn replace_in(text: &str, old: &str, new: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut last = 0;
+    for (start, end) in crate::find::word_spans(text, old, false) {
+        out.push_str(&text[last..start]);
+        out.push_str(new);
         last = end;
     }
     out.push_str(&text[last..]);

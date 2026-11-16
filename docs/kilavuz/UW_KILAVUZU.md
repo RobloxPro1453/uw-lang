@@ -1365,6 +1365,24 @@ languages/tr/parties.csv:1  p_town_1            text   "Praven Şehri"
 3 + 1 yer bulundu.
 ```
 
+### 6.10. `uw rename`
+
+**Sözdizimi**
+
+```
+uw rename <kayıt> "<yeni ad>" [--list] [--yes] [--texts all|1,3]
+uw rename <klasör> <kayıt> "<yeni ad>" ...
+uw rename --undo [<klasör>]
+```
+
+**Ne yapar?** Kaydın kendi `name` alanını yeniler; eski ad başka metinlerde (`.uw` kayıt metinleri ve
+`languages/<dil>/*.csv` çevirileri) kalıyorsa bunları numaralı bir liste olarak yazar. Her satırda
+`dosya:satır` ve metin bulunur; liste `uw find` ile aynı tam-kelime aramasını kullanır. Değiştirmek
+için iki ipucu çıkar: `--texts all` bütün listeyi, `--texts 1,3` yalnız seçilen numaraları değiştirir
+(kaydın kendi adı her durumda yenilenir). Çeviri kendi kalıbını korur (`Praven Şehri` →
+`Adam Siken Şehri`). Değişen her dosya önce `.uw-backup/rename-<zaman>/` altına kopyalanır;
+`uw rename --undo` son değişikliği geri alır. `--list` yalnız listeler, hiçbir şey yazmaz.
+
 ---
 
 ## 7. Hata mesajları tablosu

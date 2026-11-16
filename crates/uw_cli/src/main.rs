@@ -62,11 +62,12 @@ const USAGE: &str = "usage:
       --compare-native: say how many output files are byte-identical to Native
   uw build-project --native-check
       the same, but the modules come from the atlas values themselves
-  uw rename <record> \"<new name>\" [--list] [--yes]
+  uw rename <record> \"<new name>\" [--list] [--yes] [--texts all|1,3]
       rename a record and every text that mentions it: its own name, the project's other record
       texts and its languages/<lang>/*.csv translations (the old name is replaced inside each
       text, so \"Praven Şehri\" becomes \"Adam Siken Şehri\");
-      --list: only list what would change; --yes: write every group without asking
+      --list: only list what would change; --yes: write every group without asking;
+      --texts all|1,3: write only the numbered other texts (the record's own name is renamed too)
   uw rename <dir> <record> \"<new name>\" ...
       the same, for the project folder <dir>
   uw find \"<text>\" [<dir>] [--part] [--json]
