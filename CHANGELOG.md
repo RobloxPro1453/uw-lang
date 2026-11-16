@@ -5,6 +5,10 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
+- `save rich = false`: kalıcı değişken (kayıtlı oyunda yaşar), sonra düz adla: `rich = true`, `when not rich`, `if rich { }`.
+- Kütüphanede nesneler: `player.gold` (oku, `+=`, `-=`: fazlasını almaz), `player.renown`, `player.honor`.
+- `uw create` ile kurulan modda da kelimeler: kayıtların `ops { }` bloklarında `give_gold(5)`, `player.gold += 5`; kendi kelimelerin `fns/*.uw` dosyalarında.
+- Kılavuz (`docs/kilavuz/UW_KILAVUZU.md`) güncel: `uw create`, `names.uw`, `fn`, kelimeler, nesne yazımı.
 - İlk kelime kütüphanesi `lib/core.uw`: her modda tanımlamadan kullanılır: `give_gold(1000)`, `take_gold(50)` (fazlasını almaz), `give_item`, `take_item`, `add_troops`, `remove_troops`, `add_renown`, `add_honor`, `move_near(praven)`, `show_map()`, `say("@…")`. `examples/menu_demo` artık bunlarla yazılı.
 - Nesne yazımı: kütüphane `player.gold` gibi bir kelime tanımlarsa `player.gold += 1000`, `player.level = 5`, `if player.gold >= 100` yazılabilir.
 - Parti kayıtları okunaklı: `icon icon_town`, `menu none`, `ai_target none` (eskiden `rest 12`, `menu 0`). Şehir kayıtlarında oyun başındaki sahibi yorum olarak: `// at game start: owned by swadia`.

@@ -7,6 +7,9 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
 
+## 2026-11-16 · Döngü 2: save, player nesneleri, proje kelimeleri, kılavuz (otonom, T-083..T-086 ~$0.27)
+Ölçü ana dalda: testler 370/370, `roundtrip --names` 9113/9113 blok + 12815/12815 kayıt, build-project 32/32, menu_demo derlendi. Borç: T-084 fn açmayı uw_cli/roundtrip.rs'de kopyaladı (uw_check'te `check_block` fn alamıyor) → tek yere toplanmalı (CHECKUP). Sıradaki: borç, `in menu`/`dialog` kolay yapıları, P3b-dil.
+
 ## 2026-11-16 · Döngü: kelime kütüphanesi + nesne yazımı + okunaklı parti (otonom, DeepSeek T-079..T-082 ~$0.30)
 `lib/core.uw` 11 kelime (`uw build` yükler), `player.gold += n` nesne yazımı, parti kaydında icon/none, şehir sahibi yorumu. Şeritlerde atlas yok → gerçek-atlas testleri orada atlanıyor; ölçü ana dalda: testler 365/365, adlı proje 12815/12815, build-project 32/32, menu_demo derlendi. Sıradaki: kütüphanede `player.*` nesneleri, `uw build-project` lib yüklesin, `save` kalıcı değişken.
 
