@@ -376,7 +376,7 @@ fn find_lib(dir: &Path) -> Option<PathBuf> {
         .find(|p| p.is_dir())
 }
 
-fn find_up(dir: &Path, rel: &str) -> Option<PathBuf> {
+pub(crate) fn find_up(dir: &Path, rel: &str) -> Option<PathBuf> {
     let mut starts = vec![dir.to_path_buf()];
     if let Ok(cwd) = std::env::current_dir() {
         starts.push(cwd);

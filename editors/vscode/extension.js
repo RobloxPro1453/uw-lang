@@ -51,6 +51,31 @@ function parseCheckOutput(text) {
   return diagnostics;
 }
 
+/// `uw words --json` çıktısı: satır başına bir JSON nesnesi `{"label","kind","detail"}`.
+/// Tamamlama listesi için sade nesnelere çevirir; boş ve JSON olmayan satırları yoksayar.
+function parseWords(text) {
+  const words = [];
+  for (const raw of String(text == null ? '' : text).split(/\r?\n/)) {
+    const line = raw.trim();
+    if (line === '') continue;
+    let item;
+    try {
+      item = JSON.parse(line);
+    } catch (e) {
+      continue; // kelime değil (kullanım metni, yarım satır): yoksay
+    }
+    if (typeof item !== 'object' || item === null) continue;
+    if (typeof item.label !== 'string' || item.label === '') continue;
+    if (typeof item.kind !== 'string' || item.kind === '') continue;
+    words.push({
+      label: item.label,
+      kind: item.kind,
+      detail: typeof item.detail === 'string' ? item.detail : '',
+    });
+  }
+  return words;
+}
+
 /// Dosyanın en yakın `uw.toml` içeren üst klasörü; yoksa dosyanın kendi klasörü.
 function projectFolder(file) {
   const own = path.dirname(file);
@@ -67,6 +92,22 @@ function projectFolder(file) {
 function runCheck(command, folder) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, ['check', '--json', folder], { windowsHide: true });
+    let stdout = '';
+    child.stdout.setEncoding('utf8');
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.on('data', () => {});
+    child.on('error', reject);
+    child.on('close', () => resolve(stdout));
+  });
+}
+
+/// `uw words --json`: çözülünce kelimelerin stdout'u. Komut projenin klasöründe çalışır, böylece
+/// CLI atlası klasörün üst klasörlerinde bulur.
+function runWords(command, folder) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, ['words', '--json'], { cwd: folder, windowsHide: true });
     let stdout = '';
     child.stdout.setEncoding('utf8');
     child.stdout.on('data', (chunk) => {
@@ -135,8 +176,49 @@ function activate(context) {
     vscode.workspace.onDidOpenTextDocument(check),
     vscode.workspace.onDidSaveTextDocument(check),
   );
+
+  // T-104: otomatik tamamlama. `uw words --json` klasör başına bir kez çalışır (önbellek);
+  // `names.uw`, `lib/` ya da `fns/` altındaki bir dosya kaydedilince liste tazelenir.
+  const words = new Map();
+  const completionKinds = {
+    name: vscode.CompletionItemKind.Variable,
+    word: vscode.CompletionItemKind.Function,
+    field: vscode.CompletionItemKind.Field,
+    keyword: vscode.CompletionItemKind.Keyword,
+  };
+  const wordsFor = (folder) => {
+    if (!words.has(folder)) {
+      const configured = vscode.workspace.getConfiguration('uw').get('path', DEFAULT_COMMAND);
+      const command = configured || DEFAULT_COMMAND;
+      words.set(folder, runWords(command, folder).then(parseWords).catch(() => []));
+    }
+    return words.get(folder);
+  };
+  context.subscriptions.push(
+    vscode.languages.registerCompletionItemProvider('uw', {
+      async provideCompletionItems(document) {
+        const folder = projectFolder(document.uri.fsPath);
+        const found = await wordsFor(folder);
+        return found.map((word) => {
+          const item = new vscode.CompletionItem(
+            word.label,
+            completionKinds[word.kind] || vscode.CompletionItemKind.Text,
+          );
+          if (word.detail !== '') item.detail = word.detail;
+          return item;
+        });
+      },
+    }),
+    vscode.workspace.onDidSaveTextDocument((document) => {
+      if (!document || !document.uri || document.uri.scheme !== 'file') return;
+      const file = document.uri.fsPath;
+      const name = path.basename(file);
+      const parent = path.basename(path.dirname(file));
+      if (name === 'names.uw' || parent === 'lib' || parent === 'fns') words.clear();
+    }),
+  );
 }
 
 function deactivate() {}
 
-module.exports = { activate, deactivate, parseCheckOutput };
+module.exports = { activate, deactivate, parseCheckOutput, parseWords };

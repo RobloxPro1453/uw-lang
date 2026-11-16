@@ -14,6 +14,7 @@ mod build_project;
 mod rename;
 mod tr;
 mod tui;
+mod words;
 
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -42,6 +43,9 @@ const USAGE: &str = "usage:
       ($g_player_luck), an operation (call_script) or a constant
       --tr: the official Turkish csv folder (Modules/Native/languages/tr), to show the
       Turkish in-game text too (the default install is used when it is not given)
+  uw words [folder] [--json] [--atlas <atlas.json>]
+      every name a .uw file may use (game names, lib/fns words, object fields, keywords),
+      one per line: --json gives {\"label\",\"kind\",\"detail\"} (kind: name|word|field|keyword)
   uw roundtrip [--atlas <atlas.json>] [--out <dir>] [--failures N] [--schemas <dir>] [--names]
       decompile every Native operation block to UW, compile it back and compare;
       prints the share that comes back identical, writes the text to target/uw-native;
@@ -86,6 +90,7 @@ fn main() -> ExitCode {
         Some("new") => new::cmd(&args[1..]),
         Some("build-project") => build_project::cmd(&args[1..]),
         Some("rename") => rename::cmd(&args[1..]),
+        Some("words") => words::cmd(&args[1..]),
         _ => {
             println!("uw {}", env!("CARGO_PKG_VERSION"));
             println!("{USAGE}");
