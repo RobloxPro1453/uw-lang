@@ -11,7 +11,14 @@ CHECKUP'a) → ana dalda tam ölçü (test + new --check + build-project --compa
 %81 (21 Kasım sıfırlanır). Sahibinin kararları bu gün ROADMAP'te: editör (UW Studio/TurboUW, canlı
 önizleme), çeviri ekleri esnek, owner alanı, genel akıllı checkup, derleme hızı.
 
-## 00000000. ÖĞLE (2026-11-16, tur 7) — önce bunu oku
+Açık dallardan sonra sıradaki paket (ROADMAP sırası, kota izin verdikçe): (1) `owner swadia` alanı (Claude
+tasarlar: oyun başı script satırına bağlı, değişmeyen proje bayt eşit); (2) `area` + `on enter` (kolay dil §5,
+docs/bilgi/anlam/bolgeler-ve-dogma.md); (3) VS Code tamamlama/LSP; (4) genel akıllı checkup (her kayıt türünü
+modcu gözüyle tara); (5) son sözdizimi meclisi; (6) stres testi (Light & Darkness raporu). Sahibi teknik
+ayrıntı sorulmasını istemiyor: güvenli olanı seç, sonucu söyle (hafıza: decide-details-yourself).
+Sahibinin oyun denemesi beklenen: CHECKUP "Elle bakılacak" listesi (T-102 gelince diyalog deneyi).
+
+## 00000000. ÖĞLE (2026-11-16, tur 7) — eski (T-079 ve sonrası birleşti)
 
 BİTTİ: P5b v1 (names.uw, başlık, alan adları), `uw create` + `uw build` (klasörsüz), `fn` (T-078). Testler 352/352.
 ŞERİTTE: T-079 (`lib/core.uw` ilk kelimeler + menu_demo yeni yazımla). Döngü: `cv delegate status` → verify →
