@@ -71,6 +71,11 @@ pub enum Item {
     /// value is written as record text (`level 22`, `name "Elite Crossbowman"`): the field layout
     /// is kit-meta/records/<table>.toml.
     Like { kind: Ident, id: Ident, like: Ident, fields: Vec<FieldValue>, span: Span },
+    /// `dialog <troop> <name> { <speaker>: "text" … }`: the talk with one troop, as Native dialog
+    /// lines (docs/bilgi/anlam/diyaloglar.md, T-102). The first line is the NPC's opening, every
+    /// `player:` line after it is one of the player's choices; `name` says what the dialog is
+    /// (`first_meeting` is the greeting of the first talk).
+    Dialog { troop: Ident, name: Ident, lines: Vec<DialogLine>, span: Span },
 }
 
 /// The top-level keywords that copy a Native record (`troop … like …`, `town … like …`, …); a copy
@@ -87,6 +92,23 @@ pub fn is_copy_kind(kw: &str) -> bool {
 pub struct FieldValue {
     pub name: Ident,
     pub value: String,
+    pub span: Span,
+}
+
+/// One line of a `dialog <troop> <name> { … }` body (T-102):
+/// `<speaker>: "<text>" [when <cond>] [{ <block> }] [-> end]`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DialogLine {
+    /// The word before ':' as written (`harlaus`, `player`); `player` is the player's own line.
+    pub speaker: Ident,
+    pub text: String,
+    /// The condition the line only shows under (`when player.renown >= 300`).
+    pub when: Option<When>,
+    /// What picking the line does.
+    pub body: Option<Block>,
+    /// The word after `->`: `end` closes the talk. Absent on the NPC's opening line, which leads
+    /// to the player's choices.
+    pub to: Option<Ident>,
     pub span: Span,
 }
 
@@ -277,6 +299,8 @@ enum Tok {
     Cmp(CmpOp),
     /// `=` `+=` `-=` `*=` `/=` `%=`
     Assign(AssignOp),
+    /// `->` (where a dialog line leads, `-> end`).
+    Arrow,
     Newline,
     Eof,
 }
@@ -355,6 +379,11 @@ fn lex(text: &str) -> Result<Vec<Token>, Diagnostic> {
             '}' => {
                 out.push(one(Tok::RBrace));
                 i += 1;
+            }
+            // `->` (a dialog line's ending, `-> end`).
+            '-' if chars.get(i + 1).map(|p| p.1) == Some('>') => {
+                out.push(one(Tok::Arrow));
+                i += 2;
             }
             '(' => {
                 out.push(one(Tok::LParen));
@@ -568,6 +597,7 @@ fn describe(tok: &Tok) -> String {
         }
         .into(),
         Tok::Newline => "the end of the line".into(),
+        Tok::Arrow => "'->'".into(),
         Tok::Eof => "the end of the file".into(),
     }
 }
@@ -825,6 +855,17 @@ impl Parser {
                     let (fields, body) = self.copy_body(&format!("{} {} like {}", kind.text, id.text, like.text))?;
                     file.items.push(Item::Like { kind, id, like, fields, span: Span { start, end: body.end } });
                 }
+                // `dialog <troop> <name> { <speaker>: "text" … }` (T-102): the talk with one troop,
+                // as Native dialog lines (docs/bilgi/anlam/diyaloglar.md).
+                Tok::Ident(kw) if kw == "dialog" => {
+                    let start = t.span.start;
+                    self.bump();
+                    let troop =
+                        self.ident("the troop to talk to after `dialog`, e.g. `dialog king_harlaus first_meeting`")?;
+                    let name = self.ident("a name for the dialog, e.g. `first_meeting`")?;
+                    let (lines, body) = self.dialog_body(&format!("dialog {} {}", troop.text, name.text))?;
+                    file.items.push(Item::Dialog { troop, name, lines, span: Span { start, end: body.end } });
+                }
                 Tok::RBrace => {
                     return Err(err(E0102_STRAY_CLOSE, "this '}' has no matching '{'", t.span)
                         .with_help("remove it, or check which block above was closed early"));
@@ -832,7 +873,7 @@ impl Parser {
                 other => {
                     return Err(err(
                         E0100_UNEXPECTED,
-                        format!("expected `mod`, `override`, `in`, `new`, `troop`, `town`, `castle`, `village`, `party`, `on`, `fn`, `save` or `every` at the top level, found {}", describe(other)),
+                        format!("expected `mod`, `override`, `in`, `new`, `troop`, `town`, `castle`, `village`, `party`, `on`, `fn`, `save`, `every` or `dialog` at the top level, found {}", describe(other)),
                         t.span,
                     ));
                 }
@@ -1121,6 +1162,95 @@ impl Parser {
         }
         let value = self.text[start..end].trim().to_owned();
         Ok(FieldValue { name: name.clone(), value, span: Span { start: name.span.start, end } })
+    }
+
+    /// The `{ <speaker>: "text" … }` body of a `dialog` item (T-102).
+    fn dialog_body(&mut self, head: &str) -> Result<(Vec<DialogLine>, Span), Diagnostic> {
+        let open = self.open_brace(head)?;
+        let mut lines = Vec::new();
+        loop {
+            self.skip_separators();
+            let t = self.peek().clone();
+            match &t.tok {
+                Tok::RBrace => {
+                    self.bump();
+                    return Ok((lines, Span { start: open.start, end: t.span.end }));
+                }
+                Tok::Eof => return Err(self.unclosed(open, &format!("`{head}`"))),
+                // A top-level item inside the block: the block lost its `}`.
+                Tok::Ident(kw) if kw == "mod" || kw == "override" || kw == "new" || kw == "in" || kw == "dialog" => {
+                    return Err(self
+                        .unclosed(open, &format!("`{head}`"))
+                        .with_note(format!("line {} starts `{kw}` while this block is still open", self.line_of(t.span.start))));
+                }
+                Tok::Ident(_) => lines.push(self.dialog_line(head)?),
+                other => {
+                    return Err(err(
+                        E0100_UNEXPECTED,
+                        format!("expected a line like `harlaus: \"Who are you?\"` inside `{head}`, found {}", describe(other)),
+                        t.span,
+                    )
+                    .with_help("write `harlaus: \"Who are you?\"` or `player: \"Just a traveller.\" -> end`"));
+                }
+            }
+        }
+    }
+
+    /// One `<speaker>: "<text>" [when <cond>] [{ <block> }] [-> end]` line of a `dialog` body.
+    fn dialog_line(&mut self, head: &str) -> Result<DialogLine, Diagnostic> {
+        let speaker = self.ident("the speaker of this line, e.g. `harlaus` or `player`")?;
+        let t = self.peek().clone();
+        if t.tok != Tok::Colon {
+            return Err(err(
+                E0100_UNEXPECTED,
+                format!("expected ':' and the text after `{}`, found {}", speaker.text, describe(&t.tok)),
+                t.span,
+            )
+            .with_help(format!("write `{}: \"...\"`", speaker.text)));
+        }
+        self.bump();
+        let (text, lit) = self.text_lit(&format!("the text of this line of `{head}`, in double quotes"))?;
+        // `when` may follow on this line or the next one, as in an `option` (`when` ends at the
+        // body's `{`, §7.5).
+        let save = self.pos;
+        self.skip_newlines();
+        let mut when = None;
+        if matches!(&self.peek().tok, Tok::Ident(word) if word == "when") {
+            self.bump();
+            when = Some(self.when_part()?);
+        } else {
+            self.pos = save;
+        }
+        // A `{ … }` after the condition is what picking this line does.
+        let body = {
+            let save = self.pos;
+            self.skip_newlines();
+            if self.peek().tok == Tok::LBrace {
+                Some(self.block(&format!("this line of `{head}`"))?)
+            } else {
+                self.pos = save;
+                None
+            }
+        };
+        let save = self.pos;
+        self.skip_newlines();
+        let mut to = None;
+        if self.peek().tok == Tok::Arrow {
+            self.bump();
+            to = Some(self.ident("`end` after `->`")?);
+        } else {
+            self.pos = save;
+        }
+        self.end_of_stmt(&format!("this line of `{head}`"))?;
+        let end = match (&to, &body, &when) {
+            (Some(to), ..) => to.span.end,
+            (None, Some(body), _) => body.span.end,
+            (None, None, Some(When::Cond(cond))) => cond_span(cond).end,
+            (None, None, Some(When::Block(block))) => block.span.end,
+            (None, None, None) => lit.end,
+        };
+        let start = speaker.span.start;
+        Ok(DialogLine { speaker, text, when, body, to, span: Span { start, end } })
     }
 
     /// One menu line of an `override` / `new` body: `text`, `option`, `change option` or
@@ -1943,6 +2073,7 @@ mod tests {
                 Item::Save { .. } => Vec::new(),
                 Item::Every { body, .. } => vec![body],
                 Item::Like { .. } => Vec::new(),
+                Item::Dialog { lines, .. } => lines.into_iter().filter_map(|l| l.body).collect(),
             };
             for b in blocks {
                 for s in b.stmts.iter().filter_map(Stmt::as_call) {

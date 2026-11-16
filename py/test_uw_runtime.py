@@ -161,5 +161,45 @@ class Menus(unittest.TestCase):
         self.assertRaises(uw.UwRuntimeError, uw.add_entry, self.menus, ("camp", 0, "", "none", [], []), key=KEY)
 
 
+class Dialogs(unittest.TestCase):
+    """Dialog lines module_dialogs.py:15-44: (speaker, starting state, conditions, text, ending
+    state, consequences[, voice-over]); the kit scans them top to bottom."""
+
+    def setUp(self):
+        # The kit's conversation-preparation line: never displayed, it fills $g_talk_troop and the
+        # other globals in its condition block (module_dialogs.py:47-188).
+        self.preparation = [None, "start", [(1, "store_conversation_troop", "$g_talk_troop"), (31, 1, 0)],
+                            "Warning: This line is never displayed.", "close_window", []]
+        self.dialogs = [
+            self.preparation,
+            [None, "start", [], "Do I know you?", "lord_meet_neutral", []],
+            [None, "lord_meet_neutral", [], "A name.", "lord_intro", []],
+        ]
+        self.before = repr(self.dialogs)
+
+    def tearDown(self):
+        self.assertEqual(repr(self.dialogs), self.before, "input list was mutated")
+
+    def test_lines_go_before_native_lines_of_the_same_state(self):
+        lines = [[None, "start", [], "Who are you?", "uw_first_meeting_0", []]]
+        out = uw.insert_before_state(self.dialogs, "start", lines)
+        self.assertIsNot(out, self.dialogs)
+        self.assertEqual([e[3] for e in out], [
+            "Warning: This line is never displayed.",
+            "Who are you?",
+            "Do I know you?",
+            "A name.",
+        ])
+        self.assertEqual(out[1], lines[0])
+        # The preparation line stays at the head, so $g_talk_troop is written before the new line
+        # is scanned; every entry the patch does not name stays the same object.
+        self.assertIs(out[0], self.preparation)
+        self.assertIs(out[2], self.dialogs[1])
+        self.assertIs(out[3], self.dialogs[2])
+
+    def test_a_state_native_never_plays_is_an_error(self):
+        self.assertRaises(uw.UwRuntimeError, uw.insert_before_state, self.dialogs, "uw_none_0", [[]])
+
+
 if __name__ == "__main__":
     unittest.main()

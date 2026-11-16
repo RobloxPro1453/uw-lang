@@ -183,6 +183,36 @@ def remove_where(lst, predicate):
     return [e for i, e in enumerate(lst) if not predicate(i, e)]
 
 
+# Dialog lines (module_dialogs.py:15-44): one list per line, fields speaker, starting state,
+# conditions, text, ending state, consequences[, voice-over]. The kit scans the table from top to
+# bottom and the first matching NPC line wins (module_dialogs.py:16-18), so a mod's line has to come
+# before Native's lines of the same state or it never fires (docs/bilgi/anlam/diyaloglar.md 2, 9).
+
+def _never_displays(entry):
+    """A conversation-preparation line: its condition block ends with `(eq, 1, 0)`, so it is never
+    displayed, but the operations before that one still run and fill `$g_talk_troop`,
+    `$g_talk_troop_met` … (module_dialogs.py:47-188, docs/bilgi/anlam/diyaloglar.md 4)."""
+    block = entry[2]
+    if not isinstance(block, list) or not block:
+        return False
+    last = block[-1]
+    return len(last) == 3 and last[1] == 1 and last[2] == 0
+
+
+def insert_before_state(lst, state, entries):
+    """New dialog lines in front of the first line Native plays in `state`. The preparation lines at
+    the head of the table are stepped over: a line put before them would read `$g_talk_troop` before
+    the preparation line writes it. Two calls for one state put the last one's lines first."""
+    at = None
+    for i, entry in enumerate(lst):
+        if entry[1] == state and not _never_displays(entry):
+            at = i
+            break
+    if at is None:
+        raise UwRuntimeError("no dialog line starts at state %r" % (state,))
+    return insert_before(lst, at, entries)
+
+
 # Menu text and options (grammar 2, docs/meclis/gramer-2-oneri.md section 4).
 # Menu layout module_game_menus.py:20-32: field 2 text, field 5 option list; an option is
 # (id, condition block, text, consequence block[, door text]). Option ids are written without the

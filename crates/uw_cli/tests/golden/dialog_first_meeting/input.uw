@@ -1,0 +1,14 @@
+// T-102: `dialog <troop> <name> { … }` becomes Native dialog lines in module_dialogs, put in front
+// of Native's own lines for the same state so the mod's line is scanned first
+// (docs/bilgi/anlam/diyaloglar.md §2, §9). The opening line checks the talk partner
+// (`$g_talk_troop`) and, for `first_meeting`, that the met slot is still 0 (§5); `-> end` is the
+// `close_window` state (§6) and each `player:` line is one choice (§7).
+mod dialog_first_meeting
+
+dialog king_harlaus first_meeting {
+    harlaus: "Who are you, stranger?"
+    player: "Just a traveller." -> end
+    player: "I wish to serve you." when player.renown >= 300 {
+        say("@He nods.")
+    } -> end
+}
