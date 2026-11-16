@@ -14,3 +14,5 @@ Ajana söylemek istediğin her şeyi buraya, **en alta**, düz cümleyle yaz. Ot
 [okundu 2026-11-15] Sahibi (oturumda): haftalık limit %90, "sonsuz yetkin var". → weeklyBase 90 (sabit), share.weight 3 (bu proje önde), office.maxLanes 20.
 
 Sahibi (oturumda, 2026-11-16): döngü haftalık limit %95'e kadar çalışsın; %95'e varınca (ya da kota kapısı yeni adımı durdurunca) elindeki işi bitir: birleştir, testler yeşilse commit + push, `cv round end`, sonra bilgisayarı kapat: `shutdown /s /t 120` (2 dk uyarı; sahibi iptal için `shutdown /a`). Şerit çalışıyorsa önce bitmesini bekle ya da dalını yarım bırak (veri kaybı yok), kapatmadan önce `git status` temiz olsun. → weeklyBase 100, weeklyMargin 5 (yeni adım %95'te durur).
+
+Sahibi (/loop, 2026-11-16, tamamen gözetimsiz, soru yok): kalan işleri yapabildiğin kadar yap. Haftalık %90: elindeki işi bitir, yeni iş ekleme (bitince kapat: commit + push + `cv round end`, sonra `shutdown /s /t 120`). Haftalık %95: hemen toparla ve kapat. Önceki %95 notunun yerine geçer. → weeklyBase 95, weeklyMargin 5 (yeni adım %90'da durur).
