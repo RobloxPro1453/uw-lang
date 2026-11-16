@@ -1,4 +1,20 @@
-# UW dili için VS Code eklentisi (v0)
+# UW için VS Code eklentisi
+
+## Kurulum (tek komut)
+
+UW klasöründe:
+
+```
+python editors/vscode/pack.py
+code --install-extension editors/vscode/uw-lang-0.1.0.vsix --force
+```
+
+Sonra VS Code'u yeniden başlat (ya da Ctrl+Shift+P → "Developer: Reload Window"). Bir `.uw` dosyası
+açınca sağ altta **UW** yazmalı ve renkler görünmeli.
+
+**Not:** klasörü elle `~/.vscode/extensions` içine kopyalamak yeni VS Code sürümlerinde çalışmaz
+(VS Code onu kendi listesine kaydetmez, "Plain Text" kalır). Yukarıdaki `.vsix` yolunu kullan.
+
 
 `.uw` dosyalarını renklendirir:
 

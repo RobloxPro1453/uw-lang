@@ -30,3 +30,6 @@ geminiversion/
 # Sahibinin yerel denemeleri (uw new çıktısı, akış dökümü: Native metinleri içerir)
 hikayem/
 flow_*.json
+
+# VS Code paketi (editors/vscode/pack.py üretir)
+*.vsix
