@@ -9,6 +9,16 @@ Sahibi uyudu; ilk mesajında kısa durum + tahmini yüzde ister (hafıza: progre
    (KARARNAMELER 2026-11-16 "Önce temel, sözdizimi en son"; hedef yazım `docs/meclis/kolay-dil-taslak.md`).
 3. Ayar: günlük tavan $8, test yuvası 4 (`.evrim/config.json`). Toplam tavan $15: harcamayı kontrol et.
 
+4. **Sahibinin notu (2026-11-16): `ornek mod mekanik arastirmasi (stres testi)/`** (proje kökü, sahibi ekledi,
+   önceki oturum içine bakmadı; depoya girmedi). Amaç iki aşamalı: (a) ŞİMDİ, bu oturumda: içini incele,
+   kapsamlı bir modda hangi mekanikler var, özetle (dosyalara/lisansa dikkat: TaleWorlds ya da başkasının
+   kodu depoya girmez); tasarımda baştan bunların bilincinde ol. (b) DERLEYİCİ BİTİNCE: stres testi — oradaki
+   mekanikleri UW ile tek tek yazmaya çalış, ne kadarı eksiksiz yapılabiliyor ölç, eksikleri bul ve kapat;
+   sahibine kapasite raporu ("şu kadarını eksiksiz yapabiliyoruz") ver. ROADMAP'te madde var.
+5. CHECKUP'ta sahibinin yeni sonucu var (kayıt uyumu deneyi): oku, `docs/bilgi/`'ye [DENEY] olarak işle.
+6. Proje kökündeki `hikayem/` (sahibinin denediği `uw new` çıktısı) ve `flow_startgamezero.json` depoya
+   girmemeli: `.gitignore`'a eklemeyi düşün, silme.
+
 ## 000000. P3b v1 BİTTİ (proje klasörü 32/32 bayt eşit) — sıradaki: P3b kalanı (tombstone, aralık kilidi, ters dizin hatası) ya da P5 okunaklı kayıt alanları; oyun deneyi CHECKUP
 
 ## 00000a. YÖN 2 MECLİSİ BİTTİ (2026-11-15)
