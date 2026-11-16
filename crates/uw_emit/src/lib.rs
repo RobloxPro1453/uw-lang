@@ -221,7 +221,10 @@ fn wrapper(name: &str, module: &str, patches: &[&Patch], debug: bool) -> String 
                 }
                 let _ = writeln!(out, "))");
             }
-            Action::NewSimpleTrigger { interval } => {
+            Action::NewSimpleTrigger { interval, comment } => {
+                if let Some(comment) = comment {
+                    let _ = writeln!(out, "# {comment}");
+                }
                 let _ = writeln!(out, "{var} = _uw.append_entry({var}, (", var = patch.var);
                 let _ = writeln!(out, "    {interval},");
                 let _ = writeln!(out, "    {},", op_list(&patch.ops, 4));

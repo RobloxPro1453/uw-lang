@@ -11,6 +11,7 @@
         {"name":"call_script","code":1,"line":14,"signature":"(call_script,<script_id>),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"ge","code":30,"line":40,"signature":"(ge,<value>,<value>),","lhs":false,"can_fail":true,"global_lhs":false},
         {"name":"store_troop_gold","code":2149,"line":1204,"signature":"(store_troop_gold,<destination>,<troop_id>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"store_time_of_day","code":2271,"line":1274,"signature":"(store_time_of_day,<destination>),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"troop_remove_gold","code":1529,"line":612,"signature":"(troop_remove_gold,<troop_id>,<value>),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"troop_add_item","code":1530,"line":613,"signature":"(troop_add_item,<troop_id>,<item_id>,[modifier]),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"troop_remove_item","code":1531,"line":614,"signature":"(troop_remove_item,<troop_id>,<item_id>),","lhs":false,"can_fail":false,"global_lhs":false},

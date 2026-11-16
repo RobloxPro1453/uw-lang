@@ -101,3 +101,8 @@ fn player.honor.add(:amount) {
 fn player.level.get(:out) {
     store_character_level(:out, trp_player)
 }
+
+// Read the time of day in game hours — docs/bilgi/anlam/zaman-ve-olaylar.md:122 (`store_time_of_day`).
+fn time.hour.get(:out) {
+    store_time_of_day(:out)
+}

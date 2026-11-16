@@ -64,6 +64,12 @@ pub enum Item {
     /// kept as Python writes it (`24`, `6`, `0.5`): the kit's simple_triggers record is
     /// `(check_interval, ops)` and the interval is a plain number there (T-088).
     Every { interval: String, body: Block, span: Span },
+    /// `area <name> [(x, y), …]`: a map polygon, corners in world-map units × 100 (the fixed-point
+    /// multiplier the position operations are read with), so the tree keeps no float (T-109).
+    Area { name: Ident, points: Vec<AreaPoint>, span: Span },
+    /// `on enter <area> [when <cond>] { body }`: a simple trigger that runs `body` when the
+    /// player's party goes from outside the area to inside it (T-109).
+    AreaEnter { area: Ident, when: Option<When>, body: Block, span: Span },
     /// `<kind> <new_id> like <existing> { <field> <value> … }`: a copy of the Native record
     /// `<existing>` with some fields changed, added at the end of its list (T-092 troops, T-099
     /// towns, castles, villages and parties). `kind` is the keyword as written (`troop`, `town`,
@@ -85,6 +91,14 @@ pub const COPY_KINDS: [&str; 5] = ["troop", "town", "castle", "village", "party"
 /// True when `kw` is one of [`COPY_KINDS`].
 pub fn is_copy_kind(kw: &str) -> bool {
     COPY_KINDS.contains(&kw)
+}
+
+/// One corner of an `area` polygon, in world-map units × 100 (the fixed point
+/// `set_fixed_point_multiplier, 100` makes the position operations return).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AreaPoint {
+    pub x: i64,
+    pub y: i64,
 }
 
 /// One `<field> <value>` line of a `<kind> … like …` body; `value` is the record text as written.
@@ -289,6 +303,8 @@ enum Tok {
     RBrace,
     LParen,
     RParen,
+    LBracket,
+    RBracket,
     Comma,
     Semi,
     Dot,
@@ -392,6 +408,17 @@ fn lex(text: &str) -> Result<Vec<Token>, Diagnostic> {
             }
             ')' => {
                 out.push(one(Tok::RParen));
+                depth = depth.saturating_sub(1);
+                i += 1;
+            }
+            // `area <name> [(x, y), …]`: the corner list, wrapping over lines like `(` (T-109).
+            '[' => {
+                out.push(one(Tok::LBracket));
+                depth += 1;
+                i += 1;
+            }
+            ']' => {
+                out.push(one(Tok::RBracket));
                 depth = depth.saturating_sub(1);
                 i += 1;
             }
@@ -566,6 +593,8 @@ fn describe(tok: &Tok) -> String {
         Tok::RBrace => "'}'".into(),
         Tok::LParen => "'('".into(),
         Tok::RParen => "')'".into(),
+        Tok::LBracket => "'['".into(),
+        Tok::RBracket => "']'".into(),
         Tok::Comma => "','".into(),
         Tok::Semi => "';'".into(),
         Tok::Dot => "'.'".into(),
@@ -786,15 +815,38 @@ impl Parser {
                 Tok::Ident(kw) if kw == "on" => {
                     let start = t.span.start;
                     self.bump();
-                    let mut path = vec![self.ident("what to hook, e.g. `game.start`")?];
-                    while self.peek().tok == Tok::Dot {
+                    // `on enter <area> [when <cond>] { … }` (T-109) is not an engine hook: an
+                    // area name follows `enter`, where `on game.<hook>` has a dot instead.
+                    let area_enter = matches!(&self.peek().tok, Tok::Ident(w) if w == "enter") && {
+                        let mut i = self.pos + 1;
+                        while self.toks[i].tok == Tok::Newline {
+                            i += 1;
+                        }
+                        matches!(self.toks[i].tok, Tok::Ident(_))
+                    };
+                    if area_enter {
                         self.bump();
-                        path.push(self.ident("a name after '.'")?);
+                        let area = self.ident("the area name after `on enter`, e.g. `on enter mountain_road`")?;
+                        let when = if matches!(&self.peek().tok, Tok::Ident(w) if w == "when") {
+                            self.bump();
+                            Some(self.when_part()?)
+                        } else {
+                            None
+                        };
+                        let body = self.block(&format!("on enter {}", area.text))?;
+                        let end = body.span.end;
+                        file.items.push(Item::AreaEnter { area, when, body, span: Span { start, end } });
+                    } else {
+                        let mut path = vec![self.ident("what to hook, e.g. `game.start`")?];
+                        while self.peek().tok == Tok::Dot {
+                            self.bump();
+                            path.push(self.ident("a name after '.'")?);
+                        }
+                        let head = format!("on {}", path.iter().map(|p| p.text.as_str()).collect::<Vec<_>>().join("."));
+                        let body = self.block(&head)?;
+                        let end = body.span.end;
+                        file.items.push(Item::On { path, body, span: Span { start, end } });
                     }
-                    let head = format!("on {}", path.iter().map(|p| p.text.as_str()).collect::<Vec<_>>().join("."));
-                    let body = self.block(&head)?;
-                    let end = body.span.end;
-                    file.items.push(Item::On { path, body, span: Span { start, end } });
                 }
                 Tok::Ident(kw) if kw == "fn" => {
                     let start = t.span.start;
@@ -830,6 +882,16 @@ impl Parser {
                     let body = self.block(&format!("every {interval} hours"))?;
                     let end = body.span.end;
                     file.items.push(Item::Every { interval, body, span: Span { start, end } });
+                }
+                // `area <name> [(x, y), …]` (T-109): a map polygon, corners in world-map units.
+                Tok::Ident(kw) if kw == "area" => {
+                    let start = t.span.start;
+                    self.bump();
+                    let name = self.ident("an area name after `area`, e.g. `area mountain_road [(10, 20), …]`")?;
+                    let (points, span) = self.area_points(&name.text)?;
+                    let end = span.end;
+                    self.end_of_stmt("this `area` line")?;
+                    file.items.push(Item::Area { name, points, span: Span { start, end } });
                 }
                 Tok::Ident(kw) if is_copy_kind(kw) => {
                     let kind = Ident { text: kw.clone(), span: t.span };
@@ -873,7 +935,7 @@ impl Parser {
                 other => {
                     return Err(err(
                         E0100_UNEXPECTED,
-                        format!("expected `mod`, `override`, `in`, `new`, `troop`, `town`, `castle`, `village`, `party`, `on`, `fn`, `save`, `every` or `dialog` at the top level, found {}", describe(other)),
+                        format!("expected `mod`, `override`, `in`, `new`, `troop`, `town`, `castle`, `village`, `party`, `on`, `fn`, `save`, `every`, `area` or `dialog` at the top level, found {}", describe(other)),
                         t.span,
                     ));
                 }
@@ -966,6 +1028,128 @@ impl Parser {
                 .with_help("write e.g. `every 6 hours { ... }`, or `every day { ... }`"));
         }
         Ok(hours)
+    }
+
+    /// The `[(x, y), …]` corner list of `area <name>` (T-109). An empty or short list parses; the
+    /// check says how many corners a polygon needs.
+    fn area_points(&mut self, name: &str) -> Result<(Vec<AreaPoint>, Span), Diagnostic> {
+        self.skip_newlines();
+        let open = self.peek().clone();
+        if open.tok != Tok::LBracket {
+            return Err(err(
+                E0100_UNEXPECTED,
+                format!("expected '[' and the corner list after `area {name}`, found {}", describe(&open.tok)),
+                open.span,
+            )
+            .with_help(format!("write `area {name} [(x, y), (x, y), (x, y)]`")));
+        }
+        self.bump();
+        let mut points = Vec::new();
+        loop {
+            self.skip_newlines();
+            let t = self.peek().clone();
+            match t.tok {
+                Tok::RBracket => {
+                    self.bump();
+                    return Ok((points, Span { start: open.span.start, end: t.span.end }));
+                }
+                Tok::LParen => {
+                    self.bump();
+                    self.skip_newlines();
+                    let x = self.area_coord(name)?;
+                    self.skip_newlines();
+                    let sep = self.peek().clone();
+                    if sep.tok != Tok::Comma {
+                        return Err(err(
+                            E0100_UNEXPECTED,
+                            format!("expected ',' between x and y in `area {name}`, found {}", describe(&sep.tok)),
+                            sep.span,
+                        )
+                        .with_help("write a corner as `(x, y)`"));
+                    }
+                    self.bump();
+                    self.skip_newlines();
+                    let y = self.area_coord(name)?;
+                    self.skip_newlines();
+                    let close = self.peek().clone();
+                    if close.tok != Tok::RParen {
+                        return Err(err(
+                            E0100_UNEXPECTED,
+                            format!("expected ')' after a corner of `area {name}`, found {}", describe(&close.tok)),
+                            close.span,
+                        )
+                        .with_help("write a corner as `(x, y)`"));
+                    }
+                    self.bump();
+                    points.push(AreaPoint { x, y });
+                    self.skip_newlines();
+                    let next = self.peek().clone();
+                    match next.tok {
+                        Tok::Comma => {
+                            self.bump();
+                        }
+                        Tok::RBracket => {
+                            self.bump();
+                            return Ok((points, Span { start: open.span.start, end: next.span.end }));
+                        }
+                        other => {
+                            return Err(err(
+                                E0100_UNEXPECTED,
+                                format!("expected ',' or ']' after a corner of `area {name}`, found {}", describe(&other)),
+                                next.span,
+                            ));
+                        }
+                    }
+                }
+                other => {
+                    return Err(err(
+                        E0100_UNEXPECTED,
+                        format!("expected '(' or ']' in the corner list of `area {name}`, found {}", describe(&other)),
+                        t.span,
+                    )
+                    .with_help("write the corners as `[(x, y), (x, y), (x, y)]`"));
+                }
+            }
+        }
+    }
+
+    /// One corner coordinate of an `area` polygon (T-109): a whole or decimal number, possibly
+    /// negative (`-96`, `26.4`; the lexer has no float token, so `26.4` is `Int(26) Dot Int(4)`).
+    /// Scaled to hundredths, the fixed point `set_fixed_point_multiplier, 100` gives positions.
+    fn area_coord(&mut self, name: &str) -> Result<i64, Diagnostic> {
+        let t = self.peek().clone();
+        if !matches!(t.tok, Tok::Int(_)) {
+            return Err(err(
+                E0100_UNEXPECTED,
+                format!("expected a number in `area {name}`, found {}", describe(&t.tok)),
+                t.span,
+            )
+            .with_help("write a corner as `(x, y)`, e.g. `(10, 20)` or `(-96, 26.4)`"));
+        }
+        // The token's own text keeps the sign and leading zeros the integer value drops (`-0.5`).
+        let mut literal = self.text[t.span.start..t.span.end].to_string();
+        self.bump();
+        let mut end = t.span.end;
+        if self.peek().tok == Tok::Dot {
+            self.bump();
+            let frac = self.peek().clone();
+            if !matches!(frac.tok, Tok::Int(_)) {
+                return Err(err(
+                    E0100_UNEXPECTED,
+                    format!("expected the digits after '.' in a number of `area {name}`, found {}", describe(&frac.tok)),
+                    frac.span,
+                )
+                .with_help("write e.g. `(26.4, -12)`"));
+            }
+            literal.push('.');
+            literal.push_str(&self.text[frac.span.start..frac.span.end]);
+            end = frac.span.end;
+            self.bump();
+        }
+        let value: f64 = literal.parse().map_err(|_| {
+            err(E0103_BAD_TOKEN, format!("'{literal}' is not a number"), Span { start: t.span.start, end })
+        })?;
+        Ok((value * 100.0).round() as i64)
     }
 
     /// The `(:p1, :p2, …)` parameters of `fn <name>`; each one is a `:local` the body uses.
@@ -2072,6 +2256,8 @@ mod tests {
                 Item::Fn { body, .. } => vec![body],
                 Item::Save { .. } => Vec::new(),
                 Item::Every { body, .. } => vec![body],
+                Item::Area { .. } => Vec::new(),
+                Item::AreaEnter { body, .. } => vec![body],
                 Item::Like { .. } => Vec::new(),
                 Item::Dialog { lines, .. } => lines.into_iter().filter_map(|l| l.body).collect(),
             };
@@ -2655,5 +2841,29 @@ $2ary = 1").expect("parses");
         assert!(r.contains("write `for :i in range(0, 10) { ... }`"), "{r}");
         assert!(r.contains("--> t.uw:2:7"), "{r}");
         assert!(!r.contains("unexpected end"), "{r}");
+    }
+
+    /// T-109: `area` corners may be negative or decimal, and `on enter` takes an optional `when`.
+    #[test]
+    fn area_and_on_enter_parse() {
+        let file = parse(
+            "area mountain_road [(10, 20), (-96, 26.4), (40, 60)]\n\non enter mountain_road when time.hour >= 12 {\n  say(\"@Hi\")\n}\n",
+        )
+        .expect("parses");
+        let Item::Area { name, points, .. } = &file.items[0] else { panic!("{:?}", file.items[0]) };
+        assert_eq!(name.text, "mountain_road");
+        assert_eq!(points, &[AreaPoint { x: 1000, y: 2000 }, AreaPoint { x: -9600, y: 2640 }, AreaPoint { x: 4000, y: 6000 }]);
+        let Item::AreaEnter { area, when, body, .. } = &file.items[1] else { panic!("{:?}", file.items[1]) };
+        assert_eq!(area.text, "mountain_road");
+        assert!(matches!(when, Some(When::Cond(Cond::Cmp { op: CmpOp::Ge, .. }))));
+        assert_eq!(body.stmts.len(), 1);
+        // Two corners parse too; the check is the one that asks for three.
+        let file = parse("area line [(0, 0), (1, 1)]\n").expect("parses");
+        let Item::Area { points, .. } = &file.items[0] else { panic!() };
+        assert_eq!(points.len(), 2);
+        // The corner list must open with `[`.
+        let (d, r) = error("area line (0, 0)\n");
+        assert_eq!(d.code, E0100_UNEXPECTED);
+        assert!(r.contains("expected '[' and the corner list after `area line`"), "{r}");
     }
 }
