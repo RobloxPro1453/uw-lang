@@ -322,11 +322,13 @@ mod tests {
     #[test]
     fn the_names_option_measures_with_game_names() {
         let mut atlas = uw_atlas::Atlas::from_path(FIXTURE).expect("the golden atlas fixture loads");
-        // Three names: `praven` (Praven), `swadian_crossbowman` for the troop T-092 copies, and
-        // `king_harlaus` (King Harlaus) for the troop T-102's dialog talks to.
-        assert_eq!(install_derived_names(&mut atlas), 3);
+        // Four names: `praven` (Praven), `swadian_crossbowman` for the troop T-092 copies,
+        // `king_harlaus` (King Harlaus) for the troop T-102's dialog talks to, and `iron_shield`
+        // for T-114's condition-word example.
+        assert_eq!(install_derived_names(&mut atlas), 4);
         assert_eq!(atlas.reference_for("praven"), Some("p_town_6"));
         assert_eq!(atlas.reference_for("king_harlaus"), Some("trp_kingdom_1_lord"));
+        assert_eq!(atlas.reference_for("iron_shield"), Some("itm_iron_shield"));
         // The game name compiles like its kit reference and prints back as the game name.
         let text = "party_relocate_near_party(praven, p_main_party, 3)";
         let ops = compile(&atlas, text).expect("the game name is accepted");

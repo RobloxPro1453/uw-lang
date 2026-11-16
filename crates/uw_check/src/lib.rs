@@ -49,6 +49,9 @@ pub const E0218_TROOP_FIELD: &str = "E0218";
 pub const E0219_AREA_UNKNOWN: &str = "E0219";
 /// An `area` with fewer than 3 corners, so it cannot be a polygon (T-109).
 pub const E0220_AREA_POINTS: &str = "E0220";
+/// A `test fn` used or written wrong: a plain `fn` used as a condition, a body that is not only
+/// condition operations, or a condition word with no operation (T-114).
+pub const E0221_CONDITION_WORD: &str = "E0221";
 
 /// Why an `on enter` trigger checks its area this often, written next to the generated trigger:
 /// the map has no per-step hook, so the trigger samples the party position (T-109).
@@ -225,6 +228,8 @@ struct FnDef<'a> {
     origin: String,
     params: &'a [Ident],
     body: &'a Block,
+    /// `test fn`: a condition word, usable in `if`/`when` (T-114).
+    test: bool,
 }
 
 /// `file:line` of `span` in `file`.
@@ -360,7 +365,7 @@ fn collect_fns<'a>(atlas: &Atlas, sources: &'a [Source]) -> (BTreeMap<String, Fn
     let mut errors = Vec::new();
     for (index, source) in sources.iter().enumerate() {
         for item in &source.tree.items {
-            let Item::Fn { name, params, body, .. } = item else { continue };
+            let Item::Fn { name, params, body, test, .. } = item else { continue };
             if atlas.op(&name.text).is_some() {
                 errors.push(Error {
                     file: index,
@@ -387,10 +392,65 @@ fn collect_fns<'a>(atlas: &Atlas, sources: &'a [Source]) -> (BTreeMap<String, Fn
                 continue;
             }
             let origin = origin_in(&source.file, name.span);
-            fns.insert(name.text.clone(), FnDef { file: index, origin, params, body });
+            fns.insert(name.text.clone(), FnDef { file: index, origin, params, body, test: *test });
         }
     }
     (fns, errors)
+}
+
+/// A `test fn` body may hold only condition operations: a Native operation that can fail, or a
+/// call to another `test fn` (T-114). Anything else is one error on its line.
+fn check_condition_words(atlas: &Atlas, sources: &[Source], fns: &BTreeMap<String, FnDef<'_>>) -> Vec<Error> {
+    let mut errors = Vec::new();
+    for (index, source) in sources.iter().enumerate() {
+        for item in &source.tree.items {
+            let Item::Fn { name, body, span, test: true, .. } = item else { continue };
+            if body.stmts.is_empty() {
+                errors.push(Error {
+                    file: index,
+                    diag: diag(
+                        E0221_CONDITION_WORD,
+                        format!("`test fn {}` has no operation to test", name.text),
+                        *span,
+                        Some("write a Native condition operation, e.g. `player_has_item(:item)`".into()),
+                    ),
+                });
+                continue;
+            }
+            for stmt in &body.stmts {
+                let Some(call) = stmt.as_call() else {
+                    errors.push(Error {
+                        file: index,
+                        diag: diag(
+                            E0221_CONDITION_WORD,
+                            format!("`test fn {}` may only call a condition operation", name.text),
+                            stmt.span(),
+                            Some("write Native condition operations on their own lines, e.g. `player_has_item(:item)`".into()),
+                        ),
+                    });
+                    continue;
+                };
+                if fns.get(&call.op.text).is_some_and(|def| def.test) {
+                    continue;
+                }
+                let problem = match atlas.op(&call.op.text) {
+                    Some(op) if op.can_fail => continue,
+                    Some(_) => "is not a condition operation",
+                    None => "is not a Native operation or a test fn",
+                };
+                errors.push(Error {
+                    file: index,
+                    diag: diag(
+                        E0221_CONDITION_WORD,
+                        format!("`{}` {problem}, so `test fn {}` cannot test anything", call.op.text, name.text),
+                        call.op.span,
+                        Some("a `test fn` body holds only Native condition operations".into()),
+                    ),
+                });
+            }
+        }
+    }
+    errors
 }
 
 /// A `save` of the mod (T-085): one named `$global` that lives in the save game, with the value
@@ -667,6 +727,47 @@ impl Ctx<'_> {
         let out = self.stmts_in(&body, def.file);
         self.stack.pop();
         out
+    }
+
+    /// A `test fn` call used as a condition, expanded to its Native condition operations (T-114).
+    /// `None` when `call` is not a fn at all; a plain `fn` here is one error, because only a
+    /// `test fn` is a condition word.
+    fn condition_word_ops(&mut self, call: &Call) -> Option<Vec<Op>> {
+        let test = self.fns.get(&call.op.text)?.test;
+        if !test {
+            self.error(diag(
+                E0221_CONDITION_WORD,
+                format!("`{}` is a word, not a condition", call.op.text),
+                call.op.span,
+                Some(format!("mark it `test fn {}` so it can be used in `if`/`when`", call.op.text)),
+            ));
+            return None;
+        }
+        let mut ops = Vec::new();
+        for stmt in self.inline(call) {
+            match stmt {
+                uw_lower::Stmt::Op(op) => ops.push(op),
+                _ => {
+                    self.error(diag(
+                        E0221_CONDITION_WORD,
+                        format!("`{}` is not a condition: its body does more than test", call.op.text),
+                        call.op.span,
+                        Some(format!("a `test fn {}` body holds only Native condition operations", call.op.text)),
+                    ));
+                    return None;
+                }
+            }
+        }
+        if ops.is_empty() {
+            self.error(diag(
+                E0221_CONDITION_WORD,
+                format!("`{}` has no operation to test", call.op.text),
+                call.op.span,
+                Some(format!("write a Native condition operation in `fn {}`", call.op.text)),
+            ));
+            return None;
+        }
+        Some(ops)
     }
 
     /// An assignment target: `$global`, `:local`, or a register kit constant.
@@ -1107,6 +1208,15 @@ impl Ctx<'_> {
                         origin: self.origin(call.span),
                     });
                 }
+                // A condition word (`test fn player.has`) is inlined into its operations (T-114).
+                if self.fns.contains_key(&call.op.text) {
+                    let ops = self.condition_word_ops(call)?;
+                    return Some(if ops.len() == 1 {
+                        uw_lower::Cond::Op(ops.into_iter().next().expect("one operation"))
+                    } else {
+                        uw_lower::Cond::And(ops.into_iter().map(uw_lower::Cond::Op).collect())
+                    });
+                }
                 self.call(call).map(uw_lower::Cond::Op)
             }
             Cond::Not(inner, _) => Some(uw_lower::Cond::Not(Box::new(self.cond(inner)?))),
@@ -1152,6 +1262,11 @@ impl Ctx<'_> {
                     out.push(Op { name: "neq".into(), args: vec![global, Value::Int(0)], origin: self.origin(call.span) });
                     return Some(());
                 }
+                // A condition word is inlined into its operations (T-114).
+                if self.fns.contains_key(&call.op.text) {
+                    out.extend(self.condition_word_ops(call)?);
+                    return Some(());
+                }
                 let op = self.call(call)?;
                 out.push(op);
                 Some(())
@@ -1182,6 +1297,24 @@ impl Ctx<'_> {
             Cond::Call(call) => {
                 if let Some(global) = self.save_cond(call) {
                     out.push(Op { name: "eq".into(), args: vec![global, Value::Int(0)], origin: self.origin(call.span) });
+                    return Some(());
+                }
+                // A condition word: one operation takes `neg|`; several need a flag (T-114).
+                if self.fns.contains_key(&call.op.text) {
+                    let ops = self.condition_word_ops(call)?;
+                    if ops.len() == 1 {
+                        let op = ops.into_iter().next().expect("one operation");
+                        out.push(Op { name: format!("neg|{}", op.name), args: op.args, origin: op.origin });
+                    } else {
+                        let temp = self.next_temp();
+                        let origin = self.origin(fallback);
+                        out.push(Op { name: "assign".into(), args: vec![temp.clone(), Value::Int(0)], origin: origin.clone() });
+                        out.push(Op { name: "try_begin".into(), args: Vec::new(), origin: origin.clone() });
+                        out.extend(ops);
+                        out.push(Op { name: "assign".into(), args: vec![temp.clone(), Value::Int(1)], origin: origin.clone() });
+                        out.push(Op { name: "try_end".into(), args: Vec::new(), origin: origin.clone() });
+                        out.push(Op { name: "eq".into(), args: vec![temp, Value::Int(0)], origin });
+                    }
                     return Some(());
                 }
                 let op = self.call(call)?;
@@ -2060,6 +2193,7 @@ pub fn check_with_schemas(
     // replaced by the body when the block that holds it is checked (`Ctx::inline`).
     let (fns, fn_errors) = collect_fns(atlas, sources);
     errors.extend(fn_errors);
+    errors.extend(check_condition_words(atlas, sources, &fns));
 
     // A `save` names one `$global` of the whole mod too, so its names come first as well: a bare
     // name means `$<name>` in every file and its start value is written once, at game start
@@ -2752,6 +2886,7 @@ pub fn check_block_with(
     sources: &[Source],
 ) -> Result<Vec<Op>, Vec<Diagnostic>> {
     let (fns, mut errors) = collect_fns(atlas, sources);
+    errors.extend(check_condition_words(atlas, sources, &fns));
     let mut ctx = Ctx {
         atlas,
         errors: Vec::new(),
@@ -3668,6 +3803,20 @@ mod tests {
         text.push_str("on game.start { f0() }");
         let errs = run(&text).unwrap_err();
         assert!(errs[0].contains(&format!("nest more than {FN_DEPTH} deep: f0 -> f1")), "{errs:?}");
+    }
+
+    #[test]
+    fn condition_words_are_test_fns_with_condition_ops_only() {
+        // A `test fn` is inlined where a condition goes; several operations run in order.
+        let checked = run("mod cw\n\ntest fn p.ready() {\n    party_is_active(p_main_party)\n    party_is_active(p_main_party)\n}\n\non game.start {\n    if p.ready() {\n        display_message(\"@yes\")\n    }\n}\n").unwrap();
+        let names: Vec<&str> = checked.patches[0].ops.iter().map(|o| o.name.as_str()).collect();
+        assert_eq!(names, ["try_begin", "party_is_active", "party_is_active", "display_message", "try_end"]);
+        // A plain `fn` is a word, not a condition.
+        let errs = run("mod cw\n\nfn p.active() {\n    party_is_active(p_main_party)\n}\n\non game.start {\n    if p.active() {\n        display_message(\"@yes\")\n    }\n}\n").unwrap_err();
+        assert!(errs.iter().any(|e| e.contains("is a word, not a condition")), "{errs:?}");
+        // A `test fn` body holds only condition operations.
+        let errs = run("mod cw\n\ntest fn p.active() {\n    display_message(\"@no\")\n}\n\non game.start {\n    if p.active() {\n        display_message(\"@yes\")\n    }\n}\n").unwrap_err();
+        assert!(errs.iter().any(|e| e.contains("is not a condition operation")), "{errs:?}");
     }
 
     #[test]

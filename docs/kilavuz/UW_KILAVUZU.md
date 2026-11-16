@@ -602,7 +602,7 @@ give_gold(1000)
 ```
 
 **Ne yapar?** UW'nin kendi kelime kütüphanesi `lib/core.uw`, modunuzun dosyalarından **önce**
-okunur; oradaki `fn`ler tanımlamadan çağrılır. Bugün on bir kelime var:
+okunur; oradaki `fn`ler tanımlamadan çağrılır. Bugün on dört kelime var:
 
 | Kelime | Ne yapar? (altındaki Native işlemi) |
 |---|---|
@@ -616,7 +616,10 @@ okunur; oradaki `fn`ler tanımlamadan çağrılır. Bugün on bir kelime var:
 | `add_honor(:amount)` | Onur ekler (`script_change_player_honor`). |
 | `move_near(:party)` | Oyuncunun partisini verilen partinin yanına taşır (`party_relocate_near_party`). |
 | `show_map()` | Haritaya döner (`change_screen_map`). |
-| `say(:text)` | Mesaj gösterir (`display_message`). |
+| `say(:text)` | Mesaj gösterir (`display_message`); `say "metin"` kısa yazımı da vardır (3.11b). |
+| `player.has(:item)` | Koşul kelimesi: oyuncunun çantasında eşya var mı (`player_has_item`, 3.11b). |
+| `player.give(:item)` | Oyuncuya eşya verir (`troop_add_item`); `give_item` ile aynı. |
+| `player.remove(:item)` | Oyuncudan eşya alır (`troop_remove_item`); `take_item` ile aynı. |
 
 **Örnek** (`crates/uw_cli/tests/golden/lib_words/input.uw`)
 
@@ -697,6 +700,54 @@ override menu start_phase_2 {
     }
 }
 ```
+
+### 3.11b. Koşul kelimesi: `test fn player.has(:item)`
+
+**Sözdizimi**
+
+```uw
+test fn <ad>(:p1, :p2) {
+    <koşul işlemi>(…)
+}
+```
+
+**Ne yapar?** Gövdesi yalnız **koşul işlemlerinden** (başarısız olabilen Native işlemleri)
+oluşan bir `fn`, `if`, `when`, `and`, `or` ve `not` içinde koşul olarak yazılabilir. UW onu
+çağrı yerinde gövdesine açar; gövdedeki işlemler sırayla "ve" demektir. Kütüphanede
+`player.has(:item)` böyle bir kelimedir:
+
+```uw
+test fn player.has(:item) {
+    player_has_item(:item)
+}
+```
+
+**Örnek** (`crates/uw_cli/tests/golden/condition_words/input.uw`)
+
+```uw
+if player.has(iron_shield) {
+    player.remove(iron_shield)
+    say "Bandits took your shield!"
+}
+if not player.has(iron_shield) or player.gold >= 100 {
+    say "The road is quiet."
+}
+```
+
+- `not player.has(x)` → `(neg|player_has_item, "itm_x")`.
+- `and` / `or`, koşul kelimesini de diğer koşullar gibi birleştirir.
+- `say "metin"` yalnız `say("metin")` demenin kısa yoludur: bir kelimeden sonra **aynı satırda**
+  metin gelirse parantez gerekmez.
+- Gövdede koşul olmayan bir işlem (`say`, `display_message`, atama, `if` …) varsa UW **E0221** verir.
+- `test` işaretini unutursanız kelime koşul sayılmaz ve yine **E0221** alırsınız.
+
+**Sık hata ve kodu**
+
+| Hata | Kod |
+|---|---|
+| `test fn` gövdesinde koşul olmayan işlem: `` `display_message` is not a condition operation, so `test fn …` cannot test anything `` | E0221 |
+| Düz `fn` koşul olarak yazılmış: `` `x` is a word, not a condition `` | E0221 |
+| Gövde boş: `` `test fn x` has no operation to test `` | E0221 |
 
 ### 3.12. Kalıcı değişken: `save rich = false`
 
@@ -875,15 +926,16 @@ mod area_enter
 area mountain_road [(10, 20), (40, 20), (40, 60), (10, 60)]
 
 on enter mountain_road when time.hour >= 12 {
-    if player.gold >= 10 {
-        player.gold -= 10
-        say("@Bandits took your toll.")
+    if player.has(iron_shield) {
+        player.remove(iron_shield)
+        say "Bandits took your shield!"
     }
 }
 ```
 
-`time.hour` dilin kütüphanesinden gelir (`store_time_of_day`); `player.gold` ve `say` de 3.10'da
-anlatılan kütüphane kelimeleridir. Golden klasöründeki `lib` işareti bunu söyler.
+`time.hour` dilin kütüphanesinden gelir (`store_time_of_day`); `player.has` bir koşul kelimesidir
+(3.11b), `player.remove` ve `say` de 3.10'da anlatılan kütüphane kelimeleridir. Golden klasöründeki
+`lib` işareti bunu söyler.
 
 **Kurallar**
 
@@ -1483,6 +1535,7 @@ Her hatanın bir kodu (`E....`), bir satır/sütun işareti, çoğu zaman bir `h
 | **E0215** | `uw_check` | `fn` kendini çağırıyor ya da zincir çok derin. | `` `fn a` never ends: a -> b -> a `` / `` `fn` calls nest more than 16 deep: … `` — zinciri kısaltın ya da işlemi doğrudan yazın. |
 | **E0216** | `uw_check` | Nesne kelimesinin karşılığı olan `fn` yok ya da biçim yok. | ``'player.gold' needs `fn player.gold.get` `` (yardım: o `fn`i yazın) / ``'player.gold' has no `*=` form`` (dotted word `=`, `+=` ve `-=` alır). |
 | **E0217** | `uw_check` | Bir `save` adı kitin zaten kullandığı bir ad (Native işlemi, kit sabiti ya da kit kimliği). | `` `save eq` has the name of a Native operation ``; yardım: `save` adı her yerde `$<ad>` demek olacağı için başka ad seçin (bkz. 3.12). |
+| **E0221** | `uw_check` | Koşul kelimesi (`test fn`) yanlış kullanılmış ya da gövdesi uygun değil. | `` `x` is a word, not a condition `` (düz `fn` koşul olarak; başına `test` ekleyin), `` `display_message` is not a condition operation `` (gövde yalnız koşul işlemleri tutar), `` `test fn x` has no operation to test `` (boş gövde). Bkz. 3.11b. |
 
 > `uw explain`, `uw browse` ve `uw graph`'ın kendi hataları kod taşımaz; düz `error: ...` metni
 > olarak yazılır (ör. atlas bulunamadı, ad bulunamadı).

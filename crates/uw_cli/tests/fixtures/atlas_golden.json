@@ -7,6 +7,7 @@
         {"name":"assign","code":2133,"line":40,"signature":"","lhs":true,"can_fail":false,"global_lhs":false},
         {"name":"troop_set_type","code":1509,"line":600,"signature":"(troop_set_type,<troop_id>,<type_no>),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"party_is_active","code":132,"line":94,"signature":"(party_is_active,<party_id>),","lhs":false,"can_fail":true,"global_lhs":false},
+        {"name":"player_has_item","code":150,"line":95,"signature":"(player_has_item,<item_id>),","lhs":false,"can_fail":true,"global_lhs":false},
         {"name":"troop_add_gold","code":1528,"line":611,"signature":"(troop_add_gold,<troop_id>,<value>),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"call_script","code":1,"line":14,"signature":"(call_script,<script_id>),","lhs":false,"can_fail":false,"global_lhs":false},
         {"name":"ge","code":30,"line":40,"signature":"(ge,<value>,<value>),","lhs":false,"can_fail":true,"global_lhs":false},
@@ -49,6 +50,11 @@
             {"index":0,"name":"main_party","id":"p_main_party","dup":null,"line":1,"value":[]},
             {"index":26,"name":"town_6","id":"p_town_6","dup":null,"line":82,
               "value":["town_6","Praven",4219916,0,0,3,0,0,0,[-96,26.4],{"list":[]},155]}
+          ]},
+        "items": {"module":"module_items","var":"items","id_file":"ID_items","id_prefix":"itm_","ref_tag":"itm",
+          "entries": [
+            {"index":0,"name":"iron_shield","id":"itm_iron_shield","dup":null,"line":1,
+              "value":["iron_shield","Iron Shield","Iron Shields",0,0,0,0]}
           ]},
         "troops": {"module":"module_troops","var":"troops","id_file":"ID_troops","id_prefix":"trp_","ref_tag":"trp",
           "entries": [
