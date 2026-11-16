@@ -219,6 +219,13 @@ impl Model {
             for entry in &table.entries {
                 let label = entry_label(&atlas, table_name, entry);
                 let mut alts = Vec::new();
+                if let Some(id) = &entry.id {
+                    if let Some(name) = atlas.game_name(id) {
+                        // The label now ends with the game name: the bare id must still match exactly.
+                        alts.push(id.clone());
+                        alts.push(name.to_owned());
+                    }
+                }
                 if let (Some(tag), Some(name)) = (&table.ref_tag, &entry.name) {
                     alts.push(format!("{tag}_{}", name.to_lowercase()));
                 }
@@ -562,10 +569,14 @@ impl Row {
     }
 }
 
-/// `p_town_6`, `script_game_start`, `itm_x#1`, `dlga_start:close_window`, `triggers #5`.
+/// `p_town_6`, `script_game_start`, `itm_x#1`, `dlga_start:close_window`, `triggers #5`; the game
+/// name is shown after the id when the atlas has one (`p_town_6 (praven)`).
 pub fn entry_label(atlas: &Atlas, table: &str, entry: &Entry) -> String {
     if let Some(id) = &entry.id {
-        return id.clone();
+        return match atlas.game_name(id) {
+            Some(name) => format!("{id} ({name})"),
+            None => id.clone(),
+        };
     }
     let t = &atlas.tables[table];
     match (&t.id_prefix, &entry.name, entry.dup) {
