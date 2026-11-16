@@ -8,7 +8,7 @@
 //! with `uw build`'s safety rules.
 //! The kit folder is never written (staging copy, `uw_kitrun`).
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
@@ -231,6 +231,118 @@ fn word_sources(dir: &Path) -> Result<Vec<uw_check::Source>, String> {
     crate::build::parse_sources(&entries)
 }
 
+/// Translation keys whose Native text no longer applies because the project renamed the record
+/// (T-089): `id` for a changed `name`, `id_pl` for a changed `plural_name`.
+fn renamed_keys(
+    atlas: &uw_atlas::Atlas,
+    schemas: &[Schema],
+    records: &BTreeMap<String, Vec<Json>>,
+) -> BTreeSet<String> {
+    let mut keys = BTreeSet::new();
+    for schema in schemas {
+        let Some(table) = atlas.tables.get(&schema.table) else { continue };
+        let Some(values) = records.get(&schema.table) else { continue };
+        let name = schema.fields.iter().position(|field| field.name == "name");
+        let plural = schema.fields.iter().position(|field| field.name == "plural_name");
+        if name.is_none() && plural.is_none() {
+            continue;
+        }
+        for (entry, value) in table.entries.iter().zip(values) {
+            let Some(id) = &entry.id else { continue };
+            if name.is_some_and(|index| field(value, index) != field(&entry.value, index)) {
+                keys.insert(id.clone());
+            }
+            if plural.is_some_and(|index| field(value, index) != field(&entry.value, index)) {
+                keys.insert(format!("{id}_pl"));
+            }
+        }
+    }
+    keys
+}
+
+/// A record field by schema index: a tuple is a JSON array, a `list=true` table is `{"list": …}`.
+fn field(value: &Json, index: usize) -> Option<&Json> {
+    match value {
+        Json::Array(values) => values.get(index),
+        Json::Object(map) => map.get("list")?.as_array()?.get(index),
+        _ => None,
+    }
+}
+
+/// Replaces `<dest>/languages` with the project's own `languages/`, leaving out the lines of the
+/// renamed records in `drop`. The project's files are only read. Returns one warning per dropped
+/// line. With no project `languages/`, Native's copied folder is removed too (the project owns its
+/// translations).
+fn install_languages(project: &Path, dest: &Path, drop: &BTreeSet<String>) -> Result<Vec<String>, String> {
+    let from = project.join("languages");
+    let to = dest.join("languages");
+    if to.exists() {
+        std::fs::remove_dir_all(&to).map_err(|e| format!("{}: {e}", to.display()))?;
+    }
+    if !from.is_dir() {
+        return Ok(Vec::new());
+    }
+    let mut warnings = Vec::new();
+    copy_languages_filtered(&from, &to, &from, drop, &mut warnings)?;
+    Ok(warnings)
+}
+
+fn copy_languages_filtered(
+    from: &Path,
+    to: &Path,
+    source_root: &Path,
+    drop: &BTreeSet<String>,
+    warnings: &mut Vec<String>,
+) -> Result<(), String> {
+    std::fs::create_dir_all(to).map_err(|e| format!("{}: {e}", to.display()))?;
+    for entry in std::fs::read_dir(from).map_err(|e| format!("{}: {e}", from.display()))? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let path = entry.path();
+        let target = to.join(entry.file_name());
+        if entry.file_type().map_err(|e| e.to_string())?.is_dir() {
+            copy_languages_filtered(&path, &target, source_root, drop, warnings)?;
+        } else if path.extension().is_some_and(|ext| ext == "csv") {
+            let bytes = std::fs::read(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+            let relative = path.strip_prefix(source_root).unwrap_or(&path);
+            let file = format!("languages/{}", relative.to_string_lossy().replace('\\', "/"));
+            let kept = filter_translation_lines(&bytes, drop, &file, warnings);
+            std::fs::write(&target, kept).map_err(|e| format!("{}: {e}", target.display()))?;
+        } else {
+            std::fs::copy(&path, &target).map_err(|e| format!("{}: {e}", path.display()))?;
+        }
+    }
+    Ok(())
+}
+
+/// Keeps every line except the `id|text` lines whose key is in `drop`; untouched lines stay
+/// byte-identical (BOM, CRLF and a last line without a newline included).
+fn filter_translation_lines(
+    bytes: &[u8],
+    drop: &BTreeSet<String>,
+    file: &str,
+    warnings: &mut Vec<String>,
+) -> Vec<u8> {
+    let mut kept = Vec::with_capacity(bytes.len());
+    for line in bytes.split_inclusive(|&byte| byte == b'\n') {
+        if let Some(key) = translation_key(line) {
+            if let Ok(key) = std::str::from_utf8(key) {
+                if drop.contains(key) {
+                    warnings.push(format!("translation dropped: {key} ({file}): renamed in the project"));
+                    continue;
+                }
+            }
+        }
+        kept.extend_from_slice(line);
+    }
+    kept
+}
+
+fn translation_key(line: &[u8]) -> Option<&[u8]> {
+    let line = line.strip_prefix(&b"\xef\xbb\xbf"[..]).unwrap_or(line);
+    let end = line.iter().position(|&byte| byte == b'|')?;
+    Some(&line[..end])
+}
+
 /// `uw build-project <dir>`: the same build, from the project folder.
 fn build_project(dir: &Path, args: &Args) -> ExitCode {
     let root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
@@ -312,6 +424,15 @@ fn build_project(dir: &Path, args: &Args) -> ExitCode {
     };
     match crate::build::install(&built.out, &modules_dir, &name) {
         Ok(dest) => {
+            let drop = renamed_keys(&atlas, &schemas, &records);
+            match install_languages(dir, &dest, &drop) {
+                Ok(lines) => {
+                    for line in lines {
+                        println!("{line}");
+                    }
+                }
+                Err(message) => return crate::fail(&message),
+            }
             println!("installed {}", dest.display());
             println!("done      pick '{}' in the Warband launcher", name);
             ExitCode::SUCCESS
@@ -474,5 +595,158 @@ mod tests {
         assert!(modules[0].1.contains("1528"), "{}", modules[0].1);
 
         let _ = std::fs::remove_dir_all(&root);
+    }
+
+    /// One parties record and one troop, enough for the translation rename check.
+    const LANGUAGE_ATLAS: &str = r#"{
+      "schema": 1, "kit_hash": "t089", "ops": [], "hooks": [], "ranges": [],
+      "tables": {
+        "parties": {"module":"module_parties","var":"parties","id_file":"ID_parties","id_prefix":"p_",
+          "entries": [
+            {"index":0,"name":"town_6","id":"p_town_6","dup":null,"line":1,
+              "value":["town_6","Praven",0]}
+          ]},
+        "troops": {"module":"module_troops","var":"troops","id_file":"ID_troops","id_prefix":"trp_",
+          "entries": [
+            {"index":0,"name":"swadian_recruit","id":"trp_swadian_recruit","dup":null,"line":2,
+              "value":{"list":["swadian_recruit","Swadian Recruit","Swadian Recruits",0]}}
+          ]}
+      }
+    }"#;
+
+    const PARTY_SCHEMA: &str = r#"table = "parties"
+kind = "party"
+id_prefix = "p_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_parties.py:10"
+
+[[fields]]
+name = "name"
+ty = "raw"
+source = "module_parties.py:12"
+
+[[fields]]
+name = "x"
+ty = "raw"
+source = "module_parties.py:13"
+"#;
+
+    const TROOP_SCHEMA: &str = r#"table = "troops"
+kind = "troop"
+id_prefix = "trp_"
+list = true
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_troops.py:13"
+
+[[fields]]
+name = "name"
+ty = "raw"
+source = "module_troops.py:14"
+
+[[fields]]
+name = "plural_name"
+ty = "raw"
+source = "module_troops.py:15"
+
+[[fields]]
+name = "x"
+ty = "raw"
+source = "module_troops.py:16"
+"#;
+
+    fn language_scratch(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("uw-build-project-language-{}-{name}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    #[test]
+    fn an_installed_renamed_record_loses_its_line_and_the_project_keeps_it() {
+        let root = language_scratch("party");
+        let project = root.join("proje");
+        let dest = root.join("Modules").join("proje");
+        std::fs::create_dir_all(project.join("languages").join("tr")).unwrap();
+        std::fs::create_dir_all(dest.join("languages").join("tr")).unwrap();
+        let line = "p_town_6|Praven Şehri\n";
+        std::fs::write(project.join("languages").join("tr").join("parties.csv"), line).unwrap();
+        // Native's copy in the installed folder (what the bug came from) and a file only it has.
+        std::fs::write(dest.join("languages").join("tr").join("parties.csv"), line).unwrap();
+        std::fs::write(dest.join("languages").join("tr").join("old.csv"), "p_town_6|eski\n").unwrap();
+
+        let atlas = uw_atlas::Atlas::from_str(LANGUAGE_ATLAS).unwrap();
+        let schemas = [Schema::from_toml(PARTY_SCHEMA).unwrap()];
+        let records = BTreeMap::from([(
+            "parties".to_owned(),
+            vec![serde_json::json!(["town_6", "Adam Siken", 0])],
+        )]);
+        let drop = renamed_keys(&atlas, &schemas, &records);
+        assert_eq!(drop.iter().cloned().collect::<Vec<_>>(), ["p_town_6"]);
+
+        let warnings = install_languages(&project, &dest, &drop).unwrap();
+        assert_eq!(
+            warnings,
+            ["translation dropped: p_town_6 (languages/tr/parties.csv): renamed in the project"]
+        );
+        assert_eq!(std::fs::read_to_string(dest.join("languages").join("tr").join("parties.csv")).unwrap(), "");
+        assert!(!dest.join("languages").join("tr").join("old.csv").exists(), "Native's copy is replaced");
+        // The project's own file is untouched.
+        assert_eq!(std::fs::read_to_string(project.join("languages").join("tr").join("parties.csv")).unwrap(), line);
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn a_changed_plural_drops_only_the_plural_line() {
+        let root = language_scratch("plural");
+        let project = root.join("proje");
+        let dest = root.join("Modules").join("proje");
+        std::fs::create_dir_all(project.join("languages").join("tr")).unwrap();
+        std::fs::write(
+            project.join("languages").join("tr").join("troops.csv"),
+            "trp_swadian_recruit|Swadian Recruit\ntrp_swadian_recruit_pl|Swadian Recruits\n",
+        )
+        .unwrap();
+
+        let atlas = uw_atlas::Atlas::from_str(LANGUAGE_ATLAS).unwrap();
+        let schemas = [Schema::from_toml(TROOP_SCHEMA).unwrap()];
+        let records = BTreeMap::from([(
+            "troops".to_owned(),
+            vec![serde_json::json!({"list": ["swadian_recruit", "Swadian Recruit", "Swadian Askerler", 0]})],
+        )]);
+        let drop = renamed_keys(&atlas, &schemas, &records);
+        assert_eq!(drop.iter().cloned().collect::<Vec<_>>(), ["trp_swadian_recruit_pl"]);
+
+        let warnings = install_languages(&project, &dest, &drop).unwrap();
+        assert_eq!(
+            warnings,
+            ["translation dropped: trp_swadian_recruit_pl (languages/tr/troops.csv): renamed in the project"]
+        );
+        assert_eq!(
+            std::fs::read_to_string(dest.join("languages").join("tr").join("troops.csv")).unwrap(),
+            "trp_swadian_recruit|Swadian Recruit\n"
+        );
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn translation_filtering_keeps_untouched_lines_byte_identical() {
+        let mut warnings = Vec::new();
+        let bytes = b"\xef\xbb\xbfp_town_5|Uxkhal\r\np_town_6|Praven\r\np_town_6|tekrar";
+        let drop = BTreeSet::from(["p_town_6".to_owned()]);
+        let kept = filter_translation_lines(bytes, &drop, "languages/tr/parties.csv", &mut warnings);
+        assert_eq!(kept, b"\xef\xbb\xbfp_town_5|Uxkhal\r\n");
+        assert_eq!(
+            warnings,
+            [
+                "translation dropped: p_town_6 (languages/tr/parties.csv): renamed in the project",
+                "translation dropped: p_town_6 (languages/tr/parties.csv): renamed in the project"
+            ]
+        );
     }
 }
