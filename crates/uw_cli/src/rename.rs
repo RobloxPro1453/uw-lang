@@ -491,7 +491,7 @@ fn source_line(text: &str, line: usize) -> String {
     text.lines().nth(line - 1).unwrap_or_default().trim().to_owned()
 }
 
-fn relative(dir: &Path, path: &Path) -> String {
+pub(crate) fn relative(dir: &Path, path: &Path) -> String {
     path.strip_prefix(dir).unwrap_or(path).to_string_lossy().replace('\\', "/")
 }
 
@@ -530,12 +530,12 @@ fn write_atomic(path: &Path, text: &str, root: &Path) -> Result<(), String> {
 }
 
 /// Every `.uw` file under `dir`, in path order.
-fn uw_files(dir: &Path) -> Vec<PathBuf> {
+pub(crate) fn uw_files(dir: &Path) -> Vec<PathBuf> {
     files_with(dir, "uw")
 }
 
 /// Every file under `dir` with this extension, in path order.
-fn files_with(dir: &Path, extension: &str) -> Vec<PathBuf> {
+pub(crate) fn files_with(dir: &Path, extension: &str) -> Vec<PathBuf> {
     let mut files = Vec::new();
     let Ok(entries) = std::fs::read_dir(dir) else { return files };
     for entry in entries.flatten() {

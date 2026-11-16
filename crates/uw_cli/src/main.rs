@@ -12,6 +12,7 @@ mod model;
 mod new;
 mod build_project;
 mod rename;
+mod find;
 mod tr;
 mod tui;
 mod words;
@@ -68,6 +69,10 @@ const USAGE: &str = "usage:
       --list: only list what would change; --yes: write every group without asking
   uw rename <dir> <record> \"<new name>\" ...
       the same, for the project folder <dir>
+  uw find \"<text>\" [<dir>] [--part] [--json]
+      every project text that contains <text>: the .uw record texts and the
+      languages/<lang>/*.csv translations; a whole word by default, --part also matches
+      inside a word; --json: one object per hit (file, line, record, field, text)
   uw --version";
 
 /// Where the atlas lives unless `--atlas` / `UW_ATLAS` says otherwise (docs/DEVELOPMENT.md).
@@ -91,6 +96,7 @@ fn main() -> ExitCode {
         Some("build-project") => build_project::cmd(&args[1..]),
         Some("rename") => rename::cmd(&args[1..]),
         Some("words") => words::cmd(&args[1..]),
+        Some("find") => find::cmd(&args[1..]),
         _ => {
             println!("uw {}", env!("CARGO_PKG_VERSION"));
             println!("{USAGE}");
