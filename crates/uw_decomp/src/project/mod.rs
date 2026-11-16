@@ -137,6 +137,8 @@ pub fn verify_with(
             if schema.table == "parties" {
                 take_owner(&mut record);
             }
+            // `name_<code>` lines are project-only too (T-113); they are not part of the atlas value.
+            take_names(&mut record, schema);
             let failure = match parse(schema, &record) {
                 Err(e) => format!("{relative}: {e}"),
                 // The atlas may repeat an id (dialogs do), so every occurrence is matched once.
@@ -247,6 +249,89 @@ pub(crate) fn take_owner(record: &mut String) -> Option<(String, usize)> {
         *record = kept;
     }
     taken
+}
+
+/// One project-only `name_<code> "…"` line (T-113): the record's text in one language.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LanguageName {
+    /// The atlas table the record belongs to (`parties`).
+    pub table: String,
+    /// The full kit id (`p_town_6`), the translation key.
+    pub id: String,
+    /// The language folder code (`tr`, `de`, …).
+    pub language: String,
+    /// What the project wants the record called in that language.
+    pub text: String,
+}
+
+/// Takes the project-only `name_<code> "…"` lines out of a record (T-113): the record's text in one
+/// language, the code being letters only. A line whose value is not a quoted string, or whose word is
+/// a schema field, is left in place so the schema parser reports it instead of it vanishing silently.
+/// Each taken line is blanked, so the record's own line numbers still point at the file.
+pub(crate) fn take_names(record: &mut String, schema: &Schema) -> Vec<(String, String)> {
+    let mut taken = Vec::new();
+    let mut kept = String::with_capacity(record.len());
+    let mut depth = 0i32;
+    let mut in_string = false;
+    for line in record.split_inclusive('\n') {
+        let trimmed = line.trim_start();
+        if depth == 1 {
+            if let Some((language, text)) = name_line(trimmed) {
+                if !schema.fields.iter().any(|field| field.name == format!("name_{language}")) {
+                    taken.push((language, text));
+                    kept.push('\n');
+                    scan_braces(line, &mut depth, &mut in_string);
+                    continue;
+                }
+            }
+        }
+        kept.push_str(line);
+        scan_braces(line, &mut depth, &mut in_string);
+    }
+    if !taken.is_empty() {
+        *record = kept;
+    }
+    taken
+}
+
+/// `name_<code> "<text>"` (a trailing `//` comment is allowed) as `(code, text)`.
+fn name_line(trimmed: &str) -> Option<(String, String)> {
+    let rest = trimmed.strip_prefix("name_")?;
+    let end = rest.find(|c: char| !c.is_ascii_alphabetic())?;
+    if end == 0 {
+        return None;
+    }
+    let language = &rest[..end];
+    let (text, after) = quoted(rest[end..].trim_start())?;
+    let after = after.trim_start();
+    if after.is_empty() || after.starts_with("//") {
+        Some((language.to_owned(), text))
+    } else {
+        None
+    }
+}
+
+/// One quoted string at the start of `text`, with what follows it; `\"`, `\\` and `\n` are read.
+fn quoted(text: &str) -> Option<(String, &str)> {
+    let mut chars = text.char_indices();
+    match chars.next()? {
+        (_, '"') => {}
+        _ => return None,
+    }
+    let mut out = String::new();
+    while let Some((index, c)) = chars.next() {
+        match c {
+            '"' => return Some((out, &text[index + 1..])),
+            '\\' => match chars.next()?.1 {
+                '"' => out.push('"'),
+                '\\' => out.push('\\'),
+                'n' => out.push('\n'),
+                other => out.push(other),
+            },
+            _ => out.push(c),
+        }
+    }
+    None
 }
 
 /// The relative path of every record, in atlas order: the exporter writes one file per path.
@@ -535,10 +620,21 @@ fn descriptions() -> HashMap<String, String> {
     map
 }
 
-/// The per-language town suffix a project may set (T-094):
-/// `[languages.<lang>] town_suffix = "..."` in `uw.toml`. A folder without `uw.toml` has no
-/// setting; a broken file is an error, so a typo cannot silently do nothing.
-pub fn town_suffixes(dir: &Path) -> Result<BTreeMap<String, String>, String> {
+/// The `[languages.<code>]` rules a project may set in `uw.toml` (T-113).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct LanguageRule {
+    /// `town_suffix`: the suffix a town/castle/village name gets (T-094).
+    pub town_suffix: Option<String>,
+    /// Endings to remove from every translation of this language (`[" Şehri", " Kalesi"]`).
+    pub strip_suffix: Vec<String>,
+    /// Endings to add to every translation of this language.
+    pub add_suffix: Vec<String>,
+}
+
+/// Every `[languages.<code>]` section of the project's `uw.toml`, keyed by the language folder name
+/// (`tr`). A folder without `uw.toml` has no rules; a broken file, or a suffix rule that is not a list
+/// of strings, is an error, so a typo cannot silently do nothing.
+pub fn language_rules(dir: &Path) -> Result<BTreeMap<String, LanguageRule>, String> {
     let path = dir.join("uw.toml");
     if !path.is_file() {
         return Ok(BTreeMap::new());
@@ -547,11 +643,38 @@ pub fn town_suffixes(dir: &Path) -> Result<BTreeMap<String, String>, String> {
     let value: toml::Value = text.parse().map_err(|e| format!("{}: {e}", path.display()))?;
     let mut found = BTreeMap::new();
     for (language, section) in value.get("languages").and_then(toml::Value::as_table).into_iter().flatten() {
-        if let Some(suffix) = section.get("town_suffix").and_then(toml::Value::as_str) {
-            found.insert(language.clone(), suffix.to_owned());
+        let rule = LanguageRule {
+            town_suffix: section.get("town_suffix").and_then(toml::Value::as_str).map(str::to_owned),
+            strip_suffix: string_list(section, "strip_suffix", language, &path)?,
+            add_suffix: string_list(section, "add_suffix", language, &path)?,
+        };
+        if rule != LanguageRule::default() {
+            found.insert(language.clone(), rule);
         }
     }
     Ok(found)
+}
+
+/// One `[languages.<code>]` key that must be a list of strings.
+fn string_list(section: &toml::Value, key: &str, language: &str, path: &Path) -> Result<Vec<String>, String> {
+    let Some(value) = section.get(key) else { return Ok(Vec::new()) };
+    let message = || format!("{}: [languages.{language}] {key} must be a list of strings", path.display());
+    value
+        .as_array()
+        .ok_or_else(message)?
+        .iter()
+        .map(|item| item.as_str().map(str::to_owned).ok_or_else(message))
+        .collect()
+}
+
+/// The per-language town suffix a project may set (T-094):
+/// `[languages.<lang>] town_suffix = "..."` in `uw.toml`. A folder without `uw.toml` has no
+/// setting; a broken file is an error, so a typo cannot silently do nothing.
+pub fn town_suffixes(dir: &Path) -> Result<BTreeMap<String, String>, String> {
+    Ok(language_rules(dir)?
+        .into_iter()
+        .filter_map(|(language, rule)| Some((language, rule.town_suffix?)))
+        .collect())
 }
 
 /// `uw.lock` (the record order), `uw.toml` (the folder is an export, not a compiled project yet)

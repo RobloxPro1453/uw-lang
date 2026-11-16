@@ -1769,6 +1769,35 @@ değiştiği için kurulan moda konmadı. Yani o kayıt oyunda artık eski Türk
 İngilizce metniyle görünür; modun kendi `languages/` kopyasından o anahtar her kurulumda çıkarılır.
 Proje dosyaları değişmediği için uyarı her derlemede tekrar eder.
 
+**Çeviri adları ve ekler.** Bir kaydın bir dilde başka türlü görünmesini istiyorsanız kayda o dilin
+koduyla `name_<kod>` satırı ekleyin (`tr`, `de`, `es`… yalnız harf):
+
+```uw
+party town_6 {
+  name "Praven"
+  name_tr "Adam Siken"
+}
+```
+
+Derleme, o dilin kurulan `languages/tr/<tablo>.csv` dosyasındaki `p_town_6` satırının metnini
+`Adam Siken` yapar; eski çeviri ne derse desin bu metin geçerlidir (satır yoksa dosyaya eklenir).
+Proje dosyalarınız değişmez. Kayıt çözülürken bu satırlar şemaya hiç gitmez; `uw new --check` de
+onları `owner` gibi yok sayar.
+
+Bir dilin bütün çevirilerinden aynı eki kırpmak (ya da eklemek) için `uw.toml`:
+
+```toml
+[languages.tr]
+strip_suffix = [" Şehri", " Kalesi"]
+add_suffix = [" Bey"]
+```
+
+Önce `strip_suffix` uçları kaldırır, sonra `add_suffix` ekler; en son `name_<kod>` yazılır (o kazanır).
+Derleme sessiz kalmaz: dil başına kaç satırın değiştiğini söyler, ör.
+`tr: 22 çeviriden ' Şehri' kaldırıldı` (eklenen için `tr: 22 çeviriye ' Bey' eklendi`).
+`--verbose` her değişen satırı da yazar: `uw build-project . --verbose` (ya da `uw build . --verbose`).
+Kural yoksa ve `name_<kod>` yazılmadıysa davranış eskisidir: `languages/` klasörü bayt bayt aynı kurulur.
+
 **Oyunun resmî Türkçesi.** `uw explain --tr <klasör>` (6.3) ve `uw browse --tr <klasör>` (6.4) oyunun
 resmî çevirisini (`Modules/Native/languages/tr`) okur ve Türkçe metni de gösterir. Bu, projenin
 `languages/` kopyasından ayrı bir şeydir: `--tr` yalnız aracın çıktısında görünür, moda bir şey
