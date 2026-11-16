@@ -60,3 +60,44 @@ fn show_map() {
 fn say(:text) {
     display_message(:text)
 }
+
+// Read the player's gold — docs/bilgi/anlam/oyuncu-varliklari.md:25 (`store_troop_gold`).
+fn player.gold.get(:out) {
+    store_troop_gold(:out, trp_player)
+}
+
+// Give the player gold — docs/bilgi/anlam/oyuncu-varliklari.md:23 (`troop_add_gold`).
+fn player.gold.add(:amount) {
+    give_gold(:amount)
+}
+
+// Take at most what the player has — docs/bilgi/anlam/oyuncu-varliklari.md:27-30 (`store_troop_gold` + `ge`).
+fn player.gold.remove(:amount) {
+    take_gold(:amount)
+}
+
+// Read renown — docs/bilgi/anlam/oyuncu-varliklari.md:111,119 (`troop_get_slot` + `slot_troop_renown`).
+fn player.renown.get(:out) {
+    troop_get_slot(:out, trp_player, slot_troop_renown)
+}
+
+// Add renown — docs/bilgi/anlam/oyuncu-varliklari.md:119-120 (`script_change_troop_renown`).
+fn player.renown.add(:amount) {
+    add_renown(:amount)
+}
+
+// Read honor — docs/bilgi/anlam/oyuncu-varliklari.md:112,122 (`$player_honor`, a global).
+fn player.honor.get(:out) {
+    assign(:out, $player_honor)
+}
+
+// Add honor — docs/bilgi/anlam/oyuncu-varliklari.md:121-122 (`script_change_player_honor`).
+fn player.honor.add(:amount) {
+    add_honor(:amount)
+}
+
+// Read the player's level — docs/bilgi/anlam/oyuncu-varliklari.md:113,123 (`store_character_level`).
+// The page names no operation that changes the level (it grows with XP), so there is no `.set`.
+fn player.level.get(:out) {
+    store_character_level(:out, trp_player)
+}

@@ -181,7 +181,10 @@ fn the_real_lib_parses_and_checks_against_the_fixture_atlas() {
     let input = "mod lib_words\n\non game.start {\n    give_gold(1000)\n    take_gold(250)\n    \
                  give_item(0)\n    take_item(0)\n    add_troops(trp_player, 10)\n    \
                  remove_troops(trp_player, 5)\n    add_renown(10)\n    add_honor(5)\n    \
-                 move_near(praven)\n    show_map()\n    say(\"@Hello\")\n}\n";
+                 move_near(praven)\n    show_map()\n    say(\"@Hello\")\n    \
+                 player.gold += 1000\n    player.gold -= 50\n    player.renown += 10\n    \
+                 player.honor += 1\n    if player.gold >= 100 {\n        say(\"@Still rich.\")\n    }\n    \
+                 :level = player.level\n    :renown = player.renown\n    :honor = player.honor\n}\n";
     let files = run(input, false, true).expect("the real lib/core.uw parses and checks");
     let scripts = files.iter().find(|(name, _)| name == "module_scripts.py").expect("module_scripts.py");
     for expected in [
@@ -197,6 +200,11 @@ fn the_real_lib_parses_and_checks_against_the_fixture_atlas() {
         "(party_relocate_near_party, \"p_main_party\", \"p_town_6\", 1)",
         "change_screen_map,",
         "(display_message, \"@Hello\")",
+        "(troop_remove_gold, \"trp_player\", 50)",
+        "(ge, \":gold__fn14\", 50)",
+        "(troop_get_slot, \":_uw_get2\", \"trp_player\", slot_troop_renown)",
+        "(assign, \":_uw_get3\", \"$player_honor\")",
+        "(store_character_level, \":_uw_get1\", \"trp_player\")",
     ] {
         assert!(scripts.1.contains(expected), "missing {expected} in:\n{}", scripts.1);
     }
