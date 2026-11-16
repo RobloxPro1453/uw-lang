@@ -78,7 +78,8 @@ pub struct Handler {
 pub enum Member {
     /// `text "…"`: the record's text field.
     Text { text: String, span: Span },
-    /// `option <id> "<text>" [when …] [after|before <id>] { body }`: a NEW option.
+    /// `option [<id>] "<text>" [when …] [after|before <id>] { body }`: a NEW option; without an id
+    /// the id is made from the text (see [`option_slug`]).
     Option { id: Ident, text: String, when: Option<When>, place: Option<Place>, body: Block, span: Span },
     /// `change option <id> { text "…" / when … / do { … } }`: change parts of an existing option.
     ChangeOption { id: Ident, text: Option<(String, Span)>, when: Option<When>, body: Option<Block>, span: Span },
@@ -547,6 +548,28 @@ fn describe(tok: &Tok) -> String {
     }
 }
 
+/// The id an option written without one gets (§2, T-091): `"Party morale report"` ->
+/// `uw_party_morale_report` — lower case, a run of other characters becomes one `_`, the prefix is
+/// `uw_`. `None` when nothing usable is left (`"…"`, `"2 Hand sword"`: an id cannot start with a
+/// digit), so the caller falls back to `uw_option`.
+fn option_slug(text: &str) -> Option<String> {
+    let mut out = String::new();
+    for ch in text.chars() {
+        if ch.is_ascii_alphanumeric() {
+            out.push(ch.to_ascii_lowercase());
+        } else if !out.is_empty() && !out.ends_with('_') {
+            out.push('_');
+        }
+    }
+    while out.ends_with('_') {
+        out.pop();
+    }
+    if out.is_empty() || out.starts_with(|c: char| c.is_ascii_digit()) {
+        return None;
+    }
+    Some(format!("uw_{out}"))
+}
+
 impl Parser {
     fn line_of(&self, offset: usize) -> usize {
         self.text[..offset.min(self.text.len())].matches('\n').count() + 1
@@ -678,6 +701,24 @@ impl Parser {
                     let (handlers, members, span) = self.record_body(&head)?;
                     file.items.push(Item::Override { kind, name, handlers, members, span });
                 }
+                // `in menu camp { … }` is the easy-language spelling of `override menu camp { … }`
+                // (docs/meclis/kolay-dil-taslak.md §2): same item, same body.
+                Tok::Ident(kw) if kw == "in" => {
+                    self.bump();
+                    let first = self.ident("what to change in, e.g. `in menu camp`")?;
+                    let (kind, name) = if self.peek_after_newlines().tok == Tok::LBrace {
+                        (None, first)
+                    } else {
+                        let name = self.ident(&format!("the Native {} name", first.text))?;
+                        (Some(first), name)
+                    };
+                    let head = match &kind {
+                        Some(kind) => format!("in {} {}", kind.text, name.text),
+                        None => format!("in {}", name.text),
+                    };
+                    let (handlers, members, span) = self.record_body(&head)?;
+                    file.items.push(Item::Override { kind, name, handlers, members, span });
+                }
                 Tok::Ident(kw) if kw == "new" => {
                     self.bump();
                     let id = self.ident("a record id after `new`, e.g. `menu_uw_ask`")?;
@@ -743,7 +784,7 @@ impl Parser {
                 other => {
                     return Err(err(
                         E0100_UNEXPECTED,
-                        format!("expected `mod`, `override`, `new`, `on`, `fn`, `save` or `every` at the top level, found {}", describe(other)),
+                        format!("expected `mod`, `override`, `in`, `new`, `on`, `fn`, `save` or `every` at the top level, found {}", describe(other)),
                         t.span,
                     ));
                 }
@@ -924,6 +965,9 @@ impl Parser {
         let open = self.open_brace(head)?;
         let mut handlers = Vec::new();
         let mut members = Vec::new();
+        // The option ids written so far in this menu: a text-derived id (`option "Text"`) has to be
+        // unique next to them, so it gets `_2`, `_3` … (T-091).
+        let mut used: Vec<String> = Vec::new();
         loop {
             self.skip_separators();
             let t = self.peek().clone();
@@ -938,6 +982,7 @@ impl Parser {
                     if kw == "override"
                         || kw == "mod"
                         || kw == "new"
+                        || kw == "in"
                         || (kw == "on" && self.toks.get(self.pos + 2).is_some_and(|t| t.tok == Tok::Dot)) =>
                 {
                     return Err(self
@@ -951,7 +996,7 @@ impl Parser {
                     handlers.push(Handler { event, body });
                 }
                 Tok::Ident(kw) if matches!(kw.as_str(), "text" | "option" | "change" | "remove") => {
-                    members.push(self.member()?);
+                    members.push(self.member(&mut used)?);
                 }
                 other => {
                     return Err(err(
@@ -969,8 +1014,9 @@ impl Parser {
     }
 
     /// One menu line of an `override` / `new` body: `text`, `option`, `change option` or
-    /// `remove option` (§4). The keyword is not read yet.
-    fn member(&mut self) -> Result<Member, Diagnostic> {
+    /// `remove option` (§4). The keyword is not read yet. `used` holds the option ids already
+    /// written in this menu (see [`option_slug`]).
+    fn member(&mut self, used: &mut Vec<String>) -> Result<Member, Diagnostic> {
         let kw_tok = self.bump();
         let kw = match &kw_tok.tok {
             Tok::Ident(kw) => kw.clone(),
@@ -983,8 +1029,34 @@ impl Parser {
                 Ok(Member::Text { text, span: Span { start: kw_tok.span.start, end: lit.end } })
             }
             "option" => {
-                let id = self.ident("an option id after `option`, e.g. `option uw_skip \"Skip\" {`")?;
-                let (text, _) = self.text_lit(&format!("a text in double quotes after `option {}`", id.text))?;
+                // `option "Text" { … }`: without an id, the id is made from the text (§2, T-091).
+                let given = if matches!(self.peek().tok, Tok::Str(_)) {
+                    None
+                } else {
+                    Some(self.ident("an option id after `option`, e.g. `option uw_skip \"Skip\" {`")?)
+                };
+                let what = match &given {
+                    Some(id) => format!("a text in double quotes after `option {}`", id.text),
+                    None => "a text in double quotes after `option`".to_string(),
+                };
+                let (text, text_span) = self.text_lit(&what)?;
+                let id = match given {
+                    Some(id) => {
+                        used.push(id.text.clone());
+                        id
+                    }
+                    None => {
+                        let base = option_slug(&text).unwrap_or_else(|| "uw_option".to_string());
+                        let mut id = base.clone();
+                        let mut n = 2;
+                        while used.contains(&id) {
+                            id = format!("{base}_{n}");
+                            n += 1;
+                        }
+                        used.push(id.clone());
+                        Ident { text: id, span: text_span }
+                    }
+                };
                 let when = if matches!(&self.peek().tok, Tok::Ident(w) if w == "when") {
                     self.bump();
                     Some(self.when_part()?)
@@ -2083,6 +2155,37 @@ on game.start {
         assert_eq!(d.code, E0100_UNEXPECTED);
         assert!(r.contains("a text in double quotes after `option uw_skip`"), "{r}");
         assert!(!r.contains("unexpected end"), "{r}");
+    }
+
+    /// T-091: `option "Text" { … }` without an id; the id comes from the text and stays unique in
+    /// the menu (`_2`, `_3` …), next to the ids written out.
+    #[test]
+    fn an_option_without_an_id_is_named_after_its_text() {
+        let members = menu_members(
+            "override menu_x {\n  option uw_go_north \"North\" {\n    a()\n  }\n  option \"Go North!\" {\n    b()\n  }\n  option \"go north\" when $x > 0 after uw_go_north {\n    c()\n  }\n  option \"…\" {\n    d()\n  }\n}",
+        );
+        let ids: Vec<&str> = members
+            .iter()
+            .map(|m| match m {
+                Member::Option { id, .. } => id.text.as_str(),
+                other => panic!("{other:?}"),
+            })
+            .collect();
+        assert_eq!(ids, ["uw_go_north", "uw_go_north_2", "uw_go_north_3", "uw_option"]);
+        let Member::Option { when, place, .. } = &members[2] else { panic!() };
+        assert!(matches!(when, Some(When::Cond(Cond::Cmp { .. }))));
+        assert!(matches!(place, Some(Place::After(id)) if id.text == "uw_go_north"));
+    }
+
+    #[test]
+    fn in_menu_is_the_same_item_as_override_menu() {
+        let file = parse("in menu camp {\n  option \"Party morale report\" {\n    say(\"@Morale is fine.\")\n  }\n}")
+            .expect("parses");
+        let Item::Override { kind, name, members, .. } = &file.items[0] else { panic!("{:?}", file.items[0]) };
+        assert!(matches!(kind, Some(kind) if kind.text == "menu"));
+        assert_eq!(name.text, "camp");
+        assert!(matches!(&members[0], Member::Option { id, text, .. }
+            if id.text == "uw_party_morale_report" && text == "Party morale report"));
     }
 
     #[test]
