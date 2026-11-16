@@ -213,11 +213,21 @@ fn write_records(records: &Records, dir: &Path) -> std::io::Result<()> {
     Ok(())
 }
 
+/// `--names`: Native's own game names ([`uw_decomp::names::derive`]) so every block prints `praven`
+/// instead of `p_town_6`. The round-trip has to survive that: the text must compile back to the same
+/// operations. Returns how many names were installed.
+fn install_derived_names(atlas: &mut uw_atlas::Atlas) -> usize {
+    let names = uw_decomp::names::derive(atlas);
+    atlas.set_game_names(&uw_decomp::names::pairs(&names));
+    names.len()
+}
+
 pub fn cmd(args: &[String]) -> ExitCode {
     let mut atlas_path: Option<PathBuf> = None;
     let mut out: Option<PathBuf> = None;
     let mut schemas_dir: Option<PathBuf> = None;
     let mut show = 20usize;
+    let mut names = false;
     let mut it = args.iter();
     while let Some(arg) = it.next() {
         match arg.as_str() {
@@ -231,6 +241,8 @@ pub fn cmd(args: &[String]) -> ExitCode {
                 Some(n) => show = n,
                 None => return crate::fail("--failures needs a number"),
             },
+            // P5b: measure with the game names (`praven`), not only the kit references (`p_town_6`).
+            "--names" => names = true,
             other => return crate::fail(&format!("unknown argument `{other}`")),
         }
     }
@@ -240,10 +252,13 @@ pub fn cmd(args: &[String]) -> ExitCode {
     else {
         return crate::fail(&format!("no atlas found ({} in this or a parent folder)", crate::ATLAS_REL));
     };
-    let atlas = match uw_atlas::Atlas::from_path(&path) {
+    let mut atlas = match uw_atlas::Atlas::from_path(&path) {
         Ok(a) => a,
         Err(e) => return crate::fail(&format!("{}: {e}", path.display())),
     };
+    if names {
+        install_derived_names(&mut atlas);
+    }
     let schemas = match schemas_dir.or_else(find_schemas) {
         Some(dir) => match load_schemas(&dir) {
             Ok(schemas) => schemas,
@@ -267,4 +282,26 @@ pub fn cmd(args: &[String]) -> ExitCode {
     }
     println!("\ntext: {}", dir.display());
     if report.total.failed == 0 && records.failed() == 0 { ExitCode::SUCCESS } else { ExitCode::FAILURE }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The golden tests' atlas: `p_town_6` is shown as "Praven", so `--names` derives `praven`.
+    const FIXTURE: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/atlas_golden.json");
+
+    #[test]
+    fn the_names_option_measures_with_game_names() {
+        let mut atlas = uw_atlas::Atlas::from_path(FIXTURE).expect("the golden atlas fixture loads");
+        assert_eq!(install_derived_names(&mut atlas), 1);
+        assert_eq!(atlas.reference_for("praven"), Some("p_town_6"));
+        // The game name compiles like its kit reference and prints back as the game name.
+        let text = "party_relocate_near_party(praven, p_main_party, 3)";
+        let ops = compile(&atlas, text).expect("the game name is accepted");
+        assert!(decompile(&atlas, &ops, Mode::Structured).contains("praven"));
+        // And the whole measure still comes back identical with names installed.
+        let report = measure(&atlas);
+        assert_eq!(report.total.failed, 0);
+    }
 }

@@ -39,7 +39,9 @@ fn cases() -> Vec<PathBuf> {
 
 /// Parses, checks and emits `input.uw`: the generated wrappers by name, or the rendered errors.
 fn run(input: &str, debug: bool) -> Result<Vec<(String, String)>, String> {
-    let atlas = uw_atlas::Atlas::from_path(ATLAS).expect("the golden atlas fixture loads");
+    let mut atlas = uw_atlas::Atlas::from_path(ATLAS).expect("the golden atlas fixture loads");
+    // The game names `uw build` installs (P5b): the mod's `names.uw`, or the derived Native ones.
+    atlas.set_game_names(&uw_decomp::names::pairs(&uw_decomp::names::derive(&atlas)));
     let file = SourceFile::new("input.uw", input.to_owned());
     let tree = match uw_syntax::parse(&file.text) {
         Ok(tree) => tree,

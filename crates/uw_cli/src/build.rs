@@ -37,6 +37,8 @@ pub fn run(opts: Options) -> Result<(), String> {
         .map_err(|e| format!("{}: {e}", dir.display()))?
         .filter_map(|e| e.ok().map(|e| e.path()))
         .filter(|p| p.extension().is_some_and(|x| x == "uw"))
+        // `names.uw` is the mod's game names (P5b), not a source file.
+        .filter(|p| p.file_name().and_then(|n| n.to_str()) != Some(uw_decomp::names::FILE))
         .collect();
     paths.sort();
     if paths.is_empty() {
@@ -62,8 +64,10 @@ pub fn run(opts: Options) -> Result<(), String> {
         return Err("fix the errors above and run `uw build` again".into());
     }
 
-    // 2. Check against the atlas.
-    let model = crate::load(opts.atlas.or_else(|| find_up(&dir, crate::ATLAS_REL)))?;
+    // 2. Check against the atlas, with game names (P5b): the mod's own `names.uw`, otherwise the
+    // names `uw new` derives from the kit's display names.
+    let mut model = crate::load(opts.atlas.or_else(|| find_up(&dir, crate::ATLAS_REL)))?;
+    install_game_names(&mut model.atlas, &dir)?;
     let fallback = dir.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| "uw_mod".into());
     let checked = match uw_check::check(&model.atlas, &sources, &fallback) {
         Ok(checked) => checked,
@@ -195,6 +199,19 @@ pub fn impact_report(model: &crate::model::Model, checked: &uw_check::Checked) -
 
 fn write(path: &Path, text: &str) -> Result<(), String> {
     fs::write(path, text).map_err(|e| format!("{}: {e}", path.display()))
+}
+
+/// The game names the check accepts (P5b): the mod folder's own `names.uw` when it has one, otherwise
+/// the names [`uw_decomp::names::derive`] reads from the kit's display names. A bad `names.uw` is an
+/// error, never a silent fallback to the kit references.
+fn install_game_names(atlas: &mut uw_atlas::Atlas, dir: &Path) -> Result<(), String> {
+    if dir.join(uw_decomp::names::FILE).is_file() {
+        crate::new::install_names(atlas, dir)?;
+    } else {
+        let names = uw_decomp::names::derive(atlas);
+        atlas.set_game_names(&uw_decomp::names::pairs(&names));
+    }
+    Ok(())
 }
 
 /// Empties `dir` for reuse; refuses a non-empty folder without `marker`.
@@ -335,6 +352,29 @@ mod tests {
         assert_eq!(fs::read_to_string(modules.join("BenimModum").join("precious.txt")).unwrap(), "keep");
         assert!(install(&out, &modules, "native").is_err());
         assert_eq!(fs::read_to_string(modules.join("Native").join("menus.txt")).unwrap(), "native menus");
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn game_names_come_from_the_mods_file_or_the_kits_display_names() {
+        let root = temp("names");
+        let golden = || {
+            let path = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/atlas_golden.json");
+            uw_atlas::Atlas::from_path(path).unwrap()
+        };
+        // No `names.uw`: the derived Native names are installed ("Praven" -> `praven`).
+        let mut atlas = golden();
+        install_game_names(&mut atlas, &root).unwrap();
+        assert_eq!(atlas.reference_for("praven"), Some("p_town_6"));
+        // The mod's own `names.uw` is what the check accepts, not the derived names.
+        fs::write(root.join(uw_decomp::names::FILE), "golden_town = p_town_6\n").unwrap();
+        let mut atlas = golden();
+        install_game_names(&mut atlas, &root).unwrap();
+        assert_eq!(atlas.reference_for("golden_town"), Some("p_town_6"));
+        assert_eq!(atlas.reference_for("praven"), None);
+        // A wrong line stops the build instead of falling back to the kit references.
+        fs::write(root.join(uw_decomp::names::FILE), "golden_town = p_town_99\n").unwrap();
+        assert!(install_game_names(&mut golden(), &root).is_err());
         let _ = fs::remove_dir_all(&root);
     }
 

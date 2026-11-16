@@ -37,11 +37,12 @@ const USAGE: &str = "usage:
       ($g_player_luck), an operation (call_script) or a constant
       --tr: the official Turkish csv folder (Modules/Native/languages/tr), to show the
       Turkish in-game text too (the default install is used when it is not given)
-  uw roundtrip [--atlas <atlas.json>] [--out <dir>] [--failures N] [--schemas <dir>]
+  uw roundtrip [--atlas <atlas.json>] [--out <dir>] [--failures N] [--schemas <dir>] [--names]
       decompile every Native operation block to UW, compile it back and compare;
       prints the share that comes back identical, writes the text to target/uw-native;
       --schemas: the record schema folder (kit-meta/records when not given): every record is
-      printed and parsed back too, and written to target/uw-native/records
+      printed and parsed back too, and written to target/uw-native/records;
+      --names: print the game names (`praven`) instead of the kit references (`p_town_6`)
   uw new <dir> --from native [--atlas <atlas.json>]
       write every Native record into a project folder as UW text (an export; not compiled yet, see P3b)
   uw new --check <dir>

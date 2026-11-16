@@ -32,7 +32,7 @@
         "parties": {"module":"module_parties","var":"parties","id_file":"ID_parties","id_prefix":"p_","ref_tag":"p",
           "entries": [
             {"index":0,"name":"main_party","id":"p_main_party","dup":null,"line":1,"value":[]},
-            {"index":26,"name":"town_6","id":"p_town_6","dup":null,"line":82,"value":[]}
+            {"index":26,"name":"town_6","id":"p_town_6","dup":null,"line":82,"value":["p_town_6","Praven"]}
           ]},
         "troops": {"module":"module_troops","var":"troops","id_file":"ID_troops","id_prefix":"trp_","ref_tag":"trp",
           "entries": [
