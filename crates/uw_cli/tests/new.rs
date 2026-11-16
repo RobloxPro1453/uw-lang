@@ -111,4 +111,5 @@ fn the_help_lists_the_new_commands() {
     assert!(ok, "{text}");
     assert!(text.contains("uw new <dir> --from native"), "{text}");
     assert!(text.contains("uw new --check <dir>"), "{text}");
+    assert!(text.contains("uw rename <record>"), "{text}");
 }

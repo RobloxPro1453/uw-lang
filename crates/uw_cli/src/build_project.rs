@@ -8,7 +8,7 @@
 //! with `uw build`'s safety rules.
 //! The kit folder is never written (staging copy, `uw_kitrun`).
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
@@ -231,14 +231,14 @@ fn word_sources(dir: &Path) -> Result<Vec<uw_check::Source>, String> {
     crate::build::parse_sources(&entries)
 }
 
-/// Translation keys whose Native text no longer applies because the project renamed the record
-/// (T-089): `id` for a changed `name`, `id_pl` for a changed `plural_name`.
+/// Translation keys whose Native text no longer applies because the project renamed the record,
+/// with the record's new text: `id` for a changed `name`, `id_pl` for a changed `plural_name`.
 fn renamed_keys(
     atlas: &uw_atlas::Atlas,
     schemas: &[Schema],
     records: &BTreeMap<String, Vec<Json>>,
-) -> BTreeSet<String> {
-    let mut keys = BTreeSet::new();
+) -> BTreeMap<String, String> {
+    let mut keys = BTreeMap::new();
     for schema in schemas {
         let Some(table) = atlas.tables.get(&schema.table) else { continue };
         let Some(values) = records.get(&schema.table) else { continue };
@@ -249,15 +249,62 @@ fn renamed_keys(
         }
         for (entry, value) in table.entries.iter().zip(values) {
             let Some(id) = &entry.id else { continue };
-            if name.is_some_and(|index| field(value, index) != field(&entry.value, index)) {
-                keys.insert(id.clone());
+            if let Some(index) = name {
+                if field(value, index) != field(&entry.value, index) {
+                    keys.insert(id.clone(), text_of(value, index));
+                }
             }
-            if plural.is_some_and(|index| field(value, index) != field(&entry.value, index)) {
-                keys.insert(format!("{id}_pl"));
+            if let Some(index) = plural {
+                if field(value, index) != field(&entry.value, index) {
+                    keys.insert(format!("{id}_pl"), text_of(value, index));
+                }
             }
         }
     }
     keys
+}
+
+/// One field as text (`""` when it is not a string).
+fn text_of(value: &Json, index: usize) -> String {
+    field(value, index).and_then(Json::as_str).unwrap_or_default().to_owned()
+}
+
+/// A town/castle/village name: what the project calls it and what Native called it (T-094).
+#[derive(Debug)]
+struct TownName {
+    current: String,
+    native: String,
+}
+
+/// Every town/castle/village with its project name and its Native name: town-ness is the record's
+/// own folder (`parties/towns/…`, `layout::path_for`), the name is the schema's `name` field.
+fn town_names(
+    atlas: &uw_atlas::Atlas,
+    schemas: &[Schema],
+    records: &BTreeMap<String, Vec<Json>>,
+) -> BTreeMap<String, TownName> {
+    let mut towns = BTreeMap::new();
+    for schema in schemas.iter().filter(|schema| schema.table == "parties") {
+        let Some(table) = atlas.tables.get(&schema.table) else { continue };
+        let Some(values) = records.get(&schema.table) else { continue };
+        let Some(index) = schema.fields.iter().position(|field| field.name == "name") else { continue };
+        for (entry, value) in table.entries.iter().zip(values) {
+            let Some(id) = &entry.id else { continue };
+            let path = uw_decomp::project::layout::path_for(atlas, schema, entry);
+            if !["parties/towns/", "parties/castles/", "parties/villages/"]
+                .iter()
+                .any(|folder| path.starts_with(folder))
+            {
+                continue;
+            }
+            let current = text_of(value, index);
+            if current.is_empty() {
+                continue;
+            }
+            towns.insert(id.clone(), TownName { current, native: text_of(&entry.value, index) });
+        }
+    }
+    towns
 }
 
 /// A record field by schema index: a tuple is a JSON array, a `list=true` table is `{"list": …}`.
@@ -269,10 +316,36 @@ fn field(value: &Json, index: usize) -> Option<&Json> {
     }
 }
 
+/// What installing a project's translations changes besides copying: the translation keys of
+/// renamed records, and the per-language town suffix from `uw.toml` (T-094).
+#[derive(Debug, Default)]
+struct LanguageRules {
+    /// Translation key (`p_town_6`, `trp_x_pl`) -> the record's new text.
+    renamed: BTreeMap<String, String>,
+    /// Town/castle/village id -> its project name and its Native name.
+    towns: BTreeMap<String, TownName>,
+    /// Language folder name (`tr`) -> the configured town suffix.
+    suffixes: BTreeMap<String, String>,
+}
+
+/// [`LanguageRules`] from the project: its renamed records, its towns and its `uw.toml` setting.
+fn language_rules(
+    atlas: &uw_atlas::Atlas,
+    schemas: &[Schema],
+    records: &BTreeMap<String, Vec<Json>>,
+    project: &Path,
+) -> Result<LanguageRules, String> {
+    Ok(LanguageRules {
+        renamed: renamed_keys(atlas, schemas, records),
+        towns: town_names(atlas, schemas, records),
+        suffixes: uw_decomp::project::town_suffixes(project)?,
+    })
+}
+
 /// Replaces `<dest>/languages` with the project's own `languages/`, leaving out the lines of the
-/// renamed records in `drop`. The project's files are only read. Returns one warning per dropped
+/// renamed records in `rules`. The project's files are only read. Returns one warning per dropped
 /// line. With no project `languages/`, Native's own (`<Modules>/Native/languages`) is used, filtered the same way.
-fn install_languages(project: &Path, dest: &Path, drop: &BTreeSet<String>) -> Result<Vec<String>, String> {
+fn install_languages(project: &Path, dest: &Path, rules: &LanguageRules) -> Result<Vec<String>, String> {
     let to = dest.join("languages");
     // The project's own translations; a project made before it had them (or with none) uses Native's,
     // so the game never loses its language (the owner's test: the whole game turned English).
@@ -289,7 +362,7 @@ fn install_languages(project: &Path, dest: &Path, drop: &BTreeSet<String>) -> Re
         std::fs::remove_dir_all(&to).map_err(|e| format!("{}: {e}", to.display()))?;
     }
     let mut warnings = Vec::new();
-    copy_languages_filtered(&from, &to, &from, drop, &mut warnings)?;
+    copy_languages_filtered(&from, &to, &from, rules, &mut warnings)?;
     Ok(warnings)
 }
 
@@ -297,7 +370,7 @@ fn copy_languages_filtered(
     from: &Path,
     to: &Path,
     source_root: &Path,
-    drop: &BTreeSet<String>,
+    rules: &LanguageRules,
     warnings: &mut Vec<String>,
 ) -> Result<(), String> {
     std::fs::create_dir_all(to).map_err(|e| format!("{}: {e}", to.display()))?;
@@ -306,12 +379,14 @@ fn copy_languages_filtered(
         let path = entry.path();
         let target = to.join(entry.file_name());
         if entry.file_type().map_err(|e| e.to_string())?.is_dir() {
-            copy_languages_filtered(&path, &target, source_root, drop, warnings)?;
+            copy_languages_filtered(&path, &target, source_root, rules, warnings)?;
         } else if path.extension().is_some_and(|ext| ext == "csv") {
             let bytes = std::fs::read(&path).map_err(|e| format!("{}: {e}", path.display()))?;
             let relative = path.strip_prefix(source_root).unwrap_or(&path);
             let file = format!("languages/{}", relative.to_string_lossy().replace('\\', "/"));
-            let kept = filter_translation_lines(&bytes, drop, &file, warnings);
+            // The language is the first folder under `languages/` (`languages/tr/parties.csv`).
+            let language = relative.components().next().and_then(|part| part.as_os_str().to_str());
+            let kept = filter_translation_lines(&bytes, rules, language, &file, warnings);
             std::fs::write(&target, kept).map_err(|e| format!("{}: {e}", target.display()))?;
         } else {
             std::fs::copy(&path, &target).map_err(|e| format!("{}: {e}", path.display()))?;
@@ -320,22 +395,31 @@ fn copy_languages_filtered(
     Ok(())
 }
 
-/// Keeps every line except the `id|text` lines whose key is in `drop`; untouched lines stay
-/// byte-identical (BOM, CRLF and a last line without a newline included).
+/// Keeps every line except the `id|text` lines of a renamed record whose text does not say the new
+/// name yet; a line that already does is kept (T-094). Untouched lines stay byte-identical (BOM,
+/// CRLF and a last line without a newline included). A town line gets the language's `town_suffix`.
 fn filter_translation_lines(
     bytes: &[u8],
-    drop: &BTreeSet<String>,
+    rules: &LanguageRules,
+    language: Option<&str>,
     file: &str,
     warnings: &mut Vec<String>,
 ) -> Vec<u8> {
+    let suffix = language.and_then(|language| rules.suffixes.get(language));
     let mut kept = Vec::with_capacity(bytes.len());
     for line in bytes.split_inclusive(|&byte| byte == b'\n') {
-        if let Some(key) = translation_key(line) {
-            if let Ok(key) = std::str::from_utf8(key) {
-                if drop.contains(key) {
+        if let Some(key) = translation_key(line).and_then(|key| std::str::from_utf8(key).ok()) {
+            if let Some(name) = rules.renamed.get(key) {
+                let says_new_name = !name.is_empty()
+                    && translation_text(line).is_some_and(|text| crate::rename::contains_word(text, name));
+                if !says_new_name {
                     warnings.push(format!("translation dropped: {key} ({file}): renamed in the project"));
                     continue;
                 }
+            }
+            if let (Some(suffix), Some(town)) = (suffix, rules.towns.get(key)) {
+                kept.extend_from_slice(&with_town_suffix(line, town, suffix));
+                continue;
             }
         }
         kept.extend_from_slice(line);
@@ -343,10 +427,41 @@ fn filter_translation_lines(
     kept
 }
 
+/// One `id|text` line with the town's Native suffix replaced by `suffix` (T-094): the text reads
+/// `<name><suffix>`, the name being the project's or Native's, and the new text is the project's
+/// name + `suffix`. A text that starts with neither name (a fully localized one) stays as it is.
+fn with_town_suffix(line: &[u8], town: &TownName, suffix: &str) -> Vec<u8> {
+    let Some(bar) = line.iter().position(|&byte| byte == b'|') else { return line.to_vec() };
+    let Some(text) = std::str::from_utf8(&line[bar + 1..]).ok() else { return line.to_vec() };
+    if !starts_with_word(text, &town.current) && !starts_with_word(text, &town.native) {
+        return line.to_vec();
+    }
+    let ending = &text[text.trim_end_matches(['\r', '\n']).len()..];
+    let mut out = line[..=bar].to_vec();
+    out.extend_from_slice(town.current.as_bytes());
+    out.extend_from_slice(suffix.as_bytes());
+    out.extend_from_slice(ending.as_bytes());
+    out
+}
+
+/// True when `text` starts with `word` as a whole word (`Praven Şehri` for `Praven`).
+fn starts_with_word(text: &str, word: &str) -> bool {
+    !word.is_empty()
+        && text.starts_with(word)
+        && text[word.len()..].chars().next().is_none_or(|c| !crate::rename::is_word_char(c))
+}
+
 fn translation_key(line: &[u8]) -> Option<&[u8]> {
     let line = line.strip_prefix(&b"\xef\xbb\xbf"[..]).unwrap_or(line);
     let end = line.iter().position(|&byte| byte == b'|')?;
     Some(&line[..end])
+}
+
+/// The text half of an `id|text` line.
+fn translation_text(line: &[u8]) -> Option<&str> {
+    let line = line.strip_prefix(&b"\xef\xbb\xbf"[..]).unwrap_or(line);
+    let end = line.iter().position(|&byte| byte == b'|')?;
+    std::str::from_utf8(&line[end + 1..]).ok()
 }
 
 /// `uw build-project <dir>`: the same build, from the project folder.
@@ -430,8 +545,11 @@ fn build_project(dir: &Path, args: &Args) -> ExitCode {
     };
     match crate::build::install(&built.out, &modules_dir, &name) {
         Ok(dest) => {
-            let drop = renamed_keys(&atlas, &schemas, &records);
-            match install_languages(dir, &dest, &drop) {
+            let rules = match language_rules(&atlas, &schemas, &records, dir) {
+                Ok(rules) => rules,
+                Err(message) => return crate::fail(&message),
+            };
+            match install_languages(dir, &dest, &rules) {
                 Ok(lines) => {
                     for line in lines {
                         println!("{line}");
@@ -692,10 +810,11 @@ source = "module_troops.py:16"
             "parties".to_owned(),
             vec![serde_json::json!(["town_6", "Adam Siken", 0])],
         )]);
-        let drop = renamed_keys(&atlas, &schemas, &records);
-        assert_eq!(drop.iter().cloned().collect::<Vec<_>>(), ["p_town_6"]);
+        let rules = LanguageRules { renamed: renamed_keys(&atlas, &schemas, &records), ..LanguageRules::default() };
+        assert_eq!(rules.renamed.keys().cloned().collect::<Vec<_>>(), ["p_town_6"]);
+        assert_eq!(rules.renamed["p_town_6"], "Adam Siken");
 
-        let warnings = install_languages(&project, &dest, &drop).unwrap();
+        let warnings = install_languages(&project, &dest, &rules).unwrap();
         assert_eq!(
             warnings,
             ["translation dropped: p_town_6 (languages/tr/parties.csv): renamed in the project"]
@@ -725,10 +844,10 @@ source = "module_troops.py:16"
             "troops".to_owned(),
             vec![serde_json::json!({"list": ["swadian_recruit", "Swadian Recruit", "Swadian Askerler", 0]})],
         )]);
-        let drop = renamed_keys(&atlas, &schemas, &records);
-        assert_eq!(drop.iter().cloned().collect::<Vec<_>>(), ["trp_swadian_recruit_pl"]);
+        let rules = LanguageRules { renamed: renamed_keys(&atlas, &schemas, &records), ..LanguageRules::default() };
+        assert_eq!(rules.renamed.keys().cloned().collect::<Vec<_>>(), ["trp_swadian_recruit_pl"]);
 
-        let warnings = install_languages(&project, &dest, &drop).unwrap();
+        let warnings = install_languages(&project, &dest, &rules).unwrap();
         assert_eq!(
             warnings,
             ["translation dropped: trp_swadian_recruit_pl (languages/tr/troops.csv): renamed in the project"]
@@ -744,8 +863,11 @@ source = "module_troops.py:16"
     fn translation_filtering_keeps_untouched_lines_byte_identical() {
         let mut warnings = Vec::new();
         let bytes = b"\xef\xbb\xbfp_town_5|Uxkhal\r\np_town_6|Praven\r\np_town_6|tekrar";
-        let drop = BTreeSet::from(["p_town_6".to_owned()]);
-        let kept = filter_translation_lines(bytes, &drop, "languages/tr/parties.csv", &mut warnings);
+        let rules = LanguageRules {
+            renamed: BTreeMap::from([("p_town_6".to_owned(), "Adam Siken".to_owned())]),
+            ..LanguageRules::default()
+        };
+        let kept = filter_translation_lines(bytes, &rules, None, "languages/tr/parties.csv", &mut warnings);
         assert_eq!(kept, b"\xef\xbb\xbfp_town_5|Uxkhal\r\n");
         assert_eq!(
             warnings,
@@ -754,6 +876,83 @@ source = "module_troops.py:16"
                 "translation dropped: p_town_6 (languages/tr/parties.csv): renamed in the project"
             ]
         );
+    }
+
+    #[test]
+    fn a_translation_that_already_says_the_new_name_is_kept() {
+        let mut warnings = Vec::new();
+        let bytes = "p_town_6|Praven Şehri\np_town_6|Adam Siken Şehri\np_town_6|Pravenfall\n".as_bytes();
+        let rules = LanguageRules {
+            renamed: BTreeMap::from([("p_town_6".to_owned(), "Adam Siken".to_owned())]),
+            ..LanguageRules::default()
+        };
+        let kept = filter_translation_lines(bytes, &rules, None, "languages/tr/parties.csv", &mut warnings);
+        assert_eq!(kept, "p_town_6|Adam Siken Şehri\n".as_bytes());
+        assert_eq!(warnings.len(), 2, "{warnings:?}");
+    }
+
+    #[test]
+    fn a_town_suffix_replaces_the_native_suffix_of_a_town_name() {
+        const TOWNS: &str = r#"{
+          "schema": 1, "kit_hash": "t094", "ops": [], "hooks": [],
+          "ranges": [
+            {"name": "towns_begin", "value": "p_town_6", "line": 1552},
+            {"name": "towns_end", "value": 1, "line": 1556}
+          ],
+          "tables": {
+            "parties": {"module":"module_parties","var":"parties","id_file":"ID_parties","id_prefix":"p_",
+              "entries": [
+                {"index":0,"name":"town_6","id":"p_town_6","dup":null,"line":1,
+                  "value":["town_6","Praven",0]}
+              ]}
+          }
+        }"#;
+        let atlas = uw_atlas::Atlas::from_str(TOWNS).unwrap();
+        let schemas = [Schema::from_toml(PARTY_SCHEMA).unwrap()];
+        let records = BTreeMap::from([(
+            "parties".to_owned(),
+            vec![serde_json::json!(["town_6", "Adam Siken", 0])],
+        )]);
+        let towns = town_names(&atlas, &schemas, &records);
+        assert_eq!(towns["p_town_6"].current, "Adam Siken");
+        assert_eq!(towns["p_town_6"].native, "Praven");
+
+        let mut warnings = Vec::new();
+        let bytes = "p_town_6|Praven Şehri\np_town_6|Adam Siken Kalesi\np_town_5|Uxkhal\n".as_bytes();
+        let renamed = LanguageRules {
+            towns: town_names(&atlas, &schemas, &records),
+            suffixes: BTreeMap::from([("tr".to_owned(), String::new())]),
+            ..LanguageRules::default()
+        };
+        assert_eq!(
+            filter_translation_lines(bytes, &renamed, Some("tr"), "languages/tr/parties.csv", &mut warnings),
+            "p_town_6|Adam Siken\np_town_6|Adam Siken\np_town_5|Uxkhal\n".as_bytes()
+        );
+        let suffixed = LanguageRules {
+            towns: town_names(&atlas, &schemas, &records),
+            suffixes: BTreeMap::from([("tr".to_owned(), " Şehri".to_owned())]),
+            ..LanguageRules::default()
+        };
+        assert_eq!(
+            filter_translation_lines(bytes, &suffixed, Some("tr"), "languages/tr/parties.csv", &mut warnings),
+            "p_town_6|Adam Siken Şehri\np_town_6|Adam Siken Şehri\np_town_5|Uxkhal\n".as_bytes()
+        );
+        assert!(warnings.is_empty(), "{warnings:?}");
+    }
+
+    #[test]
+    fn uw_toml_gives_each_language_its_town_suffix() {
+        let root = language_scratch("suffix");
+        assert_eq!(uw_decomp::project::town_suffixes(&root).unwrap(), BTreeMap::new());
+        std::fs::write(
+            root.join("uw.toml"),
+            "base = \"native-export\"\n[languages.tr]\ntown_suffix = \"\"\n[languages.en]\ntown_suffix = \" Town\"\n",
+        )
+        .unwrap();
+        let suffixes = uw_decomp::project::town_suffixes(&root).unwrap();
+        assert_eq!(suffixes["tr"], "");
+        assert_eq!(suffixes["en"], " Town");
+        let _ = std::fs::remove_dir_all(&root);
     }
 
     #[test]
@@ -774,8 +973,11 @@ p_town_6|Praven Şehri
 ").unwrap();
         std::fs::write(native_tr.join("ui.csv"), "ui_x|Tamam
 ").unwrap();
-        let drop = BTreeSet::from(["p_town_6".to_owned()]);
-        let warnings = install_languages(&project, &dest, &drop).unwrap();
+        let rules = LanguageRules {
+            renamed: BTreeMap::from([("p_town_6".to_owned(), "Adam Siken".to_owned())]),
+            ..LanguageRules::default()
+        };
+        let warnings = install_languages(&project, &dest, &rules).unwrap();
         assert_eq!(warnings.len(), 1, "{warnings:?}");
         let tr = dest.join("languages").join("tr");
         assert_eq!(std::fs::read_to_string(tr.join("parties.csv")).unwrap(), "p_town_5|Uxkhal
