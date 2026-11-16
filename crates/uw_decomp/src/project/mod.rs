@@ -20,6 +20,13 @@ const DESCRIPTIONS_REL: &str = "kit-meta/aciklama";
 /// At most this many failures are kept; enough to see what broke.
 const FIRST_FAILURES: usize = 5;
 
+/// Scripts whose `call_script` gives a center to a faction at game start.
+const OWNER_SCRIPTS: [&str; 2] =
+    ["script_give_center_to_faction_aux", "script_give_center_to_faction"];
+
+/// The script that runs once when a new game starts.
+const GAME_START: &str = "game_start";
+
 /// What one export wrote.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct ExportSummary {
@@ -61,6 +68,7 @@ pub fn export(
     }
     std::fs::create_dir_all(out).map_err(|e| format!("{}: {e}", out.display()))?;
     let descriptions = descriptions();
+    let owners = owners(atlas);
     let files = group_by_path(atlas, schemas);
     let mut summary = ExportSummary::default();
     for (relative, records) in &files {
@@ -71,6 +79,12 @@ pub fn export(
             if let Some(line) = comment(schema, entry, &descriptions) {
                 text.push_str(&line);
                 text.push('\n');
+            }
+            if schema.table == "parties" {
+                if let Some(line) = owner_line(atlas, &owners, entry) {
+                    text.push_str(&line);
+                    text.push('\n');
+                }
             }
             text.push_str(render(schema, entry).trim_end());
             text.push('\n');
@@ -239,6 +253,67 @@ fn comment(schema: &Schema, entry: &Entry, descriptions: &HashMap<String, String
         (None, Some(description)) => Some(format!("// {description}")),
         (None, None) => None,
     }
+}
+
+/// party id -> faction id, from the `game_start` script and the scripts it calls directly (one
+/// level). Empty when the atlas has no `call_script` op (a tiny test atlas).
+fn owners(atlas: &Atlas) -> HashMap<String, String> {
+    let mut owners = HashMap::new();
+    let Some(code) = atlas.op("call_script").map(|op| op.code) else {
+        return owners;
+    };
+    let mut called: Vec<String> = Vec::new();
+    for entry in atlas.entries_named("scripts", GAME_START) {
+        let Some(ops) = script_body(entry) else { continue };
+        for (target, party, faction) in calls(&ops, code) {
+            if OWNER_SCRIPTS.contains(&target) {
+                owner_pair(party, faction, &mut owners);
+            } else if target.starts_with("script_") && !called.iter().any(|seen| seen == target) {
+                called.push(target.to_owned());
+            }
+        }
+    }
+    for id in called {
+        let Some(("scripts", entry)) = atlas.entry_by_id(&id) else { continue };
+        let Some(ops) = script_body(entry) else { continue };
+        for (target, party, faction) in calls(&ops, code) {
+            if OWNER_SCRIPTS.contains(&target) {
+                owner_pair(party, faction, &mut owners);
+            }
+        }
+    }
+    owners
+}
+
+/// The operation block of a scripts entry (`module_scripts.py:22`: name, body).
+fn script_body(entry: &Entry) -> Option<Vec<crate::RawOp>> {
+    crate::parse_ops(crate::items(&entry.value)?.get(1)?)
+}
+
+/// The `(called script, first operand, second operand)` of every `call_script` with three string
+/// operands.
+fn calls<'a>(ops: &'a [crate::RawOp], code: u64) -> impl Iterator<Item = (&'a str, &'a str, &'a str)> + 'a {
+    ops.iter().filter(move |op| op.code == code).filter_map(|op| match op.args.as_slice() {
+        [crate::RawArg::Str(target), crate::RawArg::Str(first), crate::RawArg::Str(second), ..] => {
+            Some((target.as_str(), first.as_str(), second.as_str()))
+        }
+        _ => None,
+    })
+}
+
+/// Adds `party -> faction` when the two operands are literal kit references.
+fn owner_pair(party: &str, faction: &str, owners: &mut HashMap<String, String>) {
+    if party.starts_with("p_") && faction.starts_with("fac_") {
+        owners.insert(party.to_owned(), faction.to_owned());
+    }
+}
+
+/// `// at game start: owned by <faction> (game_start script)`: the project's game name for the
+/// faction (`swadia`) when it has one, the kit id (`fac_kingdom_1`) otherwise.
+fn owner_line(atlas: &Atlas, owners: &HashMap<String, String>, entry: &Entry) -> Option<String> {
+    let faction = owners.get(entry.id.as_deref()?)?;
+    let owner = atlas.game_name(faction).unwrap_or(faction);
+    Some(format!("// at game start: owned by {owner} (game_start script)"))
 }
 
 /// The record's own `name` field when it holds a string (the name a player sees), else the atlas
