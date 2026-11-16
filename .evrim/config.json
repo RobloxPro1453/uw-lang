@@ -151,7 +151,7 @@
     "gates": {
       "fiveHourNoNewStep": 85,
       "fiveHourExit": 90,
-      "weeklyBase": 90,
+      "weeklyBase": 100,
       "weeklySlope": 0,
       "weeklyMargin": 5,
       "cycleShareMax": 8,
