@@ -1,28 +1,28 @@
 # Özet (sahibi için, sade)
 
 ## Şu an
-OHAL. 6. çevrim bitti. **Dilin yeni hâli çalışıyor:** hesap, if, menü metni ve seçenekleri. Örnek mod `menu_demo` derlendi ve oyuna kuruldu; senin denemeni bekliyor. DeepSeek altın testleri yazıyor (T-019).
+7. çevrim (2026-11-16 akşam) bitti. DeepSeek'e 16 iş verildi (T-100..T-115), 15'i denetlenip birleşti. T-115 (denetim tur 2) şeritte; sonraki oturum toplar. Tahmini ilerleme ~%60.
 
 ## Bitenler
-- **Elle tutulur:** Warband başlatıcısında `menu_demo` modunu seç, yeni oyun aç, karakteri yarat. "Nereden başlamak istersin" menüsünde değişen metin, yeni adlı Praven seçeneği, yeni "Start rich" seçeneği görünmeli; Shariz kalkmış olmalı. Adımlar: docs/CHECKUP.md (Oyun deneyi kuyruğu).
-- Kaynak: examples/menu_demo/menu_demo.uw (tek dosyada hepsi).
-- Kılavuz yeni bölümler: 3.5 hesap, 3.6 if/and/or/not, 3.7 menü metni ve seçenekler, 3.8 yeni menü; hata kodları E0206-E0212 (docs/kilavuz/UW_KILAVUZU.md).
-- Testler 141/141, Python yardımcıları 15/15.
-- DeepSeek bugün ~0.5$ harcadı; işlerinin hepsi denetlendi, birinde gerçek bir hata yakalanıp düzeltildi.
+- **Şehir/kale sahibi:** kayıtta `owner swadia` satırı; değiştirince oyun başında o krallığa geçer (gerçek kitle denendi: Sargoth → Vaegirler).
+- **Dil:** `dialog …` (ilk karşılaşma diyaloğu), `area` + `on enter` (bölgeye girince olay), `if player.has(iron_shield)` ve `say "…"`.
+- **Araçlar:** `uw check`, `uw find "praven"`, `uw rename … --texts`, çevirilerde `name_tr` ve `strip_suffix`/`add_suffix` (uw.toml).
+- **VS Code:** hata altı çizili, yazarken öneri, üstüne gelince açıklama. Kurulum dosyası: `editors/vscode/uw-lang-0.1.0.vsix`.
+- **Akıllı denetim:** 3 rapor `docs/bilgi/denetim/`; ilk tur düzeltmeler uygulandı (ör. parti şablonlarında askerler numara yerine adla).
+- Ölçü: testler 437 geçti, 12815/12815 kayıt aynen, değişmeyen proje 32/32 Native ile bayt bayt aynı. GitHub'a gönderildi.
 
 ## Karar verdiklerim
-- Gramer 2 kararı: docs/meclis/gramer-2-oneri.md.
-- OHAL: yalnız bu proje; haftalık tavan %90.
-- Bağlam büyüyünce devir notu + yeni oturum (KARARNAMELER).
+- DeepSeek'e iş paketler hâlinde verildi, denetim toplu yapıldı (her birleştirmeden sonra değil, paket sonunda tam ölçü).
+- Damıtma bu çevrimde ertelendi: kota işe harcandı.
+- Bilgisayarı kapatma (shutdown) notu uygulanmadı: haftalık %90 eşiğine varılmadı (%84) ve sen başındaydın.
 
 ## Takıldıklarım
-- **GitHub push'u otomatik izin denetimi reddediyor.** Son commit'ler yalnız bilgisayarında; GitHub'daki main geride. Çözüm: ya arada kendin `git push origin master:main` çalıştır ya da Claude Code izinlerine bu komutu ekle.
-- 5. çevrimde özet yazarken bir ters tırnak yüzünden `git push` istemeden bir kez çalışmıştı (içerik temizdi). Ders kaydedildi.
+- Remote Control'ü açmak otomatik izin denetiminde reddedildi; döngü onsuz çalıştı.
 
 ## Harcama
-Çevrim başına 5 saatlik kotanın ~%3-6'sı; haftalık %63 / tavan %90.
+DeepSeek bugün ~3.1$ (toplam 9$'dan). Claude haftalık %82 → %84.
 
 ## Senin bakman gerekenler
-1. `menu_demo`yu oyunda dene (yukarıda), sonucu docs/CHECKUP.md maddesinin altına yaz.
-2. GitHub için push (yukarıda).
-3. Commit e-postası `fincan106@gmail.com` GitHub'da görünür; istemezsen söyle.
+1. VS Code eklentisini kur: `code --install-extension editors/vscode/uw-lang-0.1.0.vsix --force`
+2. Oyun denemeleri (docs/CHECKUP.md): kral Harlaus ile ilk karşılaşma diyaloğu ve bölgeye girince mesaj.
+3. GitHub Student Pack açılınca söyle: Copilot kodlama ajanını tek küçük işle deneriz.

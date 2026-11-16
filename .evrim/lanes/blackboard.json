@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-16T18:44:50.822Z",
+  "updatedAt": "2026-11-16T19:11:15.757Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -1502,12 +1502,16 @@
     },
     "T-108": {
       "task": "T-108",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-108",
-      "updatedAt": "2026-11-16T17:05:47.687Z"
+      "updatedAt": "2026-11-16T19:03:55.389Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/denetim/menu-diyalog-betik.md +246 -0"
+      ]
     },
     "T-109": {
       "task": "T-109",
@@ -1605,12 +1609,37 @@
     },
     "T-114": {
       "task": "T-114",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-114",
-      "updatedAt": "2026-11-16T18:25:52.244Z"
+      "updatedAt": "2026-11-16T19:11:15.756Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_check/src/lib.rs +151 -2",
+        "crates/uw_cli/src/roundtrip.rs +5 -3",
+        "crates/uw_cli/tests/fixtures/atlas_golden.json +6 -0",
+        "crates/uw_cli/tests/golden.rs +3 -1",
+        "crates/uw_cli/tests/golden/area_enter/expected/module_simple_triggers.py +3 -10",
+        "crates/uw_cli/tests/golden/area_enter/input.uw +3 -3",
+        "crates/uw_cli/tests/golden/condition_words/expected/module_game_menus.py +62 -0",
+        "crates/uw_cli/tests/golden/condition_words/expected/module_simple_triggers.py +114 -0",
+        "crates/uw_cli/tests/golden/condition_words/input.uw +36 -0",
+        "crates/uw_cli/tests/golden/condition_words/lib +0 -0",
+        "crates/uw_syntax/src/lib.rs +50 -13",
+        "docs/kilavuz/UW_KILAVUZU.md +60 -7",
+        "lib/core.uw +16 -0"
+      ]
+    },
+    "T-115": {
+      "task": "T-115",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-115",
+      "updatedAt": "2026-11-16T19:07:38.739Z"
     }
   }
 }

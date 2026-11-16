@@ -1,5 +1,15 @@
 # Devir: sonraki oturum buradan başlar
 
+## 0000000000. AKŞAM (2026-11-16, döngü 7) — önce bunu oku
+
+T-100..T-114 birleşti (owner alanı, dialog, area/on enter, koşul sözcükleri, uw check/words/find, rename
+--texts, name_tr + strip/add_suffix, VS Code hata/tamamlama/hover, 3 denetim raporu + tur 1 düzeltme).
+Ölçü: testler 437, new --check 12815/12815, build-project 32/32. Açık dal: **cv/T-115** (denetim tur 2,
+şerit 9): `cv delegate status` → raporu oku → birleştir → tam ölçü (yukarıdaki üç komut) → push.
+Şeritte gerçek ölçü yok (kit bağlı değil): birleşince ana dalda ölç. Sıradaki: oyun denemeleri CHECKUP
+(dialog, area), denetim tur 3, Y5 lords/companions örneği, derleme hızı (Claude), son sözdizimi meclisi,
+stres testi. Sahibi GitHub Student Pack aldı (3 gün içinde): Copilot kodlama ajanını tek tarifle dene.
+
 ## 000000000. GECE (2026-11-16 sonu) — önce bunu oku
 
 Sahibi uyudu, "yeni iş ekleme" dedi; döngü durduruldu. Birleşmemiş dallar: **cv/T-101** (VS Code'da hata

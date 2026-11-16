@@ -36,3 +36,8 @@ Sıradaki: T-017 ve T-015 gözden geçir/birleştir; altın testler + örnek mod
 Yaptım: T-015 ve T-017 birleşti; menu_demo uçtan uca derlendi ve kuruldu; kılavuz 3.5-3.8; CHECKUP oyun deneyi; T-019 başladı; push izin denetiminde
 Maliyet: 5s %5 · commit: 8 · Değdi: evet
 Sıradaki: T-019 gözden geçir; bağlayıcı sırası (T-020) ve flow_json diyaloglar; bağlam 400k olunca devir
+
+## 2026-11-16 22:31 · kota 5s %2 / hafta %84
+Yaptım: T-100..T-114 birlesti: owner, dialog, area, kosul sozcukleri, uw check/words/find, rename --texts, name_tr, VS Code; 437 test, 12815/12815, 32/32
+Maliyet: haftalik %82->%84, DeepSeek ~3.1 dolar · commit: 43 · Değdi: evet
+Sıradaki: T-115 birlestir ve olc; oyun denemeleri; denetim tur 3
