@@ -107,17 +107,37 @@ fn parse(args: &[String]) -> Result<Common, String> {
     Ok(common)
 }
 
-pub fn load(path: Option<PathBuf>) -> Result<model::Model, String> {
-    let path = path
-        .or_else(|| std::env::var_os("UW_ATLAS").map(PathBuf::from))
+/// The atlas file: `--atlas`, else `UW_ATLAS`, else the one found in this or a parent folder.
+fn atlas_path(path: Option<PathBuf>) -> Result<PathBuf, String> {
+    path.or_else(|| std::env::var_os("UW_ATLAS").map(PathBuf::from))
         .or_else(find_atlas)
         .ok_or_else(|| {
             format!(
                 "no atlas found ({ATLAS_REL} in this or a parent folder); \
                  build it as described in docs/DEVELOPMENT.md (Atlas)"
             )
-        })?;
+        })
+}
+
+pub fn load(path: Option<PathBuf>) -> Result<model::Model, String> {
+    let path = atlas_path(path)?;
     let atlas = uw_atlas::Atlas::from_path(&path).map_err(|err| format!("{}: {err}", path.display()))?;
+    Ok(model::Model::new(atlas))
+}
+
+/// [`load`] with the game names installed before the model is built (rows keep their labels): the
+/// working folder's own `names.uw` when it has one, otherwise the derived Native names. A bad
+/// `names.uw` is an error, never a silent fallback (same rule as `uw build`).
+fn load_named(path: Option<PathBuf>) -> Result<model::Model, String> {
+    let path = atlas_path(path)?;
+    let mut atlas = uw_atlas::Atlas::from_path(&path).map_err(|err| format!("{}: {err}", path.display()))?;
+    let dir = std::env::current_dir().map_err(|err| format!("current folder: {err}"))?;
+    if dir.join(uw_decomp::names::FILE).is_file() {
+        new::install_names(&mut atlas, &dir)?;
+    } else {
+        let names = uw_decomp::names::derive(&atlas);
+        atlas.set_game_names(&uw_decomp::names::pairs(&names));
+    }
     Ok(model::Model::new(atlas))
 }
 
@@ -148,7 +168,7 @@ fn cmd_explain(args: &[String]) -> ExitCode {
         return fail(&format!("what should I explain?\n{USAGE}"));
     }
     let thing = common.words.join(" ");
-    let model = match load(common.atlas).and_then(|model| add_tr(model, common.tr)) {
+    let model = match load_named(common.atlas).and_then(|model| add_tr(model, common.tr)) {
         Ok(model) => model,
         Err(message) => return fail(&message),
     };
@@ -166,7 +186,7 @@ fn cmd_browse(args: &[String]) -> ExitCode {
         Ok(common) => common,
         Err(message) => return fail(&message),
     };
-    let model = match load(common.atlas).and_then(|model| add_tr(model, common.tr)) {
+    let model = match load_named(common.atlas).and_then(|model| add_tr(model, common.tr)) {
         Ok(model) => model,
         Err(message) => return fail(&message),
     };
@@ -258,7 +278,7 @@ fn cmd_graph(args: &[String]) -> ExitCode {
     if words.is_empty() {
         return fail(&format!("what should I draw?\n{USAGE}"));
     }
-    let model = match load(atlas).and_then(|model| add_tr(model, tr_dir)) {
+    let model = match load_named(atlas).and_then(|model| add_tr(model, tr_dir)) {
         Ok(model) => model,
         Err(message) => return fail(&message),
     };
@@ -290,7 +310,7 @@ fn cmd_graph(args: &[String]) -> ExitCode {
 
 /// `uw graph --json <file> [<thing>]`: writes the uw-flow/1 document for graph_viewer.
 fn graph_json(atlas: Option<PathBuf>, tr_dir: Option<PathBuf>, words: &[String], path: &Path) -> ExitCode {
-    let model = match load(atlas).and_then(|model| add_tr(model, tr_dir)) {
+    let model = match load_named(atlas).and_then(|model| add_tr(model, tr_dir)) {
         Ok(model) => model,
         Err(message) => return fail(&message),
     };

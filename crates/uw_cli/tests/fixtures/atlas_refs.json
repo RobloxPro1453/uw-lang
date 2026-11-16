@@ -19,6 +19,14 @@
             {"index":1,"name":"camp","id":null,"dup":1,"line":20,"value":["camp",0,"A",{"list":[]}]},
             {"index":2,"name":"Camp","id":"menu_camp","dup":2,"line":30,"value":["Camp",0,"B",{"list":[]},{"list":[]},{"list":[["camp_option",{"list":[]},"Erkek",{"list":[]}]]}]}
           ]},
+        "factions": {"module":"module_factions","var":"factions","id_file":"ID_factions","id_prefix":"fac_","ref_tag":"fac",
+          "entries": [
+            {"index":0,"name":"kingdom_1","id":"fac_kingdom_1","dup":null,"line":10,"value":["kingdom_1","Kingdom of Swadia",0,0.9]}
+          ]},
+        "parties": {"module":"module_parties","var":"parties","id_file":"ID_parties","id_prefix":"p_","ref_tag":"p",
+          "entries": [
+            {"index":0,"name":"town_6","id":"p_town_6","dup":null,"line":82,"value":["p_town_6","Praven"]}
+          ]},
         "scripts": {"module":"module_scripts","var":"scripts","id_file":"ID_scripts","id_prefix":"script_","ref_tag":"script",
           "entries": [
             {"index":0,"name":"game_start","id":"script_game_start","dup":null,"line":31,"value":["game_start",{"list":[

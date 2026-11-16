@@ -137,6 +137,22 @@ fn search_finds_things_by_their_turkish_text() {
     assert!(err.contains("'üveykent' is not in Native"), "{err}");
 }
 
+#[test]
+fn game_names_work_like_kit_ids_and_show_next_to_them() {
+    // The derived game name ("Praven" -> praven) resolves like the kit id and is shown after it.
+    let (ok, out, _) = uw(&["praven"]);
+    assert!(ok, "{out}");
+    assert!(out.starts_with("p_town_6 (praven)  ·  \"Praven\""), "{out}");
+    let (ok, out, _) = uw(&["p_town_6"]);
+    assert!(ok, "{out}");
+    assert!(out.starts_with("p_town_6 (praven)  ·  \"Praven\""), "{out}");
+    // A name the in-game text alone cannot give ("Kingdom of Swadia" -> swadia): only the install
+    // of the derived names makes this lookup work.
+    let (ok, out, _) = uw(&["swadia"]);
+    assert!(ok, "{out}");
+    assert!(out.starts_with("fac_kingdom_1 (swadia)  ·  \"Kingdom of Swadia\""), "{out}");
+}
+
 /// The real Native atlas, when this machine has one (docs/DEVELOPMENT.md > Atlas).
 const REAL: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../target/uw-staging/atlas.json");
 
@@ -167,7 +183,7 @@ fn real_atlas_short_form_caps_and_all_lists_everything() {
     assert!(menu.contains("dlga_award_fief_to_vassal_2:close_window"), "{menu}");
     // In-game name and word search on the real data.
     let praven = uw_real(&["Praven"]).unwrap();
-    assert!(praven.starts_with("p_town_6  ·  \"Praven\""), "{praven}");
+    assert!(praven.starts_with("p_town_6 (praven)  ·  \"Praven\""), "{praven}");
     let merchant = uw_real(&["merchant_quest"]).unwrap();
     assert!(merchant.contains("Things that match"), "{merchant}");
 }
