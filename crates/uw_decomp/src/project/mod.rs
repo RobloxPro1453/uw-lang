@@ -357,6 +357,25 @@ fn descriptions() -> HashMap<String, String> {
     map
 }
 
+/// The per-language town suffix a project may set (T-094):
+/// `[languages.<lang>] town_suffix = "..."` in `uw.toml`. A folder without `uw.toml` has no
+/// setting; a broken file is an error, so a typo cannot silently do nothing.
+pub fn town_suffixes(dir: &Path) -> Result<BTreeMap<String, String>, String> {
+    let path = dir.join("uw.toml");
+    if !path.is_file() {
+        return Ok(BTreeMap::new());
+    }
+    let text = std::fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+    let value: toml::Value = text.parse().map_err(|e| format!("{}: {e}", path.display()))?;
+    let mut found = BTreeMap::new();
+    for (language, section) in value.get("languages").and_then(toml::Value::as_table).into_iter().flatten() {
+        if let Some(suffix) = section.get("town_suffix").and_then(toml::Value::as_str) {
+            found.insert(language.clone(), suffix.to_owned());
+        }
+    }
+    Ok(found)
+}
+
 /// `uw.lock` (the record order), `uw.toml` (the folder is an export, not a compiled project yet)
 /// and the Turkish `README.md`.
 fn write_metadata(atlas: &Atlas, schemas: &[Schema], out: &Path) -> Result<(), String> {

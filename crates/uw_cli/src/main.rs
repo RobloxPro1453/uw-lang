@@ -10,6 +10,7 @@ mod impact;
 mod model;
 mod new;
 mod build_project;
+mod rename;
 mod tr;
 mod tui;
 
@@ -52,6 +53,13 @@ const USAGE: &str = "usage:
       --compare-native: say how many output files are byte-identical to Native
   uw build-project --native-check
       the same, but the modules come from the atlas values themselves
+  uw rename <record> \"<new name>\" [--list] [--yes]
+      rename a record and every text that mentions it: its own name, the project's other record
+      texts and its languages/<lang>/*.csv translations (the old name is replaced inside each
+      text, so \"Praven Şehri\" becomes \"Adam Siken Şehri\");
+      --list: only list what would change; --yes: write every group without asking
+  uw rename <dir> <record> \"<new name>\" ...
+      the same, for the project folder <dir>
   uw --version";
 
 /// Where the atlas lives unless `--atlas` / `UW_ATLAS` says otherwise (docs/DEVELOPMENT.md).
@@ -72,6 +80,7 @@ fn main() -> ExitCode {
         Some("roundtrip") => roundtrip::cmd(&args[1..]),
         Some("new") => new::cmd(&args[1..]),
         Some("build-project") => build_project::cmd(&args[1..]),
+        Some("rename") => rename::cmd(&args[1..]),
         _ => {
             println!("uw {}", env!("CARGO_PKG_VERSION"));
             println!("{USAGE}");
