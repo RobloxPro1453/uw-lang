@@ -80,11 +80,15 @@ fn tiny_atlas_marks_the_owner_and_reads_back_exact() {
 
     let praven = party_file(&atlas, &schema, &out, "p_town_6");
     assert!(
-        praven.contains("// at game start: owned by fac_kingdom_1 (game_start script)"),
-        "no owner line in:\n{praven}"
+        praven.contains("owner fac_kingdom_1"),
+        "no owner field in:\n{praven}"
+    );
+    assert!(
+        praven.contains("// who gets it at game start (game_start script); change it here"),
+        "the owner line does not say what it means:\n{praven}"
     );
     let uxkhal = party_file(&atlas, &schema, &out, "p_town_1");
-    assert!(!uxkhal.contains("owned by"), "a town without an owner call got a line:\n{uxkhal}");
+    assert!(!uxkhal.contains("owner "), "a town without an owner call got a line:\n{uxkhal}");
 
     let report = verify(&atlas, &[schema], &out, &mut |schema, text| parse(schema, text)).expect("verify");
     assert_eq!(report.failed, 0, "{:?}", report.first_failures);
@@ -103,8 +107,8 @@ fn game_names_replace_the_kit_id_in_the_owner_line() {
 
     let praven = party_file(&atlas, &schema, &out, "p_town_6");
     assert!(
-        praven.contains("// at game start: owned by swadia (game_start script)"),
-        "no game-name owner line in:\n{praven}"
+        praven.contains("owner swadia"),
+        "no game-name owner field in:\n{praven}"
     );
 
     std::fs::remove_dir_all(&root).ok();
@@ -117,7 +121,9 @@ fn real_atlas_praven_owner_and_verify() {
         eprintln!("skipped: no atlas at {path}");
         return;
     }
-    let atlas = Atlas::from_path(path).expect("full atlas loads");
+    let mut atlas = Atlas::from_path(path).expect("full atlas loads");
+    let names = uw_decomp::names::derive(&atlas);
+    atlas.set_game_names(&uw_decomp::names::pairs(&names));
     let dir = format!("{}/../../kit-meta/records", env!("CARGO_MANIFEST_DIR"));
     let mut paths: Vec<PathBuf> = std::fs::read_dir(&dir)
         .expect("schema folder")
@@ -136,11 +142,7 @@ fn real_atlas_praven_owner_and_verify() {
     export(&atlas, &schemas, &out, &mut |schema, entry| print(schema, entry)).expect("export");
 
     let praven = party_file(&atlas, parties, &out, "p_town_6");
-    assert!(praven.contains("owned by"), "no owner line in the Praven file:\n{praven}");
-    assert!(
-        praven.contains("kingdom_1") || praven.contains("swadia"),
-        "the owner is not a kingdom name:\n{praven}"
-    );
+    assert!(praven.contains("owner swadia"), "no owner line in the Praven file:\n{praven}");
 
     let report = verify(&atlas, &schemas, &out, &mut |schema, text| parse(schema, text)).expect("verify");
     assert_eq!(report.failed, 0, "{:?}", report.first_failures);

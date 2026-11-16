@@ -484,11 +484,20 @@ pub fn load_records(
     atlas: &uw_atlas::Atlas,
     schemas: &[Schema],
 ) -> Result<BTreeMap<String, Vec<Json>>, LoadFailure> {
+    load_records_with_owners(dir, atlas, schemas).map(|(records, _owners)| records)
+}
+
+/// [`load_records`], plus the project's `owner` lines as full `party -> faction` references.
+pub fn load_records_with_owners(
+    dir: &Path,
+    atlas: &uw_atlas::Atlas,
+    schemas: &[Schema],
+) -> Result<(BTreeMap<String, Vec<Json>>, BTreeMap<String, String>), LoadFailure> {
     let words = word_sources(dir).map_err(LoadFailure::Words)?;
     let mut compile =
         |text: &str| crate::roundtrip::compile_with(atlas, text, &words).map(|ops| records::ops_to_json(&ops));
     let mut parse = |schema: &Schema, text: &str| records::parse_with_blocks(atlas, schema, text, &mut compile);
-    uw_decomp::project::load::load(atlas, schemas, dir, &mut parse).map_err(LoadFailure::Records)
+    uw_decomp::project::load::load_with_owners(atlas, schemas, dir, &mut parse).map_err(LoadFailure::Records)
 }
 
 /// `uw build-project <dir>`: the same build, from the project folder.
@@ -498,7 +507,7 @@ fn build_project(dir: &Path, args: &Args) -> ExitCode {
         Ok(found) => found,
         Err(message) => return crate::fail(&message),
     };
-    let records = match load_records(dir, &atlas, &schemas) {
+    let (mut records, owners) = match load_records_with_owners(dir, &atlas, &schemas) {
         Ok(records) => records,
         Err(LoadFailure::Words(message)) => return crate::fail(&message),
         Err(LoadFailure::Records(errors)) => {
@@ -513,6 +522,28 @@ fn build_project(dir: &Path, args: &Args) -> ExitCode {
             ));
         }
     };
+    let changes = match uw_decomp::project::apply_owners(&atlas, &mut records, &owners) {
+        Ok(changes) => changes,
+        Err(errors) => {
+            for line in &errors {
+                eprintln!("  {line}");
+            }
+            return crate::fail(&format!(
+                "{} sahip sorunu in {}; hiçbir şey derlenmedi",
+                errors.len(),
+                dir.display()
+            ));
+        }
+    };
+    if !changes.is_empty() {
+        let towns = town_names(&atlas, &schemas, &records);
+        for change in &changes {
+            let name = towns.get(&change.party).map(|town| town.current.as_str()).unwrap_or(&change.party);
+            let from = atlas.game_name(&change.from).unwrap_or(&change.from);
+            let to = atlas.game_name(&change.to).unwrap_or(&change.to);
+            eprintln!("{name}: sahibi {from} → {to} (game_start)");
+        }
+    }
     // The mod name is the project folder's name, checked like `uw build` checks it.
     let Some(name) = dir.file_name().map(|n| n.to_string_lossy().into_owned()) else {
         return crate::fail(&format!("{} has no folder name to use as the mod name", dir.display()));

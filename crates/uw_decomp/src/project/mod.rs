@@ -80,13 +80,16 @@ pub fn export(
                 text.push_str(&line);
                 text.push('\n');
             }
+            let mut body = render(schema, entry).trim_end().to_owned();
             if schema.table == "parties" {
                 if let Some(line) = owner_line(atlas, &owners, entry) {
-                    text.push_str(&line);
-                    text.push('\n');
+                    // Inside the record, as its first field: the modder changes the owner here.
+                    if let Some(index) = body.find('\n') {
+                        body.insert_str(index + 1, &format!("  {line}\n"));
+                    }
                 }
             }
-            text.push_str(render(schema, entry).trim_end());
+            text.push_str(&body);
             text.push('\n');
         }
         let path = out.join(relative);
@@ -129,7 +132,11 @@ pub fn verify_with(
         let ids: Vec<String> = expected.iter().map(|(schema, entry)| record_id(schema, entry)).collect();
         let mut found = vec![false; expected.len()];
         summary.records += expected.len();
-        for (_start, record) in split_records(&text) {
+        for (_start, mut record) in split_records(&text) {
+            // A parties record carries the project-only `owner` field; it is not part of the atlas value.
+            if schema.table == "parties" {
+                take_owner(&mut record);
+            }
             let failure = match parse(schema, &record) {
                 Err(e) => format!("{relative}: {e}"),
                 // The atlas may repeat an id (dialogs do), so every occurrence is matched once.
@@ -216,6 +223,30 @@ fn scan_braces(line: &str, depth: &mut i32, in_string: &mut bool) {
             _ => {}
         }
     }
+}
+
+/// Takes the project-only `owner` field out of a parties record, blanking its line so the record's
+/// own line numbers still point at the file. `None` when the record has no owner line.
+pub(crate) fn take_owner(record: &mut String) -> Option<(String, usize)> {
+    let mut taken: Option<(String, usize)> = None;
+    let mut kept = String::with_capacity(record.len());
+    let mut depth = 0i32;
+    let mut in_string = false;
+    for (line_number, line) in record.split_inclusive('\n').enumerate() {
+        let trimmed = line.trim_start();
+        if taken.is_none() && depth == 1 && trimmed.starts_with("owner ") {
+            let value = trimmed["owner ".len()..].split_whitespace().next().unwrap_or("").to_owned();
+            taken = Some((value, line_number));
+            kept.push('\n');
+        } else {
+            kept.push_str(line);
+        }
+        scan_braces(line, &mut depth, &mut in_string);
+    }
+    if taken.is_some() {
+        *record = kept;
+    }
+    taken
 }
 
 /// The relative path of every record, in atlas order: the exporter writes one file per path.
@@ -313,12 +344,154 @@ fn owner_pair(party: &str, faction: &str, owners: &mut HashMap<String, String>) 
     }
 }
 
-/// `// at game start: owned by <faction> (game_start script)`: the project's game name for the
-/// faction (`swadia`) when it has one, the kit id (`fac_kingdom_1`) otherwise.
+/// `owner <faction>  // who gets it at game start (game_start script); change it here`: the
+/// project's game name for the faction (`swadia`) when it has one, the kit id (`fac_kingdom_1`)
+/// otherwise.
 fn owner_line(atlas: &Atlas, owners: &HashMap<String, String>, entry: &Entry) -> Option<String> {
     let faction = owners.get(entry.id.as_deref()?)?;
     let owner = atlas.game_name(faction).unwrap_or(faction);
-    Some(format!("// at game start: owned by {owner} (game_start script)"))
+    Some(format!("owner {owner}  // who gets it at game start (game_start script); change it here"))
+}
+
+/// One `owner` line the build applied to a `game_start` give-center call.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OwnerChange {
+    /// Party reference (`p_town_1`).
+    pub party: String,
+    /// The faction the call gave the center to (`fac_kingdom_1`).
+    pub from: String,
+    /// The faction from the project's `owner` line (`fac_kingdom_4`).
+    pub to: String,
+}
+
+/// Rewrites the `game_start` give-center calls from the project's `owner` lines (full party and
+/// faction references). A center with an owner line but no call is an error: never a silent add.
+pub fn apply_owners(
+    atlas: &Atlas,
+    records: &mut BTreeMap<String, Vec<Json>>,
+    owners: &BTreeMap<String, String>,
+) -> Result<Vec<OwnerChange>, Vec<String>> {
+    if owners.is_empty() {
+        return Ok(Vec::new());
+    }
+    let Some(code) = atlas.op("call_script").map(|op| op.code) else {
+        return Err(owners.keys().map(|party| missing_owner_call(party)).collect());
+    };
+    // (record, statement, party, faction) of every call that gives a center to a faction, in
+    // `game_start` and in the scripts it calls directly: the same scan the owner lines come from.
+    let mut calls: Vec<(usize, usize, String, String)> = Vec::new();
+    {
+        let Some(scripts) = records.get("scripts") else {
+            return Err(owners.keys().map(|party| missing_owner_call(party)).collect());
+        };
+        let starts: Vec<usize> = (0..scripts.len())
+            .filter(|&index| {
+                crate::items(&scripts[index]).and_then(|items| items.first()).and_then(Json::as_str)
+                    == Some(GAME_START)
+            })
+            .collect();
+        let mut called: Vec<usize> = Vec::new();
+        for &index in &starts {
+            for (statement, target, first, second) in script_calls(&scripts[index], code) {
+                if OWNER_SCRIPTS.contains(&target.as_str()) {
+                    calls.push((index, statement, first, second));
+                } else if target.starts_with("script_") {
+                    if let Some(("scripts", entry)) = atlas.entry_by_id(&target) {
+                        if !called.contains(&entry.index) {
+                            called.push(entry.index);
+                        }
+                    }
+                }
+            }
+        }
+        for index in called {
+            let Some(value) = scripts.get(index) else { continue };
+            for (statement, target, first, second) in script_calls(value, code) {
+                if OWNER_SCRIPTS.contains(&target.as_str()) {
+                    calls.push((index, statement, first, second));
+                }
+            }
+        }
+    }
+
+    let mut wanted: Vec<Option<String>> = vec![None; calls.len()];
+    let mut errors = Vec::new();
+    let mut changes = Vec::new();
+    for (party, faction) in owners {
+        let matches: Vec<usize> =
+            calls.iter().enumerate().filter(|(_, call)| &call.2 == party).map(|(index, _)| index).collect();
+        if matches.is_empty() {
+            errors.push(missing_owner_call(party));
+            continue;
+        }
+        let from = calls[matches[0]].3.clone();
+        if &from != faction {
+            for &index in &matches {
+                wanted[index] = Some(faction.clone());
+            }
+            changes.push(OwnerChange { party: party.clone(), from, to: faction.clone() });
+        }
+    }
+    if !errors.is_empty() {
+        return Err(errors);
+    }
+    let scripts = records.get_mut("scripts").expect("present when calls were found");
+    for (index, call) in calls.iter().enumerate() {
+        let Some(to) = wanted[index].as_ref() else { continue };
+        if let Some(Json::Array(parts)) =
+            script_statements_mut(&mut scripts[call.0]).and_then(|statements| statements.get_mut(call.1))
+        {
+            if parts.len() > 3 {
+                parts[3] = Json::String(to.clone());
+            }
+        }
+    }
+    Ok(changes)
+}
+
+/// Every three-operand `call_script` in a script value: `(statement index, target, first, second)`.
+fn script_calls(value: &Json, code: u64) -> Vec<(usize, String, String, String)> {
+    let Some(statements) = crate::items(value).and_then(|items| items.get(1)).and_then(crate::items) else {
+        return Vec::new();
+    };
+    statements
+        .iter()
+        .enumerate()
+        .filter_map(|(index, statement)| {
+            let parts = crate::items(statement)?;
+            if parts.first()?.as_u64()? != code {
+                return None;
+            }
+            Some((
+                index,
+                parts.get(1)?.as_str()?.to_owned(),
+                parts.get(2)?.as_str()?.to_owned(),
+                parts.get(3)?.as_str()?.to_owned(),
+            ))
+        })
+        .collect()
+}
+
+/// The statement list of a script value, for rewriting.
+fn script_statements_mut(value: &mut Json) -> Option<&mut Vec<Json>> {
+    let items = match value {
+        Json::Array(items) => items,
+        Json::Object(map) => map.get_mut("list")?.as_array_mut()?,
+        _ => return None,
+    };
+    match items.get_mut(1)? {
+        Json::Array(statements) => Some(statements),
+        Json::Object(map) => map.get_mut("list")?.as_array_mut(),
+        _ => None,
+    }
+}
+
+/// The Turkish error for an `owner` line whose center the `game_start` script never gives.
+fn missing_owner_call(party: &str) -> String {
+    format!(
+        "{party}: `owner` satırı var ama game_start betiğinde bu merkezi veren bir çağrı yok \
+         (sessizce eklenmez)"
+    )
 }
 
 /// The record's own `name` field when it holds a string (the name a player sees), else the atlas
