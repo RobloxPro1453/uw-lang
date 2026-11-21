@@ -4,6 +4,7 @@ members = [
     "crates/uw_diag",
     "crates/uw_syntax",
     "crates/uw_atlas",
+    "crates/uw_easy",
     "crates/uw_check",
     "crates/uw_lower",
     "crates/uw_plan",
