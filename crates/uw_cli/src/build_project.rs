@@ -768,6 +768,9 @@ fn build_project(dir: &Path, args: &Args) -> ExitCode {
             let from = atlas.game_name(&change.from).unwrap_or(&change.from);
             let to = atlas.game_name(&change.to).unwrap_or(&change.to);
             eprintln!("{name}: sahibi {from} → {to} (game_start)");
+            for line in crate::effects::lines(change) {
+                eprintln!("{line}");
+            }
         }
     }
     // The mod name is the project folder's name, checked like `uw build` checks it.

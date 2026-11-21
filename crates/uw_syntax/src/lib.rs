@@ -146,6 +146,9 @@ pub enum Member {
     ChangeOption { id: Ident, text: Option<(String, Span)>, when: Option<When>, body: Option<Block>, span: Span },
     /// `remove option <id>`
     RemoveOption { id: Ident, span: Span },
+    /// A record field in an `override <kind> <record> { … }` body (T-118): `agility 18`,
+    /// `name "…"`. Menus do not take fields; the check rejects them with a message.
+    Field(FieldValue),
 }
 
 /// An option's condition: `when <cond>` or `when { statements }`.
@@ -1296,6 +1299,11 @@ impl Parser {
                 }
                 Tok::Ident(kw) if matches!(kw.as_str(), "text" | "option" | "change" | "remove") => {
                     members.push(self.member(&mut used)?);
+                }
+                // A record field in an `override <kind> <record> { … }` body (T-118): `agility 18`,
+                // `name "…"`. Menus take no fields; the check says so with a clear message.
+                Tok::Ident(_) => {
+                    members.push(Member::Field(self.field_value(head)?));
                 }
                 other => {
                     return Err(err(
@@ -2598,6 +2606,15 @@ on game.start {
         assert!(kind.is_none());
         assert_eq!(name.text, "menu_start_phase_2");
         assert!(matches!(&members[0], Member::Text { text, .. } if text == "New text"));
+    }
+
+    /// T-118: a record override body is fields (`agility 18`), not menu lines.
+    #[test]
+    fn a_record_override_body_is_fields() {
+        let members = menu_members("override troop swadian_recruit {\n  agility 18\n  name \"Recruit\"\n}");
+        assert_eq!(members.len(), 2, "{members:?}");
+        assert!(matches!(&members[0], Member::Field(f) if f.name.text == "agility" && f.value == "18"));
+        assert!(matches!(&members[1], Member::Field(f) if f.name.text == "name" && f.value == "\"Recruit\""));
     }
 
     #[test]
