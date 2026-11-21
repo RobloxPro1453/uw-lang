@@ -18,9 +18,10 @@ Bu dosya `cv round` tarafından üretilir, elle düzenlenmez. Ham veri: `.evrim/
 | 7 | 2026-11-16 | paket | hybrid | 39 | 2,61 | 213k / 237k | 909 | 0,287 | 4 / 4 | 4/4 | 230 (0%) | 0,121 | 0,27 | 51 | 76 → 78 |  |
 | 8 | 2026-11-21 | paket | hybrid | 146 (30 yan) | 16,24 | 314k / 414k | 3318 | 0,49 | 13 / 18 | 9/13 | 1384 (15%) | 1,022 | 0,27 | 128 | 29 → 36 |  |
 | 9 | 2026-11-21 | paket | hybrid | 154 (14 yan) | 9,54 | 192k / 302k | 5715 | 0,167 | 29 / 36 | 24/29 | 2047 (6%) | 1,63 | 0,28 | 116 | 38 → 41 | hata: T-130/T-131 aynı crate'i ayrı yazdı (elle birleştirildi); şerit ajanı target/ altını göremedi (junction ile çözüldü); israf: ilk 14 tarama eski yol tarifiyle başladı; 2 iş yeniden koşuldu |
+| 10 | 2026-11-21 | paket | hybrid | 58 | 5,67 | 354k / 393k | 688 | 0,825 | 4 / 8 | 0/4 | 250 (68%) | 0,161 | 0,28 | 19 | 41 → 42 | hata: manual.toml okuyucusu adı önceki işleme bağlıyordu (düzeltildi); T-168 iki deneme dosyası bıraktı |
 
 ## Son 5 turun ortalaması
 
 | Claude yükü | Çağrı | Yük / 100 satır | Tarif / kod | Ucuz $ | Süre dk |
 |---|---|---|---|---|---|
-| 7,04 | 90,2 | 0,4 | 0,2 | 0,59 | 65,57 |
+| 7,29 | 87,8 | 0,53 | 0,22 | 0,59 | 64,24 |
