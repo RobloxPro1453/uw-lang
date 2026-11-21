@@ -3,6 +3,9 @@
 En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulundu, nerede takıldı, nasıl doğrulandı, sıradaki ne. Ayrıntıyı tekrarlamayın; ilgili belgeye yönlendirin. Kayıt silinmez; 30 kaydı geçince eskiler tek paragrafa özetlenir, kalıcı bilgi `docs/KNOWLEDGE.md`'ye taşınır.
 
 <!-- Biçim (bu yorum şablondur, silmeyin):
+## 2026-11-21 akşam · YÖN-3 dil katmanı kararı + çekirdek başlangıcı (Claude + DeepSeek)
+Dil meclisi (D1-D4): üç kat tek dil, %88,7 işlem kitten otomatik kolay ada; kör sınav 8 mekanik, özelliğe özel yama 0. Sahibinin esneklik ilkesi (§2b: genel fiiller, main.uw, tam özellikli UI). `uw_core` (dil tanımı + AST), `uw_start` (game_start yorumlayıcısı), `uw coverage` (genel %3,8), 27 tabloda override/like, hardwired listesi birleşti; testler 475 geçti 0 hata. DeepSeek bugün ~$1,5.
+Sıradaki: DEVIR en üstteki plan (T-132..T-137 → Alex oyun denemesi).
 ## 2026-11-21 · YÖN-3 meclisi + dallar birleşti (Claude)
 T-116 (lord satırı) ve opencode oturumundan T-117 (etki raporu) + T-118 (override alanı) birleşti; doğrulama: testler 450 geçti 0 hata, `uw new --check` 12815/12815, `build-project --compare-native` 32/32; push edildi.
 4 koltuklu meclis (mimar, kanıtçı, avukat, ölçümcü) opencode taslağını denetledi: elle "yapı zinciri" reddedildi, yerine game_start kuru yorumlayıcı + snapshot; override bugün 2/27 tablo; gerçek kapsama tahmini gümüş %8-12. Karar `docs/meclis/yon3/KARAR.md`.

@@ -1,5 +1,38 @@
 # Devir: sonraki oturum buradan başlar
 
+## 0000000000000. AKŞAM (2026-11-21) — ÖNCE BUNU OKU: YÖN-3 dil katmanı, toparlama ve plan
+
+**Sahibinin asıl isteği (sonunda doğru anlaşıldı, VISION 2026-11-21 + hafıza yon3-ms-without-ms):**
+Module System'in TAMAMI, Module System bilmeden. Bitince yeni mekanik/arayüz için derleyiciye yama yok.
+İngilizce; çok kolay + tam kontrol; modüler (`main.uw` + `features/*.uw`); olay temelli (yoklama yok);
+genel fiiller (`teleport`, `disable`…; tek işlik sözcük yasak); her arayüz parçası tam özellikli.
+İlk kabul denemesi: Alex / Praven sokakları / stamina çubuğu / Alt ile koşma (oyunda).
+
+**Kararlar:** `docs/meclis/yon3/KARAR.md` (dünya katmanı, ikinci planda), `docs/meclis/yon3/dil/KARAR-DIL.md`
+(dil katmanı, EN ÖNCELİKLİ; §2b esneklik ilkesi), dil tanımı `docs/dil/CORE-v0.md`, AST `crates/uw_core/src/ast.rs`.
+
+**Ana dalda olanlar (testler 475/475, push edildi):** T-116 lord, T-117 etki raporu, T-118 override alanı,
+T-119 override/like bütün tablolar, T-120 `uw coverage` (bugün genel %3,8: tablo 10/135, kanca 0/45,
+işlem 7/1060), T-121 covers etiketleri, T-122 `kit-meta/hardwired.toml`, T-123 proje klasöründe yeni dil,
+T-128/T-129 yorumlayıcı aileleri, `uw_start` (Native game_start kuru yorumlayıcısı: 18,7M adım, sonuna
+kadar koşuyor; yavaş, testi `#[ignore]`), `uw_core` iskeleti, atlas'a `ti_*` sabitleri.
+
+**Bu oturum kapanırken açık kalanlar:**
+- Tren arka planda: T-124/T-125 (stres tabloları), T-127 (parti işlemleri), T-130/T-131 (`uw_easy`:
+  otomatik kolay söz dağarcığı). Sonuç: `cv delegate status`; tren `git merge --ff-only <sha>` ister.
+- Şeritte çalışıyor: T-132 (çekirdek ayrıştırıcı), T-133 (temel alt çeviri), T-126 (yorumlayıcı hızı;
+  ilk koşu blocked, yeniden çalışıyor). Gözden geçirilmeden birleştirme yok.
+- Hazır, BAŞLATILMADI: T-134 (dağıtıcı + while/otherwise + per second + tuş), T-135 (HUD yöneticisi +
+  arayüz parçaları), T-136 (başlangıç akışı + teleport/disable/face), T-137 (`uw build`'e bağlama + Alex golden).
+
+**Sonraki oturum planı (temiz 5 saatlik pencere):**
+1. `durum` → `cv delegate status`; biten dalları verify + train (T-124..T-133), testler yeşil, push.
+2. T-132 + T-133'ü gözden geçir (Ctx API'si T-134..T-137'nin temeli; kötüyse önce onu düzelt).
+3. T-134, T-135, T-136'yı paralel başlat; bitince T-137. (kit/mod kopyaları şerit `target/ref/` altında.)
+4. Alex klasörünü (`crates/uw_core/tests/alex`) derle, `--modules` ile kur, sahibine oyun denemesi listesi
+   (D2 §10: menüden şehre geçiş, hız çarpanı, Alt çakışması, HUD sürekliliği, çoklu ti_* tetik).
+5. Sonra: kör sınavın 8 mekaniği golden (L5), `uw coverage --easy` (kavram sızıntısı), `uw_easy` → editör.
+Kural: yeni özel sözcük yok; Rust'ta özellik adı yok (testler grep'liyor); her yeni çekirdek sözcük §2b denetimi.
 ## 000000000000. YÖN-3 (2026-11-21) — ÖNCE BUNU OKU
 
 YÖN-3 meclisi toplandı, karar: **`docs/meclis/yon3/KARAR.md`** (dünya durumu derleyicisi). Koltuklar
