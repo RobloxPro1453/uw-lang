@@ -16,9 +16,10 @@ Bu dosya `cv round` tarafından üretilir, elle düzenlenmez. Ham veri: `.evrim/
 | 5 | 2026-11-15 | paket | hybrid | 70 | 4,43 | 168k / 222k | 2789 | 0,159 | 10 / 10 | 10/10 | 316 (0%) | 0,189 | 0,18 | 25 | 66 → 67 | hata: 3 gerçek atlas testi şeritte atlandı, birleşince kırıldı (düzeltildi) |
 | 6 | 2026-11-15 | paket | hybrid | 42 | 2,36 | 142k / 170k | 262 | 0,9 | 0 / 0 | - | 0 (-) | 0 | 0 | 7 | 68 → 68 |  |
 | 7 | 2026-11-16 | paket | hybrid | 39 | 2,61 | 213k / 237k | 909 | 0,287 | 4 / 4 | 4/4 | 230 (0%) | 0,121 | 0,27 | 51 | 76 → 78 |  |
+| 8 | 2026-11-21 | paket | hybrid | 146 (30 yan) | 16,24 | 314k / 414k | 3318 | 0,49 | 13 / 18 | 9/13 | 1384 (15%) | 1,022 | 0,27 | 128 | 29 → 36 |  |
 
 ## Son 5 turun ortalaması
 
 | Claude yükü | Çağrı | Yük / 100 satır | Tarif / kod | Ucuz $ | Süre dk |
 |---|---|---|---|---|---|
-| 3,46 | 41,4 | 0,38 | 0,15 | 0,08 | 20,87 |
+| 5,81 | 64,2 | 0,43 | 0,2 | 0,29 | 44,39 |
