@@ -692,6 +692,7 @@ dependencies = [
  "uw_check",
  "uw_decomp",
  "uw_diag",
+ "uw_easy",
  "uw_emit",
  "uw_kitrun",
  "uw_syntax",

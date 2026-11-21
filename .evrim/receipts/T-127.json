@@ -1,12 +1,15 @@
 {
   "taskId": "T-127",
-  "checkDigest": "dee2ce8834aa0894",
   "branch": "cv/T-127",
-  "headSha": "183b0abcc34d46dfbb2c90872ccee0a59a67c05e",
+  "base": "master",
+  "checkDigest": "dee2ce8834aa0894",
   "treeSha": "c43b764b960f41c83ed8ea348fca29e25c2e0bce",
   "buildOk": true,
   "testOk": true,
-  "status": "done",
-  "testsBy": "agent",
-  "timestamp": "2026-11-21T15:45:47.824Z"
+  "verdict": "PASS",
+  "ok": true,
+  "skippedRun": false,
+  "testsBy": "verifier",
+  "findingsCount": 0,
+  "timestamp": "2026-11-21T18:18:56.616Z"
 }

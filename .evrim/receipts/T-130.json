@@ -1,12 +1,15 @@
 {
   "taskId": "T-130",
-  "checkDigest": "dee2ce8834aa0894",
   "branch": "cv/T-130",
-  "headSha": "236808bcb89ffa155845985d9813739a2d5f887e",
+  "base": "master",
+  "checkDigest": "dee2ce8834aa0894",
   "treeSha": "78f755de6c96e4853b364d198eb035c9620c37c4",
   "buildOk": true,
   "testOk": true,
-  "status": "done",
-  "testsBy": "agent",
-  "timestamp": "2026-11-21T15:39:06.271Z"
+  "verdict": "PASS",
+  "ok": true,
+  "skippedRun": false,
+  "testsBy": "verifier",
+  "findingsCount": 0,
+  "timestamp": "2026-11-21T18:19:36.848Z"
 }

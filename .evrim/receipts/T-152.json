@@ -1,0 +1,12 @@
+{
+  "taskId": "T-152",
+  "checkDigest": "dee2ce8834aa0894",
+  "branch": "cv/T-152",
+  "headSha": "61201da77349940b72e57f108c3b7e2f897a4dc7",
+  "treeSha": "02032f586ad688242b10e213019ead8c17ab1b82",
+  "buildOk": true,
+  "testOk": true,
+  "status": "done",
+  "testsBy": "agent",
+  "timestamp": "2026-11-21T18:47:22.070Z"
+}

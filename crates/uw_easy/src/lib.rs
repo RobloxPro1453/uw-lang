@@ -543,3 +543,6 @@ fn write_json<T: Serialize>(path: impl AsRef<Path>, value: &T) -> Result<()> {
     std::fs::write(path, text)?;
     Ok(())
 }
+
+/// Easy names for kit operations (T-130): the operation dictionary behind the easy command.
+pub mod ops;

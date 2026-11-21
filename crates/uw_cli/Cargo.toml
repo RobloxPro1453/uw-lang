@@ -19,3 +19,4 @@ uw_syntax = { path = "../uw_syntax" }
 uw_check = { path = "../uw_check" }
 uw_emit = { path = "../uw_emit" }
 uw_decomp = { path = "../uw_decomp" }
+uw_easy = { path = "../uw_easy" }

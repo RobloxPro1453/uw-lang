@@ -28,3 +28,4 @@ Her satır bir ders: "X yapınca Y oldu → artık Z yapıyorum (GUNLUK: tarih s
 - [yerel] Native şehir sahipliği iki adım: give_center_to_faction_aux sonra give_center_to_lord (lordun krallığı kazanır); owner değişince lord da değişmeli. Oyun denemesi testlerin göremediğini buldu. (2026-11-16)
 - [yerel] cv guard [kaynak: varsayilan] uyarısı gerçek kotayı yansıtmıyor (2026-11-21: bekçi %100 dedi, get_usage 5s %16 / haftalık %29); karar vermeden önce get_usage ile doğrula (2026-11-21)
 - [yerel] Şerit worktree'leri git-ignored kit/ornek-modlar'ı görmez ve mutlak yol okuyamaz; kite/moda dayanan tarif için kaynakları önce şeridin target/ref/ altına kopyala ve tarifte o yolu yaz (2026-11-21)
+- [yerel] Şerit ajanının list_files/search araçları skipDirs'teki target/ altına bakmaz; git-ignored kaynakları target/ref'e kopyalayınca şeritte görünür yoldan (ör. warband-opensource-mods/mods) junction kur, tarifte o yolu yaz (2026-11-21) (2026-11-21)

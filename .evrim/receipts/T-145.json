@@ -1,0 +1,12 @@
+{
+  "taskId": "T-145",
+  "checkDigest": "dee2ce8834aa0894",
+  "branch": "cv/T-145",
+  "headSha": "605ae0c49077e610cec5086aedc9efa4edfe58b0",
+  "treeSha": "36f3ba9fd565e56f2527a46ab3a8c0c1a157b6dd",
+  "buildOk": true,
+  "testOk": true,
+  "status": "done",
+  "testsBy": "runner",
+  "timestamp": "2026-11-21T18:55:45.982Z"
+}

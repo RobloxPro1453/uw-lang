@@ -5395,6 +5395,376 @@
     "line": 107
   },
   {
+    "easy": "event.after_mission_start",
+    "native": "ti_after_mission_start",
+    "value": -20.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_after_mission_start = -20.0 (header_triggers.py:19)",
+    "line": 19
+  },
+  {
+    "easy": "event.battle_window_opened",
+    "native": "ti_battle_window_opened",
+    "value": -24.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_battle_window_opened = -24.0 (header_triggers.py:23)",
+    "line": 23
+  },
+  {
+    "easy": "event.before_mission_start",
+    "native": "ti_before_mission_start",
+    "value": -19.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_before_mission_start = -19.0 (header_triggers.py:18)",
+    "line": 18
+  },
+  {
+    "easy": "event.escape_pressed",
+    "native": "ti_escape_pressed",
+    "value": -23.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_escape_pressed = -23.0 (header_triggers.py:22)",
+    "line": 22
+  },
+  {
+    "easy": "event.inventory_key_pressed",
+    "native": "ti_inventory_key_pressed",
+    "value": -22.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_inventory_key_pressed = -22.0 (header_triggers.py:21)",
+    "line": 21
+  },
+  {
+    "easy": "event.on_agent_dismount",
+    "native": "ti_on_agent_dismount",
+    "value": -56.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_agent_dismount = -56.0 (header_triggers.py:90)",
+    "line": 90
+  },
+  {
+    "easy": "event.on_agent_hit",
+    "native": "ti_on_agent_hit",
+    "value": -28.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_agent_hit = -28.0 (header_triggers.py:27)",
+    "line": 27
+  },
+  {
+    "easy": "event.on_agent_killed_or_wounded",
+    "native": "ti_on_agent_killed_or_wounded",
+    "value": -26.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_agent_killed_or_wounded = -26.0 (header_triggers.py:25)",
+    "line": 25
+  },
+  {
+    "easy": "event.on_agent_knocked_down",
+    "native": "ti_on_agent_knocked_down",
+    "value": -27.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_agent_knocked_down = -27.0 (header_triggers.py:26)",
+    "line": 26
+  },
+  {
+    "easy": "event.on_agent_mount",
+    "native": "ti_on_agent_mount",
+    "value": -55.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_agent_mount = -55.0 (header_triggers.py:87)",
+    "line": 87
+  },
+  {
+    "easy": "event.on_agent_spawn",
+    "native": "ti_on_agent_spawn",
+    "value": -25.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_agent_spawn = -25.0 (header_triggers.py:24)",
+    "line": 24
+  },
+  {
+    "easy": "event.on_init_item",
+    "native": "ti_on_init_item",
+    "value": -50.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_init_item = -50.0 (header_triggers.py:72)",
+    "line": 72
+  },
+  {
+    "easy": "event.on_init_map_icon",
+    "native": "ti_on_init_map_icon",
+    "value": -70.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_init_map_icon = -70.0 (header_triggers.py:111)",
+    "line": 111
+  },
+  {
+    "easy": "event.on_item_dropped",
+    "native": "ti_on_item_dropped",
+    "value": -54.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_item_dropped = -54.0 (header_triggers.py:83)",
+    "line": 83
+  },
+  {
+    "easy": "event.on_item_picked_up",
+    "native": "ti_on_item_picked_up",
+    "value": -53.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_item_picked_up = -53.0 (header_triggers.py:79)",
+    "line": 79
+  },
+  {
+    "easy": "event.on_item_unwielded",
+    "native": "ti_on_item_unwielded",
+    "value": -58.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_item_unwielded = -58.0 (header_triggers.py:96)",
+    "line": 96
+  },
+  {
+    "easy": "event.on_item_wielded",
+    "native": "ti_on_item_wielded",
+    "value": -57.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_item_wielded = -57.0 (header_triggers.py:93)",
+    "line": 93
+  },
+  {
+    "easy": "event.on_leave_area",
+    "native": "ti_on_leave_area",
+    "value": -30.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_leave_area = -30.0 (header_triggers.py:39)",
+    "line": 39
+  },
+  {
+    "easy": "event.on_missile_hit",
+    "native": "ti_on_missile_hit",
+    "value": -52.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_missile_hit = -52.0 (header_triggers.py:76)",
+    "line": 76
+  },
+  {
+    "easy": "event.on_multiplayer_mission_end",
+    "native": "ti_on_multiplayer_mission_end",
+    "value": -16.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_multiplayer_mission_end = -16.0 (header_triggers.py:15)",
+    "line": 15
+  },
+  {
+    "easy": "event.on_order_issued",
+    "native": "ti_on_order_issued",
+    "value": -71.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_order_issued = -71.0 (header_triggers.py:113)",
+    "line": 113
+  },
+  {
+    "easy": "event.on_party_encounter",
+    "native": "ti_on_party_encounter",
+    "value": -6.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_party_encounter = -6.0 (header_triggers.py:11)",
+    "line": 11
+  },
+  {
+    "easy": "event.on_player_exit",
+    "native": "ti_on_player_exit",
+    "value": -29.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_player_exit = -29.0 (header_triggers.py:36)",
+    "line": 36
+  },
+  {
+    "easy": "event.on_presentation_event_state_change",
+    "native": "ti_on_presentation_event_state_change",
+    "value": -62.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_presentation_event_state_change = -62.0 (header_triggers.py:102)",
+    "line": 102
+  },
+  {
+    "easy": "event.on_presentation_load",
+    "native": "ti_on_presentation_load",
+    "value": -60.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_presentation_load = -60.0 (header_triggers.py:99)",
+    "line": 99
+  },
+  {
+    "easy": "event.on_presentation_mouse_enter_leave",
+    "native": "ti_on_presentation_mouse_enter_leave",
+    "value": -63.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_presentation_mouse_enter_leave = -63.0 (header_triggers.py:105)",
+    "line": 105
+  },
+  {
+    "easy": "event.on_presentation_mouse_press",
+    "native": "ti_on_presentation_mouse_press",
+    "value": -64.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_presentation_mouse_press = -64.0 (header_triggers.py:108)",
+    "line": 108
+  },
+  {
+    "easy": "event.on_presentation_run",
+    "native": "ti_on_presentation_run",
+    "value": -61.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_presentation_run = -61.0 (header_triggers.py:100)",
+    "line": 100
+  },
+  {
+    "easy": "event.on_scene_prop_animation_finished",
+    "native": "ti_on_scene_prop_animation_finished",
+    "value": -46.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_scene_prop_animation_finished = -46.0 (header_triggers.py:61)",
+    "line": 61
+  },
+  {
+    "easy": "event.on_scene_prop_cancel_use",
+    "native": "ti_on_scene_prop_cancel_use",
+    "value": -48.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_scene_prop_cancel_use = -48.0 (header_triggers.py:68)",
+    "line": 68
+  },
+  {
+    "easy": "event.on_scene_prop_destroy",
+    "native": "ti_on_scene_prop_destroy",
+    "value": -43.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_scene_prop_destroy = -43.0 (header_triggers.py:50)",
+    "line": 50
+  },
+  {
+    "easy": "event.on_scene_prop_hit",
+    "native": "ti_on_scene_prop_hit",
+    "value": -42.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_scene_prop_hit = -42.0 (header_triggers.py:44)",
+    "line": 44
+  },
+  {
+    "easy": "event.on_scene_prop_init",
+    "native": "ti_on_init_scene_prop",
+    "value": -40.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_init_scene_prop = -40.0 (header_triggers.py:41)",
+    "line": 41,
+    "alias_of": "event.on_scene_prop_init"
+  },
+  {
+    "easy": "event.on_scene_prop_init",
+    "native": "ti_on_scene_prop_init",
+    "value": -40.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_scene_prop_init = -40.0 (header_triggers.py:40)",
+    "line": 40
+  },
+  {
+    "easy": "event.on_scene_prop_is_animating",
+    "native": "ti_on_scene_prop_is_animating",
+    "value": -45.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_scene_prop_is_animating = -45.0 (header_triggers.py:57)",
+    "line": 57
+  },
+  {
+    "easy": "event.on_scene_prop_start_use",
+    "native": "ti_on_scene_prop_start_use",
+    "value": -47.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_scene_prop_start_use = -47.0 (header_triggers.py:64)",
+    "line": 64
+  },
+  {
+    "easy": "event.on_scene_prop_use",
+    "native": "ti_on_scene_prop_use",
+    "value": -44.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_scene_prop_use = -44.0 (header_triggers.py:53)",
+    "line": 53
+  },
+  {
+    "easy": "event.on_shield_hit",
+    "native": "ti_on_shield_hit",
+    "value": -80.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_shield_hit = -80.0 (header_triggers.py:119)",
+    "line": 119
+  },
+  {
+    "easy": "event.on_switch_to_map",
+    "native": "ti_on_switch_to_map",
+    "value": -75.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_switch_to_map = -75.0 (header_triggers.py:116)",
+    "line": 116
+  },
+  {
+    "easy": "event.on_weapon_attack",
+    "native": "ti_on_weapon_attack",
+    "value": -51.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_on_weapon_attack = -51.0 (header_triggers.py:73)",
+    "line": 73
+  },
+  {
+    "easy": "event.once",
+    "native": "ti_once",
+    "value": 100000000.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_once = 100000000.0 (header_triggers.py:128)",
+    "line": 128
+  },
+  {
     "easy": "event.question_answered",
     "native": "ti_question_answered",
     "value": -8,
@@ -5402,6 +5772,42 @@
     "kind": "enum",
     "doc": "ti_question_answered = -8 (header_triggers.py:12)",
     "line": 12
+  },
+  {
+    "easy": "event.scene_prop_deformation_finished",
+    "native": "ti_scene_prop_deformation_finished",
+    "value": -76.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_scene_prop_deformation_finished = -76.0 (header_triggers.py:117)",
+    "line": 117
+  },
+  {
+    "easy": "event.server_player_joined",
+    "native": "ti_server_player_joined",
+    "value": -15.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_server_player_joined = -15.0 (header_triggers.py:13)",
+    "line": 13
+  },
+  {
+    "easy": "event.simulate_battle",
+    "native": "ti_simulate_battle",
+    "value": -5.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_simulate_battle = -5.0 (header_triggers.py:10)",
+    "line": 10
+  },
+  {
+    "easy": "event.tab_pressed",
+    "native": "ti_tab_pressed",
+    "value": -21.0,
+    "family": "event",
+    "kind": "enum",
+    "doc": "ti_tab_pressed = -21.0 (header_triggers.py:20)",
+    "line": 20
   },
   {
     "easy": "ff.always_hide_label",
