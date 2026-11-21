@@ -161,10 +161,17 @@ fn committed_vocabulary_is_current() {
         return;
     };
     let report = Report::generate(&atlas);
-    let dir = root().join("kit-meta/easy");
-    let committed = std::fs::read_to_string(dir.join("ops.json")).unwrap_or_default();
-    if committed != report.ops_json() {
-        report.write(&dir).expect("write the generated vocabulary");
-        panic!("kit-meta/easy/ops.json was stale and has been regenerated; run the tests again");
-    }
+    let committed_dir = root().join("kit-meta/easy");
+    let committed = std::fs::read_to_string(committed_dir.join("ops.json")).unwrap_or_default();
+    let committed_manual = std::fs::read_to_string(committed_dir.join("manual.toml")).unwrap_or_default();
+    // Regenerate away from the worktree, so the check never changes the files it compares.
+    let dir = std::env::temp_dir().join(format!("uw-easy-current-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("temp dir");
+    std::fs::write(dir.join("manual.toml"), &committed_manual).expect("seed manual.toml");
+    report.write(&dir).expect("generate the vocabulary");
+    let fresh = std::fs::read_to_string(dir.join("ops.json")).expect("ops.json");
+    let fresh_manual = std::fs::read_to_string(dir.join("manual.toml")).expect("manual.toml");
+    std::fs::remove_dir_all(&dir).expect("clean up");
+    assert_eq!(committed, fresh, "kit-meta/easy/ops.json is stale; regenerate it with `uw easy`");
+    assert_eq!(committed_manual, fresh_manual, "kit-meta/easy/manual.toml is stale; regenerate it with `uw easy`");
 }
