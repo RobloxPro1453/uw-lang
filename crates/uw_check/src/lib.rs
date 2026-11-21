@@ -2116,14 +2116,24 @@ fn find_menu(atlas: &Atlas, text: &str) -> Option<String> {
     })
 }
 
-/// The record table a `<kind> … like …` item copies from: a copy reads only the table of its own
-/// kind, never another one (T-092 troops, T-099 towns, castles, villages and parties).
-fn copy_table(kind: &str) -> Option<&'static str> {
-    Some(match kind {
-        "troop" => "troops",
-        "town" | "castle" | "village" | "party" => "parties",
-        _ => return None,
-    })
+/// The record table a `<kind> … like …` item or an `override <kind> …` line reads: the loaded schema
+/// whose record word is `kind` (`faction`, `item`, `scene_prop`, …) or whose table name is `kind`
+/// (`factions`; `override fac_kingdom_1 { … }` derives the table from the id prefix), so a new
+/// table needs no code here (T-119). `town`, `castle` and `village` name the party record too
+/// (T-099), and a kind whose keyword already means something else in the language (`menu`,
+/// `dialog`, `script`, `trigger`, `simple_trigger`, `presentation`, `mission_template`) keeps its
+/// own behaviour: it never names a record copy.
+fn copy_table<'a>(schemas: &'a [Schema], kind: &str) -> Option<&'a str> {
+    const OWN_WORD: [&str; 7] =
+        ["menu", "dialog", "script", "trigger", "simple_trigger", "presentation", "mission_template"];
+    if matches!(kind, "town" | "castle" | "village") {
+        return Some("parties");
+    }
+    let schema = schemas.iter().find(|schema| schema.kind == kind || schema.table == kind)?;
+    if OWN_WORD.contains(&schema.kind.as_str()) {
+        return None;
+    }
+    Some(schema.table.as_str())
 }
 
 /// True when `reference` names a troop (`trp_kingdom_1_lord`): a dialog's talk partner is a troop id
@@ -2132,16 +2142,16 @@ fn is_troop_ref(atlas: &Atlas, reference: &str) -> bool {
     atlas.resolve_ref(reference).is_some_and(|(table, _)| table == "troops")
 }
 
-/// The atlas plus a name for every record the mod makes (`troop <id> like …`, `town <id> like …`):
-/// the check then resolves the kit reference (`trp_<id>`, `p_<id>`) and the bare `<id>` the way it
+/// The atlas plus a name for every record the mod makes (`troop <id> like …`, `item <id> like …`):
+/// the check then resolves the kit reference (`trp_<id>`, `itm_<id>`) and the bare `<id>` the way it
 /// resolves a Native record, and nothing is guessed. The record itself is filled in when its item
 /// is checked; here only the name matters.
-fn atlas_with_new_records<'a>(atlas: &'a Atlas, sources: &[Source]) -> Cow<'a, Atlas> {
+fn atlas_with_new_records<'a>(atlas: &'a Atlas, sources: &[Source], schemas: &[Schema]) -> Cow<'a, Atlas> {
     let ids: Vec<(&str, &str)> = sources
         .iter()
         .flat_map(|source| &source.tree.items)
         .filter_map(|item| match item {
-            Item::Like { kind, id, .. } => Some((copy_table(&kind.text)?, id.text.as_str())),
+            Item::Like { kind, id, .. } => Some((copy_table(schemas, &kind.text)?, id.text.as_str())),
             _ => None,
         })
         .collect();
@@ -2184,8 +2194,8 @@ pub fn check_with_schemas(
     schemas: &[Schema],
 ) -> Result<Checked, Vec<Error>> {
     // Every record the mod makes (`… like …`) is part of the names the check reads code with:
-    // `trp_<id>`, `p_<id>` and the bare `<id>` then resolve like a Native record (T-092, T-099).
-    let view = atlas_with_new_records(atlas, sources);
+    // `trp_<id>`, `itm_<id>` and the bare `<id>` then resolve like a Native record (T-092, T-099).
+    let view = atlas_with_new_records(atlas, sources, schemas);
     let atlas: &Atlas = &view;
     let mut errors = Vec::new();
     let mut name: Option<String> = None;
@@ -2361,7 +2371,7 @@ pub fn check_with_schemas(
                         // T-118: a record override — `override troop swadian_recruit { agility 18 }`.
                         // The record keeps its place in the list; only the written fields change, so
                         // nothing that points at it by number shifts.
-                        let Some(table_name) = copy_table(&kind) else {
+                        let Some(table_name) = copy_table(schemas, &kind) else {
                             ctx.error(diag(
                                 E0201_NOT_YET,
                                 format!("`override {kind}` is not in UW yet"),
@@ -2866,12 +2876,23 @@ pub fn check_with_schemas(
                         origin: ctx.origin(*span),
                     });
                 }
-                // `troop <id> like <other> { … }` / `town <id> like <other> { … }` copies a record of
+                // `troop <id> like <other> { … }` / `item <id> like <other> { … }` copies a record of
                 // its own table: one new record at the end of the list, so Native's own records keep
-                // their numbers (T-092 troops, T-099 towns, castles, villages and parties).
+                // their numbers (T-092 troops, T-099 towns, castles, villages and parties, T-119 every
+                // record table with a schema).
                 Item::Like { kind, id, like, fields, span } => {
                     let word = kind.text.as_str();
-                    let Some(table_name) = copy_table(word) else { continue };
+                    let Some(table_name) = copy_table(schemas, word) else {
+                        ctx.error(diag(
+                            E0201_NOT_YET,
+                            format!("`{word} {} like …` is not in UW yet", id.text),
+                            kind.span,
+                            Some(
+                                "`like` copies a table's record through `kit-meta/records/<table>.toml`; `menu`, `dialog`, `script`, `trigger`, `presentation` and `mission_template` are not copied yet".into(),
+                            ),
+                        ));
+                        continue;
+                    };
                     // The kit reference of the new record: its table's id prefix plus the id
                     // (`trp_` + `elite_crossbowman`, `p_` + `riverhold`).
                     let prefix = atlas
@@ -3177,7 +3198,7 @@ mod tests {
         assert!(errs[0].contains("did you mean 'enter'?"), "{errs:?}");
         let errs = run("override yokboyle x { a 1 }").unwrap_err();
         assert!(errs[0].contains("`override yokboyle` is not in UW yet"), "{errs:?}");
-        let errs = run("override troop x { on enter { } }").unwrap_err();
+        let errs = check_troops("override troop x { on enter { } }").unwrap_err();
         assert!(errs[0].contains("takes fields, not `on enter`"), "{errs:?}");
         let errs = run("on game.start { display_message(\"@Ağa\") }").unwrap_err();
         assert!(errs[0].contains("non-ASCII"), "{errs:?}");
@@ -4295,6 +4316,67 @@ mod tests {
         let checked = check_with_schemas(&party_atlas(), &[Source { file, tree }], "folder", &[parties_schema()])
             .unwrap_or_else(|_| panic!("the bare kit name is accepted"));
         assert!(matches!(checked.patches[0].action, Action::NewRecord { .. }));
+    }
+
+    /// The faction layout of the kit (`kit-meta/records/factions.toml`): `uw build` reads it too.
+    fn factions_schema() -> Schema {
+        Schema::from_path(concat!(env!("CARGO_MANIFEST_DIR"), "/../../kit-meta/records/factions.toml"))
+            .expect("the factions schema loads")
+    }
+
+    /// A tiny atlas with one Native faction, for `override faction …` (T-119).
+    fn faction_atlas() -> Atlas {
+        let text = r#"{
+          "schema": 1, "kit_hash": "faction",
+          "ops": [], "hooks": [], "ranges": [], "constants": [],
+          "tables": {
+            "factions": {"module":"module_factions","var":"factions","id_file":"ID_factions","id_prefix":"fac_","ref_tag":"fac",
+              "entries": [
+                {"index":0,"name":"kingdom_1","id":"fac_kingdom_1","dup":null,"line":5,
+                 "value":["kingdom_1","Kingdom of Swadia",15,100,{"list":[]},{"list":[]}]}
+              ]}
+          }
+        }"#;
+        let mut atlas = Atlas::from_str(text).expect("the faction atlas loads");
+        atlas.set_game_names(&[("kingdom_1".to_owned(), "fac_kingdom_1".to_owned())]);
+        atlas
+    }
+
+    fn check_factions(text: &str) -> Result<Checked, Vec<String>> {
+        let file = SourceFile::new("start.uw", text);
+        let tree = uw_syntax::parse(text).map_err(|d| vec![d.render(&file)])?;
+        check_with_schemas(&faction_atlas(), &[Source { file: file.clone(), tree }], "folder", &[factions_schema()])
+            .map_err(|errors| errors.iter().map(|e| e.diag.render(&file)).collect())
+    }
+
+    /// T-119: `override` and `like` read every record table from its schema, so a faction field is
+    /// checked through factions.toml the way a troop field goes through troops.toml.
+    #[test]
+    fn a_faction_override_reads_its_fields_from_the_faction_schema() {
+        let checked = check_factions("override faction kingdom_1 { name \"Swadia\" }").expect("checks");
+        let patch = &checked.patches[0];
+        assert_eq!(
+            (patch.module.as_str(), patch.var.as_str(), patch.entry.as_str()),
+            ("module_factions", "factions", "kingdom_1")
+        );
+        let Action::ReplaceRecord { value } = &patch.action else { panic!("{:?}", patch.action) };
+        assert!(value.contains("\"Swadia\""), "{value}");
+        // An unknown faction field is the same E0218 a troop field gets.
+        let errs = check_factions("override faction kingdom_1 { yokboyle_alan 1 }").unwrap_err();
+        assert!(errs[0].starts_with("error[E0218]"), "{errs:?}");
+        assert!(errs[0].contains("'yokboyle_alan' is not a field of a faction"), "{errs:?}");
+        // The full Native id names the record too; the kind then comes from its `fac_` prefix.
+        assert!(check_factions("override fac_kingdom_1 { coherence 50 }").is_ok());
+    }
+
+    /// T-119: a kind whose keyword already means something else keeps its own path, so
+    /// `override menu …` is still a menu and never a record copy of the menus table.
+    #[test]
+    fn override_menu_is_still_a_menu() {
+        let checked = run("override menu start_game_0 { on enter { change_screen_map() } }").expect("checks");
+        let patch = &checked.patches[0];
+        assert_eq!((patch.module.as_str(), patch.var.as_str()), ("module_game_menus", "game_menus"));
+        assert_eq!(patch.action, Action::ReplaceBody);
     }
 
     /// T-109: `area` + `on enter` is one simple trigger that reads the party position, tests the

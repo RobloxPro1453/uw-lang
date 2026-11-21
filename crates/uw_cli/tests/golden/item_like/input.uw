@@ -1,0 +1,5 @@
+// covers: items.like
+// T-119: an item copy goes through items.toml, so `like` reads the Native item's own fields.
+item my_sword like iron_shield {
+    name "My Sword"
+}
