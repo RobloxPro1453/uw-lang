@@ -1,0 +1,46 @@
+# Altyapı taraması: 12-beggars-diplomacy (T-149)
+
+Diplomacy/DIPLADO türevi, tek oyunculu bir Warband modu (kendi README'si: Diplomacy 4.3+ fork'u, `mods/12-beggars-diplomacy/README.md:3`), sürüm dizesi "4.3+ for Steam" (`mods/12-beggars-diplomacy/source/module_constants.py:2502`).
+Native'e ~180 yeni betik kimliği ekliyor (`ID_scripts.py` 795 satır; kit `target/ref/kit/ID_scripts.py` 613 satır) ve Native dosyalarının değiştirilmiş kopyalarıyla geliyor.
+Kanıt etiketi: satırlar modun kopyasından; "mod eklemiş" hükmü, aynı adın `target/ref/kit/` içinde bulunmamasıyla verildi. **Sınır:** kopyada `module_scripts.py` yok, yani betik gövdeleri okunamadı; aşağıdaki kanıtlar tetik/menü/sunum/sabit dosyalarından.
+
+| # | category | pattern (generic, one line) | evidence (file:line, 1-3) | approx lines | times reused |
+|---|---|---|---|---|---|
+| 1 | STATE | Her nesne türü (parti/asker/merkez/faktör) için adlandırılmış kalıcı "slot" anahtarı tanımlayıp elle okuyup yazmak | `mods/12-beggars-diplomacy/source/module_constants.py:2089`, `mods/12-beggars-diplomacy/source/module_constants.py:2177`, `mods/12-beggars-diplomacy/source/module_simple_triggers.py:1302` | ~150 (yalnız tanım) | yüzlerce set/get |
+| 2 | COLLECTION | Kesintisiz slot aralığını dizi saymak: başlangıç/bitiş sabiti + `try_for_range` ile dolaşma | `mods/12-beggars-diplomacy/source/module_constants.py:2236`, `mods/12-beggars-diplomacy/source/module_constants.py:307`, `mods/12-beggars-diplomacy/source/module_simple_triggers.py:940` | ~10 | her politika/tarikat döngüsü |
+| 3 | COLLECTION | Üç sabit "temp_array" askerini paralel genel dizi olarak kullanmak (etiket / alan / resim sütunları) | `mods/12-beggars-diplomacy/source/module_presentations.py:18375`, `mods/12-beggars-diplomacy/source/module_presentations.py:16610`, `mods/12-beggars-diplomacy/source/module_presentations.py:13947` | ~15 | 40+ kullanım (arama sınırı) |
+| 4 | COLLECTION | Liste uzunluğunu Python tarafında `len()` ile hesaplayıp "gerçek kayıtların sonu" sabiti olarak dışa aktarmak | `mods/12-beggars-diplomacy/source/module_factions.py:83`, `mods/12-beggars-diplomacy/source/module_simple_triggers.py:11` | ~3 | 1 tanım, her faktör döngüsü |
+| 5 | EVENT | Bildirimi anında göstermek yerine menü olarak kuyruğa koymak; iki argümanı global değişkende taşımak | `mods/12-beggars-diplomacy/source/module_simple_triggers.py:949`, `mods/12-beggars-diplomacy/source/module_game_menus.py:17254`, `mods/12-beggars-diplomacy/source/module_game_menus.py:17259` | ~30 | 23 çağrı (yalnız simple_triggers) |
+| 6 | TIMER | "Sıradaki olay zamanı" globalini `store_current_hours` ile karşılaştırıp rastgele aralıkla yeniden kurmak | `mods/12-beggars-diplomacy/source/module_simple_triggers.py:1118`, `mods/12-beggars-diplomacy/source/module_simple_triggers.py:1170` | ~15 | birkaç olay |
+| 7 | TIMER | Geri sayım alanını her tetikte 1 azaltıp 1'e düşünce olayı bir kez üretmek | `mods/12-beggars-diplomacy/source/module_simple_triggers.py:944`, `mods/12-beggars-diplomacy/source/module_simple_triggers.py:966` | ~25 | her antlaşma türü (4 dal) |
+| 8 | CONFIG | Tek "preferences" menüsü + sunum: her ayar ayrı menü satırı, seçim sonrası menüye yeniden girmek | `mods/12-beggars-diplomacy/source/module_game_menus.py:20763`, `mods/12-beggars-diplomacy/source/module_game_menus.py:20915`, `mods/12-beggars-diplomacy/source/module_presentations.py:18374` | ~250 | 15 seçenek |
+| 9 | CONFIG | Ayar seviyelerini adlandırılmış tamsayı sabitleri + "seçenek sayısı" sabiti olarak tanımlamak | `mods/12-beggars-diplomacy/source/module_constants.py:2289`, `mods/12-beggars-diplomacy/source/module_constants.py:2503` | ~15 | ~10 ayar grubu |
+| 10 | INPUT | "Tuş basılı mı" durumunu her karede sorgulamak; tuş kodunu değişkende tutup yeniden atanabilir yapmak | `mods/12-beggars-diplomacy/source/module_mission_templates.py:390`, `mods/12-beggars-diplomacy/source/module_mission_templates.py:826`, `mods/12-beggars-diplomacy/source/module_presentations.py:16610` | ~20 | onlarca sorgu |
+| 11 | UI | Tam ekranı mutlak piksel koordinatlarıyla metin/buton/mesh overlay'leri kurarak elle çizmek | `mods/12-beggars-diplomacy/source/module_presentations.py:13901`, `mods/12-beggars-diplomacy/source/module_presentations.py:13908`, `mods/12-beggars-diplomacy/source/module_presentations.py:13921` | ~300 / ekran | her yeni ekran |
+| 12 | UI | Combo box'a string id'leri doldurup seçimi indeksle geri eşlemek | `mods/12-beggars-diplomacy/source/module_presentations.py:13968`, `mods/12-beggars-diplomacy/source/module_presentations.py:14032` | ~10 | birkaç |
+| 13 | UI | Kaydırılabilir container + hesaplanmış y artışıyla N satırlık liste | `mods/12-beggars-diplomacy/source/module_presentations.py:18359`, `mods/12-beggars-diplomacy/source/module_presentations.py:18374` | ~40 | 1-2 ekran |
+| 14 | TEXT | Tek string register'ında "{!}{s0}..." ile kendine ekleyerek metin biriktirmek | `mods/12-beggars-diplomacy/source/module_game_menus.py:20773`, `mods/12-beggars-diplomacy/source/module_game_menus.py:20780`, `mods/12-beggars-diplomacy/source/module_game_menus.py:20785` | ~5 | birkaç |
+| 15 | MATH | Yüzde ölçeklemeyi elle yapmak: önce çarp, sonra 100'e böl (gerekirse `val_clamp`) | `mods/12-beggars-diplomacy/source/module_mission_templates.py:373`, `mods/12-beggars-diplomacy/source/module_simple_triggers.py:423` | ~5 | onlarca |
+| 16 | MATH | Karekök için elle fixed-point dönüşümü: `convert_to_fixed_point` + `store_sqrt` + geri çevirme | `mods/12-beggars-diplomacy/source/module_simple_triggers.py:3092` | ~3 | 1 (bilinen) |
+| 17 | DEBUG | Debug/cheat seviyesini kategorili bir enum yapıp mesajları ona göre kapılamak | `mods/12-beggars-diplomacy/source/module_constants.py:2391`, `mods/12-beggars-diplomacy/source/module_simple_triggers.py:1135` | ~15 | onlarca mesaj |
+| 18 | STATE | Kayıt uyumluluğu: sürüm kodunu slotta bit alanı olarak saklayıp menü açılışında doğrulamak | `mods/12-beggars-diplomacy/source/module_game_menus.py:20777`, `mods/12-beggars-diplomacy/source/module_constants.py:2499` | ~30 | 1-2 |
+| 19 | STATE | Başka moddan gelen kayıttaki geçersiz ayarı "tıkla sıfırla" menü satırıyla onarmak | `mods/12-beggars-diplomacy/source/module_game_menus.py:20908`, `mods/12-beggars-diplomacy/source/module_game_menus.py:20949` | ~20 | 2 (görülen) |
+| 20 | AGENT | Mission tetiklerini adlandırılmış demetler halinde yazıp birçok şablona eklemek | `mods/12-beggars-diplomacy/source/module_mission_templates.py:870`, `mods/12-beggars-diplomacy/source/module_mission_templates.py:231` | ~300 (demet) | birçok şablon |
+| 21 | AI | Motorun parti AI durumunu kendi slotlarına aynalamak (motor durumu geri okutmadığı için) | `mods/12-beggars-diplomacy/source/module_simple_triggers.py:2793`, `mods/12-beggars-diplomacy/source/module_simple_triggers.py:2750` | ~10 | birkaç |
+| 22 | NETWORK | Her yeni mission tetiğini "tek oyunculu **veya** MP sunucusu" çift koşuluyla yazmak; MP'de başka bir globali yeniden kullanmak | `mods/12-beggars-diplomacy/source/module_mission_templates.py:267`, `mods/12-beggars-diplomacy/source/module_mission_templates.py:311` | ~50 (koşul satırı) | her yeni tetik |
+| 23 | OTHER:patch-markers | Native dosyayı çatallayıp her değişikliği "##diplomacy start+/end+" ve "#SB :" işaretleriyle sınırlamak | `mods/12-beggars-diplomacy/source/module_game_menus.py:20764`, `mods/12-beggars-diplomacy/source/module_game_menus.py:20769`, `mods/12-beggars-diplomacy/source/module_constants.py:2087` | yüzlerce işaret | ~13 dosya |
+
+## Bir dilin hazır vermesi gereken ilk 5 şey (Top 5 things a language should give built in)
+
+1. **Adlandırılmış kalıcı durum:** her nesne türü için slot numarası ezberletmeyen, kayda giren `parti.alan` / `asker.alan` bildirimleri.
+2. **Birinci sınıf liste/sözlük:** slot aralığı, "temp_array" askeri ve `len()` ile sınır hesaplama hilelerine gerek kalmadan büyüyen koleksiyonlar.
+3. **Olay/bildirim kanalı:** "şu menüyü şu iki argümanla kuyruğa koy" tek satır; argümanları global değişkende taşımak yok.
+4. **Zamanlayıcı:** "her N saatte bir" / "şu ana kadar bekle" ifadesi; elle saat okuma + sayaç azaltma yok.
+5. **Ayar ve ekran:** ayar tanımından otomatik doğan seçenek ekranı + kayıt uyumluluğu (sürüm/alan taşıma) dilde.
+
+## Native kodun değiştirdiği yerler (Native code the mod changed)
+
+- Native dosyalarının değiştirilmiş kopyalarını taşıyor: `module_constants`, `module_game_menus`, `module_mission_templates`, `module_presentations`, `module_dialogs`, `module_strings`, `module_triggers`, `module_simple_triggers`, `module_factions`, `module_party_templates`, `module_quests`, `module_skills`.
+- Bu dosyalardaki `dplmc_*` adları kitte yok: `dplmc_preferences` menüsü (`mods/12-beggars-diplomacy/source/module_game_menus.py:20763`), `dplmc_autoloot_upgrade_management` sunumu (`mods/12-beggars-diplomacy/source/module_presentations.py:13901`), `dplmc_slot_*` slotları (`mods/12-beggars-diplomacy/source/module_constants.py:2089`).
+- Native menülerine satır eklemek yerine menüyü bütün kopyalayıp işaretliyor (`mods/12-beggars-diplomacy/source/module_game_menus.py:179`).
+- `ID_scripts.py` yeniden üretilmiş (795 satır; kit 613); `header_operations.py` kopyası kitle aynı operatörleri taşıyor (kit `header_operations.py:1181` `store_sqrt`).
