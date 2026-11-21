@@ -8,6 +8,7 @@
 
 - [ ] **Y3-P0** `uw coverage` v1 (envanter kitten, golden `// covers:`, gümüş/altın, `--json`).
 - [ ] **Y3-P1** Genel katkı: `override` / `new … like` 27 tablonun hepsinde tek yoldan (bugün 2/27).
+- [ ] **Y3-P1b** Blok taşıyan kayıtlar ve bütün kancalar, genel yoldan: yeni/yamalı `mission_template` (tetikleyici listesi dahil), `presentation`, `item`/`faction`/`quest`/`scene` tanımı; 45 `ti_*` kancasının hepsine ekleme. Kabul: stres listesinden kör seçilen savaş-içi mekanikler (gizlilik, boss, HUD) derleyici koduna dokunmadan yazılır.
 - [ ] **Y3-P2** `game_start` kuru yorumlayıcı + iz (snapshot).
 - [ ] **Y3-P3** Snapshot oyun doğrulaması (N=50 hücre ≥%98; sahibi oyun deneyi).
 - [ ] **Y3-P4** Bağımlılık izi → etki raporu (`effects.rs` sabiti silinir).
