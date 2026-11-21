@@ -698,6 +698,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "uw_core"
+version = "0.0.1"
+dependencies = [
+ "serde",
+ "serde_json",
+ "toml",
+ "uw_atlas",
+]
+
+[[package]]
 name = "uw_decomp"
 version = "0.0.1"
 dependencies = [

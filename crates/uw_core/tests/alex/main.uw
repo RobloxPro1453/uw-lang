@@ -1,0 +1,7 @@
+// main.uw — the whole game
+on game.start {
+    disable(native.character_creation)
+    player.name = "Alex"
+    player.face = face(1)
+    player.teleport(town.praven.streets)
+}
