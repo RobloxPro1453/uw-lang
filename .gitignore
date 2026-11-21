@@ -38,3 +38,6 @@ flow_*.json
 .evrim/STATUS.md
 
 opencode-session/
+
+# Sahibinin topladığı üçüncü taraf modlar: yalnız yerel inceleme, asla commit edilmez
+warband-opensource-mods/

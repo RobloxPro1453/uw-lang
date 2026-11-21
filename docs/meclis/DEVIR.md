@@ -1,6 +1,30 @@
 # Devir: sonraki oturum buradan başlar
 
-## 0000000000000. AKŞAM (2026-11-21) — ÖNCE BUNU OKU: YÖN-3 dil katmanı, toparlama ve plan
+## 00000000000000. GECE (2026-11-21) — EN ÖNCE BUNU OKU: "assembly → Python" düzeltmesi
+
+Sahibi YÖN-3 planını da yetersiz buldu (VISION "2026-11-21 akşam"). MS = assembly, UW = Python: mekanik
+başına hazır parça (built-in) yok. **Aşağıdaki T-134..T-137 planı (HUD yöneticisi, başlangıç akışı vb.)
+ASKIDA.** Beyin fırtınası bitti; sonuçları VISION'daki "2026-11-21 akşam" bölümünde.
+
+**Sahibi yeni oturumda "merhaba" diyecek. O oturumun planı:**
+1. `warband-opensource-mods/` klasörüne bak (proje kökünde; sahibi bulabildiği açık kaynak modları koyar,
+   `.gitignore`'da, ASLA commit/push edilmez). Klasör boş ya da yoksa açık kaynak mod yok demektir.
+   - Doluysa: DeepSeek ile tara. Her modun **kendi yazmak zorunda kaldığı genel altyapıyı** listele
+     (tuş basılı mı kontrolü, HUD çatısı, zamanlayıcı, kalıcı veri…). Sık tekrar eden = dilde hazır gelir;
+     moda özgü fikir = modcunun kodu.
+   - Boşsa başka kanıt yolu: Native'in kendi kodunda tekrar eden altyapı, mod forumlarındaki MS
+     dersleri/özellik listeleri, `docs/bilgi/stres/` (zaten 2 mod). Kurulu modların derlenmiş `.txt`
+     dosyalarını yerelde okuma seçeneği de var; lisans açısından sahibine sorulmadan yapılmaz.
+2. **Meclis** (mimari değişiyor, kural 5): motor + dil (Unity/Godot gibi genel olanaklar hazır gelir,
+   mod fikri modcunun) · Native = içe aktarılabilir kod (`town.lord` Native'in alanı, dilin değil) ·
+   kendi sınıfın (class) · `import` ile modülerlik (`main.uw` içerik haritası; import edilmeyen dosya
+   uyarısı) · süslü parantez · `agent.health` tarzı nesne yazımı + alias · ham MS kaçışı (gerekmemeli) ·
+   MS dışı (harita, sahne, model/doku içe aktarma) ilerideki kapsam. T-134..T-137 bu karara göre ya
+   yeniden yazılır ya da atılır. Sonra yeni ROADMAP.
+3. Yön değişikliklerinin ortak kökü: "dilde ne var, modcunun kodunda ne var" sınırı çizilmemişti.
+   Sınır kuralı VISION'da. Sahibinin örnekleri taslaktır; bir örnekten asla iş listesi çıkarılmaz.
+
+## 0000000000000. AKŞAM (2026-11-21) — YÖN-3 dil katmanı, toparlama ve plan (KISMEN ESKİ, üstteki nota bak)
 
 **Sahibinin asıl isteği (sonunda doğru anlaşıldı, VISION 2026-11-21 + hafıza yon3-ms-without-ms):**
 Module System'in TAMAMI, Module System bilmeden. Bitince yeni mekanik/arayüz için derleyiciye yama yok.

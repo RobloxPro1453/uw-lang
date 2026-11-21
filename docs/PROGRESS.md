@@ -13,6 +13,9 @@ Sıradaki: Y3-P0 `uw coverage`, Y3-P1 genel katkı (27 tablo), Y3-P2 yorumlayıc
 ## 2026-01-15 14:30 · kısa başlık (kim: Claude / otonom / sahibi)
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
+## 2026-11-21 gece · Beyin fırtınası: "MS = assembly, UW = Python" (Claude + sahibi)
+YÖN-3 planı da örnekten iş listesi çıkardığı için askıya alındı (T-134..T-137). Sınır kuralı, import ile modülerlik, Native = içe aktarılabilir kod, class, MS dışı araçlar VISION "2026-11-21 akşam"a yazıldı. Kod değişmedi.
+Sıradaki: DEVIR en üst (warband-opensource-mods klasörü → mod taraması → meclis → yeni ROADMAP).
 
 ## 2026-11-16 22:00 · Döngü 7: DeepSeek paketleri (otonom, T-100..T-113, ~$1.2)
 T-100..T-107, T-109..T-113 birleşti: owner alanı, dialog, area/on enter, uw check/words/find, VS Code hata+tamamlama+hover, name_tr ve çeviri ekleri, rename --texts, denetim raporları (docs/bilgi/denetim/) ve ilk düzeltmeleri. Owner gerçek kitle denendi (Sargoth → vaegirs: yalnız scripts.txt farklı). Doğrulama: testler 436 geçti, uw new --check 12815/12815, build-project 32/32. Sıradaki: T-108 raporu, T-114 (koşul sözcükleri), denetim tur 2, oyun denemeleri (CHECKUP).

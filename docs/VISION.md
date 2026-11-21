@@ -124,3 +124,27 @@ Bu, döngünün ilk sözleşmesidir (`finalForm`). Sonraki fazlar için sözleş
 - Dil **İngilizce**. **Çok kolay** ve aynı zamanda **tam kontrol**. Yazım mantık olarak hemen anlaşılmalı (cümle taklidi değil, okunur ve düzenli).
 - Görsel editör ileride olabilir, şimdi değil.
 - **İlk kabul denemesi (sınav, kapsam değil):** oyun doğrudan başlar; oyuncunun adı "Alex"; karakter yaratma soruları yok; yüz otomatik seçilmiş sabit bir yüz; oyuncu Praven şehrinin içinde başlar; ekranda dinamik güncellenen bir stamina çubuğu; Alt basılı tutulunca koşma (stamina harcar, bırakınca dolar). Oyunda denenerek kabul edilir.
+
+## Sahibinin kararları (2026-11-21 akşam, YÖN-3 düzeltmesi: "assembly → Python")
+
+- **Ana benzetme (sahibi: "çok isabetli"):** Module System assembly'dir, UW Python olmalı. Python'da "stamina sistemi" ya da "gizlilik sistemi" yoktur; Python bilen biri bunları assembly ile uğraşmadan, Python'un sınırları içinde kendisi yazar. UW'de de durum aynı olacak.
+- Module System'de de stamina ya da HUD sistemi yoktur. Modcu onları MS ile kendisi yazar. UW bu yazımı kolaylaştırır ve MS'in tam kontrolünü verir. **Mekanik başına hazır parça (built-in) eklenmez.** YÖN-3'ün ilk planı bu hataya geri kaymıştı: Alex denemesi bir sınavken, ondan HUD yöneticisi ve başlangıç akışı gibi derleyici işleri çıkarılmıştı.
+- Derleyicinin bildiği her şey sonlu olmalı: (1) kitten otomatik çıkarılan motorun tamamı, (2) genel dil kavramları, (3) MS'in mekanizma çilesinin gizlenmesi (yazmaçlar, slot numaraları, try blokları, id'ler). Turnusol: "Derleyiciyi yazan stamina/HUD/Praven diye bir şey duymamış olsaydı Alex denemesi yine yazılabilir miydi?"
+- **Başlangıç noktası şart:** MS'e bakan kişi kaybolur, nereden başlayacağını, neyi nereye yazacağını, bir bloğun ne yaptığını bilemez. UW'de bunun tersi olmalı. Dilin okunması ve yazılmasının kolaylığı raporla ölçülür.
+- Sahibinin örnekleri **taslaktır (sketch)**, nihai ürün değildir.
+- **Modülerlik, dosya ve içe aktarma:** her konu kendi dosyasındadır (`stamina.uw`, `sprint.uw`; sprint stamina'dan ayrı, daha alt bir konudur). `main.uw` bunları `import` ile alır. Amaç modüler ve bakımı kolay bir yapı. Ayrıntı beyin fırtınasında kesinleşecek.
+- Sahibi Python, assembly, C++ ve Pascal biliyor (eskiden). MS'te zorlanmasının sebebi dil değil, kapalı kutu olması: nereye ne yazılacağı, neyin ne yaptığı görünmüyor.
+- **Süslü parantez:** kopyala-yapıştırda girinti bozulmaz.
+- **Sınıf gibi nesne yazımı:** `agent_get_hit_points` yerine `agent.health`, `agent.skill.iron_flesh`, `agent.agility`; takma ad olabilir (`alias character = char`). Adlar motordan çıkar, uydurulmaz.
+- `uw new` iki seçenek sunar: boş proje ya da Native'in tamamı.
+- **Native diyalogları:** diyaloglar çevrilmiş Native dosyalarında görülüp doğrudan değiştirilebilir. Ayrıca tek bir diyalog kendi kimliğiyle, koşula bağlı ve dinamik olarak ezilebilir (örnek: ilişki 10'u geçince "merhaba yabancı" yerine "dostum").
+- Hata mesajları şimdilik Türkçe, ileride İngilizce.
+- **Sınır kuralı (sahibinin S1 cevaplarından):** oyunda ya da her oyun motorunda zaten bulunan genel olanaklar dilde hazır gelir. Örnekler: can, stat ve beceriler; olay/tetikleyici sistemi; zaman ("her gün", "saniyede"); arayüz parçaları. Arayüz parçaları güçlü özelleştirmeyle gelir (yaklaşık %80-90 dilde). Bir modun tasarım kararı ise modcunun kodudur (stamina, gizlilik). Yeni alan ekleme **mekanizması** dildedir, eklenen alan modcunundur. Derleyicinin gizli kod üretmesi kontrolü bozmaz.
+- **Kaçış kapısı:** ham MS komutu yazılabilir (Pascal'daki satır içi asm gibi). Ama dil, buna gerek kalmayacak kadar tam olmalı.
+- **Bitiş ölçüsü:** sahibi aklına gelen her şeyi, bize yeni sistem ekletmeden ve derleyiciye dokunmadan, yalnız UW yazarak yapabiliyorsa iş bitmiştir.
+- Öncelik sırası (dil mi, Native'in çevrilmesi mi önce) Claude'a bırakıldı. Claude'un kararı: önce dil çekirdeği, sonra Native'in çevirisi bu dile taşınır.
+- **Native hem içerik hem temel olabilir.** Kimi modcu Native'i geliştirir (overhaul: kervan, gaspçı, kral, şehir, ticaret ekler), kimi yalnız çekirdeğini alıp bambaşka bir dünya kurar, kimi ikisini karıştırır. Sistem bunların hiçbirini varsaymaz. Native, dille yazılmış, alınabilen, değiştirilebilen ve kısmen bırakılabilen bir koddur. `town.lord` gibi Native kavramları dilin değil Native kodunun parçasıdır.
+- **Kendi türünü tanımlama (class):** modcu kendi sınıfını kurabilir, var olan şeyleri de isterse bir sınıfa oturtabilir.
+- **Çok oyunculu kapsam dışı** (çok sonra). Asıl amaç tek oyunculu.
+- **MS dışı araçlar da UW'nin işi:** harita, sahneler, modeller, dokular. Modcu bir milyon ayrı araçla uğraşmamalı. Şimdilik bunun anlamı şu: model ve dokuyu modcu yine Blender, Photoshop gibi kendi araçlarıyla yapar, UW bunları oyuna sokan her şeyi yapar (dönüştürme, kodda adıyla kullanma). Çok ileride bir "uw-studio" olabilir, ama uzak bir gelecek.
+- **Hazır gelecek genel olanakların listesi kanıtla çıkarılır:** gerçek modların kodları incelenir; modcuların neyi ekleyip neyi kendisi yazdığına ve MS'te işlerin nasıl yürüdüğüne bakılır.
