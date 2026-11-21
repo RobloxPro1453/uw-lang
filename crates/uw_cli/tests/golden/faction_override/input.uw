@@ -1,0 +1,5 @@
+// covers: factions.override
+// T-119: a faction is a record table too, so `override` replaces one in place, like a troop.
+override faction kingdom_1 {
+    name "Rebel Kingdom"
+}

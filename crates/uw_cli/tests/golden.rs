@@ -20,7 +20,8 @@ const GOLDEN: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden");
 /// UW's own word library at the repository root (T-079): a case with a `lib` marker file gets it.
 const LIB: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../lib");
 /// The record schemas (`kit-meta/records`): `troop … like …` copies a troop through troops.toml
-/// (T-092) and `town … like …` a party through parties.toml (T-099).
+/// (T-092), `town … like …` a party through parties.toml (T-099) and `override faction …` a faction
+/// through factions.toml (T-119).
 const SCHEMAS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../kit-meta/records");
 
 /// The generated file kept for every run; comparing it would only copy `py/uw_runtime.py`.
@@ -75,7 +76,7 @@ fn run(input: &str, debug: bool, with_lib: bool) -> Result<Vec<(String, String)>
     };
     let mut sources = if with_lib { lib_sources() } else { Vec::new() };
     sources.push(uw_check::Source { file: file.clone(), tree });
-    let schemas: Vec<uw_decomp::records::Schema> = ["troops.toml", "parties.toml"]
+    let schemas: Vec<uw_decomp::records::Schema> = ["troops.toml", "parties.toml", "factions.toml", "items.toml", "skills.toml"]
         .iter()
         .map(|name| {
             uw_decomp::records::Schema::from_path(Path::new(SCHEMAS).join(name))

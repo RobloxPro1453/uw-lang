@@ -54,7 +54,17 @@
         "items": {"module":"module_items","var":"items","id_file":"ID_items","id_prefix":"itm_","ref_tag":"itm",
           "entries": [
             {"index":0,"name":"iron_shield","id":"itm_iron_shield","dup":null,"line":1,
-              "value":["iron_shield","Iron Shield","Iron Shields",0,0,0,0]}
+              "value":{"list":["iron_shield","Iron Shield","Iron Shields",0,0,0,0,0]}}
+          ]},
+        "factions": {"module":"module_factions","var":"factions","id_file":"ID_factions","id_prefix":"fac_","ref_tag":"fac",
+          "entries": [
+            {"index":0,"name":"kingdom_1","id":"fac_kingdom_1","dup":null,"line":5,
+              "value":["kingdom_1","Kingdom of Swadia",15,100,{"list":[]},{"list":[]}]}
+          ]},
+        "skills": {"module":"module_skills","var":"skills","id_file":"ID_skills","id_prefix":"skl_","ref_tag":"skl",
+          "entries": [
+            {"index":0,"name":"ironflesh","id":"skl_ironflesh","dup":null,"line":5,
+              "value":["ironflesh","Ironflesh",4,10,"Each point increases health."]}
           ]},
         "troops": {"module":"module_troops","var":"troops","id_file":"ID_troops","id_prefix":"trp_","ref_tag":"trp",
           "entries": [

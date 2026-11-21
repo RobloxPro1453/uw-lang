@@ -85,8 +85,10 @@ pub enum Item {
     Dialog { troop: Ident, name: Ident, lines: Vec<DialogLine>, span: Span },
 }
 
-/// The top-level keywords that copy a Native record (`troop … like …`, `town … like …`, …); a copy
-/// only ever reads the table of its own kind, which the check decides ([`Item::Like`]).
+/// The top-level keywords that copy a Native record (`troop … like …`, `town … like …`, …); every
+/// record table's kind copies a record too (T-119), so this list only gives those five a message of
+/// their own. A copy only ever reads the table of its own kind, which the check decides
+/// ([`Item::Like`]).
 pub const COPY_KINDS: [&str; 5] = ["troop", "town", "castle", "village", "party"];
 
 /// True when `kw` is one of [`COPY_KINDS`].
@@ -680,6 +682,16 @@ impl Parser {
         }
     }
 
+    /// True when the tokens here are `<kind> <id> like` (T-119): every record table's keyword may
+    /// copy a record, so the form is recognised by its shape, not by a list of kinds.
+    fn copy_ahead(&self) -> bool {
+        let ident = |i: usize| match self.toks.get(i).map(|t| &t.tok) {
+            Some(Tok::Ident(text)) => Some(text.as_str()),
+            _ => None,
+        };
+        ident(self.pos + 1).is_some() && ident(self.pos + 2) == Some("like")
+    }
+
     fn skip_newlines(&mut self) {
         while self.peek().tok == Tok::Newline {
             self.bump();
@@ -912,7 +924,10 @@ impl Parser {
                     self.end_of_stmt("this `area` line")?;
                     file.items.push(Item::Area { name, points, span: Span { start, end } });
                 }
-                Tok::Ident(kw) if is_copy_kind(kw) => {
+                // A record copy of any table (T-119): `<kind> <id> like <other> { … }`, where the
+                // kind is the record word of a schema (`faction`, `item`, `track`, …). The parser
+                // only knows the shape; the table it copies from is the check's business.
+                Tok::Ident(kw) if is_copy_kind(kw) || self.copy_ahead() => {
                     let kind = Ident { text: kw.clone(), span: t.span };
                     let start = t.span.start;
                     self.bump();
