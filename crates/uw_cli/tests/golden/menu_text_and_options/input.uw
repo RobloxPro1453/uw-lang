@@ -31,3 +31,8 @@ override menu_start_phase_2 {
         display_message("@UW: the gate opened.")
     }
 }
+
+// covers: menus.override
+// covers: op.troop_add_gold
+// covers: op.party_is_active
+// covers: op.display_message

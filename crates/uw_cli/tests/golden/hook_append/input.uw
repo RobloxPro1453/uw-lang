@@ -5,3 +5,8 @@ on game.start {
     troop_set_type(trp_player, tf_male)
     display_message("@praven is ready")
 }
+
+// covers: scripts.hook
+// covers: op.assign
+// covers: op.troop_set_type
+// covers: op.display_message
