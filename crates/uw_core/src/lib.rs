@@ -9,6 +9,7 @@
 
 pub mod ast;
 pub mod lex;
+pub mod lower;
 pub mod parse;
 
 pub use parse::parse;
