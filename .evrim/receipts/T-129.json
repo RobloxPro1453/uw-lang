@@ -1,0 +1,15 @@
+{
+  "taskId": "T-129",
+  "branch": "cv/T-129",
+  "base": "master",
+  "checkDigest": "dee2ce8834aa0894",
+  "treeSha": "fa6a06b1a92f93649c94a4bd1c899830b4f1cbad",
+  "buildOk": true,
+  "testOk": true,
+  "verdict": "PASS",
+  "ok": true,
+  "skippedRun": false,
+  "testsBy": "verifier",
+  "findingsCount": 0,
+  "timestamp": "2026-11-21T15:45:05.188Z"
+}

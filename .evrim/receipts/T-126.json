@@ -1,0 +1,12 @@
+{
+  "taskId": "T-126",
+  "checkDigest": "dee2ce8834aa0894",
+  "branch": "cv/T-126",
+  "headSha": "c55e613841ff726e840572be4349602a726c8406",
+  "treeSha": "792088d3290876fd1e67661ba4371bfabae30797",
+  "buildOk": false,
+  "testOk": false,
+  "status": "blocked",
+  "testsBy": "runner",
+  "timestamp": "2026-11-21T15:40:45.991Z"
+}

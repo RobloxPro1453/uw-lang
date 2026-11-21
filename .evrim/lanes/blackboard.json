@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-16T19:59:30.320Z",
+  "updatedAt": "2026-11-21T15:58:08.026Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -1643,12 +1643,252 @@
     },
     "T-116": {
       "task": "T-116",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-116",
-      "updatedAt": "2026-11-16T19:59:30.320Z"
+      "updatedAt": "2026-11-16T20:18:49.700Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/build_project.rs +36 -2",
+        "crates/uw_decomp/src/project/load.rs +62 -3",
+        "crates/uw_decomp/src/project/mod.rs +361 -3",
+        "crates/uw_decomp/tests/owner_t116.rs +323 -0"
+      ]
+    },
+    "T-119": {
+      "task": "T-119",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-119",
+      "updatedAt": "2026-11-21T15:01:21.303Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_check/src/lib.rs +101 -19",
+        "crates/uw_cli/src/roundtrip.rs +3 -2",
+        "crates/uw_cli/tests/fixtures/atlas_golden.json +11 -1",
+        "crates/uw_cli/tests/golden.rs +3 -2",
+        "crates/uw_cli/tests/golden/faction_override/expected/module_factions.py +10 -0",
+        "crates/uw_cli/tests/golden/faction_override/input.uw +5 -0",
+        "crates/uw_cli/tests/golden/item_like/expected/module_items.py +10 -0",
+        "crates/uw_cli/tests/golden/item_like/input.uw +5 -0",
+        "crates/uw_cli/tests/golden/skill_override/expected/module_skills.py +10 -0",
+        "crates/uw_cli/tests/golden/skill_override/input.uw +5 -0",
+        "crates/uw_syntax/src/lib.rs +18 -3"
+      ]
+    },
+    "T-120": {
+      "task": "T-120",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-120",
+      "updatedAt": "2026-11-21T15:00:48.557Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/coverage.rs +466 -0",
+        "crates/uw_cli/src/main.rs +8 -2",
+        "crates/uw_cli/tests/coverage.rs +141 -0",
+        "crates/uw_cli/tests/fixtures/atlas_coverage.json +27 -0",
+        "docs/coverage-gold.txt +6 -0"
+      ]
+    },
+    "T-121": {
+      "task": "T-121",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-121",
+      "updatedAt": "2026-11-21T14:18:34.365Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/tests/covers_tags.rs +87 -0",
+        "crates/uw_cli/tests/golden/and_or_not/input.uw +6 -0",
+        "crates/uw_cli/tests/golden/area_enter/input.uw +2 -0",
+        "crates/uw_cli/tests/golden/assign_and_arith/input.uw +3 -0",
+        "crates/uw_cli/tests/golden/condition_words/input.uw +4 -0",
+        "crates/uw_cli/tests/golden/debug_menus/input.uw +4 -0",
+        "crates/uw_cli/tests/golden/dialog_first_meeting/input.uw +2 -0",
+        "crates/uw_cli/tests/golden/every_day/input.uw +2 -0",
+        "crates/uw_cli/tests/golden/fn_words/input.uw +5 -0",
+        "crates/uw_cli/tests/golden/game_names/input.uw +4 -0",
+        "crates/uw_cli/tests/golden/hook_append/input.uw +6 -0",
+        "crates/uw_cli/tests/golden/if_else_chain/input.uw +5 -0",
+        "crates/uw_cli/tests/golden/in_menu/input.uw +2 -0",
+        "crates/uw_cli/tests/golden/lib_objects/input.uw +3 -0",
+        "crates/uw_cli/tests/golden/lib_words/input.uw +3 -0",
+        "crates/uw_cli/tests/golden/menu_text_and_options/input.uw +5 -0",
+        "crates/uw_cli/tests/golden/new_menu/input.uw +4 -0",
+        "crates/uw_cli/tests/golden/object_words/input.uw +5 -0",
+        "crates/uw_cli/tests/golden/override_menu_enter/input.uw +4 -0",
+        "crates/uw_cli/tests/golden/save_values/input.uw +5 -0",
+        "crates/uw_cli/tests/golden/town_like/input.uw +2 -0",
+        "crates/uw_cli/tests/golden/troop_like/input.uw +2 -0"
+      ]
+    },
+    "T-122": {
+      "task": "T-122",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-122",
+      "updatedAt": "2026-11-21T15:10:57.322Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_decomp/tests/hardwired_t122.rs +181 -0",
+        "kit-meta/hardwired.toml +539 -0"
+      ]
+    },
+    "T-123": {
+      "task": "T-123",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-123",
+      "updatedAt": "2026-11-21T15:09:41.968Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_cli/src/build_project.rs +75 -3",
+        "crates/uw_cli/tests/project_events_t123.rs +135 -0",
+        "crates/uw_decomp/src/project/load.rs +9 -3",
+        "crates/uw_emit/src/lib.rs +13 -4"
+      ]
+    },
+    "T-124": {
+      "task": "T-124",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-124",
+      "updatedAt": "2026-11-21T15:18:35.207Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/stres/Persistent-Kingdoms.md +85 -0"
+      ]
+    },
+    "T-125": {
+      "task": "T-125",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-125",
+      "updatedAt": "2026-11-21T15:17:48.340Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/stres/Diplado.md +69 -0"
+      ]
+    },
+    "T-126": {
+      "task": "T-126",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-126",
+      "updatedAt": "2026-11-21T14:25:44.706Z"
+    },
+    "T-127": {
+      "task": "T-127",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-127",
+      "updatedAt": "2026-11-21T15:45:47.910Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_start/src/families/party.rs +323 -4",
+        "crates/uw_start/tests/party_t127.rs +217 -0"
+      ]
+    },
+    "T-128": {
+      "task": "T-128",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-128",
+      "updatedAt": "2026-11-21T14:45:30.292Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_start/src/families/troop.rs +199 -4",
+        "crates/uw_start/tests/troop_t128.rs +121 -0"
+      ]
+    },
+    "T-129": {
+      "task": "T-129",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-129",
+      "updatedAt": "2026-11-21T14:50:19.494Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_start/src/families/faction.rs +190 -4",
+        "crates/uw_start/tests/faction_t129.rs +155 -0"
+      ]
+    },
+    "T-130": {
+      "task": "T-130",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-130",
+      "updatedAt": "2026-11-21T15:39:06.369Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_easy/tests/ops.rs +13 -6"
+      ]
+    },
+    "T-131": {
+      "task": "T-131",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-131",
+      "updatedAt": "2026-11-21T15:58:08.026Z",
+      "summary": "status=done",
+      "files": [
+        "Cargo.lock +10 -0",
+        "Cargo.toml +1 -0",
+        "crates/uw_easy/Cargo.toml +11 -0",
+        "crates/uw_easy/src/lib.rs +545 -0",
+        "crates/uw_easy/tests/constants.rs +276 -0",
+        "crates/uw_easy/tests/fixtures/atlas_easy.json +32 -0",
+        "kit-meta/easy/constants.json +22472 -0",
+        "kit-meta/easy/prefixes.toml +242 -0",
+        "kit-meta/easy/slots.json +4582 -0"
+      ]
+    },
+    "T-132": {
+      "task": "T-132",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-132",
+      "updatedAt": "2026-11-21T15:43:33.355Z"
+    },
+    "T-133": {
+      "task": "T-133",
+      "status": "running",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-133",
+      "updatedAt": "2026-11-21T15:43:33.375Z"
     }
   }
 }

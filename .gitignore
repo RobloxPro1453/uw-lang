@@ -33,3 +33,8 @@ flow_*.json
 
 # VS Code paketi (editors/vscode/pack.py üretir)
 *.vsix
+.evrim/backups/
+.evrim/telegram.json
+.evrim/STATUS.md
+
+opencode-session/
