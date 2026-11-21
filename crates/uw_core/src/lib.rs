@@ -8,6 +8,7 @@
 //! the language's fixed constructs.
 
 pub mod ast;
+pub mod lower;
 
 /// One Native operation, written the way the kit's Python writes it (`(agent_set_speed_modifier, ":a", 150)`).
 #[derive(Debug, Clone, PartialEq)]
