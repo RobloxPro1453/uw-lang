@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-21T19:37:11.069Z",
+  "updatedAt": "2026-11-21T20:04:18.454Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -2275,12 +2275,14 @@
     },
     "T-166": {
       "task": "T-166",
-      "status": "running",
+      "status": "blocked",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-166",
-      "updatedAt": "2026-11-21T19:35:39.196Z"
+      "updatedAt": "2026-11-21T20:04:18.453Z",
+      "summary": "status=blocked; tests=not run",
+      "files": []
     }
   }
 }
