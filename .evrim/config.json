@@ -57,7 +57,8 @@
     "^docs/WORKER\\.md$",
     "^docs/tasks/(?!.*\\.report\\.md$)",
     "^Module_system 1\\.171/",
-    "^(build|dist|node_modules|vendor|target)/"
+    "^(build|dist|node_modules|vendor|target)/",
+    "^scripts/"
   ],
   "skipDirs": "^(\\.git|node_modules|build|dist|target|vendor|\\.evrim/state)(/|$)",
   "_comment_docs": "Becerilerin okuduğu belge adları. Bir belgeyi yeniden adlandırırsanız burayı değiştirin; beceri metni değişmez.",
@@ -98,7 +99,8 @@
           "output": 1.2
         },
         "peakUtc": "01:00-04:00,06:00-10:00",
-        "offpeakFactor": 0.5
+        "offpeakFactor": 0.5,
+        "vision": true
       }
     },
     "intro": "You are a careful software engineer working on this project.",
@@ -108,14 +110,14 @@
     "linkDirs": [
       "Module_system 1.171"
     ],
-    "lanes": 12,
+    "lanes": 20,
     "slots": {
       "test": 4,
       "build": 2
     },
     "defaultSteps": 200,
     "defaultBudget": 1,
-    "dailyBudget": 8,
+    "dailyBudget": 30,
     "minBalanceNote": "Bakiye API'den okunamaz; günlük harcama stateDir kayıtlarından toplanır ve dailyBudget aşılınca yeni iş başlamaz.",
     "stateDir": ".evrim/state/delegate",
     "commitTrailer": "Co-Authored-By: delegate-agent <noreply@example.invalid>",
@@ -123,7 +125,15 @@
       "builtin:crlf"
     ],
     "_comment_totalBudget": "Sahibinin DeepSeek kredisi 2026-11-15 itibarıyla ~14$ (önbellek açık). Sahibi: bol kullan, darboğaz yoksa ~20 paralel işçiye kadar. Toplam tavanı aşılamaz (KARARNAMELER).",
-    "totalBudget": 15
+    "totalBudget": 15,
+    "_comment_contextBudget": "contextBudget: ajan konuşmasının token sınırı (yaklaşık). Aşılınca eski araç çıktıları bir kez kısaltılır, gerekirse eski adımlar koşucu özetiyle değişir; arada önbellek bozulmaz. effort: çağrı türüne göre düşünme eforu (low | high | max; yalnız thinking açıkken gönderilir, boş = sağlayıcı varsayılanı).",
+    "contextBudget": 64000,
+    "effort": {
+      "scout": "low",
+      "ask": "low"
+    },
+    "_comment_projectBudget": "projectBudget: sahibin bu proje için onayladığı toplam ucuz model bütçesi (dolar); dolunca yeni iş başlamaz (acil fren). null = yok. Durum: cv usage",
+    "projectBudget": null
   },
   "metrics": {
     "_comment": "Tur ölçümleri. claudeProjectDir null ise proje yolundan türetilir (~/.claude/projects/<yol-kısaltması>), yalnız okunur. weights: 'Claude yükü' = (çıktı*20 + önbellekOkuma*0.2 + önbellekYazma*8 + girdi*4)/1e6 × model katsayısı.",
@@ -151,7 +161,7 @@
     "gates": {
       "fiveHourNoNewStep": 85,
       "fiveHourExit": 90,
-      "weeklyBase": 95,
+      "weeklyBase": 80,
       "weeklySlope": 0,
       "weeklyMargin": 5,
       "cycleShareMax": 8,
@@ -178,6 +188,13 @@
       "autoTune": true,
       "maxLanes": 20,
       "strategyPivotCycles": 2
+    },
+    "_comment_guard": "Kota bekçisi (cv guard): Claude Code kancası olarak her araç çağrısında kotaya bakar. Tempo ve %85'te modele uyarı verir; %90'da (ya da haftalık tavanda) gözetimsiz çalışmada yeni işi engeller, yalnız commit ve uyku açık kalır. Sahibi başındayken yalnız uyarır. everySeconds: kotanın en sık hesaplanma aralığı; warnEveryMinutes: aynı uyarının tekrar aralığı. Kapatmak yalnız sahibinin sözüyle.",
+    "guard": {
+      "enabled": true,
+      "everySeconds": 60,
+      "warnEveryMinutes": 10,
+      "maxReadingAgeMinutes": 60
     }
   },
   "evolution": {
@@ -199,5 +216,16 @@
     "dir": "references/shots",
     "shotsDir": ".evrim/state/shots",
     "out": ".evrim/state/compare.html"
+  },
+  "check": {
+    "_comment": "cv check: masaüstü uygulama denetimi (core/check/README.md). kind: auto | window | console. program: [yol, argüman...] ya da null (o zaman finalForm.deliverable, sonra Cargo.toml'un default-run / pencere paketi). selfTest.steps: uygulamanın --self-test ile ölçmesi gereken adımlar (ör. [\"create\", \"save\", \"reopen\", \"search\"]); boşsa self-test istenmez. referenceGate: referans görüntüye en az yüzde kaç benzemeli (yalnız 'şunu yeniden kur' işlerinde; yeni fikirde null = yalnız not). runSeconds: programın çizip kaydetmesi için süre.",
+    "enabled": true,
+    "kind": "auto",
+    "program": null,
+    "selfTest": {
+      "steps": []
+    },
+    "referenceGate": null,
+    "runSeconds": 90
   }
 }
