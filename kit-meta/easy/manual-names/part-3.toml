@@ -1,0 +1,163 @@
+# T-169 — easy English names for kit operations no automatic rule can name, part 3 of 4.
+# Rules: docs/meclis/yon3/dil/D3-SOZLUK.md §2 (R1-R4) and §2b (namespace prefix = subject).
+# `native` is copied exactly from kit-meta/easy/manual.toml; never invent or change it.
+
+[[name]]
+native = "leave_encounter"
+easy = "encounter.leave"
+why = "R4 — D3 example table (leave_encounter -> encounter.leave())"
+
+[[name]]
+native = "encounter_attack"
+easy = "encounter.attack"
+why = "R4 — D3 example table (encounter_attack -> encounter.attack())"
+
+[[name]]
+native = "select_enemy"
+easy = "encounter.select_enemy"
+why = "R4 — encounter outcome; value picks which party is the enemy"
+
+[[name]]
+native = "auto_set_meta_mission_at_end_commited"
+easy = "game.auto_set_meta_mission_at_end_committed"
+why = "R7 — global flag, no subject; the native's 'commited' typo is fixed"
+
+[[name]]
+native = "end_current_battle"
+easy = "battle.end"
+why = "R4 — D3 example table (end_current_battle -> battle.end())"
+
+[[name]]
+native = "reset_item_probabilities"
+easy = "game.reset_item_probabilities"
+why = "R7 — global, no subject; same concept as game.item_probability_in_merchandise"
+
+[[name]]
+native = "inflict_casualties_to_party_group"
+easy = "party.inflict_casualties"
+why = "R4 — subject is the first party parameter (parent_party_id)"
+
+[[name]]
+native = "distribute_party_among_party_group"
+easy = "party.distribute_among_group"
+why = "R4 — subject is the first party parameter (party_to_be_distributed)"
+
+[[name]]
+native = "close_order_menu"
+easy = "mission.close_order_menu"
+why = "R4 — mission-scope order UI; no subject parameter"
+
+[[name]]
+native = "get_scene_boundaries"
+easy = "scene.boundaries"
+why = "R1 — two position outputs, like other scene.* reads"
+
+[[name]]
+native = "add_missile"
+easy = "agent.add_missile"
+why = "R4 — subject is agent_id, the first entity parameter"
+
+[[name]]
+native = "scene_item_get_num_instances"
+easy = "scene_item.num_instances"
+why = "R1 — mirrors prop.num_instances for scene_prop_get_num_instances"
+
+[[name]]
+native = "scene_item_get_instance"
+easy = "scene_item.instance"
+why = "R1 — mirrors prop.instance for scene_prop_get_instance"
+
+[[name]]
+native = "scene_spawned_item_get_num_instances"
+easy = "scene_spawned_item.num_instances"
+why = "R1 — spawned-item variant of scene_item.num_instances"
+
+[[name]]
+native = "scene_spawned_item_get_instance"
+easy = "scene_spawned_item.instance"
+why = "R1 — spawned-item variant of scene_item.instance"
+
+[[name]]
+native = "class_set_name"
+easy = "class.name"
+why = "R2 — property write on sub_class (same subject as game.class_is_listening_order)"
+
+[[name]]
+native = "replace_scene_props"
+easy = "scene.replace_props"
+why = "R4 — scene-wide kind swap; prop.replace stays the single-instance op"
+
+[[name]]
+native = "replace_scene_items_with_scene_props"
+easy = "scene.replace_items_with_props"
+why = "R4 — scene-wide swap of item instances with a scene prop kind"
+
+[[name]]
+native = "cast_ray"
+easy = "ray.cast"
+why = "R4 — D3 example table (cast_ray -> hit = ray(from, length=len))"
+
+[[name]]
+native = "finish_mission"
+easy = "mission.finish"
+why = "R4 — D3 example table (finish_mission -> mission.finish(after=sec))"
+
+[[name]]
+native = "start_mission_conversation"
+easy = "mission.start_conversation"
+why = "R4 — mission-scope action; troop_id is the conversation partner"
+
+[[name]]
+native = "add_reinforcements_to_entry"
+easy = "mission.entry_add_reinforcements"
+why = "R4 — mission template entry, like mission.entry_add_override_item"
+
+[[name]]
+native = "add_point_light"
+easy = "scene.add_point_light"
+why = "R4 — scene namespace (scene_* ops use it, e.g. scene.day_time)"
+
+[[name]]
+native = "add_point_light_to_entity"
+easy = "scene.add_point_light_to_entity"
+why = "R4 — same as scene.add_point_light, bound to the entity"
+
+[[name]]
+native = "particle_system_add_new"
+easy = "particle_system.add_new"
+why = "R4 — §2b namespace prefix particle_system_ keeps its own subject"
+
+[[name]]
+native = "particle_system_emit"
+easy = "particle_system.emit"
+why = "R4 — §2b namespace prefix particle_system_"
+
+[[name]]
+native = "particle_system_burst"
+easy = "particle_system.burst"
+why = "R4 — §2b namespace prefix particle_system_"
+
+[[name]]
+native = "particle_system_burst_no_sync"
+easy = "particle_system.burst_without_sync"
+why = "R4 — same as particle_system.burst; doc names it burst_without_sync"
+
+[[name]]
+native = "spawn_item_without_refill"
+easy = "item.spawn_without_refill"
+why = "R4 — mirrors item.spawn for spawn_item"
+
+[[name]]
+native = "mission_cam_get_aperture"
+easy = "mission.cam_aperture"
+why = "R1 — property read in the mission.cam_* family (set side: mission.cam_set_aperture)"
+
+[[name]]
+native = "talk_info_show"
+easy = "talk_info.visible"
+why = "R2 — value 0/1 hides or shows the talk info panel"
+
+[[name]]
+native = "talk_info_set_relation_bar"
+easy = "talk_info.relation_bar"
+why = "R2 — property write with a value between -100 and 100"
