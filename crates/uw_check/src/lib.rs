@@ -104,6 +104,11 @@ pub enum Action {
     /// copied from `<other>` with the written fields changed. The module, the list and its entry
     /// name come from the item's own table.
     NewRecord { value: String },
+    /// A whole existing record replaced in place (`override troop <id> { … }`, T-118): `value` is the
+    /// record as Python source, copied from the Native record with the written fields changed (the
+    /// same schema path as [`Action::NewRecord`]). The entry keeps its place in the list, so nothing
+    /// that points at it by number shifts.
+    ReplaceRecord { value: String },
     /// New dialog lines (`dialog <troop> <name> { … }`, T-102): whole records of the
     /// `module_dialogs.py` `dialogs` list, put in front of Native's lines for `state` so the mod's
     /// line is the first one scanned there (docs/bilgi/anlam/diyaloglar.md §2, §9).
@@ -2353,12 +2358,130 @@ pub fn check_with_schemas(
                         },
                     };
                     if kind != "menu" && kind != "menus" {
-                        ctx.error(diag(
-                            E0201_NOT_YET,
-                            format!("`override {kind}` is not in UW yet; Faz 1 has `override menu`"),
-                            target.span,
-                            None,
-                        ));
+                        // T-118: a record override — `override troop swadian_recruit { agility 18 }`.
+                        // The record keeps its place in the list; only the written fields change, so
+                        // nothing that points at it by number shifts.
+                        let Some(table_name) = copy_table(&kind) else {
+                            ctx.error(diag(
+                                E0201_NOT_YET,
+                                format!("`override {kind}` is not in UW yet"),
+                                target.span,
+                                Some("Faz 1 has `override menu …` and record fields: `override troop <id> { level 22 }`".into()),
+                            ));
+                            continue;
+                        };
+                        for handler in handlers {
+                            ctx.error(diag(
+                                E0201_NOT_YET,
+                                format!("`override {kind}` takes fields, not `on {}`", handler.event.text),
+                                handler.event.span,
+                                Some(format!("write a field: `override {kind} {} {{ level 22 }}`", target.text)),
+                            ));
+                        }
+                        let Some(schema) = schemas.iter().find(|schema| schema.table == table_name) else {
+                            ctx.error(diag(
+                                E0201_NOT_YET,
+                                format!("`override {kind} …` needs the record schema of {table_name}"),
+                                target.span,
+                                Some(format!(
+                                    "`kit-meta/records/{table_name}.toml` holds the {kind} fields; run `uw build` in the project folder"
+                                )),
+                            ));
+                            continue;
+                        };
+                        let prefix = atlas
+                            .tables
+                            .get(table_name)
+                            .and_then(|table| table.id_prefix.as_deref())
+                            .unwrap_or_default();
+                        let found = atlas
+                            .resolve_ref(&target.text)
+                            .or_else(|| atlas.resolve_ref(&format!("{prefix}{}", target.text)));
+                        let Some((table, copied)) = found else {
+                            let names: Vec<String> = atlas
+                                .tables
+                                .get(table_name)
+                                .into_iter()
+                                .flat_map(|table| &table.entries)
+                                .filter_map(|entry| entry.name.as_deref())
+                                .flat_map(|name| [format!("{prefix}{name}"), name.to_owned()])
+                                .collect();
+                            let help = suggest(&target.text, names.iter().map(String::as_str))
+                                .map(|s| format!("did you mean '{s}'?"));
+                            ctx.error(diag(
+                                E0001_UNKNOWN_NAME,
+                                format!("'{}' is not a Native {kind}", target.text),
+                                target.span,
+                                help.or_else(|| Some(format!("`uw browse {table_name}` lists the Native {table_name}"))),
+                            ));
+                            continue;
+                        };
+                        if table != table_name {
+                            ctx.error(diag(
+                                E0001_UNKNOWN_NAME,
+                                format!("'{}' is a {table} record, not a {kind}", target.text),
+                                target.span,
+                                Some(format!("`override {kind}` takes a Native {kind}, a {table_name} record")),
+                            ));
+                            continue;
+                        }
+                        let list_values = copied
+                            .value
+                            .get("list")
+                            .unwrap_or(&copied.value)
+                            .as_array();
+                        let Some(record_id) = list_values
+                            .and_then(|values| values.first())
+                            .and_then(|value| value.as_str())
+                            .map(str::to_owned)
+                        else {
+                            ctx.error(diag(
+                                E0201_NOT_YET,
+                                format!("`override {kind}` needs a named {kind} record"),
+                                target.span,
+                                None,
+                            ));
+                            continue;
+                        };
+                        // The list key `find` looks up: the record's own name, with `#n` when the
+                        // name repeats (the kit's own occurrence rule).
+                        let list_ref = match copied.dup {
+                            Some(n) => format!("{record_id}#{n}"),
+                            None => record_id.clone(),
+                        };
+                        let mut fields: Vec<FieldValue> = Vec::new();
+                        for member in members {
+                            match member {
+                                Member::Field(field) => fields.push(field.clone()),
+                                _ => ctx.error(diag(
+                                    E0201_NOT_YET,
+                                    format!("`override {kind}` takes fields; `text`/`option` are menu lines"),
+                                    target.span,
+                                    Some(format!("write a field: `override {kind} {} {{ level 22 }}`", target.text)),
+                                )),
+                            }
+                        }
+                        let origin = ctx.origin(*span);
+                        if let Some(first) = overridden.insert(list_ref.clone(), origin.clone()) {
+                            ctx.error(diag(
+                                E0202_DUPLICATE,
+                                format!("{kind} '{list_ref}' is already overridden at {first}"),
+                                target.span,
+                                Some("put both changes in one `override` block".into()),
+                            ));
+                            continue;
+                        }
+                        let Some(value) = ctx.record_copy(&kind, schema, copied, &record_id, &fields, *span) else { continue };
+                        let Some(info) = atlas.tables.get(table_name) else { continue };
+                        patches.push(Patch {
+                            module: info.module.clone(),
+                            var: info.var.clone(),
+                            entry: list_ref,
+                            path: Vec::new(),
+                            action: Action::ReplaceRecord { value },
+                            ops: Vec::new(),
+                            origin,
+                        });
                         continue;
                     }
                     if let Some(bare) = strip_menu_prefix(&target.text) {
@@ -2500,6 +2623,14 @@ pub fn check_with_schemas(
                                     found.push((span.start, patch));
                                 }
                             }
+                            Member::Field(field) => {
+                                ctx.error(diag(
+                                    E0201_NOT_YET,
+                                    format!("a menu takes no field '{}'", field.name.text),
+                                    field.span,
+                                    Some("menus take `text` and `option`; fields are for records: `override troop <id> { level 22 }`".into()),
+                                ));
+                            }
                         }
                     }
                     found.sort_by_key(|(start, _)| *start);
@@ -2622,6 +2753,14 @@ pub fn check_with_schemas(
                                     format!("a new menu has no existing option '{}' to remove", id.text),
                                     *span,
                                     Some("add an option with `option <id> \"text\" { ... }`".into()),
+                                ));
+                            }
+                            Member::Field(field) => {
+                                ctx.error(diag(
+                                    E0201_NOT_YET,
+                                    format!("a new menu takes no field '{}'", field.name.text),
+                                    field.span,
+                                    Some("menus take `text` and `option`; fields are for records: `override troop <id> { level 22 }`".into()),
                                 ));
                             }
                         }
@@ -3036,10 +3175,37 @@ mod tests {
         assert!(errs[0].contains("already overridden at start.uw:1"), "{errs:?}");
         let errs = run("override menu start_phase_2 { on entre { } }").unwrap_err();
         assert!(errs[0].contains("did you mean 'enter'?"), "{errs:?}");
+        let errs = run("override yokboyle x { a 1 }").unwrap_err();
+        assert!(errs[0].contains("`override yokboyle` is not in UW yet"), "{errs:?}");
         let errs = run("override troop x { on enter { } }").unwrap_err();
-        assert!(errs[0].contains("`override troop` is not in UW yet"), "{errs:?}");
+        assert!(errs[0].contains("takes fields, not `on enter`"), "{errs:?}");
         let errs = run("on game.start { display_message(\"@Ağa\") }").unwrap_err();
         assert!(errs[0].contains("non-ASCII"), "{errs:?}");
+    }
+
+    /// T-118: `override <kind> <record> { field value }` replaces one existing record in place.
+    #[test]
+    fn a_record_override_replaces_one_entry_in_place() {
+        let checked = check_troops("override troop swadian_crossbowman { agility 18 }").expect("checks");
+        assert_eq!(checked.patches.len(), 1, "{:?}", checked.patches);
+        let patch = &checked.patches[0];
+        assert_eq!(
+            (patch.module.as_str(), patch.var.as_str(), patch.entry.as_str()),
+            ("module_troops", "troops", "swadian_crossbowman")
+        );
+        assert!(patch.path.is_empty());
+        let Action::ReplaceRecord { value } = &patch.action else { panic!("{:?}", patch.action) };
+        assert!(value.starts_with("[\"swadian_crossbowman\""), "keeps its own id: {value}");
+    }
+
+    #[test]
+    fn a_record_override_reports_a_bad_field_and_a_bad_record() {
+        let errs = check_troops("override troop swadian_crossbowman { yokboyle_alan 1 }").unwrap_err();
+        assert!(errs[0].contains("yokboyle_alan"), "{errs:?}");
+        let errs = check_troops("override troop yokboyle_troop { level 22 }").unwrap_err();
+        assert!(errs[0].contains("is not a Native troop"), "{errs:?}");
+        let errs = run("override menu start_phase_2 { agility 18 }").unwrap_err();
+        assert!(errs[0].contains("a menu takes no field"), "{errs:?}");
     }
 
     #[test]

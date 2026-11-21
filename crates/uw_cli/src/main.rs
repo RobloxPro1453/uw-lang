@@ -2,6 +2,7 @@
 
 mod build;
 mod check;
+mod effects;
 mod explain;
 mod flow_json;
 mod roundtrip;

@@ -251,6 +251,17 @@ fn wrapper(name: &str, module: &str, patches: &[&Patch], debug: bool) -> String 
             Action::NewRecord { value } => {
                 let _ = writeln!(out, "{var} = _uw.add_entry({var}, {value})", var = patch.var);
             }
+            // An existing record replaced in place (`override troop <id> { … }`, T-118): the entry
+            // keeps its place in the list, so nothing that points at it by number shifts.
+            Action::ReplaceRecord { value } => {
+                let _ = writeln!(
+                    out,
+                    "{var} = _uw.replace_entry({var}, {entry}, {value})",
+                    var = patch.var,
+                    entry = py_str(&patch.entry),
+                    value = value
+                );
+            }
         }
     }
     if debug && module == "module_game_menus" {
@@ -302,6 +313,26 @@ mod tests {
     /// The one wrapper `emit` writes for a single menu patch.
     fn emitted(patch: Patch) -> String {
         emit(&Checked { name: "m".into(), patches: vec![patch] }, false).files[0].text.clone()
+    }
+
+    /// T-118: a record override is one `replace_entry` call in the table's wrapper.
+    #[test]
+    fn a_record_override_replaces_the_entry_in_place() {
+        let patch = Patch {
+            module: "module_troops".into(),
+            var: "troops".into(),
+            entry: "trp_swadian_recruit".into(),
+            path: vec![],
+            action: Action::ReplaceRecord { value: "[\"trp_swadian_recruit\", \"Recruit\"]".into() },
+            ops: vec![],
+            origin: "start.uw:1".into(),
+        };
+        let text = emitted(patch);
+        assert!(
+            text.contains("troops = _uw.replace_entry(troops, \"trp_swadian_recruit\", [\"trp_swadian_recruit\", \"Recruit\"])"),
+            "{text}"
+        );
+        assert!(text.contains("# start.uw:1"), "{text}");
     }
 
     #[test]
