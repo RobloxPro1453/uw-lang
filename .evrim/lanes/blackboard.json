@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-21T15:58:08.026Z",
+  "updatedAt": "2026-11-21T16:14:29.994Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -1874,21 +1874,35 @@
     },
     "T-132": {
       "task": "T-132",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-132",
-      "updatedAt": "2026-11-21T15:43:33.355Z"
+      "updatedAt": "2026-11-21T16:14:29.994Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_core/src/lex.rs +363 -0",
+        "crates/uw_core/src/lib.rs +4 -0",
+        "crates/uw_core/src/parse.rs +835 -0",
+        "crates/uw_core/tests/parse.rs +319 -0"
+      ]
     },
     "T-133": {
       "task": "T-133",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-133",
-      "updatedAt": "2026-11-21T15:43:33.375Z"
+      "updatedAt": "2026-11-21T16:14:03.289Z",
+      "summary": "status=done",
+      "files": [
+        "crates/uw_core/src/lib.rs +1 -0",
+        "crates/uw_core/src/lower/mod.rs +1266 -0",
+        "crates/uw_core/tests/lower_core.rs +383 -0",
+        "kit-meta/core/properties.toml +39 -0"
+      ]
     }
   }
 }

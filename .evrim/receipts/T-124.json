@@ -1,12 +1,15 @@
 {
   "taskId": "T-124",
-  "checkDigest": "dee2ce8834aa0894",
   "branch": "cv/T-124",
-  "headSha": "06146d72ecb7e7aebcf2997d4f2f2d2131572e81",
+  "base": "master",
+  "checkDigest": "dee2ce8834aa0894",
   "treeSha": "a405978d5e2d9dc6bbfe9d8931e7d38ce39c402d",
   "buildOk": true,
   "testOk": true,
-  "status": "done",
-  "testsBy": "agent",
-  "timestamp": "2026-11-21T15:18:35.129Z"
+  "verdict": "PASS",
+  "ok": true,
+  "skippedRun": false,
+  "testsBy": "verifier",
+  "findingsCount": 0,
+  "timestamp": "2026-11-21T16:17:15.045Z"
 }
