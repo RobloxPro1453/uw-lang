@@ -131,6 +131,47 @@ fn fixture_output_is_written() {
     std::fs::remove_dir_all(&dir).expect("clean up");
 }
 
+/// D0: a name filled in by hand in manual.toml survives `uw easy` and reaches ops.json as rule M.
+#[test]
+fn hand_names_reach_ops_json() {
+    let report = Report::generate(&fixture());
+    let dir = std::env::temp_dir().join(format!("uw-easy-hand-{}", std::process::id()));
+    report.write(&dir).expect("first write");
+    let manual = std::fs::read_to_string(dir.join("manual.toml")).expect("manual.toml");
+    let filled = manual.replacen(
+        "easy = \"\"\nnative = \"frobnicate_thing\"",
+        "easy = \"thing.frobnicate\"\nnative = \"frobnicate_thing\"",
+        1,
+    );
+    assert_ne!(filled, manual, "the fixture TODO is where the test expects it");
+    std::fs::write(dir.join("manual.toml"), &filled).expect("fill one name");
+    report.write(&dir).expect("second write keeps it");
+    let json: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(dir.join("ops.json")).expect("ops.json")).expect("JSON");
+    let hand = json["ops"].as_array().unwrap().iter().find(|op| op["native"] == "frobnicate_thing").expect("named op");
+    assert_eq!(hand["easy"], "thing.frobnicate");
+    assert_eq!(hand["rule"], "M");
+    assert_eq!(hand["subject"], "thing");
+    assert_eq!(json["hand"], 1);
+    assert_eq!(json["manual"].as_u64().unwrap() as usize, report.manual_count() - 1);
+    assert!(std::fs::read_to_string(dir.join("manual.toml")).unwrap().contains("easy = \"thing.frobnicate\""));
+    std::fs::remove_dir_all(&dir).expect("clean up");
+}
+
+/// One name per concept: the committed vocabulary never gives one easy name of one kind to two operations.
+#[test]
+fn committed_names_are_unique_per_kind() {
+    let text = std::fs::read_to_string(root().join("kit-meta/easy/ops.json")).expect("committed ops.json");
+    let json: serde_json::Value = serde_json::from_str(&text).expect("JSON");
+    let mut seen = std::collections::BTreeMap::new();
+    for op in json["ops"].as_array().expect("ops") {
+        let key = (op["easy"].as_str().unwrap().to_owned(), op["kind"].as_str().unwrap().to_owned());
+        if let Some(other) = seen.insert(key.clone(), op["native"].as_str().unwrap().to_owned()) {
+            panic!("`{}` ({}) names both {other} and {}", key.0, key.1, op["native"]);
+        }
+    }
+}
+
 #[test]
 fn real_kit_vocabulary() {
     let Some(atlas) = kit_atlas() else {
