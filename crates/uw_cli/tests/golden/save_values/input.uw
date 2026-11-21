@@ -19,3 +19,7 @@ override menu start_phase_2 {
         display_message("@No gold.")
     }
 }
+
+// covers: scripts.hook
+// covers: menus.override
+// covers: op.display_message

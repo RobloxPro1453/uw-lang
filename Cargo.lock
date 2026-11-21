@@ -747,6 +747,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "uw_start"
+version = "0.0.1"
+dependencies = [
+ "serde_json",
+ "uw_atlas",
+ "uw_decomp",
+]
+
+[[package]]
 name = "uw_syntax"
 version = "0.0.1"
 dependencies = [

@@ -14,3 +14,5 @@ on game.start {
     :loss = -:bonus            // store_sub(:loss, 0, :bonus)
     $g_gold = (:bonus + 1) * 2 // parentheses first: store_add, then store_mul into $g_gold
 }
+
+// covers: scripts.hook

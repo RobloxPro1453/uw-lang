@@ -35,3 +35,7 @@ override menu start_phase_2 {
         player.gold += 100
     }
 }
+
+// covers: scripts.hook
+// covers: menus.override
+// covers: op.display_message

@@ -6,3 +6,7 @@ override menu start_phase_2 {
         change_screen_map()
     }
 }
+
+// covers: menus.override
+// covers: op.party_relocate_near_party
+// covers: op.change_screen_map

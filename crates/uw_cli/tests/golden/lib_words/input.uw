@@ -7,3 +7,5 @@ on game.start {
     move_near(praven)
     show_map()
 }
+
+// covers: scripts.hook
