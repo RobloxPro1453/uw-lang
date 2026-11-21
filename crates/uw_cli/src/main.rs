@@ -2,6 +2,7 @@
 
 mod build;
 mod check;
+mod coverage;
 mod effects;
 mod explain;
 mod flow_json;
@@ -78,6 +79,10 @@ const USAGE: &str = "usage:
       every project text that contains <text>: the .uw record texts and the
       languages/<lang>/*.csv translations; a whole word by default, --part also matches
       inside a word; --json: one object per hit (file, line, record, field, text)
+  uw coverage [--all] [--json] [--atlas <atlas.json>] [--golden <dir>] [--gold <cells.txt>]
+      how much of the Module System UW can write today, proven by a golden test: every record
+      table x {new, like, override, disable, hook}, every ti_* hook kind and every operation name;
+      --json: the same as one object; --all: the empty hook and op cells too
   uw --version";
 
 /// Where the atlas lives unless `--atlas` / `UW_ATLAS` says otherwise (docs/DEVELOPMENT.md).
@@ -102,6 +107,7 @@ fn main() -> ExitCode {
         Some("rename") => rename::cmd(&args[1..]),
         Some("words") => words::cmd(&args[1..]),
         Some("find") => find::cmd(&args[1..]),
+        Some("coverage") => coverage::cmd(&args[1..]),
         _ => {
             println!("uw {}", env!("CARGO_PKG_VERSION"));
             println!("{USAGE}");
@@ -138,7 +144,7 @@ fn parse(args: &[String]) -> Result<Common, String> {
 }
 
 /// The atlas file: `--atlas`, else `UW_ATLAS`, else the one found in this or a parent folder.
-fn atlas_path(path: Option<PathBuf>) -> Result<PathBuf, String> {
+pub(crate) fn atlas_path(path: Option<PathBuf>) -> Result<PathBuf, String> {
     path.or_else(|| std::env::var_os("UW_ATLAS").map(PathBuf::from))
         .or_else(find_atlas)
         .ok_or_else(|| {
@@ -429,7 +435,7 @@ fn graph_json(atlas: Option<PathBuf>, tr_dir: Option<PathBuf>, words: &[String],
 
 /// The UW folder (atlas, kit-meta, kit): an ancestor of the working folder that has `kit-meta/`,
 /// else the folder this `uw` was built from. Lets `uw create` / `uw build` run from any folder.
-fn uw_home() -> Option<PathBuf> {
+pub(crate) fn uw_home() -> Option<PathBuf> {
     let has_meta = |dir: &Path| dir.join("kit-meta").is_dir();
     if let Some(found) = std::env::current_dir().ok().and_then(|cwd| cwd.ancestors().find(|d| has_meta(d)).map(Path::to_path_buf)) {
         return Some(found);

@@ -1,0 +1,6 @@
+# Cells proved in game (gold), one per line, as `uw coverage` names them:
+#   <table>.<action>   e.g. menus.override
+#   hook.<ti_name>     e.g. hook.ti_on_game_start
+#   op.<name>          e.g. op.display_message
+# `uw coverage` counts a cell here only when a golden test proves it too (silver), so this file
+# never raises the silver number. Empty until an owner checks a cell in the game (docs/CHECKUP.md).
