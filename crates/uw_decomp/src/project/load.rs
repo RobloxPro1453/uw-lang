@@ -331,15 +331,16 @@ fn at_line(start: usize, message: &str) -> String {
 }
 
 /// Every `.uw` file under `dir`, so a user may move records between folders. `names.uw` and the
-/// `fns/` words folder hold no records (T-084).
+/// `fns/`, `lib/` words folders and `events/` items hold no records (T-084, T-123).
 fn collect_uw_files(dir: &Path, files: &mut Vec<PathBuf>) {
     let Ok(entries) = std::fs::read_dir(dir) else { return };
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
-            // `fns/` holds words, dot folders (.uw-backup from `uw rename`, .git) never hold records.
+            // `fns/` and `lib/` hold words and `events/` holds items; dot folders (.uw-backup from
+            // `uw rename`, .git) never hold records.
             let name = path.file_name().and_then(|name| name.to_str()).unwrap_or("");
-            if name != "fns" && !name.starts_with('.') {
+            if !matches!(name, "fns" | "lib" | "events") && !name.starts_with('.') {
                 collect_uw_files(&path, files);
             }
         } else if path.extension().and_then(|ext| ext.to_str()) == Some("uw")
@@ -372,6 +373,11 @@ mod tests {
         std::fs::write(dir.join("fns").join("mine.uw"), "fn give_gold() {}\n").unwrap();
         std::fs::write(dir.join("record.uw"), "faction x {}\n").unwrap();
         std::fs::write(dir.join(crate::names::FILE), "x = y\n").unwrap();
+        // `lib/` words and `events/` items (T-123) are not records either.
+        for folder in ["lib", "events"] {
+            std::fs::create_dir_all(dir.join(folder)).unwrap();
+            std::fs::write(dir.join(folder).join("mine.uw"), "every day {\n}\n").unwrap();
+        }
         let mut files = Vec::new();
         collect_uw_files(&dir, &mut files);
         assert_eq!(files, vec![dir.join("record.uw")]);

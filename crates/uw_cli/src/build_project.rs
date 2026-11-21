@@ -41,6 +41,72 @@ pub fn modules(atlas: &uw_atlas::Atlas, records: &BTreeMap<String, Vec<Json>>) -
         .collect()
 }
 
+/// The whole-table modules plus the project's own items (`events/*.uw`: `dialog`, `every`, `override`
+/// …), checked and patched through the same uw_check path as `uw build`, against the project's atlas
+/// and record schemas (T-123). A project without items gets exactly [`modules`].
+fn modules_with_items(
+    atlas: &uw_atlas::Atlas,
+    schemas: &[Schema],
+    dir: &Path,
+    name: &str,
+    records: &BTreeMap<String, Vec<Json>>,
+) -> Result<Vec<(String, String)>, String> {
+    let events = dir.join("events");
+    let mut paths: Vec<PathBuf> = Vec::new();
+    if events.is_dir() {
+        let entries = std::fs::read_dir(&events).map_err(|e| format!("{}: {e}", events.display()))?;
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.extension().is_some_and(|ext| ext == "uw") {
+                paths.push(path);
+            }
+        }
+    }
+    if paths.is_empty() {
+        return Ok(modules(atlas, records));
+    }
+    paths.sort();
+    // Items may call the project's `fn` words (`lib/`, `fns/`), so those come first.
+    let mut sources = word_sources(dir)?;
+    let entries: Vec<(PathBuf, bool)> = paths.into_iter().map(|path| (path, false)).collect();
+    sources.extend(crate::build::parse_sources(&entries)?);
+    let checked = match uw_check::check_with_schemas(atlas, &sources, name, schemas) {
+        Ok(checked) => checked,
+        Err(errors) => {
+            for error in &errors {
+                eprintln!("{}\n", error.diag.render(&sources[error.file].file));
+            }
+            return Err(format!(
+                "{} problem{} in {}; nothing was built",
+                errors.len(),
+                if errors.len() == 1 { "" } else { "s" },
+                events.display()
+            ));
+        }
+    };
+    let mut by_module: BTreeMap<String, Vec<&uw_check::Patch>> = BTreeMap::new();
+    for patch in &checked.patches {
+        by_module.entry(patch.module.clone()).or_default().push(patch);
+    }
+    let mut modules = modules(atlas, records);
+    for (module, patches) in &by_module {
+        let file = format!("{module}.py");
+        let section = uw_emit::section(module, patches, false);
+        match modules.iter_mut().find(|(module_file, _)| module_file == &file) {
+            Some((_, text)) => {
+                text.push('\n');
+                text.push_str(&section);
+            }
+            // A table the project does not have as records: a module of its own, like `uw build`.
+            None => modules.push((file, format!("from native_{module} import *\n{section}"))),
+        }
+    }
+    if !by_module.is_empty() {
+        modules.push(("uw_runtime.py".into(), uw_emit::UW_RUNTIME.to_owned()));
+    }
+    Ok(modules)
+}
+
 /// A finished kit run and where the files it wrote are.
 pub struct Built {
     pub report: uw_kitrun::Report,
@@ -64,8 +130,11 @@ pub fn build(
         let path = overlay.join(file);
         std::fs::write(&path, text.as_bytes()).map_err(|e| format!("{}: {e}", path.display()))?;
         let native = kit.join(file);
-        let copy = overlay.join(format!("native_{file}"));
-        std::fs::copy(&native, &copy).map_err(|e| format!("{}: {e}", native.display()))?;
+        // `uw_runtime.py` is uw's own helper (T-123), not a kit module: it has no native copy.
+        if native.is_file() {
+            let copy = overlay.join(format!("native_{file}"));
+            std::fs::copy(&native, &copy).map_err(|e| format!("{}: {e}", native.display()))?;
+        }
     }
     let stage = uw_kitrun::StageOptions {
         kit: kit.to_path_buf(),
@@ -814,7 +883,10 @@ fn build_project(dir: &Path, args: &Args) -> ExitCode {
     if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
         return crate::fail(&format!("mod name '{name}' may only use letters, digits and _"));
     }
-    let modules = modules(&atlas, &records);
+    let modules = match modules_with_items(&atlas, &schemas, dir, &name, &records) {
+        Ok(modules) => modules,
+        Err(message) => return crate::fail(&message),
+    };
     println!("modules  {} written from {}", modules.len(), dir.display());
     let Some(kit) = crate::build::find_kit(dir).or_else(|| crate::build::find_kit(&root)) else {
         return crate::fail("Module System kit not found");
