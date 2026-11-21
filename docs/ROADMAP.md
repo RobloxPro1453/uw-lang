@@ -37,139 +37,15 @@ Kural: yalnız slot/tetik/id/yazmaç üreten şey derleyicide, geri kalanı UW i
 - [ ] **D8** Native salt-okunur UW görünümü + `override`/`wrap`/`extend` (kararlı adla).
 - [ ] **D9** std (UW ile yazılmış): sırala, metin biçimleri, liste/ayar bileşenleri.
 
-**YÖN 3 DİL KATMANI (meclis 2026-11-21, `docs/meclis/yon3/dil/KARAR-DIL.md`):** L1-L5'in sırası "DİL ÇEKİRDEĞİ" D0-D9'a devredildi (L1 → D0, L2/L3 → D1-D3, L4 → D4); maddeler kayıt için duruyor.
-
-- [ ] **L1** Otomatik söz dağarcığı: `kit-meta/easy/` (işlem/sabit/slot, D3 kuralları), `uw words` + editör, `uw coverage --easy` (kavram sızıntısı dahil).
-- [ ] **L2** Çekirdek sözdizimi + IR: `feature`, `on <olay>`, nesne/özellik, `const/var/agent var`, birimler, `when/where`, `became`.
-- [ ] **L3** Gizli altyapı: görev dağıtıcısı, girdi katmanı, HUD yöneticisi (tek presentation), başlangıç akışı, gözlemci.
-- [ ] **L4** Alex denemesi uçtan uca (KARAR-DIL §7): derleme + golden + sahibinin oyun denemesi.
-- [ ] **L5** Kör sınav: D4'ün 8 mekaniği golden; sonra sahibinden 10 yeni kör istek.
-**YÖN 3 (meclis 2026-11-21, `docs/meclis/yon3/KARAR.md`; EN ÖNCELİKLİ, KURUCU MODEL maddesinin yerini alır):** sıra P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9. Yeni madde "şu alan eklensin" diye açılmaz, mekanizma düzeyinde açılır.
-
-- [ ] **Y3-P0** `uw coverage` v1 (envanter kitten, golden `// covers:`, gümüş/altın, `--json`).
-- [ ] **Y3-P1** Genel katkı: `override` / `new … like` 27 tablonun hepsinde tek yoldan (bugün 2/27).
-- [ ] **Y3-P1b** Blok taşıyan kayıtlar ve bütün kancalar, genel yoldan: yeni/yamalı `mission_template` (tetikleyici listesi dahil), `presentation`, `item`/`faction`/`quest`/`scene` tanımı; 45 `ti_*` kancasının hepsine ekleme. Kabul: stres listesinden kör seçilen savaş-içi mekanikler (gizlilik, boss, HUD) derleyici koduna dokunmadan yazılır.
-- [ ] **Y3-P2** `game_start` kuru yorumlayıcı + iz (snapshot).
-- [ ] **Y3-P3** Snapshot oyun doğrulaması (N=50 hücre ≥%98; sahibi oyun deneyi).
-- [ ] **Y3-P4** Bağımlılık izi → etki raporu (`effects.rs` sabiti silinir).
-- [ ] **Y3-P5** Slot adı sözlüğü kitten (%100, uydurma 0).
-- [ ] **Y3-P6** `start = native` üretimi; `owner`/`lord` genel alana eritilir.
-- [ ] **Y3-P7** `disable`, `like` aralık/ofset bağları.
-- [ ] **Y3-P8** `raw slot` kaçışı (raporda, ölçümde kusur).
-- [ ] **Y3-P9** `base = empty` + iki büyük sınav (Native yeniden üretim; her şeyi sil, sıfırdan kur).
-**YÖN 2 (büyük meclis kararı 2026-11-15, `docs/meclis/YON2-KARAR.md`):** sıra P1 → P3a → P2 → P3b → P5 → P6 → Y5-Y8. Eski maddeler (harita, D5-D10, kit-meta) bu fazların parçası olarak sürer.
-
-- [x] **Y0** Büyük meclis (2026-11-15; karar `docs/meclis/YON2-KARAR.md`, kararname "Yön 2").
-- [x] **Y1b** (2026-11-15, `uw roundtrip`: 9113 blok %100 birebir, %100 yapılı; satırların %7,3'ü Native biçimli) Ölçüm prototipi.
-- [x] **P1** (2026-11-15: 27 tablo, 12815/12815 kayıt birebir; 201 alan adı kitle denetlendi) Kayıt biçimi tur 1 (ham, kayıpsız): `uw_decomp::records` yazıcı/ayrıştırıcı + 27 tablo şeması `kit-meta/records/` + `uw roundtrip` kayıt raporu. Tarifler T-030..T-034 (hazır, başlatılmadı). Kabul: 27 tablo atlas birebir.
-- [x] **P3a** (2026-11-15: 6194 dosya, `uw new --check` 12815/12815; kod blokları `ops { }`, `reg0`/slot adları) `uw new <ad> --from native`: Native'in tamamı klasörlere (dosya adı = Native kimliği, başında görünen ad + açıklama); yalnız dışa aktarma. İlk görünür teslim.
-- [x] **P2** (2026-11-15: Native biçimli satır 5518 → 28, yalnız gövdesinde else olan döngüler; + `for … in …`) `require` / `attempt` (gramer + IR Claude) + yazmaç (`reg0`, `pos1`) ve slot adları; Native biçimli satır oranı raporu.
-- [ ] (v1 bitti 2026-11-15: `uw build-project`, `uw.lock`, proje klasörü 32/32 bayt eşit; kalan: tombstone ile silme, aralık kilidi, ters dizin silme hatası, kayıtlı oyun deneyi CHECKUP) **P3b** `base = "project"` derleme: tam liste üretimi, `uw.lock`, tombstone, aralık kilidi, ters dizin silme hatası (Türkçe). Kabul: 27 tablo kit `.txt` bayt eşit + kayıtlı oyun yükleme deneyi (CHECKUP).
-- [x] (bitti 2026-11-16 T-103: `owner swadia` satırı, gerçek kitle denendi) **Sahibi 2026-11-16 (2. kez): `faction neutral` hâlâ yanıltıcı.** Yorum satırı (T-081) yetmedi. Hedef: şehir/kale/köy kaydında düzenlenebilir `owner swadia` alanı; değeri oyun başı script'inden (`give_center_to_faction_aux`) okunur, değiştirilirse derleyici o script satırını günceller; ham `faction neutral` görünmez ya da açıklamalı kalır. Bayt eşitliği korunur (değiştirilmeyen proje = Native).
-- [ ] (tur 1 2026-11-16: 3 rapor docs/bilgi/denetim/, T-112 kesin bulguları uyguladı; kalan: tur 2) **Genel akıllı checkup (sahibi, en sonda):** bütün kayıt türlerini modcu gözüyle tek tek tara: yanıltıcı değer (`neutral`, `0`, `none` olmayan boşluk), ham sayı, kısaltma, anlamsız ad; her bulgu ya düzeltilir ya da ROADMAP'e. Araç: `uw new` çıktısından her tablodan örnek kayıt + kit yorumu karşılaştırması.
-- [x] (bitti 2026-11-16 T-105/T-111/T-113: `uw find`, `rename --texts`, `name_tr`, `strip_suffix`/`add_suffix`) **Ad değişince öbür metinler (sahibi oyun deneyi 2026-11-16):** Praven → "Adam Siken" yapıldı; harita ve yerler menüsü doğru, ama ad başka metinlerin içinde kaldı: başlangıç menüsü "join a caravan to Praven, in the Kingdom of Swadia", başlangıç görevindeki "Merchant of Praven" (asker adı). Hedef: `uw rename praven "Adam Siken"` (ya da derlemede uyarı) adın geçtiği bütün metinleri (İngilizce kayıtlar + `languages/*/` satırları) listeler, istenirse hepsini birlikte değiştirir. Özel ad olan yerler (ör. tüccarın unvanı) kullanıcıya sorulmadan değişmez: liste + onay. **Çevirideki ek — karar (sahibi 2026-11-16): esnek olmalı.** Varsayılan = kalıp korunur (eski çeviride eski ad yerine yeni ad: "Praven Şehri" → "Adam Siken Şehri"). Ama herkes ek istemez (sahibi kendi modunda "Curaw, Jelkala, Praven" ister, ek yok): (1) kayıt başına dile göre ad yazılabilir (`name_tr "…"`), yazılırsa o geçerli; (2) toplu değişiklik: bütün çevirilerde bir eki ekle/kaldır (ör. TR şehir adlarından " Şehri"yi kaldır), önce liste + onay; (3) proje ayarı olarak kalıcı (`uw.toml`). Hiçbiri sessiz değil: derleme neyin değiştiğini yazar.
-- [ ] **KURUCU MODEL — sonsuz ihtimal (sahibi 2026-11-16, EN ÖNCELİKLİ; VISION 2026-11-16):** sıfırdan bir modcu her şeyi tanımlayabilmeli, her kararda `auto` (Warband'ın kendi düzeni) seçeneği olmalı. Önce meclis: tasarım (hangi Native gizli adımları tek satıra dönüşür) + tam alan listesi; sonra paketler. Kapsam en az: **krallık** (ad, kültür, renk, sancak, lider, lordlar, ilişkiler); **yerleşim** (sahip, lord ya da auto, kültür, konum, bağlı köyler, sahneler, garnizon); **karakter** lord/leydi/yoldaş/kral (ad, yüz, stat ve beceri, envanter ve teçhizat, krallık, ev/yurt, nerede dolaşır ve bulunur, ilişkiler/sevgi-nefret, kişilik, eş/aile, diyalog ve geçmiş). Başlangıç: T-116 (`lord` satırı). Kabul: boş tabandan elle yazılmış bir krallık + şehir + lord + yoldaş oyunda istenen gibi görünür (oyun deneyi).
-- [ ] **Proje klasöründe yeni dil (sahibi 2026-11-16 deneme sorusu, ÖNCELİKLİ):** `dialog`, `area`/`on enter`, `every`, `in menu`, `troop … like`, `save` şu an yalnız yama kipinde (uw.lock'suz klasör) derleniyor; `uw new` projesinde (ör. `events/*.uw` ya da her klasörde kayıt dışı öğe) da derlensin. Kabul: denememodum3 benzeri projeye bir diyalog + bir bölge olayı eklenir, `uw build` kurar; değişmeyen proje 32/32.
-- [ ] **Derleme süresi (sahibi 2026-11-16, ileride):** `uw build` bir proje için ~1 dk 20 sn (kit Python'u 32 dosya). Ölçüp hızlandır: değişmeyen tabloları yeniden üretmeme (önbellek), kit adımlarını paralel, Python başlangıcını tek süreçte toplama.
-- [ ] **P3b-dil** Dil dosyaları projeye girer (`languages/<dil>/*.csv`): `uw new` onları da döker; adı değişen kaydın çevirisi derlemede uyarıyla güncellenir ya da çıkarılır (oyun deneyi: TR'de değiştirilen şehir adı "Praven Şehri" olarak kaldı, docs/bilgi/proje-kipi-deneyi.md). `uw find "<metin>"` adın geçtiği öbür metinleri listeler.
-- [ ] **P5** Kayıt tur 2: `ref`/`flags`/`packed` alanlarını okunaklı aç (kit adlarıyla, bilinmeyen bit açık `raw`).
-  - [x] (bitti 2026-11-16 T-080/T-081: icon, none, başlangıç sahibi yorumu) **Sahibinin gözünden (2026-11-16, `parties/towns/town_6.uw` ekran görüntüsü):** (a) `faction neutral` **hata değil**: kit Praven'i `fac_neutral` yazar (`module_parties.py:82`), sahibi oyun başında script verir (`module_scripts.py:491` `give_center_to_faction_aux p_town_6 fac_kingdom_1`) → modcu bunu bilemez: kayıtta yorum ya da `owner_at_start swadia` gibi okunur bilgi göster. (b) `rest 12` = harita simgesi (`icon_town`, map_icons 12): `party_flags` içinde ayrı `icon town` parçası olmalı. (c) `menu 0` → `no_menu` ya da `none`; (d) `ai_target 0` → ref ya da `none`; (e) `party_template none` iyi, aynı biçim (c)/(d)'ye.
-- [x] (v1 bitti 2026-11-16: names.uw 1111 ad, alan adları, başlık; kalan: dil dosyalarındaki adlar P3b-dil) **P5b — modcunun adları (sahibi 2026-11-16: "faction 3 değil faction swadia, agi değil agility")**: (1) alan ve parça adları tam İngilizce kelime (`strength`, `agility`, `intelligence`, `charisma`, `riding`…; UW'nin kendi sözlüğü, her biri kit kaynağına bağlı); (2) okunaklı ad katmanı: `uw new` her kaydın kitteki görünen adından tekil bir ad üretir (`fac_kingdom_1` "Kingdom of Swadia" → `swadia`, `p_town_6` → `praven`, `trp_knight_1_1` → `count_klargus`), projede tek bir `names.uw` dosyasında durur, modcu değiştirebilir; derleyici bu adları kayıtlarda VE kodda kabul eder, çevirici bunları basar; çakışan ya da adı olmayan kayıt Native kimliğiyle kalır; her derlemede tekillik denetimi. Kural: ad kitten türetilir, uydurulmaz; türetme kuralı `names.uw` başında yazılı.
-- [ ] **P6** L2 `lib/*.uw` v1 + `fn` + nesne alanı; kendi adla `menu`, `goto`, metinde `@` kendiliğinden; `menu_demo` yeni dilde (eski Y3-Y4).
-- [ ] **Stres testi (sahibi 2026-11-16):** `ornek mod mekanik arastirmasi (stres testi)/` klasöründeki mekanikleri derleyici bitince UW ile tek tek yaz; eksiksiz yapılabilen oranı ölç, eksikleri kapat, sahibine kapasite raporu ver. Şimdiden: içeriğin özeti tasarım girdisi olarak okunur.
-- [ ] **Y1** Oyun deneyleri (paralel, CHECKUP kuyruğu): D8 boş taban; özel menüden karakter yaratma / yüz editörü; tetik aralığının birimi ve 0'ın anlamı.
-- [ ] **Y5** Diyaloglar ve karakterler (`lords/`, `companions/`, `ladies/`): "ilk karşılaşma diyaloğu" örneği.
-- [ ] **Y6** Olaylar ve bölgeler (`areas/`): `on enter area`, `every … hour`, poligon içi kontrol, yoğunluk (Native spawn noktalarına ek).
-- [ ] **Y7** Harita içe aktarma + yerleşimler kodla; aralık içine ekleme (sahne ofsetleri), yeni kayıt için `init { }` (kayıt + slot).
-- [ ] **Y8** Sahneler ve kamp (konuma göre sahne, askerler).
-- [ ] `kit-meta/hardwired.toml`: motor zorunlusu kayıtlar (D4, D8, D10 bulguları) — zorunlu/isteğe bağlı ayrımının veri kaynağı.
-
-**Durum 2026-11-15:** tasarım haftası bitti, kodlama Faz 0 D1'den başlıyor (sahibinin kararı). Kural: **Faz 1 bitmeden sonraki fazlara geçilmez.** Oyun gerektiren deneyler (D4-D8) `docs/CHECKUP.md` kuyruğuna tek tek yazılır, döngü onları beklemeden sıradaki işe geçer. Faz 1 gramerinden önce sözdizimi meclisi (`docs/MECLIS_GUNDEMI.md` > Sonraki meclisler için girdiler). Önce araştırma (hazır ne var, lisansı ne), sonra kitin temiz build'i, sonra en ince uçtan uca dikey dilim (praven_start), sonra genişletme.
-
-## 0. Araştırma ve kurulum (kod öncesi)
-
-- [ ] Hazır araç taraması: W.R.E.C.K. (Lav'ın derleyici kiti), Swyter'ın araçları, GitHub'daki Warband ModSys araçları; her biri için lisans + neyini kullanabiliriz notu → `docs/KNOWLEDGE.md`.
-- [ ] Rust crate seçimi teyidi: `rowan`, `logos`, `insta`, `ariadne`, `tower-lsp` lisans + sürüm notu (hepsi MIT/Apache olmalı).
-Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 küçük prototip → D4 (oyun, sahibi onayladı; D3'ten bağımsız) → D5-D7 → kit-meta → lisans → iskelet → explain. Deney tarifleri `docs/meclis/KARAR.md` §6; düzeltmeler `docs/meclis/manus-cevabi-degerlendirme.md`.
-
-- [x] **D1** Kitin dokunulmamış haliyle temiz build: staging kopyasında 29 `process_*` adımı py2.7 (`C:\Python27`) `-B -E -s` ile tek tek; süre, çıktı dosya listesi, bütün ERROR/WARNING satırları → `native.baseline`; `ID_*.py` silinmiş kopyada ImportError beklenir (Native modüller import anında `ID_*` okuyor; kitte görüldü) → bootstrap: atlas staging kitin ID'leriyle, build staging UW'nin önyazdığı ID'lerle (ARCHITECTURE).
-- [x] Atlas betiği `py/atlas_dump.py` (prototip): op tablosu (ad, kod, lhs, can_fail, global_lhs), `game_*` kancaları, `*_begin/*_end` aralıkları, Native girdi ad/indeks/değer + salt okunur kaynak satır aralığı → JSON. Kaynak metin kesme yok.
-- [x] **D2** (tamamı 2026-11-15: a/d/e `py/d2_extra.py` ok; ana test geçti 2026-11-15, `py/d2_empty_patch.py`; alt testler b/c `uw_runtime` ile) Boş yama gidiş-dönüş: `native_module_*.py` + elle yazılmış boş sarmalayıcılar → `.txt`'ler D1 ile bayt bayt eşit; alt testler (a) tek başına import, (b) paylaşılan nesne ✓, (c) `ad#n` ✓ (2026-11-15, `py/d2_runtime.py`), (d) aynı saniyede iki derleme, (e) Native hash.
-- [x] **D3** (27 tablonun tamamı, `py/d3_reprint.py`) Yeniden yazdırma testi küçük prototipi (Python'da, EMIT dondurulmadan önce): temsilî kayıt türleri (bayraklı op, iç içe tuple, boş alan, sıraya duyarlı kayıt) → yazıcı → kit → `.txt` eşit; sonra 1053 op kapsamına genişler.
-- [x] **D4** (sonuç 2026-11-15, `docs/bilgi/baslangic-akisi.md`: c varyantı = prolog'suz başlangıç) Başlangıç sondası (oyunda, sahibi onayladı; ayrı test modu klasörü `Modules/uw_sonda/`, sahibinin moduna ve Native'e dokunulmaz): elle yazılmış praven sarmalayıcısıyla 3 varyant (menü 0'da `change_screen_return` / `change_screen_map` / menü 1 override); adımlar `docs/CHECKUP.md` kuyruğuna (yazıldı ve modlar kuruldu 2026-11-15, `py/d4_sonda.py`; sahibinin denemesi bekleniyor), sonuç `docs/bilgi/`'ye [DENEY].
-- [ ] **D5-D7** Tek sonda modunda: Türkçe karakter, trigger birimleri, `rgl_log.txt` yolu ve komut satırından başlatma.
-- [ ] `kit-meta/` iskeleti: `hardwired.toml`, `slots.toml`, `hooks.toml` (dönüş kanalları), `optypes.toml` ilk taslağı. (`hooks.toml` bitti 2026-11-15, `py/hooks_meta.py`; 13 kanca `review` ile işaretli: 10unda yorum ile gövde çelişiyor, 3ünde yorum kanal söylemiyor.)
-- [x] Depo iskeleti (`uw.toml` Faz 1 ile): Rust workspace, ARCHITECTURE'daki 10 crate (`uw_diag`, `uw_syntax`, `uw_atlas`, `uw_check`, `uw_lower`, `uw_plan`, `uw_emit`, `uw_kitrun`, `uw_verify`, `uw_cli`) + `py/`, her crate'te sözleşme README'si; `examples/`, `tests/`; `uw.toml` içinde kit yolu ve export yolu; kit dosyaları depoya girmez.
-- [ ] **Sandbox / görsel önizleme (sahibi, 2026-11-15):** bir UW komutu yazınca Module System'de nereye ne eklendiğini (hangi dosya, hangi kayıt, eklenen satırlar) güzel bir arayüzde yan yana göstermek; test kiti olarak da kullanılır. Derleyici ilk komutu çevirebildiğinde başlar.
-- [x] `uw explain <id>` (2026-11-15; globaller, op'lar, sabitler dahil; diyalogların kaynak satırı henüz yok): atlas üstünde; Native'de bir şey nerede tanımlı/kullanılıyor, kaynak satırı (sahibinin ilk acısına erken çözüm).
-
-- [ ] (menüler yapıldı 2026-11-15, oyunda denenmedi; diyaloglar sırada) **Oyunda kimlik göster (`uw build --debug`, öncelikli; sahibinin "nereden bileceğim" derdi):** her menünün girişine (sonra diyalog satırlarına) kendi kimliğini ekrana yazan op ekler (`[uw] menu start_phase_2`). Sahibi oynarken değiştirmek istediği ekranın adını görür. Yalnız hata ayıklama derlemesinde; hızlı metin kayması (KNOWLEDGE) zararsız.
-- [ ] **Akış şemasının arayüzü (sahibi, 2026-11-15, öncelikli):** `uw graph menu_start_phase_2 --html` bile okunmuyor (tek dev düz resim, minik kutular). İstenen: parametresiz açılış (yeni oyunun başından, `roots`), katmanlı yerleşim, tıklayınca açılan/kapanan düğümler, her menü bir kart (oyundaki metin + iç ad + **seçenekler ve her seçeneğin nereye götürdüğü**), yakınlaştırma, arama, mod farkı renkli. Uygulama Craft Anything ile yazıldı, artık Claude geliştiriyor: `docs/graph_viewer/program/app` (Rust + egui); brief: `docs/graph_viewer/README.md` + veri biçimi `docs/graph_viewer/DATA.md` (`uw-flow/1`), veri `py/flow_export.py` (menüler + seçenekler, 217 menü / 554 seçenek / 949 bağlantı). UW tarafı: `uw graph --json flow.json` [x] (menüler + seçenekler, Python betiğiyle birebir aynı çıktı, 2026-11-15). Kalan: diyaloglar, mod farkı (`changed`) ve etki (`impact`) alanları, metin ağacında seçenekleri göstermek.
-- [ ] **Ad tutarlılığı (sahibi, 2026-11-15):** sahibi `uw graph start_phase_2` yazdı, bulamadı (araçlar yalnız `menu_start_phase_2`'yi tam ad sayıyor; `.uw` ise `override menu start_phase_2` diyor). Yapılacak: (1) explain/graph/browse çıplak adı da tam ad kabul etsin (tek eşleşmeyse); (2) tek kanonik yazım: sahibi `menu_start_phase_2`'yi daha doğru buluyor (`--debug` ve browse da onu gösteriyor). Öneri: `.uw`'de `override menu_start_phase_2 { ... }` (tür önekten anlaşılır, "menu menu" tekrarı yok), eski biçim de kabul. Sözdizimi değişikliği: kısa meclis.
-- [x] **Etki raporu (`uw build` çıktısında, 2026-11-15):** override edilen girdiden sonra ters dizin + geçiş grafiğiyle artık ulaşılamayan Native menü/görev/sahne listesi, sade dille ("artık hiç açılmayacak: şehir seçimi, prolog…"). Grafik akış şemasıyla ortak.
-- [ ] (ilk hali 2026-11-15: `uw graph` ağaç/Mermaid/HTML, browse'da `g`; modun kendi şeması ve renkli "kesilen kenar" sırada) **Akış şeması (sahibi, 2026-11-15):** atlasın ters kullanım dizininden (`crates/uw_cli/src/model.rs`) geçiş grafiği: menü → menü (`jump_to_menu`), ekran geçişleri (`change_screen_*`), script çağrıları (`call_script`), diyalog durumları (giriş → çıkış), kancalar (motor → `game_*`). Önce Native için (`uw graph <başlangıç>`: TUI'de ağaç + dışa aktarım Mermaid/HTML), sonra derlenen mod için (modun değiştirdiği kenarlar renkli: "senin modun burayı kesti"). Aynı veri ajanın karar denetimi için de kaynak. Sandbox/önizleme maddesiyle birleşebilir.
-- [ ] (kısmen 2026-11-15: `uw browse` / `uw explain` adın parçası ve oyundaki metinle arıyor, diyaloglar kit kimliği + kaynak satırıyla; resmî TR metin henüz yok) Native bulma tabloları (atlas'tan, otomatik): diyalog tablosu (motor kimliği, kim konuşuyor, EN metin, resmî TR metin, sonraki durum, kaynak satırı); kişi/şehir/eşya tabloları (kimlik ↔ görünen ad). `uw find "<metin>"` bunların üstünde.
-
-## 0b. Harita ve boş dünya (araştırma)
-
-- [x] `map.txt` biçimini çıkar (köşe/yüz/arazi türü) — okundu, bkz. `docs/bilgi/harita.md` (yüz satırındaki 2. alanın anlamı açık).
-- [ ] Düz zemin `map.txt`'si üret, oyunda aç (D8 ile birlikte) → `empty-flat` ön ayarı.
-- [ ] Yükseklik haritası (gri PNG) + arazi boyama (renk = arazi türü) → `map.txt` dönüştürücü (`uw map import`): önce Python prototip, küçük bir haritayla oyunda dene (su seviyesi, kıyı, nehir/köprü, yol bulma, performans sınırı).
-- [ ] Taban ön ayarları listesi: `native`, `native-map-empty`, `empty-flat`; her biri deneyle kanıtlanınca açılır.
-- [ ] `base: empty` için motorun zorunlu kayıt listesi (deneyle, **D8**: `module.ini` gerekliliği dahil): oyun en az neyle açılıyor. Meclis önerisi: `base: empty` Faz 1 kabulünde yok (sahibinin onayı bekliyor).
-- [ ] **D9** slot üst sınırı ve kayıt-yüklemede korunma; **D10** hardwired sınırı (item 17/125) ve kancaların ad/indeks bağı — yalnız silme/yeniden sıralama gerekince.
-
-## 1. Çekirdek (finalForm)
-
-- [ ] (ilk dilim 2026-11-15: `uw_syntax` süslü parantez, `mod`/`override menu`/`on game.x`/op çağrısı; ifadeler, `if/for/while` yok) Gramer + parser: ~~girinti~~ süslü parantez (meclis 2026-11-15), ifadeler, `if/for/while`, `script`, `on <olay>`, blok tanımları; hata mesajında satır/sütun.
-- [ ] Kat 0: tablodaki her operasyon UW'den isimli fonksiyon olarak çağrılabiliyor (tablo üstünde dönen otomatik test).
-- [ ] Operasyon tablosundan otomatik ifade çevirisi: `a = b + c*2` → `store_*`; `if` → `try_begin`; `or` → `this_or_next|`; `not` → `neg|`; `return` → `reg0`.
-- [ ] Sıra (meclis): gramer + CST → `uw_atlas` Rust tarafı → HIR (ad, tip, override) → LIR (ifade/`if`/`for`/`on`/menü) → PLAN → EMIT → `uw_kitrun` → `uw_verify`.
-- [ ] Bağlayıcı (`uw_plan`): aynı kancaya bağlı parçaları toplar, Native kancasının sonuna/başına doğru sırayla ekler (birden çok dosyada: dosya yolu alfabetik + açık `before/after`); slot numaraları `kit-meta/slots.toml` rezerve bölgeleri + `uw.lock` deltası, globaller tohum sonuna.
-- [ ] `on game.start`, `player.spawn_at(near(x, r))`, `player.party.add(...)`.
-- [ ] Genel `override` / `disable` mekanizması (her Native menü/script/trigger için aynı; amaca özel kısayol yok). Kabul testi: karakter yaratma A (soru zinciri → menüler) ve B (statları doğrudan koy) = menü 0 override + `disable menu start_phase_2` (giriş kesme; Native zincir ulaşılamaz kalır, silinmez).
-- [ ] İsim denetimi + "şunu mu demek istedin?" önerisi; çift adlı hedefte `ad#n` zorunlu.
-- [ ] Altın testler: `.uw` → beklenen `module_*.py` parçası; uçtan uca test: kit build'i geçiyor + `.txt` içinde beklenen kayıt var; gidiş-dönüş (D2) ve yeniden yazdırma testi (D3) CI'de, sahte mini Module System fixture ile.
-- [x] `examples/praven_start` ve `uw build` (2026-11-15; sahibi oyunda doğruladı: karakter yaratma Native, prolog yok, Praven'de başlangıç. `uw check` ayrı komut değil, build'in ilk adımı)
-- [ ] **Menü dili (sahibinin istek listesi, 2026-11-15):** menünün metnini değiştirmek; seçenek eklemek / değiştirmek / gizlemek; seçeneğe göre başka iş yaptırmak; başka menüye geçmek (`jump_to_menu`); değişken atamak ve okumak; koşul (`if`). "Oh be" ölçüsünün ve genel modlamanın temeli; her biri örnek + test ile gelir.
-- [ ] **"Oh be" ölçüsünün tamamı:** karakter yaratma ekranlarını da kendi sorularıyla değiştirmek (menü 0 override + kendi menü zinciri) ve ad/yüz/eşya/istatistiği UW'de vermek (D4 b varyantı gösterdi: zincir atlanırsa bunlar boş kalır). Gerekenler: `override menu` içinde seçenekler (`option`), `if`, menüler arası geçiş, yeni menü tanımı (yeni kayıt → ID/PLAN zinciri).
-
-## 1b. Zaman ve olay ilkelleri (Faz 1'den hemen sonra, pilot: babayla veda sahnesi)
-
-- [ ] `wait` / `wait until` / `wait key` → derleyici durum makinesi (coroutine) üretir. D6 (birimler) ve D9 (slot kayıt kalıcılığı) sonuçlarına bağlı.
-- [ ] Tek tetik modeli: `on <olay>`, `when <koşul> [every …]`, `in <seçici>`.
-- [ ] Kullanıcı olayları (`emit` / `on`), alanlar (`field … on agent/troop/party`, otomatik slot).
-- [ ] Seçicili enjeksiyon (`in battle missions:`).
-
-## 2. Veri paketleri
-
-- [ ] `item`, `template`, `troop`, `party`, `party_template`, `faction`, `map_icon` tanımları; `town`/`village` eklenince aralıklar otomatik.
-
-## 3. Hikâye
-
-- [ ] `dialog` (stat koşullu cevaplar), `quest` (aşamalar), `alignment`, diyalog simülatörü (oyunu açmadan).
-
-## 4. UI, kamera, sahne nesneleri (ilkeller; mekanikleri modcu yazar)
-
-- [ ] **İlk mekanik sınavı: sprint** (sahibi yazar): tuşa bağlı eylem (Ctrl, çakışma deneyle kontrol), stamina alanı, savaşta ve şehirde gezerken ekranda duran stamina barı (görev içi HUD). Bir klasör, ayrı dosyalar. Native'e kaçmak zorunda kalınan her yer = eksik ilkel.
-
-- [ ] Bildirimsel UI + değer bağlama (portre, metin kutusu, bar) → presentation. Pilot: VN tarzı veda diyaloğu sahibinin tasarımıyla.
-- [ ] Kamera/efekt ilkelleri; etkileşimli sahne nesnesi (`prop … on use`). Pilot: ağaç kesme ya da kamp kurma.
-- [ ] Örnek paketler (çekirdek dışı): sprint + enerji barı, basit gizlilik — yalnız ilkellerin yettiğini kanıtlamak için.
-
-## 5. Eşya ilkelleri
-
-- [ ] Eşyaya alan ve olay ekleme (`on hit`, `on equip`); bonus/set gibi sistemleri modcu bunlarla yazar.
-
-## 6. Native standart kütüphanesi
-
-- [ ] Native'in sistemleri (`std.character_creation`, `std.lords_ai`, `std.economy`…) isteğe bağlı paketler; `uw lift` (Native → `.uw`, yalnız bildirimsel türler, yükseltme oranını ölçmek için; meclis kararı).
+**Eski yönlerin maddeleri** (YÖN 3 dil katmanı L1-L5, YÖN 3 P0-P9, YÖN 2 P1-P9, Faz 0-6) yerini "DİL ÇEKİRDEĞİ" ve
+"MADEN PROGRAMI"na bıraktı: `docs/arsiv/roadmap-2026-11.md`. Oradaki açık bir madde yeniden gerekirse buraya,
+güncel sıraya uygun yeni bir madde olarak taşınır (eski madde olduğu gibi canlandırılmaz).
 
 ## Öneriler (sahibinin kararını bekler)
 
 - Hata ayıklama derlemesi (`--debug`): oyunda her diyalog/menü metninin başında kimliği gösterme; F12 menüsü (çakışma kontrolüyle); LLM'e hazır log + `uw report` + oyun içi hata ayıklama menüsü. Faz 1b-4 arası; meclis yerini belirler.
 - Öğretici belgeler: her kavram için çalışan örnek + ekran görüntüsü; ileride sesli video.
-- Paket sistemi (isim alanı, bağımlılık, çakışma denetimi) — sahibi kesin istiyor; biçim için meclis girdisi `docs/MECLIS_GUNDEMI.md` > Paketler.
+- Paket sistemi (isim alanı, bağımlılık, çakışma denetimi) — sahibi kesin istiyor; biçim için meclis girdisi `docs/arsiv/MECLIS_GUNDEMI.md` > Paketler.
 - LLM tanıtım dosyası (UW'yi bir LLM'e öğreten tek dosya); ölçü: Antigravity, ChatGPT, Claude aynı görevde derlenen kod üretiyor mu.
 - Örnek modlarla dayanıklılık: `ornek-modlar/` (6 mod) üzerinde atlas dökümü ve boş yama gidiş-dönüşü (D2'nin genişletilmişi).
 
@@ -182,8 +58,8 @@ Sıra (meclis + Manus değerlendirmesi, 2026-11-15): D1 → atlas → D2 → D3 
 
 ## Yapılmayacaklar
 
-- Var olan modların Module System kaynağını UW'ye alma (şimdilik; ilgi olursa sonra).
-- Eski kayıt dosyası uyumu (şimdilik; sahibi için öncelik değil).
+- Var olan bir modu toptan UW'ye çevirip dağıtmak (modlar yalnız incelenir ve sınav olarak kullanılır: MADEN M3/M4; kod kopyalanmaz).
+- Native'in eski sürümlerinin kayıt dosyalarıyla uyum (UW projesinin kendi kayıt uyumu ise `slots.lock` ile korunur, D1).
 - Multiplayer (sahibinin kararı; fork'a açık).
 - WSE2 çekirdekte (ileride isteğe bağlı hedef profili olabilir).
 - Kitin `process_*.py` dosyalarını yeniden yazmak (test edilmiş, olduğu gibi kullanılır).

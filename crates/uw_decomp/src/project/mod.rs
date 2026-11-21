@@ -1,4 +1,4 @@
-//! `uw new <dir> --from native` (P3a, docs/meclis/YON2-KARAR.md §3.2): writes every Native record as
+//! `uw new <dir> --from native` (P3a, docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §3.2): writes every Native record as
 //! UW record text into a project folder, and reads such a folder back to prove nothing was lost.
 //! Export only: the folder is not compiled yet (that is P3b).
 

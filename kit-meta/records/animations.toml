@@ -2,7 +2,7 @@
 # length in bits 24-31 (`acf_anim_length_bits` / `acf_anim_length_mask`); `animation_master_flags`
 # is an `amf_` set. The id and the sequence list stay as they are.
 # Field names and order follow the layout comment at the top of the kit's module_animations.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "animations"
 kind = "animation"
 id_prefix = "anim_"

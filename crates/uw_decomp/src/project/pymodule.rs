@@ -1,4 +1,4 @@
-//! P3b (docs/meclis/YON2-KARAR.md §3.3): a whole Native table written back as a Python 2 module the
+//! P3b (docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §3.3): a whole Native table written back as a Python 2 module the
 //! kit's `process_*.py` imports (`from module_<t> import *`). Values come in the atlas JSON form:
 //! JSON array = tuple, `{"list": …}` = list, strings are the kit's byte strings decoded as latin-1
 //! (py/atlas_dump.py:73-79), floats are Python 2 `repr` text, integers keep every digit.

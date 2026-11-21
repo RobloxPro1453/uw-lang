@@ -1,6 +1,6 @@
 # Oyuncu varlıkları — para, eşya, parti, statlar (T-067, P6 girdisi)
 
-Kolay dildeki (`docs/meclis/kolay-dil-taslak.md`: `player.gold`, `player.has(iron_shield)`, `player.renown`)
+Kolay dildeki (`docs/arsiv/meclis-yon1-yon2/kolay-dil-taslak.md`: `player.gold`, `player.has(iron_shield)`, `player.renown`)
 kelimelerin hangi **kanıtlanmış** Native işlemine oturacağı. Etiketler `docs/bilgi/README.md:7-12`. Tek kanıt
 kit: `target/uw-native/*.uw` bu makinede yok → sayfada [DENEY] yok; yalnız oyun içinde görülebilen motor
 davranışı **[DENEY GEREK]** ile işaretli. `module_scripts.py` bu ortamda aranamıyor (50 783 satır, `search`

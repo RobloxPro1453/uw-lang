@@ -1,7 +1,7 @@
 # Skin records: `skin_flags` decodes with the `skf_` constants of header_skins.py and the two blood
 # particle fields are `ref:particle_systems`; the other fields are the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_skins.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "skins"
 kind = "skin"
 # The atlas gives this table no id_prefix (there is no ID_skins.py), so the id is written as it is.

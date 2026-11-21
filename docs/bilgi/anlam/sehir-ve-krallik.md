@@ -1,6 +1,6 @@
 # Kasaba ve krallık — Native bunları nasıl kurar (T-074)
 
-P6 girdisi: `docs/meclis/kolay-dil-taslak.md` (kolay UW kelimeleri) kanıtlı Native işlemlerine dayansın. Etiketler
+P6 girdisi: `docs/arsiv/meclis-yon1-yon2/kolay-dil-taslak.md` (kolay UW kelimeleri) kanıtlı Native işlemlerine dayansın. Etiketler
 `README.md:7-12`; yollar `Module_system 1.171/` altına göredir. Ofset aritmetiği `sira-baglari.md:49-64`'te kanıtlı.
 
 ## 1. Kasaba neyden oluşur
@@ -131,7 +131,7 @@ UW adayı: `swadia.at_war(vaegirs)`, `swadia.make_peace(vaegirs)`, `swadia.relat
    var olmayan partilere işaret eder (`sira-baglari.md:43-47`). [KİT] Eksik sahne/askerle motorun ne yapacağı
    kitte yazmıyor: [DENEY GEREK].
 
-UW adayı: `town riverhold like praven { name "Riverhold" position (35,-12) owner swadia }` (`docs/meclis/kolay-dil-taslak.md:101-109`).
+UW adayı: `town riverhold like praven { name "Riverhold" position (35,-12) owner swadia }` (`docs/arsiv/meclis-yon1-yon2/kolay-dil-taslak.md:101-109`).
 
 ## 5. UW kelime adayları (yalnız öneri, karar değil)
 

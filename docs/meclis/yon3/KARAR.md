@@ -2,7 +2,7 @@
 
 > Meclis: Claude (başkan, sentez) + 4 koltuk: M1 mimar, M2 kanıtçı, M3 şeytanın avukatı, M4 ölçümcü
 > (`M1-MIMAR.md`, `M2-KANIT.md`, `M3-AVUKAT.md`, `M4-OLCUM.md`). Girdi: sahibinin çerçevesi
-> (`docs/meclis/kurucu-model-gundem.md` §0) ve ücretsiz modellerin taslağı (`docs/meclis/opencode/yon3/KARAR-TASLAK.md`).
+> (`docs/arsiv/meclis-yon1-yon2/kurucu-model-gundem.md` §0) ve ücretsiz modellerin taslağı (`docs/arsiv/meclis-yon1-yon2/opencode/yon3/KARAR-TASLAK.md`).
 > Sahibi (2026-11-21): "YÖN-2 yetmedi, YÖN-3'ün zamanı geldi; yönetim senin." Bu belge mimari karardır.
 
 ## 1. Tek cümle

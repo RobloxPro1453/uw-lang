@@ -1,7 +1,7 @@
 # Dialog records: `dialogue_partner` names the kit's speaker flags (header_dialogs.py:15-25);
 # every other field is still the atlas value as it is (a state name, a text id or an operation block).
 # Field names and order follow the layout comment at the top of the kit's module_dialogs.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "dialogs"
 kind = "dialog"
 id_prefix = ""
@@ -9,7 +9,7 @@ list = true
 
 # Field 0 is the speaker: a troop-id in the low 12 bits (a party-template id when `party_tpl` is
 # set), with flag bits or-ed on top (header_dialogs.py:15-25). No type names an id inside a `flags:`
-# value, so that index prints as the `rest` remainder (docs/meclis/YON2-KARAR.md §2 item 4b);
+# value, so that index prints as the `rest` remainder (docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2 item 4b);
 # `other(troop_id)` (header_dialogs.py:27-30) is not used in Native's module_dialogs.py, so bits
 # above `multi_line` are only ever that remainder too.
 [[fields]]

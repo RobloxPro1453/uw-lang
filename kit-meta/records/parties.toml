@@ -1,7 +1,7 @@
 # Party records: the fields the kit explains are typed (refs, the packed flag word, the packed
 # personality and the AI behaviour); every other field is still the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_parties.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "parties"
 kind = "party"
 id_prefix = "p_"

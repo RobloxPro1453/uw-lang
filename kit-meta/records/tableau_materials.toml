@@ -1,6 +1,6 @@
 # Tableau-material records, round 1 (raw): every field is the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's
-# module_tableau_materials.py (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# module_tableau_materials.py (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "tableau_materials"
 kind = "tableau_material"
 id_prefix = "tableau_"

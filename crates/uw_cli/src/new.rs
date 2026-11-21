@@ -1,4 +1,4 @@
-//! `uw new <dir> --from native` (P3a, docs/meclis/YON2-KARAR.md §3.2): writes every Native record
+//! `uw new <dir> --from native` (P3a, docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §3.2): writes every Native record
 //! into a project folder as UW text; `uw new --check <dir>` reads such a folder back and counts the
 //! records that still match the atlas. The render/parse pair is `records::print` / `records::parse`
 //! for now (T-043 swaps them).

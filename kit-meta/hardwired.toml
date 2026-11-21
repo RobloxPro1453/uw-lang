@@ -5,8 +5,8 @@
 # `Module_system 1.171/`, and `position` is the record's index in the kit's `ID_<table>.py` — the kit
 # writes ID = list index (`process_items.py:12-14`, `process_troops.py:99-102`,
 # `process_strings.py:18-20`). Warband itself is closed source, so the engine's real expectation is
-# only readable from the kit's own "hardwired / hardcoded" comments: docs/meclis/kanit-H2.md collects
-# them, docs/meclis/denetim-H1.md marks what could not be verified.
+# only readable from the kit's own "hardwired / hardcoded" comments: docs/arsiv/meclis-yon1-yon2/kanit-H2.md collects
+# them, docs/arsiv/meclis-yon1-yon2/denetim-H1.md marks what could not be verified.
 #
 # `certainty`:
 #   "comment"  = a kit comment marks exactly this boundary.
@@ -55,7 +55,7 @@ certainty = "comment"
 # Unresolved conflict, deliberately not locked here: a second marker, `module_items.py:223` "ITEMS
 # before this point are hardcoded into item_codes.h", sits after 125 items; the last one is itm_butter
 # (ID_items.py:125). Both markers are real kit comments and which one the engine follows is unproven
-# (docs/meclis/denetim-H1.md:13, kanit-H2.md:17), so only the narrower boundary the first marker names
+# (docs/arsiv/meclis-yon1-yon2/denetim-H1.md:13, kanit-H2.md:17), so only the narrower boundary the first marker names
 # is written here.
 [[record]]
 table = "items"
@@ -513,7 +513,7 @@ evidence = "module_skills.py:14"
 certainty = "comment"
 
 # Menus: `module_game_menus.py:35` "Note: The first Menu is the initial character creation menu." —
-# only position 0 is marked; menus 1-14 are unmarked (docs/meclis/denetim-H1.md:40-53).
+# only position 0 is marked; menus 1-14 are unmarked (docs/arsiv/meclis-yon1-yon2/denetim-H1.md:40-53).
 [[record]]
 table = "menus"
 id = "menu_start_game_0"
@@ -536,4 +536,4 @@ certainty = "comment"
 
 # Scenes are deliberately absent: `module_scenes.py` carries no hardwired/hardcoded marker for
 # scn_random_scene / scn_conversation_scene (positions 0 and 1), so the engine's need for them is
-# unproven and not written here (docs/meclis/denetim-H1.md:51).
+# unproven and not written here (docs/arsiv/meclis-yon1-yon2/denetim-H1.md:51).

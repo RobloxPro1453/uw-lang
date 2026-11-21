@@ -2,7 +2,7 @@
 
 ## Bu incelemenin kapsamı
 
-İncelenen kullanıcı arşivi: `/home/ubuntu/upload/universal_warband-Kopya.zip`. Arşiv listesinde 505 girdi bulunuyor; `Module_system 1.171/` altında yalnız `not.txt` ve boş dizin kaydı var, gerçek `module_*.py`, `process_*.py` ya da `header_*.py` yok. Dolayısıyla bu arşivden kit build’i çalıştırılamaz. Proje kopyasındaki `docs/meclis/kanit-H1.md`, `kanit-H2.md`, `kanit-H3.md`, `KARAR.md`, `TUTANAK.md`, `ARCHITECTURE.md`, `VISION.md`, `ROADMAP.md`, `itiraz-S1.md`, `itiraz-S2.md` ve `.evrim/otonom/SORULAR.md` incelendi. Proje kopyasında kaynak kod değişikliği yapılmadı.
+İncelenen kullanıcı arşivi: `/home/ubuntu/upload/universal_warband-Kopya.zip`. Arşiv listesinde 505 girdi bulunuyor; `Module_system 1.171/` altında yalnız `not.txt` ve boş dizin kaydı var, gerçek `module_*.py`, `process_*.py` ya da `header_*.py` yok. Dolayısıyla bu arşivden kit build’i çalıştırılamaz. Proje kopyasındaki `docs/arsiv/meclis-yon1-yon2/kanit-H1.md`, `kanit-H2.md`, `kanit-H3.md`, `KARAR.md`, `TUTANAK.md`, `ARCHITECTURE.md`, `VISION.md`, `ROADMAP.md`, `itiraz-S1.md`, `itiraz-S2.md` ve `.evrim/otonom/SORULAR.md` incelendi. Proje kopyasında kaynak kod değişikliği yapılmadı.
 
 Önceki araştırma oturumundan gelen kayıt, Manus’un sekiz teknik raporunun önceki `warband-module-system-docs` klasöründeki kopyalarıyla bayt düzeyinde aynı olduğunu; Perplexity klasöründeki 13 belgenin büyük bölümünün plan, araştırma listesi veya öneri olduğunu, kendi ifadeleriyle doğrulanmış test sonuçları olmadığını söylüyor. Bu, bağımsız kanıt sayısının rapor sayısından az olabileceği uyarısıdır. Bu karşılaştırma önceki oturumda kaydedilmişti; teslim turunda yeniden dosya-dosya karşılaştırılmadı.
 

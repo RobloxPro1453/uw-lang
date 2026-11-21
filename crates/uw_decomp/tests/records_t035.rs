@@ -1,5 +1,5 @@
 //! T-035: every record of the map_icons, quests and info_pages tables prints as UW record text and
-//! parses back identical on the real atlas (docs/meclis/YON2-KARAR.md §2).
+//! parses back identical on the real atlas (docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2).
 
 use uw_atlas::Atlas;
 use uw_decomp::records::{roundtrip_table, Schema};

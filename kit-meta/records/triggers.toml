@@ -1,6 +1,6 @@
 # Trigger records, round 1 (raw): every field is the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_triggers.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "triggers"
 kind = "trigger"
 id_prefix = ""

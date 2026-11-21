@@ -17,7 +17,7 @@ Ajana söylemek istediğin her şeyi buraya, **en alta**, düz cümleyle yaz. Ot
 
 [okundu 2026-11-16] Sahibi (/loop, 2026-11-16, tamamen gözetimsiz, soru yok): kalan işleri yapabildiğin kadar yap. Haftalık %90: elindeki işi bitir, yeni iş ekleme (bitince kapat: commit + push + `cv round end`, sonra `shutdown /s /t 120`). Haftalık %95: hemen toparla ve kapat. Önceki %95 notunun yerine geçer. → weeklyBase 95, weeklyMargin 5 (yeni adım %90'da durur).
 
-[okundu 2026-11-21] Sahibi (oturumda, 2026-11-16 gece): haftalık kota yenilenene kadar (21 Kasım 2026) yeni iş yok; yenilenince uzun meclis (docs/meclis/kurucu-model-gundem.md). Meclis oturumu aşağıdaki DUR satırını siler.
+[okundu 2026-11-21] Sahibi (oturumda, 2026-11-16 gece): haftalık kota yenilenene kadar (21 Kasım 2026) yeni iş yok; yenilenince uzun meclis (docs/arsiv/meclis-yon1-yon2/kurucu-model-gundem.md). Meclis oturumu aşağıdaki DUR satırını siler.
 → 2026-11-21: YÖN-3 meclisi toplandı (`docs/meclis/yon3/KARAR.md`); DUR satırı kaldırıldı.
 
 [okundu 2026-11-21] Sahibi (oturumda): DeepSeek'i sonuna kadar kullan, para bitebilir, tam yetki; haftalık Claude kotası %75-80'i geçmesin. → weeklyBase 80 (yeni adım %75'te durur), dailyBudget 30, lanes 20.

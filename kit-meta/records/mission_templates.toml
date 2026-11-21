@@ -1,7 +1,7 @@
 # Mission-template records: the flags field prints its `mtf_*` bits by name; every other field is
 # still the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's
-# module_mission_templates.py (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# module_mission_templates.py (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "mission_templates"
 kind = "mission_template"
 id_prefix = "mst_"

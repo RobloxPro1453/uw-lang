@@ -1,6 +1,6 @@
 //! Lowering: the checked statement tree (assignments, expressions, `if`, `and/or/not`) becomes the
 //! flat Native operation list the kit writes. Names are already resolved by `uw_check`; nothing
-//! here looks at the atlas. Rules: docs/meclis/gramer-2-oneri.md §1, §2 and §7 (bağlayıcı).
+//! here looks at the atlas. Rules: docs/arsiv/meclis-yon1-yon2/gramer-2-oneri.md §1, §2 and §7 (bağlayıcı).
 //!
 //! Native operations used (header_operations.py line): try_end 16, try_begin 17, else_try 19,
 //! ge 40, eq 41, gt 42, neg 440, this_or_next 441, lt/neq/le 444-446 (`neg|ge`, `neg|eq`, `neg|gt`),

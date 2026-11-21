@@ -1,6 +1,6 @@
 # Bölgeler ve doğma (`module_parties.py`, `module_scripts.py`, `module_map_icons.py`)
 
-Bu sayfa `docs/meclis/kolay-dil-taslak.md:77-118` içindeki `area`/`on enter`/`every day`/`show map`
+Bu sayfa `docs/arsiv/meclis-yon1-yon2/kolay-dil-taslak.md:77-118` içindeki `area`/`on enter`/`every day`/`show map`
 kelimelerinin **kanıtlanmış** Native karşılıklarını verir. `target/uw-native/` boş olduğu için kaynak
 kittir. Etiketler: `[KİT]` = kitte `dosya:satır` ile doğrulandı; `[İDDİA]` = motor deneyi gerekir;
 `[DENEY GEREK]` = yalnız oyun içi denemeyle kanıtlanır.

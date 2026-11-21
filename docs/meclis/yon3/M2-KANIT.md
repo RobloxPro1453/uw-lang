@@ -1,7 +1,7 @@
 # YÖN-3 Meclisi — M2 Kanıtçı (doğrulayıcı)
 
 > Tarih 2026-11-21. Yalnız okuma + geçici klasörde `target\debug\uw.exe check` denemeleri (sonra silindi).
-> Doğrulanan taslak: `docs/meclis/opencode/yon3/KARAR-TASLAK.md` ve ekleri. Not: kota uyarısı altında
+> Doğrulanan taslak: `docs/arsiv/meclis-yon1-yon2/opencode/yon3/KARAR-TASLAK.md` ve ekleri. Not: kota uyarısı altında
 > yazıldı; ölçümler dar tutuldu, her sayı aşağıdaki komut çıktısından.
 
 ## 1. "Mod kipi alan yazımı 39/203 (%19)" — KISMEN
@@ -80,7 +80,7 @@ arasında çakışır, ör. `slot_town_lord=7` party, faction slotu da 7 olabili
 
 ## 4. "Boş taban / sıfırdan dünya" — bugün MÜMKÜN DEĞİL (kanıtlanmamış)
 
-- `docs/meclis/KARAR.md:46` `base: empty` Faz 1 dışında, **KANITLANACAK (D8)**; `:167` D8 = module.ini /
+- `docs/arsiv/meclis-yon1-yon2/KARAR.md:46` `base: empty` Faz 1 dışında, **KANITLANACAK (D8)**; `:167` D8 = module.ini /
   en küçük iskelet deneyi; `:169` D10 hardwired+kanca bağı; `:204` "motorun zorunlu kayıt listesi D8'e bağlı".
 - `docs/ARCHITECTURE.md:13`: Faz 1 yalnız `base native`; `base empty` D8'den sonra.
 - `docs/CHECKUP.md`/`docs/KNOWLEDGE.md`'de D8/D10 sonucu **yok** (grep: yalnız D4 iki satırı, KNOWLEDGE.md:17,51).

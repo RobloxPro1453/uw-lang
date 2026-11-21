@@ -1,5 +1,5 @@
 # Troop records: readable fields (T-059). Field names and order follow the layout comment at the top
-# of the kit's module_troops.py (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# of the kit's module_troops.py (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 # Typed: troop_flags (a flag set), scene (site ref + entry packed number), faction (a faction ref),
 # inventory (item refs), attributes, weapon_proficiencies and skills (packed numbers), and the two
 # upgrade targets that upgrade()/upgrade2() append past position 14 (header_troops.py:266-296).

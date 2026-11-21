@@ -1,6 +1,6 @@
 # Mimari
 
-Durum: 2026-11-15 büyük meclisinin kararıyla belirlendi (`docs/meclis/KARAR.md`; kanıtlar `docs/meclis/kanit-*.md`), sonra sahibinin cevapları ve Manus değerlendirmesiyle (`docs/meclis/manus-cevabi-degerlendirme.md`) düzeltildi. Etiketler: **KESİN** = mühendislik kararı ya da kitte kanıtlı; **KANITLANACAK** = motor davranışına bağlı, Faz 0 deneyi (D1–D10, bkz. KARAR §6) bitmeden kesin sayılmaz; **SORULDU** = sahibine sade dille yeniden soruldu (`.evrim/otonom/SORULAR.md`).
+Durum: 2026-11-15 büyük meclisinin kararıyla belirlendi (`docs/arsiv/meclis-yon1-yon2/KARAR.md`; kanıtlar `docs/meclis/kanit-*.md`), sonra sahibinin cevapları ve Manus değerlendirmesiyle (`docs/arsiv/meclis-yon1-yon2/manus-cevabi-degerlendirme.md`) düzeltildi. Etiketler: **KESİN** = mühendislik kararı ya da kitte kanıtlı; **KANITLANACAK** = motor davranışına bağlı, Faz 0 deneyi (D1–D10, bkz. KARAR §6) bitmeden kesin sayılmaz; **SORULDU** = sahibine sade dille yeniden soruldu (`.evrim/otonom/SORULAR.md`).
 
 **YÖN-3 (2026-11-21, `docs/meclis/yon3/KARAR.md`) bu belgenin üstündedir:** dünya durumu derleyicisi — `base = native|empty`, katkılar 27 tabloda tek yoldan, Native `game_start` derleme anında kuru yorumlanır (snapshot + bağımlılık izi; elle zincir tablosu yok), `auto` = sorumluluk devri, özel satır için yeni Rust yolu açılmaz. Aşağıdaki bölümler çeliştiğinde KARAR geçerlidir; bölümler paketler ilerledikçe güncellenir.
 
@@ -146,7 +146,7 @@ mymod/
 
 UW mekanik vermez, mekanik yapmayı kolaylaştıran ilkeller verir (önem sırasıyla): zaman içinde akan kod (`wait`), alanlar (otomatik slot), olaylar, seçicili enjeksiyon (aynı trigger'ı 14-21 şablona elle kopyalamak yerine), bildirimsel UI + değer bağlama, kamera/efekt, etkileşimli sahne nesnesi, varlık hattı, `raw:` kaçış kapısı. Ölçü: L&D ekran görüntülerindeki her şey bu ilkellerle modcunun kendi tasarımıyla yazılabilmeli.
 
-## Yön 2: proje modeli ve kayıt biçimi — KESİN (büyük meclis 2026-11-15, `docs/meclis/YON2-KARAR.md`)
+## Yön 2: proje modeli ve kayıt biçimi — KESİN (büyük meclis 2026-11-15, `docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md`)
 
 - **İki kip** (`uw.toml` > `base`): `"native"` = yukarıdaki "Native + fark" yama modeli (değişmedi);
   `"project"` = proje bütün tabloların sahibidir, derleyici listeleri baştan üretir. Aynı projede karışmaz.

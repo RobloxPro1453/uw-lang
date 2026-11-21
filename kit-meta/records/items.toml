@@ -1,9 +1,9 @@
 # Item records: the fields whose meaning the kit states are typed with the T-058 types
-# (docs/meclis/YON2-KARAR.md §2). `item_flags`, `item_capabilities` and `modifier_bits` are flag
+# (docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2). `item_flags`, `item_capabilities` and `modifier_bits` are flag
 # sets, `item_stats` a packed number and `sold_in` a list of faction refs. `id`, `name`, `meshes`
 # (a list of (mesh, bits) tuples), `value` and `triggers` (operation blocks) stay the atlas value as
 # it is. Field names and order follow the layout comment at the top of the kit's module_items.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "items"
 kind = "item"
 id_prefix = "itm_"

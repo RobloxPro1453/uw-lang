@@ -45,7 +45,7 @@ pub struct File {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Item {
     /// `override <kind> <name> { … }` (Faz 1 form) or `override <id> { … }` with the kind taken
-    /// from the id prefix (`override menu_start_phase_2`, docs/meclis/gramer-2-oneri.md §3): then
+    /// from the id prefix (`override menu_start_phase_2`, docs/arsiv/meclis-yon1-yon2/gramer-2-oneri.md §3): then
     /// `kind` is `None` and `name` holds the full id.
     /// `handlers` are the `on <event>` blocks, `members` the other menu lines (text, options).
     Override { kind: Option<Ident>, name: Ident, handlers: Vec<Handler>, members: Vec<Member>, span: Span },
@@ -183,7 +183,7 @@ pub enum Stmt {
     /// `if c { } else if c { } else { }`: `arms` in order, `otherwise` the final `else`.
     If { arms: Vec<(Cond, Block)>, otherwise: Option<Block>, span: Span },
     /// `require c`: if `c` fails, the rest of the enclosing arm/block does not run (Native: a condition
-    /// operation in the middle of a block). docs/meclis/YON2-KARAR.md §4.2.
+    /// operation in the middle of a block). docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §4.2.
     Require { cond: Cond, span: Span },
     /// `attempt { } else attempt { } else { }`: Native `try_begin / else_try / try_end`; the first arm
     /// whose `require`s all hold runs. A final `else { }` is one more arm. §4.3.
@@ -801,7 +801,7 @@ impl Parser {
                     file.items.push(Item::Override { kind, name, handlers, members, span });
                 }
                 // `in menu camp { … }` is the easy-language spelling of `override menu camp { … }`
-                // (docs/meclis/kolay-dil-taslak.md §2): same item, same body.
+                // (docs/arsiv/meclis-yon1-yon2/kolay-dil-taslak.md §2): same item, same body.
                 Tok::Ident(kw) if kw == "in" => {
                     self.bump();
                     let first = self.ident("what to change in, e.g. `in menu camp`")?;

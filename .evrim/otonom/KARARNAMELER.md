@@ -64,12 +64,12 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 
 ## [2026-11-15] [strateji] Mimari, büyük meclis kararı olmadan kesinleşmez
 - **Bulgu:** Sahibi: "Bu bir çevirici değil; dosyaların bağları ve etkileşimi çok büyük." Şu anki ARCHITECTURE tek kişinin taslağı.
-- **Karar:** Bir sonraki 5 saatlik pencere büyük meclise ayrılır (sahibinin onayıyla tamamını kullanabilir). Girdi: `docs/MECLIS_GUNDEMI.md`. Meclisten önce kod yazılmaz; meclisten sonra ARCHITECTURE "taslak" etiketini kaybeder.
-- **Not:** `docs/MECLIS_GUNDEMI.md` belge diyetinin bilinçli istisnasıdır (sahibi bilginin birikmesini istedi); meclis bitince kapanır.
-- **Sonuç (2026-11-15):** Meclis toplandı (1 Opus, 2 Sonnet, 3 Haiku); karar `docs/meclis/KARAR.md`, ARCHITECTURE yeniden yazıldı. Kod yasağı kalktı; ilk iş Faz 0 deneyleri (D1 → D2 → D4).
+- **Karar:** Bir sonraki 5 saatlik pencere büyük meclise ayrılır (sahibinin onayıyla tamamını kullanabilir). Girdi: `docs/arsiv/MECLIS_GUNDEMI.md`. Meclisten önce kod yazılmaz; meclisten sonra ARCHITECTURE "taslak" etiketini kaybeder.
+- **Not:** `docs/arsiv/MECLIS_GUNDEMI.md` belge diyetinin bilinçli istisnasıdır (sahibi bilginin birikmesini istedi); meclis bitince kapanır.
+- **Sonuç (2026-11-15):** Meclis toplandı (1 Opus, 2 Sonnet, 3 Haiku); karar `docs/arsiv/meclis-yon1-yon2/KARAR.md`, ARCHITECTURE yeniden yazıldı. Kod yasağı kalktı; ilk iş Faz 0 deneyleri (D1 → D2 → D4).
 
 ## [2026-11-15] [strateji] Meclis kuralları: Native + fark
-- **Bulgu:** Kitin bütün `process_*.py` dosyaları modülleri yalnız değer olarak (`from module_X import *`) alıyor; modül metnini okuyan tek dosya çağrılmayan `process_line_correction.py` (docs/meclis/kanit-H1.md, KARAR.md).
+- **Bulgu:** Kitin bütün `process_*.py` dosyaları modülleri yalnız değer olarak (`from module_X import *`) alıyor; modül metnini okuyan tek dosya çağrılmayan `process_line_correction.py` (docs/arsiv/meclis-yon1-yon2/kanit-H1.md, KARAR.md).
 - **Karar (kalıcı kurallar):**
   1. Native `module_*.py` metni kesilmez ya da yeniden basılmaz, Native Python nesneleri yerinde değiştirilmez; değişiklik sarmalayıcıda, derin kopya üstünde, adla (`ad#n`) ya da kararlı anahtarla bulunan girdide yapılır; hedef yoksa ya da belirsizse derleme durur.
   2. Faz 1'de ID taşıyan tablolarda Native girdisi silinmez, yer değiştirmez; yalnız gövde değişir, yeni girdi sona eklenir. Adsız sıralı tablolarda (diyalog, trigger) çapalı ekleme/çıkarma serbest. ID'li silme ancak açık izin + kanıtlanmış motor kuralıyla.
@@ -120,7 +120,7 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 
 ## [2026-11-15] [strateji] Sahibinin sözü ham girdidir
 - **Bulgu:** Sahibi açıkça: "Cevaplarımı nihai sonuçmuş gibi yazma; muhakeme et, süz, sisteme uygun biçimde belgele. Sisteme ters bir şey de diyebilirim."
-- **Karar:** Sahibinin beyin fırtınası cevapları VISION'a "(süzüldü)" etiketiyle, sistem diline çevrilmiş ve mimariyle uzlaştırılmış halde girer; mimariyle çelişen öneri doğrudan uygulanmaz, meclis girdisi olarak `docs/MECLIS_GUNDEMI.md`'ye yazılır ve sahibine nedeni sade anlatılır. Değişmeyen tek şey sahibinin istediği **sonuç**.
+- **Karar:** Sahibinin beyin fırtınası cevapları VISION'a "(süzüldü)" etiketiyle, sistem diline çevrilmiş ve mimariyle uzlaştırılmış halde girer; mimariyle çelişen öneri doğrudan uygulanmaz, meclis girdisi olarak `docs/arsiv/MECLIS_GUNDEMI.md`'ye yazılır ve sahibine nedeni sade anlatılır. Değişmeyen tek şey sahibinin istediği **sonuç**.
 
 ## [2026-11-15] [arac] DeepSeek'e iş verme: el-göz bağlama, bilgi ver, ölç, evril
 - **Bulgu (sahibinin önceki deneyimi):** Çok ayrıntılı "şuraya git, şunu yap, yalnız şuraya bak" tarifi + thinking kapalı = zarar: model dosyaları keşfedemedi, düşünemedi, rastgele salladı. Motoru bilmeyen model değişken/işlem adlarını tahmin etti (bu projede en tehlikeli hata).
@@ -133,7 +133,7 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 ## [2026-11-15] [strateji] Gözetimsiz döngü kuralları (sahibinin talimatı)
 - **Soru yok:** `/loop` açıkken sahibine soru sorulmaz, onay beklenmez. Belirsizlikte güvenli varsayılan seçilir, gerekçe `.evrim/otonom/GUNLUK.md`'ye; sahibinin bakması gereken kritik şey sabah raporunun **ilk satırlarına** sade dille.
 - **Oyun deneyi:** oyunu açmayı gerektiren her şey `docs/CHECKUP.md` > "Oyun deneyi kuyruğu"na tek tek, adım adım yazılır; döngü onu beklemeden deney gerektirmeyen işe geçer. Deney sonucu gelmeden ona dayanan karar kesinleşmez.
-- **Meclis:** mimariyi/sözdizimini kesinleştirecek bir noktaya gelinince (ör. Faz 1 gramerinden önce `docs/MECLIS_GUNDEMI.md` > Sözdizimi) döngü meclisi **kendisi** toplar (`MECLIS_GUNDEMI` talimatıyla, kota kurallarıyla), kararı işler, sahibine raporda anlatır.
+- **Meclis:** mimariyi/sözdizimini kesinleştirecek bir noktaya gelinince (ör. Faz 1 gramerinden önce `docs/arsiv/MECLIS_GUNDEMI.md` > Sözdizimi) döngü meclisi **kendisi** toplar (`MECLIS_GUNDEMI` talimatıyla, kota kurallarıyla), kararı işler, sahibine raporda anlatır.
 - **DeepSeek bütçesi:** toplam tavan `delegate.totalBudget` (15$). Döngü harcamayı `delegate.stateDir` kayıtlarından toplar; tavanın %80'inde yeni şerit açmaz, kalan işi Claude'a ya da sonraya bırakır ve raporda söyler. `dailyBudget` (başlangıç 2$) kabul oranına göre kendisi ayarlanır.
 
 ## [2026-11-15] [mimari] Sözdizimi: süslü parantez (sözdizimi meclisi, hafif: mimar + risk koltuğu, oybirliği)
@@ -152,7 +152,7 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 - **Beklenen etki:** belge kodla aynı anda büyür; sahibi Module System bilmeden kılavuzdan mod yazar.
 
 ## [2026-11-15] [mimari] Gramer 2: ifadeler, if, menü dili (hafif meclis: mimar + risk, oybirliği)
-- **Karar:** `docs/meclis/gramer-2-oneri.md` (1-7. bölümler) bağlayıcıdır: `$x = ifade`, `+= -= *= /= %=`, `if / else if / else`, `and/or/not` (Python önceliği), `override menu_x { text "…"; on enter {…}; option id "metin" [when …] [after|before id] {…}; change option id {…}; remove option id }`, `new menu_x "metin" {…}`. İndirgeme `uw_lower`'da; ara yereller `:_uwN`; `not karşılaştırma` işleci ters çevirir (neg|lt tuzağı).
+- **Karar:** `docs/arsiv/meclis-yon1-yon2/gramer-2-oneri.md` (1-7. bölümler) bağlayıcıdır: `$x = ifade`, `+= -= *= /= %=`, `if / else if / else`, `and/or/not` (Python önceliği), `override menu_x { text "…"; on enter {…}; option id "metin" [when …] [after|before id] {…}; change option id {…}; remove option id }`, `new menu_x "metin" {…}`. İndirgeme `uw_lower`'da; ara yereller `:_uwN`; `not karşılaştırma` işleci ters çevirir (neg|lt tuzağı).
 - **Beklenen etki:** modcu menü metnini, seçenekleri, koşulları ve yeni menüleri Module System bilmeden yazar; her yapı altın testle ve kılavuz bölümüyle gelir.
 
 ## [2026-11-15] [strateji] OHAL: yalnız universal_warband (sahibinin sözü)
@@ -164,20 +164,28 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 
 ## [2026-11-15] [mimari] Yön 2: proje modeli, kayıt biçimi, require/attempt (büyük meclis, 4 koltuk)
 - **Bulgu:** İşlem bloklarının %100'ü UW'ye çevrilip birebir dönüyor (9113/9113); satırların %7,3'ü Native biçimli (ara hesaplı `try` kolları, blok ortası koşullar). Sahibi "Native'in kendisi UW olsun" istedi.
-- **Karar:** `docs/meclis/YON2-KARAR.md` bağlayıcıdır. Özet: (1) veri kayıtları tek genel biçim `<tür> <kimlik> { alan değer }`, şema `kit-meta/records/<tablo>.toml` (elle tutulan veri; her alan kit açıklamasına bağlı); tur 1 ham ve kayıpsız, tur 2 okunaklı alanlar (bilinmeyen bit açık `raw` artığı); slotlar kayda girmez. (2) İki kip: `base = "native"` (yama) / `base = "project"` (proje tabloların sahibi); karışmaz; iskelet kipinde silme = `uw.lock` tombstone, aralık tablolarına ekleme P7'ye kadar hata; kabul = 27 tablo `.txt` bayt eşitliği + kayıtlı oyun deneyi. (3) `require <koşul>`, `attempt { } else attempt { } else { }` ve `for <değişken> in <tür>(…) { }` (tür = kitin `try_for_<tür>` işlemi; YON2-KARAR §8); `try` kelimesi, ön-hesaplı `if`, `first/or` reddedildi. (4) L2 `lib/` ilkesi kabul (UW kaynağı, derleyici genel), iş P6'da.
+- **Karar:** `docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md` bağlayıcıdır. Özet: (1) veri kayıtları tek genel biçim `<tür> <kimlik> { alan değer }`, şema `kit-meta/records/<tablo>.toml` (elle tutulan veri; her alan kit açıklamasına bağlı); tur 1 ham ve kayıpsız, tur 2 okunaklı alanlar (bilinmeyen bit açık `raw` artığı); slotlar kayda girmez. (2) İki kip: `base = "native"` (yama) / `base = "project"` (proje tabloların sahibi); karışmaz; iskelet kipinde silme = `uw.lock` tombstone, aralık tablolarına ekleme P7'ye kadar hata; kabul = 27 tablo `.txt` bayt eşitliği + kayıtlı oyun deneyi. (3) `require <koşul>`, `attempt { } else attempt { } else { }` ve `for <değişken> in <tür>(…) { }` (tür = kitin `try_for_<tür>` işlemi; YON2-KARAR §8); `try` kelimesi, ön-hesaplı `if`, `first/or` reddedildi. (4) L2 `lib/` ilkesi kabul (UW kaynağı, derleyici genel), iş P6'da.
 - **Ad kuralı daraltıldı:** derleyici ad üretmez; çevirici adı yalnız kitten seçer (kimlik, kit sabiti, kit açıklaması), tekil değilse kimlik/sayı kalır. Klasör/dosya adı Native kimliği; görünen addan ad ancak her derlemede tekillik denetimiyle.
 - **Beklenen etki:** Native'in tamamı okunaklı ve kayıpsız UW projesi olur; her adım makine ölçümüyle (gidiş-dönüş, bayt eşitliği) kabul edilir.
 
 ## [2026-11-16] [strateji] Önce temel, sözdizimi en son (sahibinin sözü)
 - **Bulgu:** Sahibi: dil kolay yazılmalı, kafaya oturmalı; "temeli kursak, en son derince sözdizimine karar versek?" Derleyicinin içi sözdiziminden bağımsız ara yapıyla çalışıyor; geri çevirici her şeyi yeniden basabildiği için sözdizimi değişikliği projelere otomatik taşınabilir.
-- **Karar:** Yön sabit: oyunda görünen adlar, nesne mantığı (`player.gold`), tek iş tek satır, Native kaçış kapısı (`docs/meclis/kolay-dil-taslak.md`). Yazım ayrıntıları **geçici**; son sözdizimi meclisi, ad katmanı + anlam kütüphanesi + olay altyapısı çalışınca gerçek örneklerle toplanır. Bu arada sözdiziminden bağımsız temel kurulur.
+- **Karar:** Yön sabit: oyunda görünen adlar, nesne mantığı (`player.gold`), tek iş tek satır, Native kaçış kapısı (`docs/arsiv/meclis-yon1-yon2/kolay-dil-taslak.md`). Yazım ayrıntıları **geçici**; son sözdizimi meclisi, ad katmanı + anlam kütüphanesi + olay altyapısı çalışınca gerçek örneklerle toplanır. Bu arada sözdiziminden bağımsız temel kurulur.
 - **Beklenen etki:** Sözdizimi tartışması işi durdurmaz; karar, çalışan örnekler görülerek verilir.
 
-## [2026-11-21] [mimari] YÖN-3: dünya durumu derleyicisi (meclis, sahibinin yetkisiyle)
+## [2026-11-21] [mimari] YÖN-3: dünya durumu derleyicisi (meclis, sahibinin yetkisiyle) — (ertelendi; öncelik: "maden" kararnamesi)
 - **Bulgu:** YÖN-2 her isteğe ayrı Rust yolu açtı (owner, lord…); opencode taslağının "yapı zinciri şeması" aynı hastalığın elle tablo hâli (T-117 sabit dizi). Kâğıt kapıları kitin kapsamını ölçtü, dilinkini değil.
 - **Karar:** `docs/meclis/yon3/KARAR.md`. Modcu varlık + bağ + başlangıç değeri yazar; `base = native|empty`; katkılar (`new/override/disable/like`) 27 tabloda tek yoldan; Native `game_start` derleme anında kuru yorumlanır (snapshot + bağımlılık izi), elle zincir tablosu YASAK; `auto` = sorumluluk devri, raporlanır; özel satır için yeni Rust yolu açılmaz; kolay sözcükler `lib/*.uw`'de. Bitti = `uw coverage` (golden `covers:` ile gümüş/altın) + kör istek sınavı (`git diff crates/` boşken) + Native yeniden üretim ve sıfırdan kurulum sınavları.
 - **Beklenen etki:** Yeni istek derleyiciye kod eklemeden yazılır; ilerleme tek sayıyla ölçülür.
-## [2026-11-21] [mimari] YÖN-3 dil katmanı: üç kat, tek dil (dil meclisi)
+## [2026-11-21] [mimari] YÖN-3 dil katmanı: üç kat, tek dil (dil meclisi) — (sözdizimi/adlandırma geçerli; "tek HUD yöneticisi" ve sıra "maden" kararnamesiyle değişti)
 - **Bulgu:** Proje kipinde Module System'in tüm gücü ham olarak var; eksik olan onu Module System bilmeden yazabilmek. Kör sınavda 8 mekanikten hiçbiri özelliğe özel derleyici yaması istemedi; işlemlerin %88,7'si kitten otomatik okunur ada kavuşuyor.
 - **Karar:** `docs/meclis/yon3/dil/KARAR-DIL.md`. K2 elle tasarlanan küçük çekirdek (~12 kavram, sabit anahtar kelime listesi), K1 kitten OTOMATİK söz dağarcığı, K0 ham işlem. Feature = dosya; olaylar yoklamasız (derleyici üretir); tek HUD yöneticisi; her kavrama tek ad; kitte doğrulanmamış motor sözcüğü yasak; kolay sözcük tek tek elle eklenmez.
 - **Beklenen etki:** Yeni mekanik derleyiciye dokunmadan bir feature dosyasıyla yazılır; kolaylık "kavram sızıntısı" ile ölçülür.
+## [2026-11-21] [mimari] Maden meclisi: dil çekirdeği (4 koltuk, kör; 17 gerçek mod kanıtı)
+- **Bulgu:** 17 açık kaynak modun hepsi aynı genel altyapıyı elle kurmuş: nesnede adlı alan (15/15), liste (15/15), zaman (14/15), arayüz (13/15), metin (11/15), girdi ve olay (9/15). Sahibi: "MS = assembly, UW = Python"; modlar "elmas madeni".
+- **Karar:** `docs/meclis/maden/KARAR.md`. Derleyicide **yalnız slot/tetik/id/yazmaç üreten şey**; std UW ile yazılır; Native önce salt-okunur görünüm; alan slotu `slots.lock`'ta sabit; tek gizli dağıtıcı; sürekli HUD tek presentation, açılır ekran başına bir; kabul ölçüsü "oyunda çalışıyor". Sıra D0 → D9 (ROADMAP). Maden programı M1-M6 kalıcı hat; mod kodu kopyalanmaz, yalnız davranış incelenir.
+- **Beklenen etki:** Dil, gerçek modların ihtiyacından çıkar; mekanik başına derleyici yaması doğmaz.
+## [2026-11-22] [yontem] Belge yaşam döngüsü (sahibinin endişesi: raporlar unutulmasın, eskisi yenisine karışmasın)
+- **Bulgu:** DEVIR üst üste yığılmış 8 "ÖNCE BUNU OKU" bölümüyle 42 KB'a çıkmıştı; ROADMAP'in 69 açık maddesinin 56'sı eski yönlerdendi; "Yapılmayacaklar" yeni kararlarla çelişiyordu; meclis kökünde 3 farklı dönemin belgeleri karışıktı.
+- **Karar:** (1) **Tek giriş: `docs/HARITA.md`.** Her belge orada bir satırla durur (ne, durum, ne zaman okunur); haritada olmayan ya da haritada olup diskte olmayan belge `cargo test`'i kırar (`crates/uw_cli/tests/docs_map.rs`). Yeni belge = aynı commit'te harita satırı. (2) **Üç katman:** *canlı* (DEVIR, ROADMAP, PROGRESS, VISION, CHECKUP, CHANGELOG: kısa tutulur, ezilerek güncellenir), *başvuru* (yalnız iş gerektirince, `grep` ile), *arşiv* (`docs/arsiv/`, varsayılan olarak okunmaz). (3) **Ezerek güncelle:** DEVIR her oturum sonunda baştan yazılır (~50 satır), alta eklenmez; PROGRESS son 10 kayıt; ROADMAP yalnız güncel sıra. (4) **Yerini alan arşive:** yön değişince eski karar/plan `git mv` ile `docs/arsiv/`'e, bağlantılar betikle yeni yola çevrilir, haritaya "yerini alan" yazılır; hâlâ geçerli kural önce KARARNAMELER/ARCHITECTURE/KNOWLEDGE'a taşınır. (5) **Tek sahip:** her gerçeğin tek bir canlı evi var; başka belge onu kopyalamaz, bağlantı verir. Çelişkide en yeni geçerli karar (haritada "en güncel" işaretli) kazanır. (6) **Bakım:** her tur sonunda DEVIR yeniden yazılırken harita ve ROADMAP'e bakılır; KARARNAMELER'de geçersizleşen madde silinmez, başlığına "(yerini aldı: …)" eklenir.
+- **Beklenen etki:** Oturum başında okunan şey küçük ve güncel kalır; hiçbir rapor sessizce kaybolmaz; eski plan yeniyle karışmaz.

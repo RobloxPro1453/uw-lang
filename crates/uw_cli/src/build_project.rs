@@ -1,4 +1,4 @@
-//! P3b (docs/meclis/YON2-KARAR.md §3.3): build a whole-table project with the kit and, when asked,
+//! P3b (docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §3.3): build a whole-table project with the kit and, when asked,
 //! compare every output `.txt` with the Native baseline (`kit-meta/native.baseline.json`, sha256 per
 //! file).
 //!

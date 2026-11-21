@@ -2,7 +2,7 @@
 # header_sounds.py; the other fields are the atlas value as it is.
 # The kit's module_sounds.py has no field-description comment, so the positions have no kit
 # name and stay `field_<n>`; the shape is the tuple (id, flags, sample list) written in the
-# `sounds` list at line 3. docs/meclis/YON2-KARAR.md §2.
+# `sounds` list at line 3. docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "sounds"
 kind = "sound"
 id_prefix = "snd_"

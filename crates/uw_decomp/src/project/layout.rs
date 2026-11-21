@@ -1,6 +1,6 @@
 //! Where each record goes in a `uw new` project (P3a). Towns, castles and villages get their own
 //! folder, kings/lords/ladies/companions/pretenders too, rich records get one file each and the
-//! small lookup tables one file per table (docs/meclis/YON2-KARAR.md §3.2: the file name is the
+//! small lookup tables one file per table (docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §3.2: the file name is the
 //! Native id, not the display name).
 
 use serde_json::Value as Json;

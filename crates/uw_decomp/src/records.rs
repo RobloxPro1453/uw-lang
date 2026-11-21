@@ -1,4 +1,4 @@
-//! Native records as UW record text (docs/meclis/YON2-KARAR.md §2): every atlas entry is printed
+//! Native records as UW record text (docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2): every atlas entry is printed
 //! as `<kind> <id> { <field> <value> … }` and parsed back to the identical atlas value.
 //!
 //! Round 1 is RAW: values are written exactly as the atlas holds them (no flag, reference or

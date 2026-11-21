@@ -7,7 +7,7 @@ Etiketler `docs/bilgi/README.md:7-12` gibidir: **[KİT]** kitte okundu (`dosya:s
 dışı çıkarım, **[DENEY GEREK]** yalnız oyunda kanıtlanır. Satır kısaltması: `header_operations.py` =
 `Module_system 1.171/header_operations.py` (kit kökü), diğer dosyalar da aynı kökten.
 
-Birimlerin ve `0` aralığının anlamı **D6** oyun sondasıyla kanıtlanacak: `docs/meclis/KARAR.md:165`.
+Birimlerin ve `0` aralığının anlamı **D6** oyun sondasıyla kanıtlanacak: `docs/arsiv/meclis-yon1-yon2/KARAR.md:165`.
 
 ## 1. Zamanı okumak
 
@@ -58,7 +58,7 @@ Birimlerin ve `0` aralığının anlamı **D6** oyun sondasıyla kanıtlanacak: 
   kesin cevap **[DENEY GEREK]**.
 - [KİT] `0` aralığı Native'de var: `module_simple_triggers.py:58` (sürüm düzeltme bloğu, `$bug_fix_version == 0`
   kilidiyle), `module_triggers.py:36` (`0.0`). Anlamı (her tur mu, bir kez mi) kitte yok → **[DENEY GEREK]**
-  (`docs/meclis/kanit-H3.md:111`).
+  (`docs/arsiv/meclis-yon1-yon2/kanit-H3.md:111`).
 - [KİT] Negatif ilk alan motor olayıdır ve yalnız simple trigger'da geçer: `ti_simulate_battle` -5,
   `ti_on_party_encounter` -6 (`header_triggers.py:10-11`); kitte gövdeleri boş ve "deprecated" yorumlu
   (`module_simple_triggers.py:24-33`) — yerine `script_game_event_party_encounter` (`module_scripts.py:2953`).
@@ -88,7 +88,7 @@ Tuzaklar:
   `party_get_slot` 521 `:253`); `assign` (2133) `:1191`, `val_add` (2105) `:1139` ile hesaplanıyor.
   Slot'un yeni oyunda/kayıtta sıfırlanması [DENEY GEREK].
 - [KİT] Ölçüm hilesi: `display_message` (1106) `header_operations.py:482` + bir sayaç globaliyle aralığı
-  oyunda sayabilirsin (D6 tarifi `docs/meclis/KARAR.md:165`).
+  oyunda sayabilirsin (D6 tarifi `docs/arsiv/meclis-yon1-yon2/KARAR.md:165`).
 
 ## 4. Oyun kancaları (`game_*` scriptleri)
 
@@ -116,7 +116,7 @@ Tuzaklar:
 
 | Kolay dil isteği | Native dayanak | Aday |
 |---|---|---|
-| "şu an saat kaç" (`docs/meclis/kolay-dil-taslak.md:82` `time.hour`) | `store_time_of_day`, `store_current_hours` | `time.hour`, `time.day` |
+| "şu an saat kaç" (`docs/arsiv/meclis-yon1-yon2/kolay-dil-taslak.md:82` `time.hour`) | `store_time_of_day`, `store_current_hours` | `time.hour`, `time.day` |
 | "her gün ..." (`kolay-dil-taslak.md:93`) | `(24, [...])` `module_simple_triggers.py:636` + gün kilidi `:3742-3751` | `when cond every 24 hours` (`docs/ARCHITECTURE.md:112`) |
 | "her saat" | `(1, [...])` `module_simple_triggers.py:36` | `when cond every 1 hour` |
 | "saat 12'den sonra" | `store_time_of_day` + `ge` `module_game_menus.py:7513-7516` | `when time.hour >= 12` |
@@ -128,6 +128,6 @@ Tuzaklar:
 ## 6. Kanıtlanmamış / açık
 
 - Birim (saat mi), `0` aralığının sıklığı, `store_current_hours` başlangıç noktası, `is_currently_night` sınırı,
-  `rest_for_hours` motor etkisi → **D6** (`docs/meclis/KARAR.md:165`).
-- Kancaların adla mı indeksle mi çağrıldığı ve dönüş kanallarının okunuşu → **D10** (`docs/meclis/KARAR.md:169`).
+  `rest_for_hours` motor etkisi → **D6** (`docs/arsiv/meclis-yon1-yon2/KARAR.md:165`).
+- Kancaların adla mı indeksle mi çağrıldığı ve dönüş kanallarının okunuşu → **D10** (`docs/arsiv/meclis-yon1-yon2/KARAR.md:169`).
 - `str_store_date` kitte hiç kullanılmıyor [KİT] (grep); davranışı [DENEY GEREK].

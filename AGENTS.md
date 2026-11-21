@@ -18,8 +18,13 @@ Bu proje **claudevolution** düzeniyle çalışır (`Claude`, `Codex`, `Antigrav
 
 ## Nereye bakmalı
 
+**Bütün belgelerin tek haritası: [docs/HARITA.md](docs/HARITA.md)** (ne, durum, ne zaman okunur). Haritada olmayan belge
+eklemek ya da bir belgeyi taşımak `cargo test`'i kırar; kural `.evrim/otonom/KARARNAMELER.md` > "Belge yaşam döngüsü".
+`docs/arsiv/` varsayılan olarak okunmaz. Kısa yol:
+
 | Soru | Belge |
 |---|---|
+| Şu an neredeyiz, sıradaki ne? | `docs/meclis/DEVIR.md` (kısa, her oturum baştan yazılır) |
 | Ne isteniyor, hangi kararlar alındı? | `docs/VISION.md` |
 | Sistem nasıl işliyor? | `docs/ARCHITECTURE.md` |
 | Derleme, test, özellik ekleme? | `docs/DEVELOPMENT.md` |
@@ -79,7 +84,8 @@ Amaç: gelen her ajan öncekinin kaldığı yerden devam etsin. Her değişiklik
 |---|---|
 | Küçük düzeltme (yazım, renk, tek satır) | Yalnız commit mesajı |
 | Kullanıcının göreceği özellik ya da hata düzeltmesi | `CHANGELOG.md`; yol haritası maddesi bittiyse işaretleyin |
-| Oturumda anlamlı iş bitti | `docs/PROGRESS.md` en üste tek kayıt (≤5 satır) |
+| Oturumda anlamlı iş bitti | `docs/PROGRESS.md` en üste tek kayıt (≤5 satır; 10'u geçince eskiler `docs/arsiv/`) + `docs/meclis/DEVIR.md` baştan yazılır |
+| Yeni belge açıldı / belge taşındı ya da yerini yenisine bıraktı | `docs/HARITA.md` satırı aynı commit'te; eskisi `git mv` ile `docs/arsiv/` |
 | Koddan görülemeyen tuzak, denenip bırakılan yol | `docs/KNOWLEDGE.md` |
 | Düzeltilmeden bildirilen ya da elle denenecek hata | `docs/CHECKUP.md` |
 | Mimari, klasör ya da akış değişti | `docs/ARCHITECTURE.md` ya da `docs/DEVELOPMENT.md` |

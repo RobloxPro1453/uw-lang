@@ -1,7 +1,7 @@
 # Skill records: `skill_flags` is `flags:` with the 2-bit base-attribute enum and the
 # party/inactive bits; every other field is still the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_skills.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "skills"
 kind = "skill"
 id_prefix = "skl_"

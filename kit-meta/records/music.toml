@@ -1,7 +1,7 @@
 # Track records: both flag fields are `mtf_` sets (header_music.py); the six culture bits
 # (mask mtf_culture_all) decode as one culture name. The id and file name stay as they are.
 # Field names and order follow the layout comment at the top of the kit's module_music.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "music"
 kind = "track"
 id_prefix = "track_"

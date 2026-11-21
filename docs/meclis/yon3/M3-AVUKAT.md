@@ -1,6 +1,6 @@
 # M3 — Şeytanın avukatı (YÖN-3 meclisi)
 
-> Okunan: `docs/meclis/kurucu-model-gundem.md` §0-1, `docs/VISION.md:94`, `docs/meclis/opencode/yon3/KARAR-TASLAK.md`,
+> Okunan: `docs/arsiv/meclis-yon1-yon2/kurucu-model-gundem.md` §0-1, `docs/VISION.md:94`, `docs/arsiv/meclis-yon1-yon2/opencode/yon3/KARAR-TASLAK.md`,
 > `ELESTIRI-TUR2.md`, `JOKER.md`, `crates/uw_cli/src/effects.rs`, `crates/uw_decomp/src/project/mod.rs` (lord satırı).
 > Kitte sayım (grep/awk, yalnız okuma): `module_constants.py` içinde `^slot_` ile başlayan **572** sabit;
 > `game_start` script'i `module_scripts.py:31`'den yaklaşık **:905**'e kadar (~875 satır).

@@ -1,7 +1,7 @@
 # Scene records: `scene_flags` is a `flags:sf_` set (header_scenes.py single bits); every other
 # field is the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_scenes.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "scenes"
 kind = "scene"
 id_prefix = "scn_"

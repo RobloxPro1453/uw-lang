@@ -1,7 +1,7 @@
 # Scene prop records: `scene_prop_flags` is a `flags:sokf_` set whose low byte holds one
 # `sokf_type_*` value; every other field is the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_scene_props.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "scene_props"
 kind = "scene_prop"
 id_prefix = "spr_"

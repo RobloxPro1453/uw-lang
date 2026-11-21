@@ -1,7 +1,7 @@
 # Party template records: the fields the kit explains are typed (the packed flag word, the faction
 # reference and the packed personality); every other field is still the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_party_templates.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "party_templates"
 kind = "party_template"
 id_prefix = "pt_"

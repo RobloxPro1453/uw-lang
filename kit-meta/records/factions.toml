@@ -1,7 +1,7 @@
 # Faction records: `faction_flags` is a `bits` value (bit 0 is `ff_always_hide_label`, bits 8..15
 # are the packed `max_player_rating`); every other field is still the atlas value as it is.
 # Field names and order follow the layout comment at the top of the kit's module_factions.py
-# (`source` points at it); docs/meclis/YON2-KARAR.md §2.
+# (`source` points at it); docs/arsiv/meclis-yon1-yon2/YON2-KARAR.md §2.
 table = "factions"
 kind = "faction"
 id_prefix = "fac_"

@@ -1,6 +1,6 @@
 # Hareket ve harita — Native bunu nasıl yapıyor? (T-068)
 
-`docs/meclis/kolay-dil-taslak.md` (satır 14, 27-28, 38-39, 115) kolay UW kelimeleri istiyor: `player.move_near`,
+`docs/arsiv/meclis-yon1-yon2/kolay-dil-taslak.md` (satır 14, 27-28, 38-39, 115) kolay UW kelimeleri istiyor: `player.move_near`,
 `show map`, menü/sahne açma, "neredeyim". Bu sayfa o kelimelerin dayanabileceği **kanıtlanmış** Native
 işlemlerini toplar. Etiketler `docs/bilgi/README.md:9-12`'deki gibi: **[KİT]** kitte `dosya:satır` ile görüldü,
 **[İDDİA]** kanıtlanmadı, **[DENEY GEREK]** yalnız oyun içi deneyle anlaşılır.

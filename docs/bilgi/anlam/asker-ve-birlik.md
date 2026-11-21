@@ -1,7 +1,7 @@
 # Asker ve birlik: Native bunları nasıl yapıyor?
 
 Yeni asker, yükseltme ağacı, nitelik/beceri/ustalık, eşya, kahraman–normal asker farkı ve aralıklar;
-`docs/meclis/kolay-dil-taslak.md` §3 için kanıt tabanı. **[KİT]** kitte okundu (`dosya:satır`), **[İDDİA]**
+`docs/arsiv/meclis-yon1-yon2/kolay-dil-taslak.md` §3 için kanıt tabanı. **[KİT]** kitte okundu (`dosya:satır`), **[İDDİA]**
 kanıtlanmadı, **[DENEY GEREK]** oyunda denenmeli. *Kayıt* = `module_troops.py`'deki satır, *op* = işlem.
 
 ## 1. Özet

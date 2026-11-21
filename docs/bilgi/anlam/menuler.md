@@ -13,7 +13,7 @@ değişken, menüler arası atlama, haritaya dönüş. Etiketler `docs/bilgi/REA
 - **[KİT]** Bayraklar `header_game_menus.py:14-18`: `mnf_join_battle`, `mnf_auto_enter`, `mnf_enable_hot_keys`,
   `mnf_disable_all_keys`, `mnf_scale_picture`; renk `menu_text_color(...)` (`:20-21`, kullanım `module_game_menus.py:39`);
   `mnf_auto_enter` gerçek kullanım (`:5209`).
-- **UW kelime adayı:** `in menu camp { option "…" { … } }` (`docs/meclis/kolay-dil-taslak.md:43-51`).
+- **UW kelime adayı:** `in menu camp { option "…" { … } }` (`docs/arsiv/meclis-yon1-yon2/kolay-dil-taslak.md:43-51`).
 
 ## 2. Üç yazım: `menu_`, `mnu_`, `mno_`
 | Yazım | Nerede | Kanıt |

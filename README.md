@@ -17,7 +17,7 @@ Early development (unreleased). Working today:
 - `uw explain`, `uw browse`, `uw graph`: find any Native record, who uses it and where it leads
   (optionally with the official Turkish texts, `--tr`).
 
-In progress: expressions, `if/else`, menu text and options, new menus (see `docs/meclis/gramer-2-oneri.md`).
+In progress: expressions, `if/else`, menu text and options, new menus (see `docs/arsiv/meclis-yon1-yon2/gramer-2-oneri.md`).
 
 ```uw
 mod praven_start
