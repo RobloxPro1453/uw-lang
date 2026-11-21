@@ -1,0 +1,875 @@
+[
+  {
+    "name": "ti_once",
+    "uses": 2587,
+    "mods": 17,
+    "per_mod": {
+      "01-anno-domini-1257": 127,
+      "02-twilight-of-the-sun-king": 97,
+      "03-tainted-paths": 616,
+      "04-medieval-conquests": 320,
+      "05-persistent-world": 3,
+      "06-the-last-days": 194,
+      "07-brytenwalda": 251,
+      "08-money-and-honour": 139,
+      "09-between-empires": 105,
+      "10-persistent-kingdoms": 3,
+      "11-diplado": 94,
+      "12-beggars-diplomacy": 105,
+      "13-catplomacy": 96,
+      "14-dickplomacy-reloaded": 121,
+      "15-economy-mod": 95,
+      "16-warband-ai-chat": 94,
+      "17-nmc-enhanced-module-system": 127
+    }
+  },
+  {
+    "name": "ti_on_presentation_load",
+    "uses": 1116,
+    "mods": 17,
+    "per_mod": {
+      "01-anno-domini-1257": 56,
+      "02-twilight-of-the-sun-king": 47,
+      "03-tainted-paths": 85,
+      "04-medieval-conquests": 81,
+      "05-persistent-world": 33,
+      "06-the-last-days": 42,
+      "07-brytenwalda": 95,
+      "08-money-and-honour": 86,
+      "09-between-empires": 70,
+      "10-persistent-kingdoms": 36,
+      "11-diplado": 63,
+      "12-beggars-diplomacy": 64,
+      "13-catplomacy": 64,
+      "14-dickplomacy-reloaded": 94,
+      "15-economy-mod": 44,
+      "16-warband-ai-chat": 64,
+      "17-nmc-enhanced-module-system": 92
+    }
+  },
+  {
+    "name": "ti_on_presentation_event_state_change",
+    "uses": 747,
+    "mods": 17,
+    "per_mod": {
+      "01-anno-domini-1257": 36,
+      "02-twilight-of-the-sun-king": 29,
+      "03-tainted-paths": 56,
+      "04-medieval-conquests": 58,
+      "05-persistent-world": 18,
+      "06-the-last-days": 26,
+      "07-brytenwalda": 70,
+      "08-money-and-honour": 61,
+      "09-between-empires": 46,
+      "10-persistent-kingdoms": 20,
+      "11-diplado": 41,
+      "12-beggars-diplomacy": 41,
+      "13-catplomacy": 41,
+      "14-dickplomacy-reloaded": 68,
+      "15-economy-mod": 26,
+      "16-warband-ai-chat": 41,
+      "17-nmc-enhanced-module-system": 69
+    }
+  },
+  {
+    "name": "ti_on_presentation_run",
+    "uses": 735,
+    "mods": 17,
+    "per_mod": {
+      "01-anno-domini-1257": 34,
+      "02-twilight-of-the-sun-king": 34,
+      "03-tainted-paths": 68,
+      "04-medieval-conquests": 55,
+      "05-persistent-world": 29,
+      "06-the-last-days": 20,
+      "07-brytenwalda": 53,
+      "08-money-and-honour": 56,
+      "09-between-empires": 52,
+      "10-persistent-kingdoms": 31,
+      "11-diplado": 43,
+      "12-beggars-diplomacy": 44,
+      "13-catplomacy": 44,
+      "14-dickplomacy-reloaded": 50,
+      "15-economy-mod": 32,
+      "16-warband-ai-chat": 44,
+      "17-nmc-enhanced-module-system": 46
+    }
+  },
+  {
+    "name": "ti_before_mission_start",
+    "uses": 641,
+    "mods": 17,
+    "per_mod": {
+      "01-anno-domini-1257": 50,
+      "02-twilight-of-the-sun-king": 40,
+      "03-tainted-paths": 11,
+      "04-medieval-conquests": 10,
+      "05-persistent-world": 3,
+      "06-the-last-days": 70,
+      "07-brytenwalda": 76,
+      "08-money-and-honour": 49,
+      "09-between-empires": 44,
+      "10-persistent-kingdoms": 3,
+      "11-diplado": 38,
+      "12-beggars-diplomacy": 38,
+      "13-catplomacy": 39,
+      "14-dickplomacy-reloaded": 47,
+      "15-economy-mod": 37,
+      "16-warband-ai-chat": 38,
+      "17-nmc-enhanced-module-system": 48
+    }
+  },
+  {
+    "name": "ti_tab_pressed",
+    "uses": 589,
+    "mods": 17,
+    "per_mod": {
+      "01-anno-domini-1257": 41,
+      "02-twilight-of-the-sun-king": 39,
+      "03-tainted-paths": 2,
+      "04-medieval-conquests": 2,
+      "05-persistent-world": 1,
+      "06-the-last-days": 58,
+      "07-brytenwalda": 80,
+      "08-money-and-honour": 41,
+      "09-between-empires": 40,
+      "10-persistent-kingdoms": 1,
+      "11-diplado": 40,
+      "12-beggars-diplomacy": 40,
+      "13-catplomacy": 39,
+      "14-dickplomacy-reloaded": 44,
+      "15-economy-mod": 39,
+      "16-warband-ai-chat": 39,
+      "17-nmc-enhanced-module-system": 43
+    }
+  },
+  {
+    "name": "ti_on_init_item",
+    "uses": 453,
+    "mods": 17,
+    "per_mod": {
+      "01-anno-domini-1257": 50,
+      "02-twilight-of-the-sun-king": 1,
+      "03-tainted-paths": 38,
+      "04-medieval-conquests": 54,
+      "05-persistent-world": 5,
+      "06-the-last-days": 15,
+      "07-brytenwalda": 26,
+      "08-money-and-honour": 30,
+      "09-between-empires": 49,
+      "10-persistent-kingdoms": 5,
+      "11-diplado": 4,
+      "12-beggars-diplomacy": 4,
+      "13-catplomacy": 53,
+      "14-dickplomacy-reloaded": 51,
+      "15-economy-mod": 30,
+      "16-warband-ai-chat": 4,
+      "17-nmc-enhanced-module-system": 34
+    }
+  },
+  {
+    "name": "ti_on_agent_spawn",
+    "uses": 391,
+    "mods": 17,
+    "per_mod": {
+      "01-anno-domini-1257": 28,
+      "02-twilight-of-the-sun-king": 21,
+      "03-tainted-paths": 2,
+      "04-medieval-conquests": 2,
+      "05-persistent-world": 2,
+      "06-the-last-days": 30,
+      "07-brytenwalda": 42,
+      "08-money-and-honour": 28,
+      "09-between-empires": 31,
+      "10-persistent-kingdoms": 2,
+      "11-diplado": 28,
+      "12-beggars-diplomacy": 28,
+      "13-catplomacy": 29,
+      "14-dickplomacy-reloaded": 39,
+      "15-economy-mod": 21,
+      "16-warband-ai-chat": 27,
+      "17-nmc-enhanced-module-system": 31
+    }
+  },
+  {
+    "name": "ti_on_agent_killed_or_wounded",
+    "uses": 282,
+    "mods": 17,
+    "per_mod": {
+      "01-anno-domini-1257": 20,
+      "02-twilight-of-the-sun-king": 16,
+      "03-tainted-paths": 3,
+      "04-medieval-conquests": 3,
+      "05-persistent-world": 1,
+      "06-the-last-days": 10,
+      "07-brytenwalda": 40,
+      "08-money-and-honour": 19,
+      "09-between-empires": 24,
+      "10-persistent-kingdoms": 2,
+      "11-diplado": 20,
+      "12-beggars-diplomacy": 20,
+      "13-catplomacy": 22,
+      "14-dickplomacy-reloaded": 22,
+      "15-economy-mod": 16,
+      "16-warband-ai-chat": 21,
+      "17-nmc-enhanced-module-system": 23
+    }
+  },
+  {
+    "name": "ti_after_mission_start",
+    "uses": 206,
+    "mods": 17,
+    "per_mod": {
+      "01-anno-domini-1257": 10,
+      "02-twilight-of-the-sun-king": 11,
+      "03-tainted-paths": 15,
+      "04-medieval-conquests": 13,
+      "05-persistent-world": 2,
+      "06-the-last-days": 15,
+      "07-brytenwalda": 15,
+      "08-money-and-honour": 16,
+      "09-between-empires": 15,
+      "10-persistent-kingdoms": 2,
+      "11-diplado": 13,
+      "12-beggars-diplomacy": 13,
+      "13-catplomacy": 13,
+      "14-dickplomacy-reloaded": 15,
+      "15-economy-mod": 10,
+      "16-warband-ai-chat": 12,
+      "17-nmc-enhanced-module-system": 16
+    }
+  },
+  {
+    "name": "ti_on_presentation_mouse_enter_leave",
+    "uses": 133,
+    "mods": 17,
+    "per_mod": {
+      "01-anno-domini-1257": 4,
+      "02-twilight-of-the-sun-king": 4,
+      "03-tainted-paths": 4,
+      "04-medieval-conquests": 8,
+      "05-persistent-world": 1,
+      "06-the-last-days": 10,
+      "07-brytenwalda": 16,
+      "08-money-and-honour": 14,
+      "09-between-empires": 9,
+      "10-persistent-kingdoms": 1,
+      "11-diplado": 8,
+      "12-beggars-diplomacy": 8,
+      "13-catplomacy": 8,
+      "14-dickplomacy-reloaded": 14,
+      "15-economy-mod": 3,
+      "16-warband-ai-chat": 8,
+      "17-nmc-enhanced-module-system": 13
+    }
+  },
+  {
+    "name": "ti_on_scene_prop_hit",
+    "uses": 686,
+    "mods": 16,
+    "per_mod": {
+      "01-anno-domini-1257": 20,
+      "02-twilight-of-the-sun-king": 15,
+      "03-tainted-paths": 15,
+      "04-medieval-conquests": 20,
+      "05-persistent-world": 16,
+      "06-the-last-days": 21,
+      "07-brytenwalda": 432,
+      "08-money-and-honour": 17,
+      "09-between-empires": 17,
+      "10-persistent-kingdoms": 16,
+      "11-diplado": 17,
+      "12-beggars-diplomacy": 17,
+      "13-catplomacy": 17,
+      "14-dickplomacy-reloaded": 15,
+      "15-economy-mod": 15,
+      "17-nmc-enhanced-module-system": 16
+    }
+  },
+  {
+    "name": "ti_on_scene_prop_init",
+    "uses": 635,
+    "mods": 16,
+    "per_mod": {
+      "01-anno-domini-1257": 21,
+      "02-twilight-of-the-sun-king": 21,
+      "03-tainted-paths": 44,
+      "04-medieval-conquests": 46,
+      "05-persistent-world": 61,
+      "06-the-last-days": 59,
+      "07-brytenwalda": 24,
+      "08-money-and-honour": 21,
+      "09-between-empires": 147,
+      "10-persistent-kingdoms": 65,
+      "11-diplado": 21,
+      "12-beggars-diplomacy": 21,
+      "13-catplomacy": 21,
+      "14-dickplomacy-reloaded": 21,
+      "15-economy-mod": 21,
+      "17-nmc-enhanced-module-system": 21
+    }
+  },
+  {
+    "name": "ti_on_scene_prop_destroy",
+    "uses": 247,
+    "mods": 16,
+    "per_mod": {
+      "01-anno-domini-1257": 18,
+      "02-twilight-of-the-sun-king": 13,
+      "03-tainted-paths": 13,
+      "04-medieval-conquests": 18,
+      "05-persistent-world": 16,
+      "06-the-last-days": 11,
+      "07-brytenwalda": 37,
+      "08-money-and-honour": 13,
+      "09-between-empires": 13,
+      "10-persistent-kingdoms": 16,
+      "11-diplado": 13,
+      "12-beggars-diplomacy": 13,
+      "13-catplomacy": 13,
+      "14-dickplomacy-reloaded": 13,
+      "15-economy-mod": 13,
+      "17-nmc-enhanced-module-system": 14
+    }
+  },
+  {
+    "name": "ti_on_scene_prop_use",
+    "uses": 142,
+    "mods": 16,
+    "per_mod": {
+      "01-anno-domini-1257": 5,
+      "02-twilight-of-the-sun-king": 5,
+      "03-tainted-paths": 15,
+      "04-medieval-conquests": 20,
+      "05-persistent-world": 20,
+      "06-the-last-days": 4,
+      "07-brytenwalda": 7,
+      "08-money-and-honour": 6,
+      "09-between-empires": 6,
+      "10-persistent-kingdoms": 21,
+      "11-diplado": 6,
+      "12-beggars-diplomacy": 6,
+      "13-catplomacy": 6,
+      "14-dickplomacy-reloaded": 5,
+      "15-economy-mod": 5,
+      "17-nmc-enhanced-module-system": 5
+    }
+  },
+  {
+    "name": "ti_escape_pressed",
+    "uses": 113,
+    "mods": 16,
+    "per_mod": {
+      "01-anno-domini-1257": 8,
+      "02-twilight-of-the-sun-king": 8,
+      "03-tainted-paths": 2,
+      "04-medieval-conquests": 2,
+      "05-persistent-world": 2,
+      "07-brytenwalda": 11,
+      "08-money-and-honour": 9,
+      "09-between-empires": 9,
+      "10-persistent-kingdoms": 2,
+      "11-diplado": 9,
+      "12-beggars-diplomacy": 9,
+      "13-catplomacy": 9,
+      "14-dickplomacy-reloaded": 8,
+      "15-economy-mod": 8,
+      "16-warband-ai-chat": 9,
+      "17-nmc-enhanced-module-system": 8
+    }
+  },
+  {
+    "name": "ti_server_player_joined",
+    "uses": 113,
+    "mods": 16,
+    "per_mod": {
+      "01-anno-domini-1257": 8,
+      "02-twilight-of-the-sun-king": 8,
+      "03-tainted-paths": 2,
+      "04-medieval-conquests": 2,
+      "05-persistent-world": 2,
+      "07-brytenwalda": 11,
+      "08-money-and-honour": 9,
+      "09-between-empires": 9,
+      "10-persistent-kingdoms": 2,
+      "11-diplado": 9,
+      "12-beggars-diplomacy": 9,
+      "13-catplomacy": 9,
+      "14-dickplomacy-reloaded": 8,
+      "15-economy-mod": 8,
+      "16-warband-ai-chat": 9,
+      "17-nmc-enhanced-module-system": 8
+    }
+  },
+  {
+    "name": "ti_on_scene_prop_animation_finished",
+    "uses": 41,
+    "mods": 16,
+    "per_mod": {
+      "01-anno-domini-1257": 1,
+      "02-twilight-of-the-sun-king": 1,
+      "03-tainted-paths": 5,
+      "04-medieval-conquests": 7,
+      "05-persistent-world": 7,
+      "06-the-last-days": 3,
+      "07-brytenwalda": 2,
+      "08-money-and-honour": 1,
+      "09-between-empires": 1,
+      "10-persistent-kingdoms": 7,
+      "11-diplado": 1,
+      "12-beggars-diplomacy": 1,
+      "13-catplomacy": 1,
+      "14-dickplomacy-reloaded": 1,
+      "15-economy-mod": 1,
+      "17-nmc-enhanced-module-system": 1
+    }
+  },
+  {
+    "name": "ti_on_presentation_mouse_press",
+    "uses": 38,
+    "mods": 16,
+    "per_mod": {
+      "01-anno-domini-1257": 1,
+      "02-twilight-of-the-sun-king": 3,
+      "03-tainted-paths": 8,
+      "04-medieval-conquests": 4,
+      "06-the-last-days": 2,
+      "07-brytenwalda": 2,
+      "08-money-and-honour": 3,
+      "09-between-empires": 3,
+      "10-persistent-kingdoms": 1,
+      "11-diplado": 1,
+      "12-beggars-diplomacy": 1,
+      "13-catplomacy": 1,
+      "14-dickplomacy-reloaded": 5,
+      "15-economy-mod": 1,
+      "16-warband-ai-chat": 1,
+      "17-nmc-enhanced-module-system": 1
+    }
+  },
+  {
+    "name": "ti_question_answered",
+    "uses": 317,
+    "mods": 15,
+    "per_mod": {
+      "01-anno-domini-1257": 25,
+      "02-twilight-of-the-sun-king": 22,
+      "05-persistent-world": 1,
+      "06-the-last-days": 28,
+      "07-brytenwalda": 32,
+      "08-money-and-honour": 23,
+      "09-between-empires": 22,
+      "10-persistent-kingdoms": 1,
+      "11-diplado": 23,
+      "12-beggars-diplomacy": 23,
+      "13-catplomacy": 22,
+      "14-dickplomacy-reloaded": 26,
+      "15-economy-mod": 22,
+      "16-warband-ai-chat": 22,
+      "17-nmc-enhanced-module-system": 25
+    }
+  },
+  {
+    "name": "ti_on_agent_hit",
+    "uses": 99,
+    "mods": 15,
+    "per_mod": {
+      "01-anno-domini-1257": 1,
+      "03-tainted-paths": 31,
+      "04-medieval-conquests": 20,
+      "05-persistent-world": 1,
+      "06-the-last-days": 9,
+      "07-brytenwalda": 6,
+      "08-money-and-honour": 6,
+      "09-between-empires": 4,
+      "10-persistent-kingdoms": 1,
+      "11-diplado": 2,
+      "12-beggars-diplomacy": 2,
+      "13-catplomacy": 2,
+      "14-dickplomacy-reloaded": 7,
+      "16-warband-ai-chat": 3,
+      "17-nmc-enhanced-module-system": 4
+    }
+  },
+  {
+    "name": "ti_on_weapon_attack",
+    "uses": 175,
+    "mods": 14,
+    "per_mod": {
+      "02-twilight-of-the-sun-king": 57,
+      "03-tainted-paths": 18,
+      "05-persistent-world": 10,
+      "07-brytenwalda": 44,
+      "08-money-and-honour": 8,
+      "09-between-empires": 9,
+      "10-persistent-kingdoms": 10,
+      "11-diplado": 2,
+      "12-beggars-diplomacy": 2,
+      "13-catplomacy": 2,
+      "14-dickplomacy-reloaded": 9,
+      "15-economy-mod": 1,
+      "16-warband-ai-chat": 2,
+      "17-nmc-enhanced-module-system": 1
+    }
+  },
+  {
+    "name": "ti_battle_window_opened",
+    "uses": 93,
+    "mods": 14,
+    "per_mod": {
+      "01-anno-domini-1257": 7,
+      "02-twilight-of-the-sun-king": 7,
+      "05-persistent-world": 1,
+      "07-brytenwalda": 8,
+      "08-money-and-honour": 8,
+      "09-between-empires": 8,
+      "10-persistent-kingdoms": 1,
+      "11-diplado": 8,
+      "12-beggars-diplomacy": 8,
+      "13-catplomacy": 8,
+      "14-dickplomacy-reloaded": 7,
+      "15-economy-mod": 7,
+      "16-warband-ai-chat": 8,
+      "17-nmc-enhanced-module-system": 7
+    }
+  },
+  {
+    "name": "ti_on_scene_prop_is_animating",
+    "uses": 25,
+    "mods": 14,
+    "per_mod": {
+      "01-anno-domini-1257": 1,
+      "02-twilight-of-the-sun-king": 1,
+      "03-tainted-paths": 5,
+      "04-medieval-conquests": 7,
+      "06-the-last-days": 1,
+      "07-brytenwalda": 2,
+      "08-money-and-honour": 1,
+      "09-between-empires": 1,
+      "11-diplado": 1,
+      "12-beggars-diplomacy": 1,
+      "13-catplomacy": 1,
+      "14-dickplomacy-reloaded": 1,
+      "15-economy-mod": 1,
+      "17-nmc-enhanced-module-system": 1
+    }
+  },
+  {
+    "name": "ti_on_party_encounter",
+    "uses": 15,
+    "mods": 14,
+    "per_mod": {
+      "01-anno-domini-1257": 1,
+      "02-twilight-of-the-sun-king": 1,
+      "04-medieval-conquests": 1,
+      "06-the-last-days": 1,
+      "07-brytenwalda": 2,
+      "08-money-and-honour": 1,
+      "09-between-empires": 1,
+      "11-diplado": 1,
+      "12-beggars-diplomacy": 1,
+      "13-catplomacy": 1,
+      "14-dickplomacy-reloaded": 1,
+      "15-economy-mod": 1,
+      "16-warband-ai-chat": 1,
+      "17-nmc-enhanced-module-system": 1
+    }
+  },
+  {
+    "name": "ti_simulate_battle",
+    "uses": 14,
+    "mods": 14,
+    "per_mod": {
+      "01-anno-domini-1257": 1,
+      "02-twilight-of-the-sun-king": 1,
+      "04-medieval-conquests": 1,
+      "06-the-last-days": 1,
+      "07-brytenwalda": 1,
+      "08-money-and-honour": 1,
+      "09-between-empires": 1,
+      "11-diplado": 1,
+      "12-beggars-diplomacy": 1,
+      "13-catplomacy": 1,
+      "14-dickplomacy-reloaded": 1,
+      "15-economy-mod": 1,
+      "16-warband-ai-chat": 1,
+      "17-nmc-enhanced-module-system": 1
+    }
+  },
+  {
+    "name": "ti_on_init_scene_prop",
+    "uses": 776,
+    "mods": 13,
+    "per_mod": {
+      "01-anno-domini-1257": 25,
+      "02-twilight-of-the-sun-king": 20,
+      "04-medieval-conquests": 2,
+      "06-the-last-days": 127,
+      "07-brytenwalda": 429,
+      "08-money-and-honour": 24,
+      "09-between-empires": 22,
+      "11-diplado": 22,
+      "12-beggars-diplomacy": 22,
+      "13-catplomacy": 22,
+      "14-dickplomacy-reloaded": 20,
+      "15-economy-mod": 20,
+      "17-nmc-enhanced-module-system": 21
+    }
+  },
+  {
+    "name": "ti_inventory_key_pressed",
+    "uses": 272,
+    "mods": 13,
+    "per_mod": {
+      "01-anno-domini-1257": 21,
+      "02-twilight-of-the-sun-king": 19,
+      "06-the-last-days": 17,
+      "07-brytenwalda": 34,
+      "08-money-and-honour": 20,
+      "09-between-empires": 19,
+      "11-diplado": 20,
+      "12-beggars-diplomacy": 20,
+      "13-catplomacy": 19,
+      "14-dickplomacy-reloaded": 24,
+      "15-economy-mod": 19,
+      "16-warband-ai-chat": 19,
+      "17-nmc-enhanced-module-system": 21
+    }
+  },
+  {
+    "name": "ti_on_leave_area",
+    "uses": 85,
+    "mods": 13,
+    "per_mod": {
+      "01-anno-domini-1257": 5,
+      "02-twilight-of-the-sun-king": 5,
+      "06-the-last-days": 7,
+      "07-brytenwalda": 14,
+      "08-money-and-honour": 5,
+      "09-between-empires": 5,
+      "11-diplado": 6,
+      "12-beggars-diplomacy": 6,
+      "13-catplomacy": 6,
+      "14-dickplomacy-reloaded": 9,
+      "15-economy-mod": 5,
+      "16-warband-ai-chat": 6,
+      "17-nmc-enhanced-module-system": 6
+    }
+  },
+  {
+    "name": "ti_on_init_map_icon",
+    "uses": 54,
+    "mods": 13,
+    "per_mod": {
+      "01-anno-domini-1257": 3,
+      "02-twilight-of-the-sun-king": 3,
+      "04-medieval-conquests": 3,
+      "06-the-last-days": 13,
+      "07-brytenwalda": 4,
+      "08-money-and-honour": 3,
+      "09-between-empires": 3,
+      "11-diplado": 3,
+      "12-beggars-diplomacy": 3,
+      "13-catplomacy": 6,
+      "14-dickplomacy-reloaded": 4,
+      "15-economy-mod": 3,
+      "17-nmc-enhanced-module-system": 3
+    }
+  },
+  {
+    "name": "ti_on_multiplayer_mission_end",
+    "uses": 103,
+    "mods": 12,
+    "per_mod": {
+      "01-anno-domini-1257": 8,
+      "02-twilight-of-the-sun-king": 8,
+      "07-brytenwalda": 9,
+      "08-money-and-honour": 9,
+      "09-between-empires": 9,
+      "11-diplado": 9,
+      "12-beggars-diplomacy": 9,
+      "13-catplomacy": 9,
+      "14-dickplomacy-reloaded": 8,
+      "15-economy-mod": 8,
+      "16-warband-ai-chat": 9,
+      "17-nmc-enhanced-module-system": 8
+    }
+  },
+  {
+    "name": "ti_on_agent_knocked_down",
+    "uses": 12,
+    "mods": 12,
+    "per_mod": {
+      "01-anno-domini-1257": 1,
+      "02-twilight-of-the-sun-king": 1,
+      "07-brytenwalda": 1,
+      "08-money-and-honour": 1,
+      "09-between-empires": 1,
+      "11-diplado": 1,
+      "12-beggars-diplomacy": 1,
+      "13-catplomacy": 1,
+      "14-dickplomacy-reloaded": 1,
+      "15-economy-mod": 1,
+      "16-warband-ai-chat": 1,
+      "17-nmc-enhanced-module-system": 1
+    }
+  },
+  {
+    "name": "ti_on_player_exit",
+    "uses": 9,
+    "mods": 9,
+    "per_mod": {
+      "05-persistent-world": 1,
+      "06-the-last-days": 1,
+      "08-money-and-honour": 1,
+      "09-between-empires": 1,
+      "10-persistent-kingdoms": 1,
+      "11-diplado": 1,
+      "12-beggars-diplomacy": 1,
+      "13-catplomacy": 1,
+      "16-warband-ai-chat": 1
+    }
+  },
+  {
+    "name": "ti_on_missile_hit",
+    "uses": 57,
+    "mods": 8,
+    "per_mod": {
+      "01-anno-domini-1257": 1,
+      "02-twilight-of-the-sun-king": 2,
+      "03-tainted-paths": 9,
+      "04-medieval-conquests": 23,
+      "06-the-last-days": 1,
+      "07-brytenwalda": 12,
+      "09-between-empires": 8,
+      "17-nmc-enhanced-module-system": 1
+    }
+  },
+  {
+    "name": "ti_on_scene_prop_start_use",
+    "uses": 11,
+    "mods": 7,
+    "per_mod": {
+      "05-persistent-world": 3,
+      "08-money-and-honour": 1,
+      "09-between-empires": 1,
+      "10-persistent-kingdoms": 3,
+      "11-diplado": 1,
+      "12-beggars-diplomacy": 1,
+      "13-catplomacy": 1
+    }
+  },
+  {
+    "name": "ti_on_agent_mount",
+    "uses": 7,
+    "mods": 7,
+    "per_mod": {
+      "05-persistent-world": 1,
+      "06-the-last-days": 1,
+      "10-persistent-kingdoms": 1,
+      "11-diplado": 1,
+      "12-beggars-diplomacy": 1,
+      "13-catplomacy": 1,
+      "16-warband-ai-chat": 1
+    }
+  },
+  {
+    "name": "ti_on_item_wielded",
+    "uses": 11,
+    "mods": 5,
+    "per_mod": {
+      "05-persistent-world": 1,
+      "06-the-last-days": 2,
+      "07-brytenwalda": 5,
+      "10-persistent-kingdoms": 2,
+      "14-dickplomacy-reloaded": 1
+    }
+  },
+  {
+    "name": "ti_on_agent_dismount",
+    "uses": 8,
+    "mods": 5,
+    "per_mod": {
+      "05-persistent-world": 1,
+      "06-the-last-days": 3,
+      "08-money-and-honour": 2,
+      "10-persistent-kingdoms": 1,
+      "17-nmc-enhanced-module-system": 1
+    }
+  },
+  {
+    "name": "ti_on_item_unwielded",
+    "uses": 6,
+    "mods": 5,
+    "per_mod": {
+      "05-persistent-world": 1,
+      "06-the-last-days": 1,
+      "08-money-and-honour": 1,
+      "10-persistent-kingdoms": 2,
+      "17-nmc-enhanced-module-system": 1
+    }
+  },
+  {
+    "name": "ti_on_shield_hit",
+    "uses": 151,
+    "mods": 3,
+    "per_mod": {
+      "03-tainted-paths": 70,
+      "04-medieval-conquests": 80,
+      "10-persistent-kingdoms": 1
+    }
+  },
+  {
+    "name": "ti_on_order_issued",
+    "uses": 13,
+    "mods": 3,
+    "per_mod": {
+      "06-the-last-days": 3,
+      "07-brytenwalda": 4,
+      "09-between-empires": 6
+    }
+  },
+  {
+    "name": "ti_on_item_dropped",
+    "uses": 4,
+    "mods": 3,
+    "per_mod": {
+      "05-persistent-world": 1,
+      "09-between-empires": 1,
+      "10-persistent-kingdoms": 2
+    }
+  },
+  {
+    "name": "ti_on_item_picked_up",
+    "uses": 4,
+    "mods": 3,
+    "per_mod": {
+      "05-persistent-world": 1,
+      "06-the-last-days": 1,
+      "10-persistent-kingdoms": 2
+    }
+  },
+  {
+    "name": "ti_on_scene_prop_cancel_use",
+    "uses": 9,
+    "mods": 2,
+    "per_mod": {
+      "05-persistent-world": 4,
+      "10-persistent-kingdoms": 5
+    }
+  },
+  {
+    "name": "ti_scene_prop_deformation_finished",
+    "uses": 2,
+    "mods": 1,
+    "per_mod": {
+      "06-the-last-days": 2
+    }
+  },
+  {
+    "name": "ti_on_switch_to_map",
+    "uses": 0,
+    "mods": 0,
+    "per_mod": {}
+  }
+]

@@ -2,6 +2,7 @@
 
 mod build;
 mod check;
+mod corpus;
 mod coverage;
 mod easy;
 mod effects;
@@ -86,6 +87,10 @@ const USAGE: &str = "usage:
       how much of the Module System UW can write today, proven by a golden test: every record
       table x {new, like, override, disable, hook}, every ti_* hook kind and every operation name;
       --json: the same as one object; --all: the empty hook and op cells too
+  uw corpus <mods folder> [--atlas <atlas.json>] [--out <dir>]
+      read real mods' Python sources as text (one sub-folder per mod) and write usage statistics
+      to kit-meta/corpus: how often each kit operation and ti_* kind is used and by how many mods,
+      and per mod the scripts/presentations Native does not have (no mod code is copied)
   uw --version";
 
 /// Where the atlas lives unless `--atlas` / `UW_ATLAS` says otherwise (docs/DEVELOPMENT.md).
@@ -112,6 +117,7 @@ fn main() -> ExitCode {
         Some("easy") => easy::cmd(&args[1..]),
         Some("find") => find::cmd(&args[1..]),
         Some("coverage") => coverage::cmd(&args[1..]),
+        Some("corpus") => corpus::cmd(&args[1..]),
         _ => {
             println!("uw {}", env!("CARGO_PKG_VERSION"));
             println!("{USAGE}");

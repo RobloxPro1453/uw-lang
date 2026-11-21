@@ -687,6 +687,7 @@ version = "0.0.1"
 dependencies = [
  "crossterm",
  "ratatui",
+ "serde",
  "serde_json",
  "uw_atlas",
  "uw_check",
