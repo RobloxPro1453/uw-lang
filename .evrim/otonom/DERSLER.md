@@ -27,3 +27,4 @@ Her satır bir ders: "X yapınca Y oldu → artık Z yapıyorum (GUNLUK: tarih s
 - [yerel] Şerit worktree'lerinde target/uw-staging/atlas.json yok: gerçek-atlas testleri orada kendini atlıyor, verify PASS gerçek Native ölçüsü değildir; birleştirdikten sonra ana dalda tam test + uw new --check + build-project --compare-native şart. (2026-11-16)
 - [yerel] Native şehir sahipliği iki adım: give_center_to_faction_aux sonra give_center_to_lord (lordun krallığı kazanır); owner değişince lord da değişmeli. Oyun denemesi testlerin göremediğini buldu. (2026-11-16)
 - [yerel] cv guard [kaynak: varsayilan] uyarısı gerçek kotayı yansıtmıyor (2026-11-21: bekçi %100 dedi, get_usage 5s %16 / haftalık %29); karar vermeden önce get_usage ile doğrula (2026-11-21)
+- [yerel] Şerit worktree'leri git-ignored kit/ornek-modlar'ı görmez ve mutlak yol okuyamaz; kite/moda dayanan tarif için kaynakları önce şeridin target/ref/ altına kopyala ve tarifte o yolu yaz (2026-11-21)
