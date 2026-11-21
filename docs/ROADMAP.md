@@ -4,6 +4,25 @@
 
 ## Sıra
 
+**MADEN PROGRAMI (sahibi 2026-11-21: "açık kaynak modlar elmas madeni, sonuna kadar kullan"):** 17 açık kaynak mod
+(`warband-opensource-mods/mods/`, asla commit edilmez) + Light&Darkness (yalnız derlenmiş .txt). Dil işiyle paralel
+yürüyen kalıcı hat; her aşama bir sonrakini besler, çıktısı belge değil **kullanılan veri ve test** olmalı.
+Dalga 1 (mod başına altyapı, `docs/bilgi/altyapi/`) ve dalga 2 (12 konu, `docs/bilgi/maden/`) yapıldı.
+
+- [ ] **M1 Derlem envanteri (Claude, DeepSeek'siz):** 17 modu bizim araçla oku: her modun script/tetik/sunum/menü/diyalog
+      sayısı, **işlem kullanım sıklığı** (1060 işlemden hangileri gerçekten kullanılıyor), `ti_*` kancaları, slot sayısı.
+      Çıktı `kit-meta/corpus/*.json`; dilin öncelik sırası ve `uw coverage` ağırlığı buradan gelir.
+- [ ] **M2 Sistem sistem uçtan uca okuma (DeepSeek, ~80 iş, ~$12):** her modu sistemlerine böl (diplomasi, ekonomi, HUD,
+      savaş yapay zekâsı, MP protokolü…); her sistem için veri → tetik → arayüz → akış → motor hilesi, kanıt satırıyla.
+      Büyük modlarda 6-8, küçüklerde 2-3 sistem. Çıktı `docs/bilgi/sistemler/<mod>/<sistem>.md`.
+- [ ] **M3 UW'ye çeviri (DeepSeek, ~30 iş, ~$6):** seçilen sistemleri UW'de yeniden yaz (MS satırı → UW satırı oranı,
+      eksik kalan yapı). Derlem dilin **kabul testi** olur: derleyici destekledikçe golden'a döner. Dil tasarımının ana ölçüsü.
+- [ ] **M4 Derlenmiş dosya sınavı (Claude):** decompiler'ı 17 modun ve Light&Darkness'ın derlenmiş `.txt`'lerinde koştur;
+      mod başına geri dönüş yüzdesi ölçü olur.
+- [ ] **M5 Motor gerçekleri veritabanı (DeepSeek, ~$1):** dalga 2 "engine-quirks" + M2 bulguları → `kit-meta/engine-facts.toml`;
+      denetleyici uyarıları buradan beslenir (oyunda kanıtlanmamış olan "doğrulanmadı" işaretli).
+- [ ] **M6 Hedefli kazı:** her meclis/tasarım sorusunda önce derlemde ara (araç: M1 dizini + `rg`), cevabı karar belgesine yaz.
+
 **YÖN 3 DİL KATMANI (meclis 2026-11-21, `docs/meclis/yon3/dil/KARAR-DIL.md`; EN ÖNCELİKLİ):** Module System'siz Module System. Sıra L1 → L2 → L3 → L4 → L5; aşağıdaki Y3-P* dünya paketleri bunlardan sonra gelir.
 
 - [ ] **L1** Otomatik söz dağarcığı: `kit-meta/easy/` (işlem/sabit/slot, D3 kuralları), `uw words` + editör, `uw coverage --easy` (kavram sızıntısı dahil).
