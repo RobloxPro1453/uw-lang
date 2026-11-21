@@ -13,6 +13,11 @@ Sıradaki: Y3-P0 `uw coverage`, Y3-P1 genel katkı (27 tablo), Y3-P2 yorumlayıc
 ## 2026-01-15 14:30 · kısa başlık (kim: Claude / otonom / sahibi)
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
+## 2026-11-22 · M1 + D0 + D1 (Claude + DeepSeek, tur 10)
+M1: `uw corpus` 17 modu (≈3,3 milyon satır) saydı → `kit-meta/corpus/` (937/1060 işlem kullanılıyor, 123 hiç).
+D0: DeepSeek 127 adsız işleme ad verdi; `uw easy` artık elle verilen adları `ops.json`'a "M" kuralıyla yazar (1060/1060). Yolda bulunan hata: `manual.toml` okuyucusu adı bir önceki işleme bağlıyordu, düzeltildi.
+D1: `slots.lock` (`uw_core::slots`, `lower_locked`): alan numarası derlemeler arasında sabit; 6 yeni test.
+Sıradaki: DEVIR en üst (D2 zaman + dağıtıcı; M2 için para gerekir).
 ## 2026-11-21 gece 2 · Maden: 17 açık kaynak mod + "maden" meclisi (Claude + DeepSeek, tur 9)
 Önceki oturumun 7 dalı birleşti (uw_core ayrıştırıcı+lower, uw_easy sabit/slot+işlem sözlüğü, parti işlemleri, 2 stres tablosu); testler 510/510.
 DeepSeek 17 modu taradı (`docs/bilgi/altyapi/`, özet `OZET.md`) ve 11 konuda karşılaştırdı (`docs/bilgi/maden/`, 1006 kanıt satırı betikle doğrulandı).

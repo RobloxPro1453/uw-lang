@@ -9,7 +9,7 @@
 yürüyen kalıcı hat; her aşama bir sonrakini besler, çıktısı belge değil **kullanılan veri ve test** olmalı.
 Dalga 1 (mod başına altyapı, `docs/bilgi/altyapi/`) ve dalga 2 (12 konu, `docs/bilgi/maden/`) yapıldı.
 
-- [ ] **M1 Derlem envanteri (Claude, DeepSeek'siz):** 17 modu bizim araçla oku: her modun script/tetik/sunum/menü/diyalog
+- [x] **M1 Derlem envanteri (Claude, DeepSeek'siz):** 17 modu bizim araçla oku: her modun script/tetik/sunum/menü/diyalog
       sayısı, **işlem kullanım sıklığı** (1060 işlemden hangileri gerçekten kullanılıyor), `ti_*` kancaları, slot sayısı.
       Çıktı `kit-meta/corpus/*.json`; dilin öncelik sırası ve `uw coverage` ağırlığı buradan gelir.
 - [ ] **M2 Sistem sistem uçtan uca okuma (DeepSeek, ~80 iş, ~$12):** her modu sistemlerine böl (diplomasi, ekonomi, HUD,
@@ -26,8 +26,8 @@ Dalga 1 (mod başına altyapı, `docs/bilgi/altyapi/`) ve dalga 2 (12 konu, `doc
 **DİL ÇEKİRDEĞİ (meclis "maden" 2026-11-21, `docs/meclis/maden/KARAR.md`; EN ÖNCELİKLİ, aşağıdaki L1-L5 sırasının yerini alır):**
 Kural: yalnız slot/tetik/id/yazmaç üreten şey derleyicide, geri kalanı UW ile. Kabul = "oyunda çalışıyor". Sıra D0 → D9.
 
-- [ ] **D0** `kit-meta/easy/manual.toml`'daki 127 boş adı doldur (DeepSeek + denetim); `uw words`'te boş yok.
-- [ ] **D1** `slots.lock` + `var kind.field` kararlı slot (yalnız-ekle, `@renamed_from`).
+- [x] **D0** `kit-meta/easy/manual.toml`'daki 127 boş adı doldur (DeepSeek + denetim); `uw words`'te boş yok.
+- [x] **D1** `slots.lock` + `var kind.field` kararlı slot (yalnız-ekle, `@renamed_from`).
 - [ ] **D2** `every`/`after`/`cooldown` + tek gizli dağıtıcı + tick maliyet raporu.
 - [ ] **D3** `hud` tek presentation + `ui.bar` + `on key` (adlı eylem, kenar algılama).
 - [ ] **D4** İlk dikey dilim = Alex: alan + zaman + HUD + tuş + kaydet/yükle (alan ekleyip eski kaydı aç); sahibi oyunda dener.

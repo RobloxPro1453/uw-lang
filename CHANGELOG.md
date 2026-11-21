@@ -5,6 +5,9 @@ Kullanıcının fark edeceği değişiklikler; en yeni üstte. Her satır kullan
 ## Sürümlenmemiş
 
 ### Eklendi
+- `uw corpus <modlar klasörü>`: gerçek modların kullanım profili. Hangi oyun işleminin kaç modda, kaç kez kullanıldığını, hangi `ti_*` tetiklerinin kullanıldığını ve her modun Native'de olmayan betik/sunum sayısını `kit-meta/corpus/` altına yazar. 17 açık kaynak modda: 1060 işlemin 937'si kullanılıyor, 123'ü hiç kullanılmıyor.
+- Kolay söz dağarcığı tamam: kitin 1060 işleminin hepsinin kolay bir adı var (933'ü kurallarla, 127'si elle).
+- Yeni dilde nesne alanlarının (`var agent.stamina`) slot numarası `slots.lock` dosyasında sabit kalır: alan eklemek, sırayı değiştirmek ya da bir alanı silmek eski kayıtlı oyunları bozmaz.
 - Şehir ve kale kayıtlarında düzenlenebilir `owner swadia` satırı: oyun başında kimin olduğunu gösterir; değiştirirsen derleme oyun başı betiğindeki satırı günceller ve "Sargoth: sahibi nords → vaegirs" diye yazar. Değiştirmezsen çıktı Native ile bayt bayt aynı kalır.
 - Diyalog yazımı: `dialog king_harlaus first_meeting { harlaus: "Who are you?"  player: "A traveller." -> end }` (oyun denemesi CHECKUP'ta).
 - Bölgeye girince olay: `area mountain_road [(10, 20), (40, 20), (40, 60), (10, 60)]` ve `on enter mountain_road when time.hour >= 12 { … }`; bölgeye her girişte bir kez çalışır.

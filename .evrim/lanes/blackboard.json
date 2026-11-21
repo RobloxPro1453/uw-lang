@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-21T20:04:18.454Z",
+  "updatedAt": "2026-11-21T21:14:53.697Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -2282,6 +2282,53 @@
       "branch": "cv/T-166",
       "updatedAt": "2026-11-21T20:04:18.453Z",
       "summary": "status=blocked; tests=not run",
+      "files": []
+    },
+    "T-167": {
+      "task": "T-167",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-167",
+      "updatedAt": "2026-11-21T21:13:13.660Z",
+      "summary": "status=done",
+      "files": []
+    },
+    "T-168": {
+      "task": "T-168",
+      "status": "blocked",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-168",
+      "updatedAt": "2026-11-21T21:12:49.632Z",
+      "summary": "status=blocked; tests=not run",
+      "files": [
+        "crates/uw_easy/tests/a_eol_check.rs +0 -0",
+        "crates/uw_easy/tests/tmp_eol_check.rs +0 -0"
+      ]
+    },
+    "T-169": {
+      "task": "T-169",
+      "status": "blocked",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-169",
+      "updatedAt": "2026-11-21T21:14:53.697Z",
+      "summary": "status=blocked; tests=not run",
+      "files": []
+    },
+    "T-170": {
+      "task": "T-170",
+      "status": "done",
+      "wave": 0,
+      "deps": [],
+      "blockedBy": [],
+      "branch": "cv/T-170",
+      "updatedAt": "2026-11-21T21:13:46.321Z",
+      "summary": "status=done",
       "files": []
     }
   }

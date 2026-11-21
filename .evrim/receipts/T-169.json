@@ -1,0 +1,12 @@
+{
+  "taskId": "T-169",
+  "checkDigest": "dee2ce8834aa0894",
+  "branch": "cv/T-169",
+  "headSha": "3228963bced99eee2e375acb053bffbfc1867574",
+  "treeSha": "499097c1560b08933c458d6fcbe45a9517e54273",
+  "buildOk": true,
+  "testOk": false,
+  "status": "blocked",
+  "testsBy": "runner",
+  "timestamp": "2026-11-21T21:14:53.606Z"
+}

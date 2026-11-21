@@ -1,5 +1,16 @@
 # Devir: sonraki oturum buradan başlar
 
+## 0000000000000000. 2026-11-22 — EN ÖNCE BUNU OKU: M1, D0, D1 bitti; para gereken yere gelindi
+
+Bitti (tur 10): **M1** `uw corpus warband-opensource-mods/mods` → `kit-meta/corpus/` · **D0** 1060/1060 işlemin kolay adı
+(`manual.toml` dolu, `ops.json` rule M) · **D1** `slots.lock` (`crates/uw_core/src/slots.rs`, `lower::lower_locked`; henüz
+`uw build`'e bağlı değil, D4'te proje klasöründe `slots.lock` okunup yazılacak).
+
+**Sıradaki (Claude, $0):** D2 `every`/`after`/`cooldown` + tek gizli dağıtıcı + tick maliyet raporu (CORE-v0 §5.1),
+sonra D3 (`hud` tek presentation, `ui.bar`, `on key`), D4 Alex dilimi (+ `slots.lock`'u `uw build`'e bağla, sahibine oyun listesi).
+**Para:** DeepSeek bakiyesi ~$2 (sahibi şu an yükleyemiyor). M2 (sistem sistem okuma, ~$12) ve M3 bekler; D2-D4 parasız
+ilerler. Sahibi para atınca: M2'yi D-adımının konusuna göre dilim dilim başlat (önce zaman/olay ve arayüz sistemleri).
+
 ## 000000000000000. GECE 2 (2026-11-21) — EN ÖNCE BUNU OKU: maden + meclis bitti, sıra D0-D9
 
 **Karar:** `docs/meclis/maden/KARAR.md` (dört koltuk `K-*.md`). Özü: derleyicide yalnız slot/tetik/id/yazmaç üreten şey;
