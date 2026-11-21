@@ -1,0 +1,162 @@
+# Manual easy names, part 1 of 4 (T-167): operations no automatic rule names.
+# Rules: docs/meclis/yon3/dil/D3-SOZLUK.md §2. Native names copied from manual.toml.
+
+[[name]]
+native = "is_camera_in_first_person"
+easy = "game.is_camera_in_first_person"
+why = "R8 (global condition; keep is_, camera concept matches game.camera_in_first_person)"
+
+[[name]]
+native = "omit_key_once"
+easy = "key.omit_once"
+why = "R8 (key namespace)"
+
+[[name]]
+native = "clear_omitted_keys"
+easy = "key.clear_omitted"
+why = "R8 (key namespace)"
+
+[[name]]
+native = "profile_get_banner_id"
+easy = "profile.banner_id"
+why = "R1 (profile namespace)"
+
+[[name]]
+native = "profile_set_banner_id"
+easy = "profile.set_banner_id"
+why = "R2 (setter, distinct from the getter name)"
+
+[[name]]
+native = "unlock_achievement"
+easy = "game.unlock_achievement"
+why = "R4 (global method)"
+
+[[name]]
+native = "send_message_to_url"
+easy = "game.send_message_to_url"
+why = "R4 (global method)"
+
+[[name]]
+native = "multiplayer_find_spawn_point"
+easy = "multiplayer.spawn_point"
+why = "R1 (multiplayer namespace getter)"
+
+[[name]]
+native = "ban_player_using_saved_ban_info"
+easy = "player.ban_using_saved_ban_info"
+why = "R13 (player.ban already means ban_player)"
+
+[[name]]
+native = "copy_position"
+easy = "pos.copy"
+why = "R4 (Pos value; D3-SOZLUK §2 example a = b)"
+
+[[name]]
+native = "create_image_button_overlay_with_tableau_material"
+easy = "ui.image_button_with_tableau_material"
+why = "N1 (create_*_overlay -> ui.*)"
+
+[[name]]
+native = "create_mesh_overlay_with_tableau_material"
+easy = "ui.mesh_with_tableau_material"
+why = "N1 (create_*_overlay -> ui.*)"
+
+[[name]]
+native = "create_mesh_overlay_with_item_id"
+easy = "ui.mesh_with_item_id"
+why = "N1 (create_*_overlay -> ui.*)"
+
+[[name]]
+native = "show_object_details_overlay"
+easy = "ui.show_object_details"
+why = "R4 (ui overlay method)"
+
+[[name]]
+native = "show_item_details"
+easy = "ui.show_item_details"
+why = "R4 (ui overlay method)"
+
+[[name]]
+native = "close_item_details"
+easy = "ui.close_item_details"
+why = "R4 (ui overlay method)"
+
+[[name]]
+native = "show_item_details_with_modifier"
+easy = "ui.show_item_details_with_modifier"
+why = "R4 (ui overlay method)"
+
+[[name]]
+native = "context_menu_add_item"
+easy = "ui.context_menu_add_item"
+why = "R4 (ui.add_item already means overlay_add_item)"
+
+[[name]]
+native = "auto_save"
+easy = "game.auto_save"
+why = "R8 (global command)"
+
+[[name]]
+native = "allow_ironman"
+easy = "game.allow_ironman"
+why = "R7 (global flag write)"
+
+[[name]]
+native = "finish_party_battle_mode"
+easy = "game.finish_party_battle_mode"
+why = "R4 (pairs with game.party_battle_mode)"
+
+[[name]]
+native = "start_map_conversation"
+easy = "map.start_conversation"
+why = "R4 (map namespace)"
+
+[[name]]
+native = "rest_for_hours"
+easy = "game.rest"
+why = "R4 (D3-SOZLUK §2 rest(hours=...))"
+
+[[name]]
+native = "rest_for_hours_interactive"
+easy = "game.rest_interactive"
+why = "R4 (interactive variant of rest)"
+
+[[name]]
+native = "add_gold_as_xp"
+easy = "troop.add_gold_as_xp"
+why = "R4 (optional troop subject in 2nd param)"
+
+[[name]]
+native = "add_xp_as_reward"
+easy = "party.add_xp_as_reward"
+why = "R4 (party reward, pairs with party.add_xp)"
+
+[[name]]
+native = "add_gold_to_party"
+easy = "party.add_gold"
+why = "R4 (party subject is 2nd param, per D3-SOZLUK §2)"
+
+[[name]]
+native = "add_info_page_note_tableau_mesh"
+easy = "info_page.note_tableau_mesh"
+why = "R4 (add_info_page_note_ namespace)"
+
+[[name]]
+native = "add_info_page_note_from_dialog"
+easy = "info_page.note_from_dialog"
+why = "R4 (add_info_page_note_ namespace)"
+
+[[name]]
+native = "add_info_page_note_from_sreg"
+easy = "info_page.note_from_sreg"
+why = "R4 (add_info_page_note_ namespace)"
+
+[[name]]
+native = "add_troop_note_tableau_mesh"
+easy = "troop.note_tableau_mesh"
+why = "R4 (troop subject, pairs with troop.note_available)"
+
+[[name]]
+native = "add_faction_note_tableau_mesh"
+easy = "faction.note_tableau_mesh"
+why = "R4 (faction subject, pairs with faction.note_available)"
