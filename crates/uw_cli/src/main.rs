@@ -2,6 +2,7 @@
 
 mod build;
 mod check;
+mod easy;
 mod effects;
 mod explain;
 mod flow_json;
@@ -50,6 +51,8 @@ const USAGE: &str = "usage:
   uw words [folder] [--json] [--atlas <atlas.json>]
       every name a .uw file may use (game names, lib/fns words, object fields, keywords),
       one per line: --json gives {\"label\",\"kind\",\"detail\"} (kind: name|word|field|keyword)
+  uw easy [--atlas <atlas.json>] [--header <header_operations.py>] [--out <dir>]
+      generate the easy vocabulary for every kit operation (writes kit-meta/easy)
   uw roundtrip [--atlas <atlas.json>] [--out <dir>] [--failures N] [--schemas <dir>] [--names]
       decompile every Native operation block to UW, compile it back and compare;
       prints the share that comes back identical, writes the text to target/uw-native;
@@ -101,6 +104,7 @@ fn main() -> ExitCode {
         Some("build-project") => build_project::cmd(&args[1..]),
         Some("rename") => rename::cmd(&args[1..]),
         Some("words") => words::cmd(&args[1..]),
+        Some("easy") => easy::cmd(&args[1..]),
         Some("find") => find::cmd(&args[1..]),
         _ => {
             println!("uw {}", env!("CARGO_PKG_VERSION"));

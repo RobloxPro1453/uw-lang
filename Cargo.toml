@@ -12,6 +12,7 @@ members = [
     "crates/uw_verify",
     "crates/uw_decomp",
     "crates/uw_start",
+    "crates/uw_easy",
     "crates/uw_cli",
 ]
 

@@ -692,6 +692,7 @@ dependencies = [
  "uw_check",
  "uw_decomp",
  "uw_diag",
+ "uw_easy",
  "uw_emit",
  "uw_kitrun",
  "uw_syntax",
@@ -711,6 +712,15 @@ dependencies = [
 [[package]]
 name = "uw_diag"
 version = "0.0.1"
+
+[[package]]
+name = "uw_easy"
+version = "0.0.1"
+dependencies = [
+ "serde",
+ "serde_json",
+ "uw_atlas",
+]
 
 [[package]]
 name = "uw_emit"
