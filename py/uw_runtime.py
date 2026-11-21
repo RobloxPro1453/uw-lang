@@ -213,7 +213,7 @@ def insert_before_state(lst, state, entries):
     return insert_before(lst, at, entries)
 
 
-# Menu text and options (grammar 2, docs/meclis/gramer-2-oneri.md section 4).
+# Menu text and options (grammar 2, docs/arsiv/meclis-yon1-yon2/gramer-2-oneri.md section 4).
 # Menu layout module_game_menus.py:20-32: field 2 text, field 5 option list; an option is
 # (id, condition block, text, consequence block[, door text]). Option ids are written without the
 # `mno_` the kit adds, and compared exactly.
