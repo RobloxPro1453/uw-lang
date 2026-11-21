@@ -11,6 +11,7 @@ pub mod ast;
 pub mod lex;
 pub mod lower;
 pub mod parse;
+pub mod slots;
 
 pub use parse::parse;
 
@@ -87,6 +88,10 @@ pub struct Lowered {
     /// Native menus/scripts/triggers replaced or disabled (`disable(native.character_creation)`),
     /// as (table, id, new ops or None to empty it).
     pub overrides: Vec<(String, String, Option<Vec<Op>>)>,
+    /// The slot lock after this build: the one given in plus every new field (write it back).
+    pub slot_lock: slots::SlotLock,
+    /// Things that build but deserve a look (a field still in `slots.lock` but no longer declared).
+    pub warnings: Vec<Error>,
 }
 
 /// A message with its place (`features/sprint.uw:3: …`).

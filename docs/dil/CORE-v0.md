@@ -61,6 +61,9 @@ path       := NAME ("." NAME)*
 - `var … in lo..hi`: every write is clamped into the range.
 - `var KIND.NAME = v`: a slot on that kind, number chosen by the compiler above every slot the kit uses for
   that kind; initialised to `v` when the object appears (agents: on spawn; others: at game start).
+  The number is kept in the project's `slots.lock` and never changes (saved games store slots by number):
+  new fields go above the kit's and the lock's numbers, a deleted field's number stays reserved (warning),
+  and a kit that starts using a locked number is a build error (meclis "maden" KARAR §2).
 - Feature variables: globals named `$uw_<feature>_<name>`.
 - `on game.start` appends to Native's `game_start` after Native's own steps.
 - `while in mission {}` and top-level `while cond {} otherwise {}` run every frame in every mission

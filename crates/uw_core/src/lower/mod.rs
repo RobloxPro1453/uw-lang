@@ -16,6 +16,7 @@ use uw_atlas::Atlas;
 use crate::ast::{
     AssignOp, BinOp, Block, Call, Expr, File, Ident, Item, Path, Span, Stmt, TextPart, VarDecl,
 };
+use crate::slots::SlotLock;
 use crate::{Arg, Error, Lowered, Op};
 
 /// Where the property vocabulary lives, relative to the repository root.
@@ -98,7 +99,15 @@ impl CoreData {
 ///
 /// Every error is collected (`file:line`, see [`Error`]) instead of stopping at the first one.
 pub fn lower(files: &[File], atlas: &Atlas, data: &CoreData) -> Result<Lowered, Vec<Error>> {
+    lower_locked(files, atlas, data, &SlotLock::new())
+}
+
+/// [`lower`] for a project that has been built before: every field already in `lock` keeps its slot,
+/// new fields get numbers above the kit's and the lock's, and [`Lowered::slot_lock`] is the lock to
+/// write back (meclis "maden" KARAR §2).
+pub fn lower_locked(files: &[File], atlas: &Atlas, data: &CoreData, lock: &SlotLock) -> Result<Lowered, Vec<Error>> {
     let mut ctx = Ctx::new(atlas, data);
+    ctx.lock = lock.clone();
     let mut errors = Vec::new();
     ctx.declare(files, &mut errors);
     // A feature variable starts with its declared value when the game starts (CORE-v0 §4), so every
@@ -210,6 +219,8 @@ pub struct Ctx<'a> {
     slots: BTreeMap<(String, String), i64>,
     /// Next free slot per kind.
     next_slot: BTreeMap<String, i64>,
+    /// Slots kept from earlier builds plus the ones given out now (`slots.lock`).
+    lock: SlotLock,
     /// `let`/parameter locals in scope, innermost last.
     locals: Vec<BTreeMap<String, String>>,
     /// Constants being expanded, to catch a cycle.
@@ -234,6 +245,7 @@ impl<'a> Ctx<'a> {
             fields: BTreeMap::new(),
             slots: BTreeMap::new(),
             next_slot: BTreeMap::new(),
+            lock: SlotLock::new(),
             locals: Vec::new(),
             resolving: Vec::new(),
             scripts: Vec::new(),
@@ -253,17 +265,26 @@ impl<'a> Ctx<'a> {
         format!("$uw_{feature}_{name}")
     }
 
-    /// The slot of a field: one above every `slot_<kind>_*` constant of the atlas (CORE-v0 §4).
+    /// The slot of a field (CORE-v0 §4): its number in `slots.lock` if it has one, otherwise one above
+    /// every `slot_<kind>_*` constant of the atlas and every number the lock already holds.
     pub fn slot_for(&mut self, kind: &str, name: &str) -> i64 {
         let key = (kind.to_owned(), name.to_owned());
         if let Some(slot) = self.slots.get(&key) {
             return *slot;
         }
-        let slot = match self.next_slot.get(kind) {
-            Some(next) => *next,
-            None => self.highest_slot(kind) + 1,
+        let slot = match self.lock.get(kind, name) {
+            Some(locked) => locked,
+            None => {
+                let above_kit = self.highest_slot(kind) + 1;
+                let above_lock = self.lock.highest(kind).map_or(above_kit, |h| h + 1);
+                let next = self.next_slot.get(kind).copied().unwrap_or(above_kit);
+                let slot = above_kit.max(above_lock).max(next);
+                self.lock.insert(kind, name, slot);
+                slot
+            }
         };
-        self.next_slot.insert(kind.to_owned(), slot + 1);
+        let next = self.next_slot.get(kind).copied().unwrap_or(i64::MIN).max(slot + 1);
+        self.next_slot.insert(kind.to_owned(), next);
         self.slots.insert(key, slot);
         slot
     }
@@ -340,6 +361,19 @@ impl<'a> Ctx<'a> {
 
     fn finish(mut self) -> Lowered {
         let mut lowered = Lowered::default();
+        for (kind, name, slot) in self.lock.fields() {
+            if !self.fields.contains_key(&(kind.to_owned(), name.to_owned())) {
+                lowered.warnings.push(Error {
+                    file: "slots.lock".to_owned(),
+                    line: 0,
+                    message: format!(
+                        "field '{kind}.{name}' is no longer declared; its slot {slot} stays reserved so old saves \
+                         are not read by another field (delete the line only if no saved game uses it)"
+                    ),
+                });
+            }
+        }
+        lowered.slot_lock = self.lock.clone();
         lowered.scripts = std::mem::take(&mut self.scripts);
         if !self.start.is_empty() {
             lowered
@@ -453,6 +487,19 @@ impl<'a> Ctx<'a> {
                             continue;
                         }
                         let slot = self.slot_for(&kind.text, &decl.name.text);
+                        let native_top = self.highest_slot(&kind.text);
+                        if slot <= native_top {
+                            errors.push(Error {
+                                file: file.feature.clone(),
+                                line: decl.span.line,
+                                message: format!(
+                                    "field '{}.{}' has slot {slot} in slots.lock, but the kit now uses slot_{}_* up to {native_top}; \
+                                     the kit changed under this project (old saves would mix the two values)",
+                                    kind.text, decl.name.text, kind.text
+                                ),
+                            });
+                            continue;
+                        }
                         let field =
                             Field { slot, range, file: file.feature.clone(), line: decl.span.line };
                         self.fields.insert(key, field);
