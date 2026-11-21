@@ -1,5 +1,29 @@
 # Devir: sonraki oturum buradan başlar
 
+## 000000000000000. GECE 2 (2026-11-21) — EN ÖNCE BUNU OKU: maden + meclis bitti, sıra D0-D9
+
+**Karar:** `docs/meclis/maden/KARAR.md` (dört koltuk `K-*.md`). Özü: derleyicide yalnız slot/tetik/id/yazmaç üreten şey;
+std UW ile yazılır; Native önce salt-okunur görünüm; kabul ölçüsü "oyunda çalışıyor". Sıra ROADMAP "DİL ÇEKİRDEĞİ" D0 → D9.
+Aşağıdaki GECE notunun "1. mod klasörü / 2. meclis" adımları YAPILDI; T-134..T-137 atıldı (`Status: dropped`).
+
+**Sahibi (önemli, hafıza `mods-gold-mine`):** `warband-opensource-mods/` = elmas madeni; tek tarama değil, kalıcı hat
+(ROADMAP "MADEN PROGRAMI" M1-M6). Light&Darkness (yalnız derlenmiş .txt) aynı klasörde → M4. DeepSeek bakiyesi ~ $3;
+sahibi M2'den önce ~$10 atacak, sonra M3 için $10-15. Bakiye ~$1 altına inince söyle.
+
+**Sonraki oturum planı:**
+1. **M1 envanteri (Claude, $0):** 17 modun module_*.py'lerinden işlem kullanım sıklığı, script/tetik/sunum sayıları,
+   `ti_*` kancaları → `kit-meta/corpus/*.json`. D-adımlarının önceliği buradan.
+2. **D0** (DeepSeek ~$0.8): `kit-meta/easy/manual.toml`'daki 127 boş `easy` adını 5-6 işte doldur; ad yalnız
+   atlas/kit'ten türetilir; `uw words`'te boş kalmaz. Ardından **D1** `slots.lock` (Claude; `crates/uw_core/src/lower/mod.rs`
+   `slot_for` zaten var, kilit dosyası yok).
+3. D2-D4 (Claude) → Alex dilimi → sahibine oyun denemesi listesi.
+
+**Şerit tuzakları (bu oturumda öğrenildi):** ajanın list/search araçları `target/` altına bakmaz → git-ignored kaynakları
+şeride kopyalayınca görünür yoldan junction kur (`<lane>/warband-opensource-mods/mods` → `target/ref/mods`); şeritler
+`C:\Users\yasink\cv-calisma\universal_warband\lane-N`. 1-12. şeritlerde 17 modun .py kopyası hazır. `cv delegate train`
+"48 dal → 46" der ama yalnız yeni dalları birleştirir; `git log --merges` ile bak. PowerShell'de `git show … | Set-Content`
+Türkçe karakteri bozar: dosyayı Bash'te `git show … > dosya` ile çıkar.
+
 ## 00000000000000. GECE (2026-11-21) — EN ÖNCE BUNU OKU: "assembly → Python" düzeltmesi
 
 Sahibi YÖN-3 planını da yetersiz buldu (VISION "2026-11-21 akşam"). MS = assembly, UW = Python: mekanik

@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-21T19:05:38.263Z",
+  "updatedAt": "2026-11-21T19:37:11.069Z",
   "tasks": {
     "T-001": {
       "task": "T-001",
@@ -2093,12 +2093,16 @@
     },
     "T-138": {
       "task": "T-138",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-138",
-      "updatedAt": "2026-11-21T18:30:00.212Z"
+      "updatedAt": "2026-11-21T19:09:25.725Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/altyapi/01-anno-domini-1257.md +54 -0"
+      ]
     },
     "T-139": {
       "task": "T-139",
@@ -2128,111 +2132,155 @@
     },
     "T-155": {
       "task": "T-155",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-155",
-      "updatedAt": "2026-11-21T18:39:17.330Z"
+      "updatedAt": "2026-11-21T19:09:10.291Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/maden/ui-presentations.md +148 -0"
+      ]
     },
     "T-156": {
       "task": "T-156",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-156",
-      "updatedAt": "2026-11-21T19:05:35.662Z"
+      "updatedAt": "2026-11-21T19:19:42.719Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/maden/battle-triggers.md +73 -0"
+      ]
     },
     "T-157": {
       "task": "T-157",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-157",
-      "updatedAt": "2026-11-21T19:05:35.688Z"
+      "updatedAt": "2026-11-21T19:22:06.613Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/maden/dialogs.md +137 -0"
+      ]
     },
     "T-158": {
       "task": "T-158",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-158",
-      "updatedAt": "2026-11-21T19:05:36.045Z"
+      "updatedAt": "2026-11-21T19:27:07.461Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/maden/scripts-style.md +110 -0"
+      ]
     },
     "T-159": {
       "task": "T-159",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-159",
-      "updatedAt": "2026-11-21T19:05:35.716Z"
+      "updatedAt": "2026-11-21T19:29:33.604Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/maden/data-modeling.md +119 -0"
+      ]
     },
     "T-160": {
       "task": "T-160",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-160",
-      "updatedAt": "2026-11-21T19:05:35.795Z"
+      "updatedAt": "2026-11-21T19:36:18.848Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/maden/world-simulation.md +140 -0"
+      ]
     },
     "T-161": {
       "task": "T-161",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-161",
-      "updatedAt": "2026-11-21T19:05:35.823Z"
+      "updatedAt": "2026-11-21T19:23:13.454Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/maden/multiplayer.md +142 -0"
+      ]
     },
     "T-162": {
       "task": "T-162",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-162",
-      "updatedAt": "2026-11-21T19:05:35.876Z"
+      "updatedAt": "2026-11-21T19:37:11.069Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/maden/python-tooling.md +131 -0"
+      ]
     },
     "T-163": {
       "task": "T-163",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-163",
-      "updatedAt": "2026-11-21T19:05:38.225Z"
+      "updatedAt": "2026-11-21T19:35:39.161Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/maden/engine-quirks.md +96 -0"
+      ]
     },
     "T-164": {
       "task": "T-164",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-164",
-      "updatedAt": "2026-11-21T19:05:38.239Z"
+      "updatedAt": "2026-11-21T19:34:12.479Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/maden/strings-text.md +154 -0"
+      ]
     },
     "T-165": {
       "task": "T-165",
-      "status": "running",
+      "status": "done",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-165",
-      "updatedAt": "2026-11-21T19:05:38.262Z"
+      "updatedAt": "2026-11-21T19:17:54.218Z",
+      "summary": "status=done",
+      "files": [
+        "docs/bilgi/maden/records-authoring.md +103 -0"
+      ]
     },
     "T-166": {
       "task": "T-166",
-      "status": "pending",
+      "status": "running",
       "wave": 0,
       "deps": [],
       "blockedBy": [],
       "branch": "cv/T-166",
-      "updatedAt": "2026-11-21T19:05:38.005Z"
+      "updatedAt": "2026-11-21T19:35:39.196Z"
     }
   }
 }

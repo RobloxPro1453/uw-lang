@@ -1,0 +1,12 @@
+{
+  "taskId": "T-138",
+  "checkDigest": "dee2ce8834aa0894",
+  "branch": "cv/T-138",
+  "headSha": "96a2a18a458666913f33141981c306c9ad64d9db",
+  "treeSha": "ca775b4e072f2f44d9e032fda088a292720ba228",
+  "buildOk": true,
+  "testOk": true,
+  "status": "done",
+  "testsBy": "runner",
+  "timestamp": "2026-11-21T19:09:25.636Z"
+}

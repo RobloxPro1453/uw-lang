@@ -1,0 +1,12 @@
+{
+  "taskId": "T-162",
+  "checkDigest": "dee2ce8834aa0894",
+  "branch": "cv/T-162",
+  "headSha": "36e874636e218902021088617d8204da329cd258",
+  "treeSha": "96a9a784191ddd314a07b3303bfd5d3a6332f9ad",
+  "buildOk": true,
+  "testOk": true,
+  "status": "done",
+  "testsBy": "runner",
+  "timestamp": "2026-11-21T19:37:10.988Z"
+}

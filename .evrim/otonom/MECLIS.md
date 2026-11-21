@@ -1,11 +1,11 @@
 # Meclis Müzakere Planı
 
-- Tarih: 2026-11-15T17:45:47.571Z
-- Konu: Yön 2 büyük meclis: veri kayıtları için tek genel UW biçimi (gidiş-dönüş kabullü), uw new --from native proje iskeleti ve Native birleştirme kuralı, dil katmanları L0/L1/L2 ve ham kalan %7,3 satır (try/else_try ara hesaplı kollar, neg|/this_or_next| bekçi koşullar) için sözdizimi
+- Tarih: 2026-11-21T19:17:56.339Z
+- Konu: UW dil çekirdeği: modlarda kanıtlanan ortak eksikler (alan, koleksiyon, zaman, arayüz, metin, girdi, olay) + import/class/Native içe aktarma
 - Karar / Kip: `deep` — Derin Meclis
-- Gerekçe: Yüksek karmaşıklık ve uygun bütçe (5s %75, hafta %63 (kalan %37)): 3-4 farklı bakış açısı ile çoklu motor/model meclisi değer üretir.
+- Gerekçe: Yüksek karmaşıklık ve uygun bütçe (5s %2, hafta %84 (kalan %16)): 3-4 farklı bakış açısı ile çoklu motor/model meclisi değer üretir.
 - Karmaşıklık: `high` (istenen: `high`, derinlik: `auto`)
-- Plan / Kota: 5s %75, hafta %63 (kalan %37)
+- Plan / Kota: 5s %2, hafta %84 (kalan %16)
 - Yerel CLI'lar: (yok)
 - API Anahtarları: deepseek
 - Lisans Politikası: `open-source` (Yalnız izin verici lisanslar (MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC) incelenir; copyleft/lisanssız koddan uyarlama yasaktır.)
@@ -41,7 +41,7 @@ Odak açın: Sistem sınırları, veri akışı, modülerlik, geriye dönük uyu
 </role>
 
 <topic>
-Yön 2 büyük meclis: veri kayıtları için tek genel UW biçimi (gidiş-dönüş kabullü), uw new --from native proje iskeleti ve Native birleştirme kuralı, dil katmanları L0/L1/L2 ve ham kalan %7,3 satır (try/else_try ara hesaplı kollar, neg|/this_or_next| bekçi koşullar) için sözdizimi
+UW dil çekirdeği: modlarda kanıtlanan ortak eksikler (alan, koleksiyon, zaman, arayüz, metin, girdi, olay) + import/class/Native içe aktarma
 </topic>
 
 <license_policy mode="open-source" restricted="true">
@@ -49,7 +49,7 @@ Dağıtım/ticari kullanım politikası (open-source): Açık kaynak referans ve
 </license_policy>
 
 <context>
-Plan/Kota: 5s %75, hafta %63 (kalan %37).
+Plan/Kota: 5s %2, hafta %84 (kalan %16).
 </context>
 
 <instructions>
@@ -69,7 +69,7 @@ Odak açın: Sahip deneyimi, sıfır sürtünme, anlaşılır çıktılar, hata 
 </role>
 
 <topic>
-Yön 2 büyük meclis: veri kayıtları için tek genel UW biçimi (gidiş-dönüş kabullü), uw new --from native proje iskeleti ve Native birleştirme kuralı, dil katmanları L0/L1/L2 ve ham kalan %7,3 satır (try/else_try ara hesaplı kollar, neg|/this_or_next| bekçi koşullar) için sözdizimi
+UW dil çekirdeği: modlarda kanıtlanan ortak eksikler (alan, koleksiyon, zaman, arayüz, metin, girdi, olay) + import/class/Native içe aktarma
 </topic>
 
 <license_policy mode="open-source" restricted="true">
@@ -77,7 +77,7 @@ Dağıtım/ticari kullanım politikası (open-source): Açık kaynak referans ve
 </license_policy>
 
 <context>
-Plan/Kota: 5s %75, hafta %63 (kalan %37).
+Plan/Kota: 5s %2, hafta %84 (kalan %16).
 </context>
 
 <instructions>
@@ -97,7 +97,7 @@ Odak açın: Kör noktalar, başarısızlık kipleri, güvenlik açıkları, giz
 </role>
 
 <topic>
-Yön 2 büyük meclis: veri kayıtları için tek genel UW biçimi (gidiş-dönüş kabullü), uw new --from native proje iskeleti ve Native birleştirme kuralı, dil katmanları L0/L1/L2 ve ham kalan %7,3 satır (try/else_try ara hesaplı kollar, neg|/this_or_next| bekçi koşullar) için sözdizimi
+UW dil çekirdeği: modlarda kanıtlanan ortak eksikler (alan, koleksiyon, zaman, arayüz, metin, girdi, olay) + import/class/Native içe aktarma
 </topic>
 
 <license_policy mode="open-source" restricted="true">
@@ -105,7 +105,7 @@ Dağıtım/ticari kullanım politikası (open-source): Açık kaynak referans ve
 </license_policy>
 
 <context>
-Plan/Kota: 5s %75, hafta %63 (kalan %37).
+Plan/Kota: 5s %2, hafta %84 (kalan %16).
 </context>
 
 <instructions>
@@ -125,7 +125,7 @@ Odak açın: Token/kota maliyeti, karmaşıklık bütçesi, en sade çalışan y
 </role>
 
 <topic>
-Yön 2 büyük meclis: veri kayıtları için tek genel UW biçimi (gidiş-dönüş kabullü), uw new --from native proje iskeleti ve Native birleştirme kuralı, dil katmanları L0/L1/L2 ve ham kalan %7,3 satır (try/else_try ara hesaplı kollar, neg|/this_or_next| bekçi koşullar) için sözdizimi
+UW dil çekirdeği: modlarda kanıtlanan ortak eksikler (alan, koleksiyon, zaman, arayüz, metin, girdi, olay) + import/class/Native içe aktarma
 </topic>
 
 <license_policy mode="open-source" restricted="true">
@@ -133,7 +133,7 @@ Dağıtım/ticari kullanım politikası (open-source): Açık kaynak referans ve
 </license_policy>
 
 <context>
-Plan/Kota: 5s %75, hafta %63 (kalan %37).
+Plan/Kota: 5s %2, hafta %84 (kalan %16).
 </context>
 
 <instructions>

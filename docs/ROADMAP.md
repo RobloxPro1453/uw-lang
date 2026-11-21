@@ -23,7 +23,21 @@ Dalga 1 (mod başına altyapı, `docs/bilgi/altyapi/`) ve dalga 2 (12 konu, `doc
       denetleyici uyarıları buradan beslenir (oyunda kanıtlanmamış olan "doğrulanmadı" işaretli).
 - [ ] **M6 Hedefli kazı:** her meclis/tasarım sorusunda önce derlemde ara (araç: M1 dizini + `rg`), cevabı karar belgesine yaz.
 
-**YÖN 3 DİL KATMANI (meclis 2026-11-21, `docs/meclis/yon3/dil/KARAR-DIL.md`; EN ÖNCELİKLİ):** Module System'siz Module System. Sıra L1 → L2 → L3 → L4 → L5; aşağıdaki Y3-P* dünya paketleri bunlardan sonra gelir.
+**DİL ÇEKİRDEĞİ (meclis "maden" 2026-11-21, `docs/meclis/maden/KARAR.md`; EN ÖNCELİKLİ, aşağıdaki L1-L5 sırasının yerini alır):**
+Kural: yalnız slot/tetik/id/yazmaç üreten şey derleyicide, geri kalanı UW ile. Kabul = "oyunda çalışıyor". Sıra D0 → D9.
+
+- [ ] **D0** `kit-meta/easy/manual.toml`'daki 127 boş adı doldur (DeepSeek + denetim); `uw words`'te boş yok.
+- [ ] **D1** `slots.lock` + `var kind.field` kararlı slot (yalnız-ekle, `@renamed_from`).
+- [ ] **D2** `every`/`after`/`cooldown` + tek gizli dağıtıcı + tick maliyet raporu.
+- [ ] **D3** `hud` tek presentation + `ui.bar` + `on key` (adlı eylem, kenar algılama).
+- [ ] **D4** İlk dikey dilim = Alex: alan + zaman + HUD + tuş + kaydet/yükle (alan ekleyip eski kaydı aç); sahibi oyunda dener.
+- [ ] **D5** Sabit kapasiteli liste + `"{ifade}"` metin (yazmaçlar gizli) + bir M3 çevirisi.
+- [ ] **D6** `event`/`emit` + `screen` (ekran başına presentation) + bir ayar ekranının M3 çevirisi.
+- [ ] **D7** `class` + `import` (`main.uw` + konu dosyaları).
+- [ ] **D8** Native salt-okunur UW görünümü + `override`/`wrap`/`extend` (kararlı adla).
+- [ ] **D9** std (UW ile yazılmış): sırala, metin biçimleri, liste/ayar bileşenleri.
+
+**YÖN 3 DİL KATMANI (meclis 2026-11-21, `docs/meclis/yon3/dil/KARAR-DIL.md`):** L1-L5'in sırası "DİL ÇEKİRDEĞİ" D0-D9'a devredildi (L1 → D0, L2/L3 → D1-D3, L4 → D4); maddeler kayıt için duruyor.
 
 - [ ] **L1** Otomatik söz dağarcığı: `kit-meta/easy/` (işlem/sabit/slot, D3 kuralları), `uw words` + editör, `uw coverage --easy` (kavram sızıntısı dahil).
 - [ ] **L2** Çekirdek sözdizimi + IR: `feature`, `on <olay>`, nesne/özellik, `const/var/agent var`, birimler, `when/where`, `became`.

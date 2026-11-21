@@ -13,6 +13,11 @@ Sıradaki: Y3-P0 `uw coverage`, Y3-P1 genel katkı (27 tablo), Y3-P2 yorumlayıc
 ## 2026-01-15 14:30 · kısa başlık (kim: Claude / otonom / sahibi)
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->
+## 2026-11-21 gece 2 · Maden: 17 açık kaynak mod + "maden" meclisi (Claude + DeepSeek, tur 9)
+Önceki oturumun 7 dalı birleşti (uw_core ayrıştırıcı+lower, uw_easy sabit/slot+işlem sözlüğü, parti işlemleri, 2 stres tablosu); testler 510/510.
+DeepSeek 17 modu taradı (`docs/bilgi/altyapi/`, özet `OZET.md`) ve 11 konuda karşılaştırdı (`docs/bilgi/maden/`, 1006 kanıt satırı betikle doğrulandı).
+Meclis `docs/meclis/maden/KARAR.md`: derleyicide yalnız slot/tetik/id/yazmaç üreten şey; sıra D0-D9, ilk dilim Alex; T-134..T-137 atıldı. ROADMAP'e Maden programı M1-M6.
+Sıradaki: DEVIR en üst (M1 envanteri → D0 → D1).
 ## 2026-11-21 gece · Beyin fırtınası: "MS = assembly, UW = Python" (Claude + sahibi)
 YÖN-3 planı da örnekten iş listesi çıkardığı için askıya alındı (T-134..T-137). Sınır kuralı, import ile modülerlik, Native = içe aktarılabilir kod, class, MS dışı araçlar VISION "2026-11-21 akşam"a yazıldı. Kod değişmedi.
 Sıradaki: DEVIR en üst (warband-opensource-mods klasörü → mod taraması → meclis → yeni ROADMAP).
