@@ -8,5 +8,4 @@ on game.start {
 }
 
 // covers: scripts.hook
-// covers: hook.game_start
 // covers: op.party_relocate_near_party

@@ -37,6 +37,5 @@ override menu start_phase_2 {
 }
 
 // covers: scripts.hook
-// covers: hook.game_start
 // covers: menus.override
 // covers: op.display_message

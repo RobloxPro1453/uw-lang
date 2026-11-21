@@ -7,7 +7,6 @@ on game.start {
 }
 
 // covers: scripts.hook
-// covers: hook.game_start
 // covers: op.assign
 // covers: op.troop_set_type
 // covers: op.display_message
