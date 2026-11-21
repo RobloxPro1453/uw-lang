@@ -1,0 +1,27 @@
+{
+      "schema": 1, "kit_hash": "coverage",
+      "ops": [
+        {"name":"assign","code":2133,"line":40,"signature":"","lhs":true,"can_fail":false,"global_lhs":false},
+        {"name":"display_message","code":1106,"line":482,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"party_add_members","code":1610,"line":651,"signature":"","lhs":false,"can_fail":false,"global_lhs":false}
+      ],
+      "hooks": ["game_start"],
+      "ranges": [],
+      "constants": [
+        {"name":"ti_on_game_start","value":4.0,"module":"header_triggers","line":9},
+        {"name":"ti_simulate_battle","value":-5.0,"module":"header_triggers","line":11},
+        {"name":"ti_once","value":100000000.0,"module":"header_triggers","line":128},
+        {"name":"ti_never","value":0.0,"module":"header_triggers","line":129},
+        {"name":"slot_troop_renown","value":7,"module":"module_constants","line":659}
+      ],
+      "tables": {
+        "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","ref_tag":"mnu",
+          "entries": [
+            {"index":0,"name":"start","id":"menu_start","dup":null,"line":10,"value":["start",0,"Start here",{"list":[]}]}
+          ]},
+        "parties": {"module":"module_parties","var":"parties","id_file":"ID_parties","id_prefix":"p_","ref_tag":"p",
+          "entries": [
+            {"index":0,"name":"main_party","id":"p_main_party","dup":null,"line":1,"value":[]}
+          ]}
+      }
+    }
