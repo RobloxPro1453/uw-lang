@@ -29,6 +29,32 @@ Kolay söz bitince modcu bir alt kata iner ama dilden hiç çıkmaz. Hiçbir şe
 - Kolaylık ölçüsü yalnız "işleme ad bulundu mu" değildir. **Kavram sızıntısı** da sayılır: slot numarası,
   `reg`, `s1`, bool yerine `= 1` kolay sayılmaz (D4).
 
+## 2b. Esneklik ilkesi (sahibi, 2026-11-21)
+
+"Her işe ayrı kılıf bulma, esnek düşün." Çekirdekte **az sayıda genel fiil** bulunur. Fiil her uygun nesnede
+çalışır, ne yapacağını hedefin türü belirler:
+
+- `teleport(x)`: hedef şehir ise haritada oraya gider, sahne ya da nokta ise sahnenin içinde oraya geçer.
+  Oyuncuda, partide ve askerde aynı fiildir. `start_in` gibi tek işlik sözcükler yasaktır.
+- `disable(x)` / `enable(x)`: Native akışı, menü, tetikleyici ya da feature; hepsi aynı fiildir
+  (`disable(native.character_creation)`).
+- `show` / `hide`, `spawn` / `remove`, `give` / `take`: her nesnede aynı anlamı taşır.
+- **Her nesneye kendi alanını ekleyebilirsin:** `var agent.stamina`, `var town.loyalty`, `var troop.rank`.
+  Aynı yazım hepsinde geçerlidir.
+- **Değer aralığı:** `var agent.stamina = 100 in 0..100` yazılınca değer her yerde kendiliğinden sınırda
+  tutulur. `min`/`max` yazmaya gerek kalmaz.
+- **Zamana yayılan değişim:** `x += 15 per second` sürekli bir blok içinde geçen süreyle kendiliğinden
+  ölçeklenir. Bu her değerde çalışır.
+- **Arayüz parçaları:** bütün parçalar (yazı, resim, çubuk, düğme, kaydırıcı, panel) aynı özellik takımına
+  sahiptir: konum (`bottom_left` ya da tam koordinat), boyut, renk, saydamlık, doku/resim, yazı tipi, kenar,
+  arka plan. Hepsinin varsayılanı vardır, istenen her biri değiştirilebilir. Hazır bir parça yetmezse modcu
+  parçaları birleştirip kendi parçasını yapar. Özellikler motorun `overlay_*` işlemlerinden otomatik çıkar.
+- **`main.uw`:** projenin ana dosyasıdır. Oyunun geneliyle ilgili şeyler buraya yazılır (oyun başı,
+  oyuncu). Özellikler `features/` altında kendi dosyalarında durur ve kendiliğinden açıktır.
+
+Yeni bir genel fiil ancak birden çok nesne türünde aynı anlamı taşıyorsa çekirdeğe girer. Tek bir işe
+yarayan sözcük çekirdeğe girmez; o iş K1 otomatik sözcüklerle ya da `lib/` içinde UW kodu olarak çözülür.
+
 ## 3. Modüler yapı
 
 - Her **feature** bir dosya ya da klasördür ve kendi ad alanına sahiptir (`stamina.max`). Bir feature
@@ -80,6 +106,54 @@ işlemlerinden üretilen açık bir katalogdur); doğrulanmamış sözcükleri d
 **Hiçbir mekanik özelliğe özel bir derleyici yaması istemedi.** D'ler birer mekanizma eksiği ve takvimde.
 
 ## 7. Alex denemesi (hedef yazım; ayrıntılar uygulamada kesinleşir)
+
+**Güncel yazım (2026-11-21, §2b'ye göre):**
+
+```uw
+// main.uw — the whole game
+on game.start {
+    disable(native.character_creation)
+    player.name = "Alex"
+    player.face = face(1)
+    player.teleport(town.praven.streets)
+}
+```
+
+```uw
+// features/stamina.uw
+var agent.stamina = 100 in 0..100
+
+while in mission {
+    player.agent.stamina += 15 per second
+}
+
+ui.bar stamina_bar {
+    value    = player.agent.stamina
+    max      = 100
+    position = bottom_left          // or exact: (20, 700)
+    size     = (220, 14)
+    color    = #3FA34D
+    texture  = "bar_fill"           // optional
+    background = "bar_frame"        // optional
+    label    = "Stamina"
+}
+```
+
+```uw
+// features/sprint.uw
+while key.held(alt) and player.agent.stamina > 0 {
+    player.agent.speed = 150%
+    player.agent.stamina -= 35 per second
+}
+otherwise {
+    player.agent.speed = 100%
+}
+```
+
+`while <koşul> { } otherwise { }` sürekli geçerli bir durumu anlatır: koşul doğruyken ilk blok, değilken
+ikinci blok geçerlidir. Bu genel bir yapıdır; tuşta, mesafede ve can değerinde aynı biçimde çalışır.
+
+**İlk taslak (meclis, tarihî kayıt):**
 
 ```uw
 // uw.toml: base = "native"; features = ["quick_start", "stamina", "sprint"]
