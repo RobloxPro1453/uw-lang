@@ -20,3 +20,9 @@ on game.start {
         display_message("@UW: some gold, and no party left.")
     }
 }
+
+// covers: menus.override
+// covers: scripts.hook
+// covers: hook.game_start
+// covers: op.party_is_active
+// covers: op.display_message

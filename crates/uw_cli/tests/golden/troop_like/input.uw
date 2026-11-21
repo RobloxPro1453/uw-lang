@@ -5,3 +5,5 @@ troop elite_crossbowman like swadian_crossbowman {
     level 22
     agility 18
 }
+
+// covers: troops.like

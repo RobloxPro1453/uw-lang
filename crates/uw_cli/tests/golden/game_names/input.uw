@@ -6,3 +6,7 @@ mod golden_names
 on game.start {
     party_relocate_near_party(praven, p_main_party, 3)
 }
+
+// covers: scripts.hook
+// covers: hook.game_start
+// covers: op.party_relocate_near_party

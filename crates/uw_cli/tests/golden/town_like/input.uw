@@ -4,3 +4,5 @@ town riverhold like praven {
     name "Riverhold"
     initial_coordinates (35, -12)
 }
+
+// covers: parties.like

@@ -18,3 +18,7 @@ new menu_uw_ask "Where are you from?" {
         display_message("@UW: the south is warm.")
     }
 }
+
+// covers: menus.new
+// covers: op.troop_add_gold
+// covers: op.display_message
