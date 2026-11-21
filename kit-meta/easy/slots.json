@@ -1,0 +1,4582 @@
+[
+  {
+    "easy": "agent.arena_team_set",
+    "native": "slot_agent_arena_team_set",
+    "value": 7,
+    "family": "agent",
+    "doc": "slot_agent_arena_team_set = 7 (module_constants.py:67)",
+    "line": 67
+  },
+  {
+    "easy": "agent.bought_horse",
+    "native": "slot_agent_bought_horse",
+    "value": 26,
+    "family": "agent",
+    "doc": "slot_agent_bought_horse = 26 (module_constants.py:86)",
+    "line": 86
+  },
+  {
+    "easy": "agent.courage_score",
+    "native": "slot_agent_courage_score",
+    "value": 16,
+    "family": "agent",
+    "doc": "slot_agent_courage_score = 16 (module_constants.py:76)",
+    "line": 76
+  },
+  {
+    "easy": "agent.cur_animation",
+    "native": "slot_agent_cur_animation",
+    "value": 18,
+    "family": "agent",
+    "doc": "slot_agent_cur_animation = 18 (module_constants.py:78)",
+    "line": 78
+  },
+  {
+    "easy": "agent.doom_javelin_attacker",
+    "native": "slot_agent_doom_javelin_attacker",
+    "value": 28,
+    "family": "agent",
+    "doc": "slot_agent_doom_javelin_attacker = 28 (module_constants.py:90)",
+    "line": 90
+  },
+  {
+    "easy": "agent.doom_javelin_count",
+    "native": "slot_agent_doom_javelin_count",
+    "value": 27,
+    "family": "agent",
+    "doc": "slot_agent_doom_javelin_count = 27 (module_constants.py:89)",
+    "line": 89
+  },
+  {
+    "easy": "agent.duel_start_time",
+    "native": "slot_agent_duel_start_time",
+    "value": 22,
+    "family": "agent",
+    "doc": "slot_agent_duel_start_time = 22 (module_constants.py:82)",
+    "line": 82
+  },
+  {
+    "easy": "agent.enemy_threat",
+    "native": "slot_agent_enemy_threat",
+    "value": 14,
+    "family": "agent",
+    "doc": "slot_agent_enemy_threat = 14 (module_constants.py:74)",
+    "line": 74
+  },
+  {
+    "easy": "agent.in_duel_with",
+    "native": "slot_agent_in_duel_with",
+    "value": 21,
+    "family": "agent",
+    "doc": "slot_agent_in_duel_with = 21 (module_constants.py:81)",
+    "line": 81
+  },
+  {
+    "easy": "agent.initial_ally_power",
+    "native": "slot_agent_initial_ally_power",
+    "value": 12,
+    "family": "agent",
+    "doc": "slot_agent_initial_ally_power = 12 (module_constants.py:72)",
+    "line": 72
+  },
+  {
+    "easy": "agent.initial_enemy_power",
+    "native": "slot_agent_initial_enemy_power",
+    "value": 13,
+    "family": "agent",
+    "doc": "slot_agent_initial_enemy_power = 13 (module_constants.py:73)",
+    "line": 73
+  },
+  {
+    "easy": "agent.is_alive_before_retreat",
+    "native": "slot_agent_is_alive_before_retreat",
+    "value": 3,
+    "family": "agent",
+    "doc": "slot_agent_is_alive_before_retreat = 3 (module_constants.py:63)",
+    "line": 63
+  },
+  {
+    "easy": "agent.is_in_scripted_mode",
+    "native": "slot_agent_is_in_scripted_mode",
+    "value": 4,
+    "family": "agent",
+    "doc": "slot_agent_is_in_scripted_mode = 4 (module_constants.py:64)",
+    "line": 64
+  },
+  {
+    "easy": "agent.is_not_reinforcement",
+    "native": "slot_agent_is_not_reinforcement",
+    "value": 5,
+    "family": "agent",
+    "doc": "slot_agent_is_not_reinforcement = 5 (module_constants.py:65)",
+    "line": 65
+  },
+  {
+    "easy": "agent.is_respawn_as_bot",
+    "native": "slot_agent_is_respawn_as_bot",
+    "value": 17,
+    "family": "agent",
+    "doc": "slot_agent_is_respawn_as_bot = 17 (module_constants.py:77)",
+    "line": 77
+  },
+  {
+    "easy": "agent.is_running_away",
+    "native": "slot_agent_is_running_away",
+    "value": 15,
+    "family": "agent",
+    "doc": "slot_agent_is_running_away = 15 (module_constants.py:75)",
+    "line": 75
+  },
+  {
+    "easy": "agent.map_overlay_id",
+    "native": "slot_agent_map_overlay_id",
+    "value": 10,
+    "family": "agent",
+    "doc": "slot_agent_map_overlay_id = 10 (module_constants.py:70)",
+    "line": 70
+  },
+  {
+    "easy": "agent.next_action_time",
+    "native": "slot_agent_next_action_time",
+    "value": 19,
+    "family": "agent",
+    "doc": "slot_agent_next_action_time = 19 (module_constants.py:79)",
+    "line": 79
+  },
+  {
+    "easy": "agent.spawn_entry_point",
+    "native": "slot_agent_spawn_entry_point",
+    "value": 8,
+    "family": "agent",
+    "doc": "slot_agent_spawn_entry_point = 8 (module_constants.py:68)",
+    "line": 68
+  },
+  {
+    "easy": "agent.state",
+    "native": "slot_agent_state",
+    "value": 20,
+    "family": "agent",
+    "doc": "slot_agent_state = 20 (module_constants.py:80)",
+    "line": 80
+  },
+  {
+    "easy": "agent.target_entry_point",
+    "native": "slot_agent_target_entry_point",
+    "value": 11,
+    "family": "agent",
+    "doc": "slot_agent_target_entry_point = 11 (module_constants.py:71)",
+    "line": 71
+  },
+  {
+    "easy": "agent.target_prop_instance",
+    "native": "slot_agent_target_prop_instance",
+    "value": 9,
+    "family": "agent",
+    "doc": "slot_agent_target_prop_instance = 9 (module_constants.py:69)",
+    "line": 69
+  },
+  {
+    "easy": "agent.target_x_pos",
+    "native": "slot_agent_target_x_pos",
+    "value": 1,
+    "family": "agent",
+    "doc": "slot_agent_target_x_pos = 1 (module_constants.py:61)",
+    "line": 61
+  },
+  {
+    "easy": "agent.target_y_pos",
+    "native": "slot_agent_target_y_pos",
+    "value": 2,
+    "family": "agent",
+    "doc": "slot_agent_target_y_pos = 2 (module_constants.py:62)",
+    "line": 62
+  },
+  {
+    "easy": "agent.tournament_point",
+    "native": "slot_agent_tournament_point",
+    "value": 6,
+    "family": "agent",
+    "doc": "slot_agent_tournament_point = 6 (module_constants.py:66)",
+    "line": 66
+  },
+  {
+    "easy": "agent.walker_occupation",
+    "native": "slot_agent_walker_occupation",
+    "value": 25,
+    "family": "agent",
+    "doc": "slot_agent_walker_occupation = 25 (module_constants.py:84)",
+    "line": 84
+  },
+  {
+    "easy": "castle.exterior",
+    "native": "slot_castle_exterior",
+    "value": 10,
+    "family": "castle",
+    "doc": "slot_castle_exterior = 10 (module_constants.py:319)",
+    "line": 319
+  },
+  {
+    "easy": "cattle.driven_by_player",
+    "native": "slot_cattle_driven_by_player",
+    "value": 7,
+    "family": "cattle",
+    "doc": "slot_cattle_driven_by_player = 7 (module_constants.py:241)",
+    "line": 241
+  },
+  {
+    "easy": "center.accumulated_rents",
+    "native": "slot_center_accumulated_rents",
+    "value": 47,
+    "family": "center",
+    "doc": "slot_center_accumulated_rents = 47 (module_constants.py:284)",
+    "line": 284
+  },
+  {
+    "easy": "center.accumulated_tariffs",
+    "native": "slot_center_accumulated_tariffs",
+    "value": 48,
+    "family": "center",
+    "doc": "slot_center_accumulated_tariffs = 48 (module_constants.py:285)",
+    "line": 285
+  },
+  {
+    "easy": "center.acres_dates",
+    "native": "slot_center_acres_dates",
+    "value": 213,
+    "family": "center",
+    "doc": "slot_center_acres_dates = 213 (module_constants.py:494)",
+    "line": 494
+  },
+  {
+    "easy": "center.acres_flax",
+    "native": "slot_center_acres_flax",
+    "value": 212,
+    "family": "center",
+    "doc": "slot_center_acres_flax = 212 (module_constants.py:493)",
+    "line": 493
+  },
+  {
+    "easy": "center.acres_grain",
+    "native": "slot_center_acres_grain",
+    "value": 209,
+    "family": "center",
+    "doc": "slot_center_acres_grain = 209 (module_constants.py:490)",
+    "line": 490
+  },
+  {
+    "easy": "center.acres_olives",
+    "native": "slot_center_acres_olives",
+    "value": 210,
+    "family": "center",
+    "doc": "slot_center_acres_olives = 210 (module_constants.py:491)",
+    "line": 491
+  },
+  {
+    "easy": "center.acres_pasture",
+    "native": "slot_center_acres_pasture",
+    "value": 208,
+    "family": "center",
+    "doc": "slot_center_acres_pasture = 208 (module_constants.py:488)",
+    "line": 488
+  },
+  {
+    "easy": "center.acres_vineyard",
+    "native": "slot_center_acres_vineyard",
+    "value": 211,
+    "family": "center",
+    "doc": "slot_center_acres_vineyard = 211 (module_constants.py:492)",
+    "line": 492
+  },
+  {
+    "easy": "center.apiaries",
+    "native": "slot_center_apiaries",
+    "value": 216,
+    "family": "center",
+    "doc": "slot_center_apiaries = 216 (module_constants.py:499)",
+    "line": 499
+  },
+  {
+    "easy": "center.breweries",
+    "native": "slot_center_breweries",
+    "value": 222,
+    "family": "center",
+    "doc": "slot_center_breweries = 222 (module_constants.py:507)",
+    "line": 507
+  },
+  {
+    "easy": "center.culture",
+    "native": "slot_center_culture",
+    "value": 19,
+    "family": "center",
+    "doc": "slot_center_culture = 19 (module_constants.py:251)",
+    "line": 251
+  },
+  {
+    "easy": "center.current_improvement",
+    "native": "slot_center_current_improvement",
+    "value": 124,
+    "family": "center",
+    "doc": "slot_center_current_improvement = 124 (module_constants.py:388)",
+    "line": 388
+  },
+  {
+    "easy": "center.ex_faction",
+    "native": "slot_center_ex_faction",
+    "value": 62,
+    "family": "center",
+    "doc": "slot_center_ex_faction = 62 (module_constants.py:303)",
+    "line": 303
+  },
+  {
+    "easy": "center.faction_when_oath_renounced",
+    "native": "slot_center_faction_when_oath_renounced",
+    "value": 159,
+    "family": "center",
+    "doc": "slot_center_faction_when_oath_renounced = 159 (module_constants.py:424)",
+    "line": 424
+  },
+  {
+    "easy": "center.fishing_fleet",
+    "native": "slot_center_fishing_fleet",
+    "value": 214,
+    "family": "center",
+    "doc": "slot_center_fishing_fleet = 214 (module_constants.py:496)",
+    "line": 496
+  },
+  {
+    "easy": "center.fur_traps",
+    "native": "slot_center_fur_traps",
+    "value": 220,
+    "family": "center",
+    "doc": "slot_center_fur_traps = 220 (module_constants.py:504)",
+    "line": 504
+  },
+  {
+    "easy": "center.has_bandits",
+    "native": "slot_center_has_bandits",
+    "value": 155,
+    "family": "center",
+    "doc": "slot_center_has_bandits = 155 (module_constants.py:419)",
+    "line": 419
+  },
+  {
+    "easy": "center.has_fish_pond",
+    "native": "slot_center_has_fish_pond",
+    "value": 131,
+    "family": "center",
+    "doc": "slot_center_has_fish_pond = 131 (module_constants.py:396)",
+    "line": 396
+  },
+  {
+    "easy": "center.has_manor",
+    "native": "slot_center_has_manor",
+    "value": 130,
+    "family": "center",
+    "doc": "slot_center_has_manor = 130 (module_constants.py:395)",
+    "line": 395
+  },
+  {
+    "easy": "center.has_messenger_post",
+    "native": "slot_center_has_messenger_post",
+    "value": 134,
+    "family": "center",
+    "doc": "slot_center_has_messenger_post = 134 (module_constants.py:399)",
+    "line": 399
+  },
+  {
+    "easy": "center.has_prisoner_tower",
+    "native": "slot_center_has_prisoner_tower",
+    "value": 135,
+    "family": "center",
+    "doc": "slot_center_has_prisoner_tower = 135 (module_constants.py:400)",
+    "line": 400
+  },
+  {
+    "easy": "center.has_school",
+    "native": "slot_center_has_school",
+    "value": 133,
+    "family": "center",
+    "doc": "slot_center_has_school = 133 (module_constants.py:398)",
+    "line": 398
+  },
+  {
+    "easy": "center.has_watch_tower",
+    "native": "slot_center_has_watch_tower",
+    "value": 132,
+    "family": "center",
+    "doc": "slot_center_has_watch_tower = 132 (module_constants.py:397)",
+    "line": 397
+  },
+  {
+    "easy": "center.head_cattle",
+    "native": "slot_center_head_cattle",
+    "value": 205,
+    "family": "center",
+    "doc": "slot_center_head_cattle = 205 (module_constants.py:484)",
+    "line": 484
+  },
+  {
+    "easy": "center.head_horses",
+    "native": "slot_center_head_horses",
+    "value": 207,
+    "family": "center",
+    "doc": "slot_center_head_horses = 207 (module_constants.py:486)",
+    "line": 486
+  },
+  {
+    "easy": "center.head_sheep",
+    "native": "slot_center_head_sheep",
+    "value": 206,
+    "family": "center",
+    "doc": "slot_center_head_sheep = 206 (module_constants.py:485)",
+    "line": 485
+  },
+  {
+    "easy": "center.household_gardens",
+    "native": "slot_center_household_gardens",
+    "value": 232,
+    "family": "center",
+    "doc": "slot_center_household_gardens = 232 (module_constants.py:520)",
+    "line": 520
+  },
+  {
+    "easy": "center.improvement_end_hour",
+    "native": "slot_center_improvement_end_hour",
+    "value": 125,
+    "family": "center",
+    "doc": "slot_center_improvement_end_hour = 125 (module_constants.py:389)",
+    "line": 389
+  },
+  {
+    "easy": "center.iron_deposits",
+    "native": "slot_center_iron_deposits",
+    "value": 219,
+    "family": "center",
+    "doc": "slot_center_iron_deposits = 219 (module_constants.py:503)",
+    "line": 503
+  },
+  {
+    "easy": "center.is_besieged_by",
+    "native": "slot_center_is_besieged_by",
+    "value": 54,
+    "family": "center",
+    "doc": "slot_center_is_besieged_by = 54 (module_constants.py:293)",
+    "line": 293
+  },
+  {
+    "easy": "center.kirmiz_farms",
+    "native": "slot_center_kirmiz_farms",
+    "value": 218,
+    "family": "center",
+    "doc": "slot_center_kirmiz_farms = 218 (module_constants.py:501)",
+    "line": 501
+  },
+  {
+    "easy": "center.last_player_alarm_hour",
+    "native": "slot_center_last_player_alarm_hour",
+    "value": 42,
+    "family": "center",
+    "doc": "slot_center_last_player_alarm_hour = 42 (module_constants.py:280)",
+    "line": 280
+  },
+  {
+    "easy": "center.last_reconnoitered_by_faction_time",
+    "native": "slot_center_last_reconnoitered_by_faction_time",
+    "value": 350,
+    "family": "center",
+    "doc": "slot_center_last_reconnoitered_by_faction_time = 350 (module_constants.py:542)",
+    "line": 542
+  },
+  {
+    "easy": "center.last_spotted_enemy",
+    "native": "slot_center_last_spotted_enemy",
+    "value": 55,
+    "family": "center",
+    "doc": "slot_center_last_spotted_enemy = 55 (module_constants.py:294)",
+    "line": 294
+  },
+  {
+    "easy": "center.last_taken_by_troop",
+    "native": "slot_center_last_taken_by_troop",
+    "value": 28,
+    "family": "center",
+    "doc": "slot_center_last_taken_by_troop = 28 (module_constants.py:262)",
+    "line": 262
+  },
+  {
+    "easy": "center.last_visited_by_lord",
+    "native": "slot_center_last_visited_by_lord",
+    "value": 41,
+    "family": "center",
+    "doc": "slot_center_last_visited_by_lord = 41 (module_constants.py:278)",
+    "line": 278
+  },
+  {
+    "easy": "center.linen_looms",
+    "native": "slot_center_linen_looms",
+    "value": 225,
+    "family": "center",
+    "doc": "slot_center_linen_looms = 225 (module_constants.py:511)",
+    "line": 511
+  },
+  {
+    "easy": "center.mills",
+    "native": "slot_center_mills",
+    "value": 221,
+    "family": "center",
+    "doc": "slot_center_mills = 221 (module_constants.py:506)",
+    "line": 506
+  },
+  {
+    "easy": "center.npc_volunteer_troop_amount",
+    "native": "slot_center_mercenary_troop_amount",
+    "value": 91,
+    "family": "center",
+    "doc": "slot_center_mercenary_troop_amount = 91 (module_constants.py:359)",
+    "line": 359,
+    "alias_of": "center.npc_volunteer_troop_amount"
+  },
+  {
+    "easy": "center.npc_volunteer_troop_amount",
+    "native": "slot_center_npc_volunteer_troop_amount",
+    "value": 91,
+    "family": "center",
+    "doc": "slot_center_npc_volunteer_troop_amount = 91 (module_constants.py:357)",
+    "line": 357
+  },
+  {
+    "easy": "center.npc_volunteer_troop_type",
+    "native": "slot_center_mercenary_troop_type",
+    "value": 90,
+    "family": "center",
+    "doc": "slot_center_mercenary_troop_type = 90 (module_constants.py:358)",
+    "line": 358,
+    "alias_of": "center.npc_volunteer_troop_type"
+  },
+  {
+    "easy": "center.npc_volunteer_troop_type",
+    "native": "slot_center_npc_volunteer_troop_type",
+    "value": 90,
+    "family": "center",
+    "doc": "slot_center_npc_volunteer_troop_type = 90 (module_constants.py:356)",
+    "line": 356
+  },
+  {
+    "easy": "center.olive_presses",
+    "native": "slot_center_olive_presses",
+    "value": 224,
+    "family": "center",
+    "doc": "slot_center_olive_presses = 224 (module_constants.py:509)",
+    "line": 509
+  },
+  {
+    "easy": "center.original_faction",
+    "native": "slot_center_original_faction",
+    "value": 61,
+    "family": "center",
+    "doc": "slot_center_original_faction = 61 (module_constants.py:302)",
+    "line": 302
+  },
+  {
+    "easy": "center.player_enterprise",
+    "native": "slot_center_player_enterprise",
+    "value": 137,
+    "family": "center",
+    "doc": "slot_center_player_enterprise = 137 (module_constants.py:408)",
+    "line": 408
+  },
+  {
+    "easy": "center.player_enterprise_balance",
+    "native": "slot_center_player_enterprise_balance",
+    "value": 140,
+    "family": "center",
+    "doc": "slot_center_player_enterprise_balance = 140 (module_constants.py:413)",
+    "line": 413
+  },
+  {
+    "easy": "center.player_enterprise_consumption_order",
+    "native": "slot_center_player_enterprise_consumption_order",
+    "value": 139,
+    "family": "center",
+    "doc": "slot_center_player_enterprise_consumption_order = 139 (module_constants.py:410)",
+    "line": 410
+  },
+  {
+    "easy": "center.player_enterprise_consumption_order",
+    "native": "slot_center_player_enterprise_days_until_complete",
+    "value": 139,
+    "family": "center",
+    "doc": "slot_center_player_enterprise_days_until_complete = 139 (module_constants.py:411)",
+    "line": 411,
+    "alias_of": "center.player_enterprise_consumption_order"
+  },
+  {
+    "easy": "center.player_enterprise_input_price",
+    "native": "slot_center_player_enterprise_input_price",
+    "value": 141,
+    "family": "center",
+    "doc": "slot_center_player_enterprise_input_price = 141 (module_constants.py:414)",
+    "line": 414
+  },
+  {
+    "easy": "center.player_enterprise_output_price",
+    "native": "slot_center_player_enterprise_output_price",
+    "value": 142,
+    "family": "center",
+    "doc": "slot_center_player_enterprise_output_price = 142 (module_constants.py:415)",
+    "line": 415
+  },
+  {
+    "easy": "center.player_enterprise_production_order",
+    "native": "slot_center_player_enterprise_production_order",
+    "value": 138,
+    "family": "center",
+    "doc": "slot_center_player_enterprise_production_order = 138 (module_constants.py:409)",
+    "line": 409
+  },
+  {
+    "easy": "center.player_relation",
+    "native": "slot_center_player_relation",
+    "value": 26,
+    "family": "center",
+    "doc": "slot_center_player_relation = 26 (module_constants.py:259)",
+    "line": 259
+  },
+  {
+    "easy": "center.pottery_kilns",
+    "native": "slot_center_pottery_kilns",
+    "value": 228,
+    "family": "center",
+    "doc": "slot_center_pottery_kilns = 228 (module_constants.py:515)",
+    "line": 515
+  },
+  {
+    "easy": "center.ransom_broker",
+    "native": "slot_center_ransom_broker",
+    "value": 95,
+    "family": "center",
+    "doc": "slot_center_ransom_broker = 95 (module_constants.py:364)",
+    "line": 364
+  },
+  {
+    "easy": "center.salt_pans",
+    "native": "slot_center_salt_pans",
+    "value": 215,
+    "family": "center",
+    "doc": "slot_center_salt_pans = 215 (module_constants.py:497)",
+    "line": 497
+  },
+  {
+    "easy": "center.shipyards",
+    "native": "slot_center_shipyards",
+    "value": 231,
+    "family": "center",
+    "doc": "slot_center_shipyards = 231 (module_constants.py:518)",
+    "line": 518
+  },
+  {
+    "easy": "center.siege_begin_hours",
+    "native": "slot_center_siege_begin_hours",
+    "value": 64,
+    "family": "center",
+    "doc": "slot_center_siege_begin_hours = 64 (module_constants.py:306)",
+    "line": 306
+  },
+  {
+    "easy": "center.siege_hardness",
+    "native": "slot_center_siege_hardness",
+    "value": 65,
+    "family": "center",
+    "doc": "slot_center_siege_hardness = 65 (module_constants.py:307)",
+    "line": 307
+  },
+  {
+    "easy": "center.siege_with_belfry",
+    "native": "slot_center_siege_with_belfry",
+    "value": 27,
+    "family": "center",
+    "doc": "slot_center_siege_with_belfry = 27 (module_constants.py:261)",
+    "line": 261
+  },
+  {
+    "easy": "center.silk_farms",
+    "native": "slot_center_silk_farms",
+    "value": 217,
+    "family": "center",
+    "doc": "slot_center_silk_farms = 217 (module_constants.py:500)",
+    "line": 500
+  },
+  {
+    "easy": "center.silk_looms",
+    "native": "slot_center_silk_looms",
+    "value": 226,
+    "family": "center",
+    "doc": "slot_center_silk_looms = 226 (module_constants.py:512)",
+    "line": 512
+  },
+  {
+    "easy": "center.smithies",
+    "native": "slot_center_smithies",
+    "value": 229,
+    "family": "center",
+    "doc": "slot_center_smithies = 229 (module_constants.py:516)",
+    "line": 516
+  },
+  {
+    "easy": "center.sortie_enemy_strength",
+    "native": "slot_center_sortie_enemy_strength",
+    "value": 67,
+    "family": "center",
+    "doc": "slot_center_sortie_enemy_strength = 67 (module_constants.py:310)",
+    "line": 310
+  },
+  {
+    "easy": "center.sortie_strength",
+    "native": "slot_center_sortie_strength",
+    "value": 66,
+    "family": "center",
+    "doc": "slot_center_sortie_strength = 66 (module_constants.py:309)",
+    "line": 309
+  },
+  {
+    "easy": "center.tanneries",
+    "native": "slot_center_tanneries",
+    "value": 230,
+    "family": "center",
+    "doc": "slot_center_tanneries = 230 (module_constants.py:517)",
+    "line": 517
+  },
+  {
+    "easy": "center.tavern_bookseller",
+    "native": "slot_center_tavern_bookseller",
+    "value": 98,
+    "family": "center",
+    "doc": "slot_center_tavern_bookseller = 98 (module_constants.py:367)",
+    "line": 367
+  },
+  {
+    "easy": "center.tavern_minstrel",
+    "native": "slot_center_tavern_minstrel",
+    "value": 99,
+    "family": "center",
+    "doc": "slot_center_tavern_minstrel = 99 (module_constants.py:368)",
+    "line": 368
+  },
+  {
+    "easy": "center.tavern_traveler",
+    "native": "slot_center_tavern_traveler",
+    "value": 96,
+    "family": "center",
+    "doc": "slot_center_tavern_traveler = 96 (module_constants.py:365)",
+    "line": 365
+  },
+  {
+    "easy": "center.traveler_info_faction",
+    "native": "slot_center_traveler_info_faction",
+    "value": 97,
+    "family": "center",
+    "doc": "slot_center_traveler_info_faction = 97 (module_constants.py:366)",
+    "line": 366
+  },
+  {
+    "easy": "center.volunteer_troop_amount",
+    "native": "slot_center_volunteer_troop_amount",
+    "value": 93,
+    "family": "center",
+    "doc": "slot_center_volunteer_troop_amount = 93 (module_constants.py:361)",
+    "line": 361
+  },
+  {
+    "easy": "center.volunteer_troop_type",
+    "native": "slot_center_volunteer_troop_type",
+    "value": 92,
+    "family": "center",
+    "doc": "slot_center_volunteer_troop_type = 92 (module_constants.py:360)",
+    "line": 360
+  },
+  {
+    "easy": "center.walker_0_dna",
+    "native": "slot_center_walker_0_dna",
+    "value": 170,
+    "family": "center",
+    "doc": "slot_center_walker_0_dna = 170 (module_constants.py:437)",
+    "line": 437
+  },
+  {
+    "easy": "center.walker_0_troop",
+    "native": "slot_center_walker_0_troop",
+    "value": 160,
+    "family": "center",
+    "doc": "slot_center_walker_0_troop = 160 (module_constants.py:426)",
+    "line": 426
+  },
+  {
+    "easy": "center.walker_0_type",
+    "native": "slot_center_walker_0_type",
+    "value": 180,
+    "family": "center",
+    "doc": "slot_center_walker_0_type = 180 (module_constants.py:448)",
+    "line": 448
+  },
+  {
+    "easy": "center.walker_1_dna",
+    "native": "slot_center_walker_1_dna",
+    "value": 171,
+    "family": "center",
+    "doc": "slot_center_walker_1_dna = 171 (module_constants.py:438)",
+    "line": 438
+  },
+  {
+    "easy": "center.walker_1_troop",
+    "native": "slot_center_walker_1_troop",
+    "value": 161,
+    "family": "center",
+    "doc": "slot_center_walker_1_troop = 161 (module_constants.py:427)",
+    "line": 427
+  },
+  {
+    "easy": "center.walker_1_type",
+    "native": "slot_center_walker_1_type",
+    "value": 181,
+    "family": "center",
+    "doc": "slot_center_walker_1_type = 181 (module_constants.py:449)",
+    "line": 449
+  },
+  {
+    "easy": "center.walker_2_dna",
+    "native": "slot_center_walker_2_dna",
+    "value": 172,
+    "family": "center",
+    "doc": "slot_center_walker_2_dna = 172 (module_constants.py:439)",
+    "line": 439
+  },
+  {
+    "easy": "center.walker_2_troop",
+    "native": "slot_center_walker_2_troop",
+    "value": 162,
+    "family": "center",
+    "doc": "slot_center_walker_2_troop = 162 (module_constants.py:428)",
+    "line": 428
+  },
+  {
+    "easy": "center.walker_2_type",
+    "native": "slot_center_walker_2_type",
+    "value": 182,
+    "family": "center",
+    "doc": "slot_center_walker_2_type = 182 (module_constants.py:450)",
+    "line": 450
+  },
+  {
+    "easy": "center.walker_3_dna",
+    "native": "slot_center_walker_3_dna",
+    "value": 173,
+    "family": "center",
+    "doc": "slot_center_walker_3_dna = 173 (module_constants.py:440)",
+    "line": 440
+  },
+  {
+    "easy": "center.walker_3_troop",
+    "native": "slot_center_walker_3_troop",
+    "value": 163,
+    "family": "center",
+    "doc": "slot_center_walker_3_troop = 163 (module_constants.py:429)",
+    "line": 429
+  },
+  {
+    "easy": "center.walker_3_type",
+    "native": "slot_center_walker_3_type",
+    "value": 183,
+    "family": "center",
+    "doc": "slot_center_walker_3_type = 183 (module_constants.py:451)",
+    "line": 451
+  },
+  {
+    "easy": "center.walker_4_dna",
+    "native": "slot_center_walker_4_dna",
+    "value": 174,
+    "family": "center",
+    "doc": "slot_center_walker_4_dna = 174 (module_constants.py:441)",
+    "line": 441
+  },
+  {
+    "easy": "center.walker_4_troop",
+    "native": "slot_center_walker_4_troop",
+    "value": 164,
+    "family": "center",
+    "doc": "slot_center_walker_4_troop = 164 (module_constants.py:430)",
+    "line": 430
+  },
+  {
+    "easy": "center.walker_4_type",
+    "native": "slot_center_walker_4_type",
+    "value": 184,
+    "family": "center",
+    "doc": "slot_center_walker_4_type = 184 (module_constants.py:452)",
+    "line": 452
+  },
+  {
+    "easy": "center.walker_5_dna",
+    "native": "slot_center_walker_5_dna",
+    "value": 175,
+    "family": "center",
+    "doc": "slot_center_walker_5_dna = 175 (module_constants.py:442)",
+    "line": 442
+  },
+  {
+    "easy": "center.walker_5_troop",
+    "native": "slot_center_walker_5_troop",
+    "value": 165,
+    "family": "center",
+    "doc": "slot_center_walker_5_troop = 165 (module_constants.py:431)",
+    "line": 431
+  },
+  {
+    "easy": "center.walker_5_type",
+    "native": "slot_center_walker_5_type",
+    "value": 185,
+    "family": "center",
+    "doc": "slot_center_walker_5_type = 185 (module_constants.py:453)",
+    "line": 453
+  },
+  {
+    "easy": "center.walker_6_dna",
+    "native": "slot_center_walker_6_dna",
+    "value": 176,
+    "family": "center",
+    "doc": "slot_center_walker_6_dna = 176 (module_constants.py:443)",
+    "line": 443
+  },
+  {
+    "easy": "center.walker_6_troop",
+    "native": "slot_center_walker_6_troop",
+    "value": 166,
+    "family": "center",
+    "doc": "slot_center_walker_6_troop = 166 (module_constants.py:432)",
+    "line": 432
+  },
+  {
+    "easy": "center.walker_6_type",
+    "native": "slot_center_walker_6_type",
+    "value": 186,
+    "family": "center",
+    "doc": "slot_center_walker_6_type = 186 (module_constants.py:454)",
+    "line": 454
+  },
+  {
+    "easy": "center.walker_7_dna",
+    "native": "slot_center_walker_7_dna",
+    "value": 177,
+    "family": "center",
+    "doc": "slot_center_walker_7_dna = 177 (module_constants.py:444)",
+    "line": 444
+  },
+  {
+    "easy": "center.walker_7_troop",
+    "native": "slot_center_walker_7_troop",
+    "value": 167,
+    "family": "center",
+    "doc": "slot_center_walker_7_troop = 167 (module_constants.py:433)",
+    "line": 433
+  },
+  {
+    "easy": "center.walker_7_type",
+    "native": "slot_center_walker_7_type",
+    "value": 187,
+    "family": "center",
+    "doc": "slot_center_walker_7_type = 187 (module_constants.py:455)",
+    "line": 455
+  },
+  {
+    "easy": "center.walker_8_dna",
+    "native": "slot_center_walker_8_dna",
+    "value": 178,
+    "family": "center",
+    "doc": "slot_center_walker_8_dna = 178 (module_constants.py:445)",
+    "line": 445
+  },
+  {
+    "easy": "center.walker_8_troop",
+    "native": "slot_center_walker_8_troop",
+    "value": 168,
+    "family": "center",
+    "doc": "slot_center_walker_8_troop = 168 (module_constants.py:434)",
+    "line": 434
+  },
+  {
+    "easy": "center.walker_8_type",
+    "native": "slot_center_walker_8_type",
+    "value": 188,
+    "family": "center",
+    "doc": "slot_center_walker_8_type = 188 (module_constants.py:456)",
+    "line": 456
+  },
+  {
+    "easy": "center.walker_9_dna",
+    "native": "slot_center_walker_9_dna",
+    "value": 179,
+    "family": "center",
+    "doc": "slot_center_walker_9_dna = 179 (module_constants.py:446)",
+    "line": 446
+  },
+  {
+    "easy": "center.walker_9_troop",
+    "native": "slot_center_walker_9_troop",
+    "value": 169,
+    "family": "center",
+    "doc": "slot_center_walker_9_troop = 169 (module_constants.py:435)",
+    "line": 435
+  },
+  {
+    "easy": "center.walker_9_type",
+    "native": "slot_center_walker_9_type",
+    "value": 189,
+    "family": "center",
+    "doc": "slot_center_walker_9_type = 189 (module_constants.py:457)",
+    "line": 457
+  },
+  {
+    "easy": "center.wine_presses",
+    "native": "slot_center_wine_presses",
+    "value": 223,
+    "family": "center",
+    "doc": "slot_center_wine_presses = 223 (module_constants.py:508)",
+    "line": 508
+  },
+  {
+    "easy": "center.wool_looms",
+    "native": "slot_center_wool_looms",
+    "value": 227,
+    "family": "center",
+    "doc": "slot_center_wool_looms = 227 (module_constants.py:513)",
+    "line": 513
+  },
+  {
+    "easy": "faction.adjective",
+    "native": "slot_faction_adjective",
+    "value": 22,
+    "family": "faction",
+    "doc": "slot_faction_adjective = 22 (module_constants.py:115)",
+    "line": 115
+  },
+  {
+    "easy": "faction.ai_current_state_started",
+    "native": "slot_faction_ai_current_state_started",
+    "value": 97,
+    "family": "faction",
+    "doc": "slot_faction_ai_current_state_started = 97 (module_constants.py:201)",
+    "line": 201
+  },
+  {
+    "easy": "faction.ai_last_decisive_event",
+    "native": "slot_faction_ai_last_decisive_event",
+    "value": 98,
+    "family": "faction",
+    "doc": "slot_faction_ai_last_decisive_event = 98 (module_constants.py:203)",
+    "line": 203
+  },
+  {
+    "easy": "faction.ai_last_offensive_time",
+    "native": "slot_faction_ai_last_offensive_time",
+    "value": 95,
+    "family": "faction",
+    "doc": "slot_faction_ai_last_offensive_time = 95 (module_constants.py:197)",
+    "line": 197
+  },
+  {
+    "easy": "faction.ai_last_offensive_time",
+    "native": "slot_faction_last_offensive_concluded",
+    "value": 95,
+    "family": "faction",
+    "doc": "slot_faction_last_offensive_concluded = 95 (module_constants.py:198)",
+    "line": 198,
+    "alias_of": "faction.ai_last_offensive_time"
+  },
+  {
+    "easy": "faction.ai_last_rest_time",
+    "native": "slot_faction_ai_last_rest_time",
+    "value": 96,
+    "family": "faction",
+    "doc": "slot_faction_ai_last_rest_time = 96 (module_constants.py:200)",
+    "line": 200
+  },
+  {
+    "easy": "faction.ai_object",
+    "native": "slot_faction_ai_object",
+    "value": 5,
+    "family": "faction",
+    "doc": "slot_faction_ai_object = 5 (module_constants.py:97)",
+    "line": 97
+  },
+  {
+    "easy": "faction.ai_offensive_max_followers",
+    "native": "slot_faction_ai_offensive_max_followers",
+    "value": 9,
+    "family": "faction",
+    "doc": "slot_faction_ai_offensive_max_followers = 9 (module_constants.py:102)",
+    "line": 102
+  },
+  {
+    "easy": "faction.ai_rationale",
+    "native": "slot_faction_ai_rationale",
+    "value": 6,
+    "family": "faction",
+    "doc": "slot_faction_ai_rationale = 6 (module_constants.py:98)",
+    "line": 98
+  },
+  {
+    "easy": "faction.ai_state",
+    "native": "slot_faction_ai_state",
+    "value": 4,
+    "family": "faction",
+    "doc": "slot_faction_ai_state = 4 (module_constants.py:96)",
+    "line": 96
+  },
+  {
+    "easy": "faction.banner",
+    "native": "slot_faction_banner",
+    "value": 15,
+    "family": "faction",
+    "doc": "slot_faction_banner = 15 (module_constants.py:110)",
+    "line": 110
+  },
+  {
+    "easy": "faction.biggest_feast_host",
+    "native": "slot_faction_biggest_feast_host",
+    "value": 93,
+    "family": "faction",
+    "doc": "slot_faction_biggest_feast_host = 93 (module_constants.py:189)",
+    "line": 189
+  },
+  {
+    "easy": "faction.biggest_feast_score",
+    "native": "slot_faction_biggest_feast_score",
+    "value": 91,
+    "family": "faction",
+    "doc": "slot_faction_biggest_feast_score = 91 (module_constants.py:187)",
+    "line": 187
+  },
+  {
+    "easy": "faction.biggest_feast_time",
+    "native": "slot_faction_biggest_feast_time",
+    "value": 92,
+    "family": "faction",
+    "doc": "slot_faction_biggest_feast_time = 92 (module_constants.py:188)",
+    "line": 188
+  },
+  {
+    "easy": "faction.castle_guard_troop",
+    "native": "slot_faction_castle_guard_troop",
+    "value": 52,
+    "family": "faction",
+    "doc": "slot_faction_castle_guard_troop = 52 (module_constants.py:140)",
+    "line": 140
+  },
+  {
+    "easy": "faction.culture",
+    "native": "slot_faction_culture",
+    "value": 10,
+    "family": "faction",
+    "doc": "slot_faction_culture = 10 (module_constants.py:104)",
+    "line": 104
+  },
+  {
+    "easy": "faction.deserter_troop",
+    "native": "slot_faction_deserter_troop",
+    "value": 48,
+    "family": "faction",
+    "doc": "slot_faction_deserter_troop = 48 (module_constants.py:136)",
+    "line": 136
+  },
+  {
+    "easy": "faction.guard_troop",
+    "native": "slot_faction_guard_troop",
+    "value": 49,
+    "family": "faction",
+    "doc": "slot_faction_guard_troop = 49 (module_constants.py:137)",
+    "line": 137
+  },
+  {
+    "easy": "faction.has_rebellion_chance",
+    "native": "slot_faction_has_rebellion_chance",
+    "value": 60,
+    "family": "faction",
+    "doc": "slot_faction_has_rebellion_chance = 60 (module_constants.py:149)",
+    "line": 149
+  },
+  {
+    "easy": "faction.instability",
+    "native": "slot_faction_instability",
+    "value": 61,
+    "family": "faction",
+    "doc": "slot_faction_instability = 61 (module_constants.py:151)",
+    "line": 151
+  },
+  {
+    "easy": "faction.last_attacked_center",
+    "native": "slot_faction_last_attacked_center",
+    "value": 85,
+    "family": "faction",
+    "doc": "slot_faction_last_attacked_center = 85 (module_constants.py:180)",
+    "line": 180
+  },
+  {
+    "easy": "faction.last_attacked_hours",
+    "native": "slot_faction_last_attacked_hours",
+    "value": 86,
+    "family": "faction",
+    "doc": "slot_faction_last_attacked_hours = 86 (module_constants.py:181)",
+    "line": 181
+  },
+  {
+    "easy": "faction.last_feast_concluded",
+    "native": "slot_faction_last_feast_concluded",
+    "value": 94,
+    "family": "faction",
+    "doc": "slot_faction_last_feast_concluded = 94 (module_constants.py:193)",
+    "line": 193
+  },
+  {
+    "easy": "faction.last_feast_concluded",
+    "native": "slot_faction_last_feast_start_time",
+    "value": 94,
+    "family": "faction",
+    "doc": "slot_faction_last_feast_start_time = 94 (module_constants.py:194)",
+    "line": 194,
+    "alias_of": "faction.last_feast_concluded"
+  },
+  {
+    "easy": "faction.last_mercenary_offer_time",
+    "native": "slot_faction_last_mercenary_offer_time",
+    "value": 31,
+    "family": "faction",
+    "doc": "slot_faction_last_mercenary_offer_time = 31 (module_constants.py:119)",
+    "line": 119
+  },
+  {
+    "easy": "faction.last_safe_hours",
+    "native": "slot_faction_last_safe_hours",
+    "value": 87,
+    "family": "faction",
+    "doc": "slot_faction_last_safe_hours = 87 (module_constants.py:182)",
+    "line": 182
+  },
+  {
+    "easy": "faction.leader",
+    "native": "slot_faction_leader",
+    "value": 11,
+    "family": "faction",
+    "doc": "slot_faction_leader = 11 (module_constants.py:105)",
+    "line": 105
+  },
+  {
+    "easy": "faction.marshall",
+    "native": "slot_faction_marshall",
+    "value": 8,
+    "family": "faction",
+    "doc": "slot_faction_marshall = 8 (module_constants.py:101)",
+    "line": 101
+  },
+  {
+    "easy": "faction.messenger_troop",
+    "native": "slot_faction_messenger_troop",
+    "value": 50,
+    "family": "faction",
+    "doc": "slot_faction_messenger_troop = 50 (module_constants.py:138)",
+    "line": 138
+  },
+  {
+    "easy": "faction.morale_of_player_troops",
+    "native": "slot_faction_morale_of_player_troops",
+    "value": 99,
+    "family": "faction",
+    "doc": "slot_faction_morale_of_player_troops = 99 (module_constants.py:205)",
+    "line": 205
+  },
+  {
+    "easy": "faction.num_armies",
+    "native": "slot_faction_num_armies",
+    "value": 80,
+    "family": "faction",
+    "doc": "slot_faction_num_armies = 80 (module_constants.py:176)",
+    "line": 176
+  },
+  {
+    "easy": "faction.num_castles",
+    "native": "slot_faction_num_castles",
+    "value": 81,
+    "family": "faction",
+    "doc": "slot_faction_num_castles = 81 (module_constants.py:177)",
+    "line": 177
+  },
+  {
+    "easy": "faction.num_routed_agents",
+    "native": "slot_faction_num_routed_agents",
+    "value": 90,
+    "family": "faction",
+    "doc": "slot_faction_num_routed_agents = 90 (module_constants.py:184)",
+    "line": 184
+  },
+  {
+    "easy": "faction.num_towns",
+    "native": "slot_faction_num_towns",
+    "value": 82,
+    "family": "faction",
+    "doc": "slot_faction_num_towns = 82 (module_constants.py:178)",
+    "line": 178
+  },
+  {
+    "easy": "faction.number_of_parties",
+    "native": "slot_faction_number_of_parties",
+    "value": 20,
+    "family": "faction",
+    "doc": "slot_faction_number_of_parties = 20 (module_constants.py:112)",
+    "line": 112
+  },
+  {
+    "easy": "faction.player_alarm",
+    "native": "slot_faction_player_alarm",
+    "value": 30,
+    "family": "faction",
+    "doc": "slot_faction_player_alarm = 30 (module_constants.py:118)",
+    "line": 118
+  },
+  {
+    "easy": "faction.political_issue",
+    "native": "slot_faction_political_issue",
+    "value": 64,
+    "family": "faction",
+    "doc": "slot_faction_political_issue = 64 (module_constants.py:158)",
+    "line": 158
+  },
+  {
+    "easy": "faction.political_issue_time",
+    "native": "slot_faction_political_issue_time",
+    "value": 65,
+    "family": "faction",
+    "doc": "slot_faction_political_issue_time = 65 (module_constants.py:159)",
+    "line": 159
+  },
+  {
+    "easy": "faction.prison_guard_troop",
+    "native": "slot_faction_prison_guard_troop",
+    "value": 51,
+    "family": "faction",
+    "doc": "slot_faction_prison_guard_troop = 51 (module_constants.py:139)",
+    "line": 139
+  },
+  {
+    "easy": "faction.provocation_days_with_factions_begin",
+    "native": "slot_faction_provocation_days_with_factions_begin",
+    "value": 130,
+    "family": "faction",
+    "doc": "slot_faction_provocation_days_with_factions_begin = 130 (module_constants.py:209)",
+    "line": 209
+  },
+  {
+    "easy": "faction.quick_battle_tier_1_archer",
+    "native": "slot_faction_quick_battle_tier_1_archer",
+    "value": 43,
+    "family": "faction",
+    "doc": "slot_faction_quick_battle_tier_1_archer = 43 (module_constants.py:125)",
+    "line": 125
+  },
+  {
+    "easy": "faction.quick_battle_tier_1_archer",
+    "native": "slot_faction_tier_3_troop",
+    "value": 43,
+    "family": "faction",
+    "doc": "slot_faction_tier_3_troop = 43 (module_constants.py:132)",
+    "line": 132,
+    "alias_of": "faction.quick_battle_tier_1_archer"
+  },
+  {
+    "easy": "faction.quick_battle_tier_1_cavalry",
+    "native": "slot_faction_quick_battle_tier_1_cavalry",
+    "value": 45,
+    "family": "faction",
+    "doc": "slot_faction_quick_battle_tier_1_cavalry = 45 (module_constants.py:127)",
+    "line": 127
+  },
+  {
+    "easy": "faction.quick_battle_tier_1_cavalry",
+    "native": "slot_faction_tier_5_troop",
+    "value": 45,
+    "family": "faction",
+    "doc": "slot_faction_tier_5_troop = 45 (module_constants.py:134)",
+    "line": 134,
+    "alias_of": "faction.quick_battle_tier_1_cavalry"
+  },
+  {
+    "easy": "faction.quick_battle_tier_1_infantry",
+    "native": "slot_faction_quick_battle_tier_1_infantry",
+    "value": 41,
+    "family": "faction",
+    "doc": "slot_faction_quick_battle_tier_1_infantry = 41 (module_constants.py:123)",
+    "line": 123
+  },
+  {
+    "easy": "faction.quick_battle_tier_1_infantry",
+    "native": "slot_faction_tier_1_troop",
+    "value": 41,
+    "family": "faction",
+    "doc": "slot_faction_tier_1_troop = 41 (module_constants.py:130)",
+    "line": 130,
+    "alias_of": "faction.quick_battle_tier_1_infantry"
+  },
+  {
+    "easy": "faction.quick_battle_tier_2_archer",
+    "native": "slot_faction_quick_battle_tier_2_archer",
+    "value": 44,
+    "family": "faction",
+    "doc": "slot_faction_quick_battle_tier_2_archer = 44 (module_constants.py:126)",
+    "line": 126
+  },
+  {
+    "easy": "faction.quick_battle_tier_2_archer",
+    "native": "slot_faction_tier_4_troop",
+    "value": 44,
+    "family": "faction",
+    "doc": "slot_faction_tier_4_troop = 44 (module_constants.py:133)",
+    "line": 133,
+    "alias_of": "faction.quick_battle_tier_2_archer"
+  },
+  {
+    "easy": "faction.quick_battle_tier_2_cavalry",
+    "native": "slot_faction_quick_battle_tier_2_cavalry",
+    "value": 46,
+    "family": "faction",
+    "doc": "slot_faction_quick_battle_tier_2_cavalry = 46 (module_constants.py:128)",
+    "line": 128
+  },
+  {
+    "easy": "faction.quick_battle_tier_2_infantry",
+    "native": "slot_faction_quick_battle_tier_2_infantry",
+    "value": 42,
+    "family": "faction",
+    "doc": "slot_faction_quick_battle_tier_2_infantry = 42 (module_constants.py:124)",
+    "line": 124
+  },
+  {
+    "easy": "faction.quick_battle_tier_2_infantry",
+    "native": "slot_faction_tier_2_troop",
+    "value": 42,
+    "family": "faction",
+    "doc": "slot_faction_tier_2_troop = 42 (module_constants.py:131)",
+    "line": 131,
+    "alias_of": "faction.quick_battle_tier_2_infantry"
+  },
+  {
+    "easy": "faction.recognized_player",
+    "native": "slot_faction_recognized_player",
+    "value": 32,
+    "family": "faction",
+    "doc": "slot_faction_recognized_player = 32 (module_constants.py:120)",
+    "line": 120
+  },
+  {
+    "easy": "faction.reinforcements_a",
+    "native": "slot_faction_reinforcements_a",
+    "value": 77,
+    "family": "faction",
+    "doc": "slot_faction_reinforcements_a = 77 (module_constants.py:172)",
+    "line": 172
+  },
+  {
+    "easy": "faction.reinforcements_b",
+    "native": "slot_faction_reinforcements_b",
+    "value": 78,
+    "family": "faction",
+    "doc": "slot_faction_reinforcements_b = 78 (module_constants.py:173)",
+    "line": 173
+  },
+  {
+    "easy": "faction.reinforcements_c",
+    "native": "slot_faction_reinforcements_c",
+    "value": 79,
+    "family": "faction",
+    "doc": "slot_faction_reinforcements_c = 79 (module_constants.py:174)",
+    "line": 174
+  },
+  {
+    "easy": "faction.state",
+    "native": "slot_faction_state",
+    "value": 21,
+    "family": "faction",
+    "doc": "slot_faction_state = 21 (module_constants.py:113)",
+    "line": 113
+  },
+  {
+    "easy": "faction.sum_advice_about_factions_begin",
+    "native": "slot_faction_sum_advice_about_factions_begin",
+    "value": 150,
+    "family": "faction",
+    "doc": "slot_faction_sum_advice_about_factions_begin = 150 (module_constants.py:211)",
+    "line": 211
+  },
+  {
+    "easy": "faction.temp_slot",
+    "native": "slot_faction_temp_slot",
+    "value": 12,
+    "family": "faction",
+    "doc": "slot_faction_temp_slot = 12 (module_constants.py:107)",
+    "line": 107
+  },
+  {
+    "easy": "faction.town_spy_female_troop",
+    "native": "slot_faction_town_spy_female_troop",
+    "value": 58,
+    "family": "faction",
+    "doc": "slot_faction_town_spy_female_troop = 58 (module_constants.py:147)",
+    "line": 147
+  },
+  {
+    "easy": "faction.town_spy_male_troop",
+    "native": "slot_faction_town_spy_male_troop",
+    "value": 57,
+    "family": "faction",
+    "doc": "slot_faction_town_spy_male_troop = 57 (module_constants.py:146)",
+    "line": 146
+  },
+  {
+    "easy": "faction.town_walker_female_troop",
+    "native": "slot_faction_town_walker_female_troop",
+    "value": 54,
+    "family": "faction",
+    "doc": "slot_faction_town_walker_female_troop = 54 (module_constants.py:143)",
+    "line": 143
+  },
+  {
+    "easy": "faction.town_walker_male_troop",
+    "native": "slot_faction_town_walker_male_troop",
+    "value": 53,
+    "family": "faction",
+    "doc": "slot_faction_town_walker_male_troop = 53 (module_constants.py:142)",
+    "line": 142
+  },
+  {
+    "easy": "faction.truce_days_with_factions_begin",
+    "native": "slot_faction_truce_days_with_factions_begin",
+    "value": 120,
+    "family": "faction",
+    "doc": "slot_faction_truce_days_with_factions_begin = 120 (module_constants.py:208)",
+    "line": 208
+  },
+  {
+    "easy": "faction.village_walker_female_troop",
+    "native": "slot_faction_village_walker_female_troop",
+    "value": 56,
+    "family": "faction",
+    "doc": "slot_faction_village_walker_female_troop = 56 (module_constants.py:145)",
+    "line": 145
+  },
+  {
+    "easy": "faction.village_walker_male_troop",
+    "native": "slot_faction_village_walker_male_troop",
+    "value": 55,
+    "family": "faction",
+    "doc": "slot_faction_village_walker_male_troop = 55 (module_constants.py:144)",
+    "line": 144
+  },
+  {
+    "easy": "faction.war_damage_inflicted_on_factions_begin",
+    "native": "slot_faction_war_damage_inflicted_on_factions_begin",
+    "value": 140,
+    "family": "faction",
+    "doc": "slot_faction_war_damage_inflicted_on_factions_begin = 140 (module_constants.py:210)",
+    "line": 210
+  },
+  {
+    "easy": "faction.war_damage_inflicted_when_marshal_appointed",
+    "native": "slot_faction_war_damage_inflicted_when_marshal_appointed",
+    "value": 62,
+    "family": "faction",
+    "doc": "slot_faction_war_damage_inflicted_when_marshal_appointed = 62 (module_constants.py:155)",
+    "line": 155
+  },
+  {
+    "easy": "faction.war_damage_suffered_when_marshal_appointed",
+    "native": "slot_faction_war_damage_suffered_when_marshal_appointed",
+    "value": 63,
+    "family": "faction",
+    "doc": "slot_faction_war_damage_suffered_when_marshal_appointed = 63 (module_constants.py:156)",
+    "line": 156
+  },
+  {
+    "easy": "item.amount_available",
+    "native": "slot_item_amount_available",
+    "value": 7,
+    "family": "item",
+    "doc": "slot_item_amount_available = 7 (module_constants.py:21)",
+    "line": 21
+  },
+  {
+    "easy": "item.base_price",
+    "native": "slot_item_base_price",
+    "value": 53,
+    "family": "item",
+    "doc": "slot_item_base_price = 53 (module_constants.py:41)",
+    "line": 41
+  },
+  {
+    "easy": "item.book_read",
+    "native": "slot_item_book_read",
+    "value": 3,
+    "family": "item",
+    "doc": "slot_item_book_read = 3 (module_constants.py:18)",
+    "line": 18
+  },
+  {
+    "easy": "item.book_reading_progress",
+    "native": "slot_item_book_reading_progress",
+    "value": 2,
+    "family": "item",
+    "doc": "slot_item_book_reading_progress = 2 (module_constants.py:17)",
+    "line": 17
+  },
+  {
+    "easy": "item.ccoop_has_ammo",
+    "native": "slot_item_ccoop_has_ammo",
+    "value": 59,
+    "family": "item",
+    "doc": "slot_item_ccoop_has_ammo = 59 (module_constants.py:48)",
+    "line": 48
+  },
+  {
+    "easy": "item.desert_demand",
+    "native": "slot_item_desert_demand",
+    "value": 13,
+    "family": "item",
+    "doc": "slot_item_desert_demand = 13 (module_constants.py:25)",
+    "line": 25
+  },
+  {
+    "easy": "item.enterprise_building_cost",
+    "native": "slot_item_enterprise_building_cost",
+    "value": 58,
+    "family": "item",
+    "doc": "slot_item_enterprise_building_cost = 58 (module_constants.py:46)",
+    "line": 46
+  },
+  {
+    "easy": "item.food_bonus",
+    "native": "slot_item_food_bonus",
+    "value": 1,
+    "family": "item",
+    "doc": "slot_item_food_bonus = 1 (module_constants.py:16)",
+    "line": 16
+  },
+  {
+    "easy": "item.input_number",
+    "native": "slot_item_input_number",
+    "value": 52,
+    "family": "item",
+    "doc": "slot_item_input_number = 52 (module_constants.py:40)",
+    "line": 40
+  },
+  {
+    "easy": "item.intelligence_requirement",
+    "native": "slot_item_intelligence_requirement",
+    "value": 4,
+    "family": "item",
+    "doc": "slot_item_intelligence_requirement = 4 (module_constants.py:19)",
+    "line": 19
+  },
+  {
+    "easy": "item.is_checked",
+    "native": "slot_item_is_checked",
+    "value": 0,
+    "family": "item",
+    "doc": "slot_item_is_checked = 0 (module_constants.py:15)",
+    "line": 15
+  },
+  {
+    "easy": "item.is_raw_material_only_for",
+    "native": "slot_item_is_raw_material_only_for",
+    "value": 51,
+    "family": "item",
+    "doc": "slot_item_is_raw_material_only_for = 51 (module_constants.py:39)",
+    "line": 39
+  },
+  {
+    "easy": "item.multiplayer_availability_linked_list_begin",
+    "native": "slot_item_multiplayer_availability_linked_list_begin",
+    "value": 61,
+    "family": "item",
+    "doc": "slot_item_multiplayer_availability_linked_list_begin = 61 (module_constants.py:53)",
+    "line": 53
+  },
+  {
+    "easy": "item.multiplayer_faction_price_multipliers_begin",
+    "native": "slot_item_multiplayer_faction_price_multipliers_begin",
+    "value": 30,
+    "family": "item",
+    "doc": "slot_item_multiplayer_faction_price_multipliers_begin = 30 (module_constants.py:36)",
+    "line": 36
+  },
+  {
+    "easy": "item.multiplayer_item_class",
+    "native": "slot_item_multiplayer_item_class",
+    "value": 60,
+    "family": "item",
+    "doc": "slot_item_multiplayer_item_class = 60 (module_constants.py:52)",
+    "line": 52
+  },
+  {
+    "easy": "item.num_positions",
+    "native": "slot_item_num_positions",
+    "value": 22,
+    "family": "item",
+    "doc": "slot_item_num_positions = 22 (module_constants.py:32)",
+    "line": 32
+  },
+  {
+    "easy": "item.output_per_run",
+    "native": "slot_item_output_per_run",
+    "value": 55,
+    "family": "item",
+    "doc": "slot_item_output_per_run = 55 (module_constants.py:43)",
+    "line": 43
+  },
+  {
+    "easy": "item.overhead_per_run",
+    "native": "slot_item_overhead_per_run",
+    "value": 56,
+    "family": "item",
+    "doc": "slot_item_overhead_per_run = 56 (module_constants.py:44)",
+    "line": 44
+  },
+  {
+    "easy": "item.positions_begin",
+    "native": "slot_item_positions_begin",
+    "value": 23,
+    "family": "item",
+    "doc": "slot_item_positions_begin = 23 (module_constants.py:33)",
+    "line": 33
+  },
+  {
+    "easy": "item.primary_raw_material",
+    "native": "slot_item_primary_raw_material",
+    "value": 50,
+    "family": "item",
+    "doc": "slot_item_primary_raw_material = 50 (module_constants.py:38)",
+    "line": 38
+  },
+  {
+    "easy": "item.production_slot",
+    "native": "slot_item_production_slot",
+    "value": 14,
+    "family": "item",
+    "doc": "slot_item_production_slot = 14 (module_constants.py:27)",
+    "line": 27
+  },
+  {
+    "easy": "item.production_string",
+    "native": "slot_item_production_string",
+    "value": 15,
+    "family": "item",
+    "doc": "slot_item_production_string = 15 (module_constants.py:28)",
+    "line": 28
+  },
+  {
+    "easy": "item.rural_demand",
+    "native": "slot_item_rural_demand",
+    "value": 12,
+    "family": "item",
+    "doc": "slot_item_rural_demand = 12 (module_constants.py:24)",
+    "line": 24
+  },
+  {
+    "easy": "item.secondary_raw_material",
+    "native": "slot_item_secondary_raw_material",
+    "value": 57,
+    "family": "item",
+    "doc": "slot_item_secondary_raw_material = 57 (module_constants.py:45)",
+    "line": 45
+  },
+  {
+    "easy": "item.tied_to_good_price",
+    "native": "slot_item_tied_to_good_price",
+    "value": 20,
+    "family": "item",
+    "doc": "slot_item_tied_to_good_price = 20 (module_constants.py:30)",
+    "line": 30
+  },
+  {
+    "easy": "item.urban_demand",
+    "native": "slot_item_urban_demand",
+    "value": 11,
+    "family": "item",
+    "doc": "slot_item_urban_demand = 11 (module_constants.py:23)",
+    "line": 23
+  },
+  {
+    "easy": "lady.courtship_allegoric_recited",
+    "native": "slot_lady_courtship_allegoric_recited",
+    "value": 75,
+    "family": "lady",
+    "doc": "slot_lady_courtship_allegoric_recited = 75 (module_constants.py:811)",
+    "line": 811
+  },
+  {
+    "easy": "lady.courtship_comic_recited",
+    "native": "slot_lady_courtship_comic_recited",
+    "value": 76,
+    "family": "lady",
+    "doc": "slot_lady_courtship_comic_recited = 76 (module_constants.py:812)",
+    "line": 812
+  },
+  {
+    "easy": "lady.courtship_heroic_recited",
+    "native": "slot_lady_courtship_heroic_recited",
+    "value": 74,
+    "family": "lady",
+    "doc": "slot_lady_courtship_heroic_recited = 74 (module_constants.py:810)",
+    "line": 810
+  },
+  {
+    "easy": "lady.courtship_mystic_recited",
+    "native": "slot_lady_courtship_mystic_recited",
+    "value": 77,
+    "family": "lady",
+    "doc": "slot_lady_courtship_mystic_recited = 77 (module_constants.py:813)",
+    "line": 813
+  },
+  {
+    "easy": "lady.courtship_tragic_recited",
+    "native": "slot_lady_courtship_tragic_recited",
+    "value": 78,
+    "family": "lady",
+    "doc": "slot_lady_courtship_tragic_recited = 78 (module_constants.py:814)",
+    "line": 814
+  },
+  {
+    "easy": "lady.last_suitor",
+    "native": "slot_lady_last_suitor",
+    "value": 38,
+    "family": "lady",
+    "doc": "slot_lady_last_suitor = 38 (module_constants.py:717)",
+    "line": 717
+  },
+  {
+    "easy": "lady.no_messages",
+    "native": "slot_lady_no_messages",
+    "value": 37,
+    "family": "lady",
+    "doc": "slot_lady_no_messages = 37 (module_constants.py:716)",
+    "line": 716
+  },
+  {
+    "easy": "lady.used_tournament",
+    "native": "slot_lady_used_tournament",
+    "value": 40,
+    "family": "lady",
+    "doc": "slot_lady_used_tournament = 40 (module_constants.py:732)",
+    "line": 732
+  },
+  {
+    "easy": "lord.granted_courtship_permission",
+    "native": "slot_lord_granted_courtship_permission",
+    "value": 38,
+    "family": "lord",
+    "doc": "slot_lord_granted_courtship_permission = 38 (module_constants.py:718)",
+    "line": 718
+  },
+  {
+    "easy": "lord.recruitment_argument",
+    "native": "slot_lord_recruitment_argument",
+    "value": 53,
+    "family": "lord",
+    "doc": "slot_lord_recruitment_argument = 53 (module_constants.py:752)",
+    "line": 752
+  },
+  {
+    "easy": "lord.recruitment_candidate",
+    "native": "slot_lord_recruitment_candidate",
+    "value": 54,
+    "family": "lord",
+    "doc": "slot_lord_recruitment_candidate = 54 (module_constants.py:753)",
+    "line": 753
+  },
+  {
+    "easy": "lord.reputation_type",
+    "native": "slot_lord_reputation_type",
+    "value": 52,
+    "family": "lord",
+    "doc": "slot_lord_reputation_type = 52 (module_constants.py:751)",
+    "line": 751
+  },
+  {
+    "easy": "party.ai_object",
+    "native": "slot_party_ai_object",
+    "value": 5,
+    "family": "party",
+    "doc": "slot_party_ai_object = 5 (module_constants.py:233)",
+    "line": 233
+  },
+  {
+    "easy": "party.ai_rationale",
+    "native": "slot_party_ai_rationale",
+    "value": 6,
+    "family": "party",
+    "doc": "slot_party_ai_rationale = 6 (module_constants.py:234)",
+    "line": 234
+  },
+  {
+    "easy": "party.ai_state",
+    "native": "slot_party_ai_state",
+    "value": 4,
+    "family": "party",
+    "doc": "slot_party_ai_state = 4 (module_constants.py:232)",
+    "line": 232
+  },
+  {
+    "easy": "party.ai_substate",
+    "native": "slot_party_ai_substate",
+    "value": 8,
+    "family": "party",
+    "doc": "slot_party_ai_substate = 8 (module_constants.py:238)",
+    "line": 238
+  },
+  {
+    "easy": "party.cached_strength",
+    "native": "slot_party_cached_strength",
+    "value": 56,
+    "family": "party",
+    "doc": "slot_party_cached_strength = 56 (module_constants.py:296)",
+    "line": 296
+  },
+  {
+    "easy": "party.commander_party",
+    "native": "slot_party_commander_party",
+    "value": 30,
+    "family": "party",
+    "doc": "slot_party_commander_party = 30 (module_constants.py:265)",
+    "line": 265
+  },
+  {
+    "easy": "party.dont_follow_player_until_time",
+    "native": "slot_party_dont_follow_player_until_time",
+    "value": 33,
+    "family": "party",
+    "doc": "slot_party_dont_follow_player_until_time = 33 (module_constants.py:268)",
+    "line": 268
+  },
+  {
+    "easy": "party.follow_me",
+    "native": "slot_party_follow_me",
+    "value": 63,
+    "family": "party",
+    "doc": "slot_party_follow_me = 63 (module_constants.py:305)",
+    "line": 305
+  },
+  {
+    "easy": "party.follow_player_until_time",
+    "native": "slot_party_follow_player_until_time",
+    "value": 32,
+    "family": "party",
+    "doc": "slot_party_follow_player_until_time = 32 (module_constants.py:267)",
+    "line": 267
+  },
+  {
+    "easy": "party.follower_strength",
+    "native": "slot_party_follower_strength",
+    "value": 59,
+    "family": "party",
+    "doc": "slot_party_follower_strength = 59 (module_constants.py:299)",
+    "line": 299
+  },
+  {
+    "easy": "party.following_orders_of_troop",
+    "native": "slot_party_following_orders_of_troop",
+    "value": 244,
+    "family": "party",
+    "doc": "slot_party_following_orders_of_troop = 244 (module_constants.py:533)",
+    "line": 533
+  },
+  {
+    "easy": "party.following_player",
+    "native": "slot_party_following_player",
+    "value": 31,
+    "family": "party",
+    "doc": "slot_party_following_player = 31 (module_constants.py:266)",
+    "line": 266
+  },
+  {
+    "easy": "party.food_store",
+    "native": "slot_party_food_store",
+    "value": 53,
+    "family": "party",
+    "doc": "slot_party_food_store = 53 (module_constants.py:292)",
+    "line": 292
+  },
+  {
+    "easy": "party.home_center",
+    "native": "slot_party_home_center",
+    "value": 123,
+    "family": "party",
+    "doc": "slot_party_home_center = 123 (module_constants.py:386)",
+    "line": 386
+  },
+  {
+    "easy": "party.ignore_player_until",
+    "native": "slot_party_ignore_player_until",
+    "value": 3,
+    "family": "party",
+    "doc": "slot_party_ignore_player_until = 3 (module_constants.py:231)",
+    "line": 231
+  },
+  {
+    "easy": "party.last_in_any_center",
+    "native": "slot_party_last_in_any_center",
+    "value": 71,
+    "family": "party",
+    "doc": "slot_party_last_in_any_center = 71 (module_constants.py:315)",
+    "line": 315
+  },
+  {
+    "easy": "party.last_in_combat",
+    "native": "slot_party_last_in_combat",
+    "value": 68,
+    "family": "party",
+    "doc": "slot_party_last_in_combat = 68 (module_constants.py:312)",
+    "line": 312
+  },
+  {
+    "easy": "party.last_in_home_center",
+    "native": "slot_party_last_in_home_center",
+    "value": 69,
+    "family": "party",
+    "doc": "slot_party_last_in_home_center = 69 (module_constants.py:313)",
+    "line": 313
+  },
+  {
+    "easy": "party.last_toll_paid_hours",
+    "native": "slot_party_last_toll_paid_hours",
+    "value": 52,
+    "family": "party",
+    "doc": "slot_party_last_toll_paid_hours = 52 (module_constants.py:291)",
+    "line": 291
+  },
+  {
+    "easy": "party.last_traded_center",
+    "native": "slot_party_last_traded_center",
+    "value": 126,
+    "family": "party",
+    "doc": "slot_party_last_traded_center = 126 (module_constants.py:391)",
+    "line": 391
+  },
+  {
+    "easy": "party.leader_last_courted",
+    "native": "slot_party_leader_last_courted",
+    "value": 70,
+    "family": "party",
+    "doc": "slot_party_leader_last_courted = 70 (module_constants.py:314)",
+    "line": 314
+  },
+  {
+    "easy": "party.looted_item_1",
+    "native": "slot_party_looted_item_1",
+    "value": 110,
+    "family": "party",
+    "doc": "slot_party_looted_item_1 = 110 (module_constants.py:372)",
+    "line": 372
+  },
+  {
+    "easy": "party.looted_item_1_modifier",
+    "native": "slot_party_looted_item_1_modifier",
+    "value": 115,
+    "family": "party",
+    "doc": "slot_party_looted_item_1_modifier = 115 (module_constants.py:377)",
+    "line": 377
+  },
+  {
+    "easy": "party.looted_item_2",
+    "native": "slot_party_looted_item_2",
+    "value": 111,
+    "family": "party",
+    "doc": "slot_party_looted_item_2 = 111 (module_constants.py:373)",
+    "line": 373
+  },
+  {
+    "easy": "party.looted_item_2_modifier",
+    "native": "slot_party_looted_item_2_modifier",
+    "value": 116,
+    "family": "party",
+    "doc": "slot_party_looted_item_2_modifier = 116 (module_constants.py:378)",
+    "line": 378
+  },
+  {
+    "easy": "party.looted_item_3",
+    "native": "slot_party_looted_item_3",
+    "value": 112,
+    "family": "party",
+    "doc": "slot_party_looted_item_3 = 112 (module_constants.py:374)",
+    "line": 374
+  },
+  {
+    "easy": "party.looted_item_3_modifier",
+    "native": "slot_party_looted_item_3_modifier",
+    "value": 117,
+    "family": "party",
+    "doc": "slot_party_looted_item_3_modifier = 117 (module_constants.py:379)",
+    "line": 379
+  },
+  {
+    "easy": "party.looted_item_4",
+    "native": "slot_party_looted_item_4",
+    "value": 113,
+    "family": "party",
+    "doc": "slot_party_looted_item_4 = 113 (module_constants.py:375)",
+    "line": 375
+  },
+  {
+    "easy": "party.looted_item_4_modifier",
+    "native": "slot_party_looted_item_4_modifier",
+    "value": 118,
+    "family": "party",
+    "doc": "slot_party_looted_item_4_modifier = 118 (module_constants.py:380)",
+    "line": 380
+  },
+  {
+    "easy": "party.looted_item_5",
+    "native": "slot_party_looted_item_5",
+    "value": 114,
+    "family": "party",
+    "doc": "slot_party_looted_item_5 = 114 (module_constants.py:376)",
+    "line": 376
+  },
+  {
+    "easy": "party.looted_item_5_modifier",
+    "native": "slot_party_looted_item_5_modifier",
+    "value": 119,
+    "family": "party",
+    "doc": "slot_party_looted_item_5_modifier = 119 (module_constants.py:381)",
+    "line": 381
+  },
+  {
+    "easy": "party.nearby_enemy_strength",
+    "native": "slot_party_nearby_enemy_strength",
+    "value": 58,
+    "family": "party",
+    "doc": "slot_party_nearby_enemy_strength = 58 (module_constants.py:298)",
+    "line": 298
+  },
+  {
+    "easy": "party.nearby_friend_strength",
+    "native": "slot_party_nearby_friend_strength",
+    "value": 57,
+    "family": "party",
+    "doc": "slot_party_nearby_friend_strength = 57 (module_constants.py:297)",
+    "line": 297
+  },
+  {
+    "easy": "party.next_looted_item_slot",
+    "native": "slot_party_next_looted_item_slot",
+    "value": 109,
+    "family": "party",
+    "doc": "slot_party_next_looted_item_slot = 109 (module_constants.py:371)",
+    "line": 371
+  },
+  {
+    "easy": "party.orders_object",
+    "native": "slot_party_orders_object",
+    "value": 246,
+    "family": "party",
+    "doc": "slot_party_orders_object = 246 (module_constants.py:535)",
+    "line": 535
+  },
+  {
+    "easy": "party.orders_time",
+    "native": "slot_party_orders_time",
+    "value": 247,
+    "family": "party",
+    "doc": "slot_party_orders_time = 247 (module_constants.py:536)",
+    "line": 536
+  },
+  {
+    "easy": "party.orders_type",
+    "native": "slot_party_orders_type",
+    "value": 245,
+    "family": "party",
+    "doc": "slot_party_orders_type = 245 (module_constants.py:534)",
+    "line": 534
+  },
+  {
+    "easy": "party.retreat_flag",
+    "native": "slot_party_retreat_flag",
+    "value": 2,
+    "family": "party",
+    "doc": "slot_party_retreat_flag = 2 (module_constants.py:230)",
+    "line": 230
+  },
+  {
+    "easy": "party.temp_slot_1",
+    "native": "slot_party_temp_slot_1",
+    "value": 248,
+    "family": "party",
+    "doc": "slot_party_temp_slot_1 = 248 (module_constants.py:538)",
+    "line": 538
+  },
+  {
+    "easy": "party.type",
+    "native": "slot_party_type",
+    "value": 0,
+    "family": "party",
+    "doc": "slot_party_type = 0 (module_constants.py:228)",
+    "line": 228
+  },
+  {
+    "easy": "party.under_player_suggestion",
+    "native": "slot_party_under_player_suggestion",
+    "value": 249,
+    "family": "party",
+    "doc": "slot_party_under_player_suggestion = 249 (module_constants.py:539)",
+    "line": 539
+  },
+  {
+    "easy": "party_template.lair_party",
+    "native": "slot_party_template_lair_party",
+    "value": 4,
+    "family": "party_template",
+    "doc": "slot_party_template_lair_party = 4 (module_constants.py:1112)",
+    "line": 1112
+  },
+  {
+    "easy": "party_template.lair_spawnpoint",
+    "native": "slot_party_template_lair_spawnpoint",
+    "value": 5,
+    "family": "party_template",
+    "doc": "slot_party_template_lair_spawnpoint = 5 (module_constants.py:1113)",
+    "line": 1113
+  },
+  {
+    "easy": "party_template.lair_type",
+    "native": "slot_party_template_lair_type",
+    "value": 3,
+    "family": "party_template",
+    "doc": "slot_party_template_lair_type = 3 (module_constants.py:1111)",
+    "line": 1111
+  },
+  {
+    "easy": "party_template.num_killed",
+    "native": "slot_party_template_num_killed",
+    "value": 1,
+    "family": "party_template",
+    "doc": "slot_party_template_num_killed = 1 (module_constants.py:1109)",
+    "line": 1109
+  },
+  {
+    "easy": "player.bot_type_1_wanted",
+    "native": "slot_player_bot_type_1_wanted",
+    "value": 35,
+    "family": "player",
+    "doc": "slot_player_bot_type_1_wanted = 35 (module_constants.py:982)",
+    "line": 982
+  },
+  {
+    "easy": "player.bot_type_2_wanted",
+    "native": "slot_player_bot_type_2_wanted",
+    "value": 36,
+    "family": "player",
+    "doc": "slot_player_bot_type_2_wanted = 36 (module_constants.py:983)",
+    "line": 983
+  },
+  {
+    "easy": "player.bot_type_3_wanted",
+    "native": "slot_player_bot_type_3_wanted",
+    "value": 37,
+    "family": "player",
+    "doc": "slot_player_bot_type_3_wanted = 37 (module_constants.py:984)",
+    "line": 984
+  },
+  {
+    "easy": "player.bot_type_4_wanted",
+    "native": "slot_player_bot_type_4_wanted",
+    "value": 38,
+    "family": "player",
+    "doc": "slot_player_bot_type_4_wanted = 38 (module_constants.py:985)",
+    "line": 985
+  },
+  {
+    "easy": "player.button_index",
+    "native": "slot_player_button_index",
+    "value": 22,
+    "family": "player",
+    "doc": "slot_player_button_index = 22 (module_constants.py:969)",
+    "line": 969
+  },
+  {
+    "easy": "player.can_answer_poll",
+    "native": "slot_player_can_answer_poll",
+    "value": 23,
+    "family": "player",
+    "doc": "slot_player_can_answer_poll = 23 (module_constants.py:970)",
+    "line": 970
+  },
+  {
+    "easy": "player.ccoop_drop_item_1",
+    "native": "slot_player_ccoop_drop_item_1",
+    "value": 40,
+    "family": "player",
+    "doc": "slot_player_ccoop_drop_item_1 = 40 (module_constants.py:988)",
+    "line": 988
+  },
+  {
+    "easy": "player.ccoop_drop_item_2",
+    "native": "slot_player_ccoop_drop_item_2",
+    "value": 41,
+    "family": "player",
+    "doc": "slot_player_ccoop_drop_item_2 = 41 (module_constants.py:989)",
+    "line": 989
+  },
+  {
+    "easy": "player.companion_classes_end",
+    "native": "slot_player_companion_classes_end",
+    "value": 47,
+    "family": "player",
+    "doc": "slot_player_companion_classes_end = 47 (module_constants.py:994)",
+    "line": 994
+  },
+  {
+    "easy": "player.companion_classes_end",
+    "native": "slot_player_companion_levels_begin",
+    "value": 47,
+    "family": "player",
+    "doc": "slot_player_companion_levels_begin = 47 (module_constants.py:995)",
+    "line": 995,
+    "alias_of": "player.companion_classes_end"
+  },
+  {
+    "easy": "player.companion_ids_begin",
+    "native": "slot_player_companion_ids_begin",
+    "value": 43,
+    "family": "player",
+    "doc": "slot_player_companion_ids_begin = 43 (module_constants.py:991)",
+    "line": 991
+  },
+  {
+    "easy": "player.companion_ids_end",
+    "native": "slot_player_companion_classes_begin",
+    "value": 45,
+    "family": "player",
+    "doc": "slot_player_companion_classes_begin = 45 (module_constants.py:993)",
+    "line": 993,
+    "alias_of": "player.companion_ids_end"
+  },
+  {
+    "easy": "player.companion_ids_end",
+    "native": "slot_player_companion_ids_end",
+    "value": 45,
+    "family": "player",
+    "doc": "slot_player_companion_ids_end = 45 (module_constants.py:992)",
+    "line": 992
+  },
+  {
+    "easy": "player.companion_ids_locked",
+    "native": "slot_player_companion_ids_locked",
+    "value": 42,
+    "family": "player",
+    "doc": "slot_player_companion_ids_locked = 42 (module_constants.py:990)",
+    "line": 990
+  },
+  {
+    "easy": "player.companion_levels_end",
+    "native": "slot_player_companion_levels_end",
+    "value": 49,
+    "family": "player",
+    "doc": "slot_player_companion_levels_end = 49 (module_constants.py:996)",
+    "line": 996
+  },
+  {
+    "easy": "player.companion_levels_end",
+    "native": "slot_player_coop_dropped_item",
+    "value": 49,
+    "family": "player",
+    "doc": "slot_player_coop_dropped_item = 49 (module_constants.py:997)",
+    "line": 997,
+    "alias_of": "player.companion_levels_end"
+  },
+  {
+    "easy": "player.coop_opened_chests_begin",
+    "native": "slot_player_coop_opened_chests_begin",
+    "value": 50,
+    "family": "player",
+    "doc": "slot_player_coop_opened_chests_begin = 50 (module_constants.py:998)",
+    "line": 998
+  },
+  {
+    "easy": "player.coop_opened_chests_end",
+    "native": "slot_player_coop_opened_chests_end",
+    "value": 60,
+    "family": "player",
+    "doc": "slot_player_coop_opened_chests_end = 60 (module_constants.py:999)",
+    "line": 999
+  },
+  {
+    "easy": "player.cur_selected_item_indices_end",
+    "native": "slot_player_cur_selected_item_indices_end",
+    "value": 20,
+    "family": "player",
+    "doc": "slot_player_cur_selected_item_indices_end = 20 (module_constants.py:967)",
+    "line": 967
+  },
+  {
+    "easy": "player.damage_given_to_target_1",
+    "native": "slot_player_damage_given_to_target_1",
+    "value": 32,
+    "family": "player",
+    "doc": "slot_player_damage_given_to_target_1 = 32 (module_constants.py:979)",
+    "line": 979
+  },
+  {
+    "easy": "player.damage_given_to_target_2",
+    "native": "slot_player_damage_given_to_target_2",
+    "value": 33,
+    "family": "player",
+    "doc": "slot_player_damage_given_to_target_2 = 33 (module_constants.py:980)",
+    "line": 980
+  },
+  {
+    "easy": "player.death_pos_x",
+    "native": "slot_player_death_pos_x",
+    "value": 29,
+    "family": "player",
+    "doc": "slot_player_death_pos_x = 29 (module_constants.py:976)",
+    "line": 976
+  },
+  {
+    "easy": "player.death_pos_y",
+    "native": "slot_player_death_pos_y",
+    "value": 30,
+    "family": "player",
+    "doc": "slot_player_death_pos_y = 30 (module_constants.py:977)",
+    "line": 977
+  },
+  {
+    "easy": "player.death_pos_z",
+    "native": "slot_player_death_pos_z",
+    "value": 31,
+    "family": "player",
+    "doc": "slot_player_death_pos_z = 31 (module_constants.py:978)",
+    "line": 978
+  },
+  {
+    "easy": "player.first_spawn",
+    "native": "slot_player_first_spawn",
+    "value": 24,
+    "family": "player",
+    "doc": "slot_player_first_spawn = 24 (module_constants.py:971)",
+    "line": 971
+  },
+  {
+    "easy": "player.join_time",
+    "native": "slot_player_join_time",
+    "value": 21,
+    "family": "player",
+    "doc": "slot_player_join_time = 21 (module_constants.py:968)",
+    "line": 968
+  },
+  {
+    "easy": "player.last_bot_count",
+    "native": "slot_player_last_bot_count",
+    "value": 34,
+    "family": "player",
+    "doc": "slot_player_last_bot_count = 34 (module_constants.py:981)",
+    "line": 981
+  },
+  {
+    "easy": "player.last_rounds_used_item_earnings",
+    "native": "slot_player_last_rounds_used_item_earnings",
+    "value": 1,
+    "family": "player",
+    "doc": "slot_player_last_rounds_used_item_earnings = 1 (module_constants.py:963)",
+    "line": 963
+  },
+  {
+    "easy": "player.last_team_select_time",
+    "native": "slot_player_last_team_select_time",
+    "value": 28,
+    "family": "player",
+    "doc": "slot_player_last_team_select_time = 28 (module_constants.py:975)",
+    "line": 975
+  },
+  {
+    "easy": "player.poll_disabled_until_time",
+    "native": "slot_player_poll_disabled_until_time",
+    "value": 26,
+    "family": "player",
+    "doc": "slot_player_poll_disabled_until_time = 26 (module_constants.py:973)",
+    "line": 973
+  },
+  {
+    "easy": "player.selected_item_indices_begin",
+    "native": "slot_player_selected_item_indices_begin",
+    "value": 2,
+    "family": "player",
+    "doc": "slot_player_selected_item_indices_begin = 2 (module_constants.py:964)",
+    "line": 964
+  },
+  {
+    "easy": "player.selected_item_indices_end",
+    "native": "slot_player_cur_selected_item_indices_begin",
+    "value": 11,
+    "family": "player",
+    "doc": "slot_player_cur_selected_item_indices_begin = 11 (module_constants.py:966)",
+    "line": 966,
+    "alias_of": "player.selected_item_indices_end"
+  },
+  {
+    "easy": "player.selected_item_indices_end",
+    "native": "slot_player_selected_item_indices_end",
+    "value": 11,
+    "family": "player",
+    "doc": "slot_player_selected_item_indices_end = 11 (module_constants.py:965)",
+    "line": 965
+  },
+  {
+    "easy": "player.spawn_count",
+    "native": "slot_player_spawn_count",
+    "value": 39,
+    "family": "player",
+    "doc": "slot_player_spawn_count = 39 (module_constants.py:986)",
+    "line": 986
+  },
+  {
+    "easy": "player.spawned_at_siege_round",
+    "native": "slot_player_spawned_at_siege_round",
+    "value": 25,
+    "family": "player",
+    "doc": "slot_player_spawned_at_siege_round = 25 (module_constants.py:972)",
+    "line": 972
+  },
+  {
+    "easy": "player.spawned_this_round",
+    "native": "slot_player_spawned_this_round",
+    "value": 0,
+    "family": "player",
+    "doc": "slot_player_spawned_this_round = 0 (module_constants.py:962)",
+    "line": 962
+  },
+  {
+    "easy": "player.total_equipment_value",
+    "native": "slot_player_total_equipment_value",
+    "value": 27,
+    "family": "player",
+    "doc": "slot_player_total_equipment_value = 27 (module_constants.py:974)",
+    "line": 974
+  },
+  {
+    "easy": "production.sources_begin",
+    "native": "slot_production_sources_begin",
+    "value": 209,
+    "family": "production",
+    "doc": "slot_production_sources_begin = 209 (module_constants.py:489)",
+    "line": 489
+  },
+  {
+    "easy": "production.sources_end",
+    "native": "slot_production_sources_end",
+    "value": 233,
+    "family": "production",
+    "doc": "slot_production_sources_end = 233 (module_constants.py:521)",
+    "line": 521
+  },
+  {
+    "easy": "quest.convince_value",
+    "native": "slot_quest_convince_value",
+    "value": 19,
+    "family": "quest",
+    "doc": "slot_quest_convince_value = 19 (module_constants.py:1093)",
+    "line": 1093
+  },
+  {
+    "easy": "quest.current_state",
+    "native": "slot_quest_current_state",
+    "value": 11,
+    "family": "quest",
+    "doc": "slot_quest_current_state = 11 (module_constants.py:1084)",
+    "line": 1084
+  },
+  {
+    "easy": "quest.dont_give_again_period",
+    "native": "slot_quest_dont_give_again_period",
+    "value": 24,
+    "family": "quest",
+    "doc": "slot_quest_dont_give_again_period = 24 (module_constants.py:1098)",
+    "line": 1098
+  },
+  {
+    "easy": "quest.dont_give_again_remaining_days",
+    "native": "slot_quest_dont_give_again_remaining_days",
+    "value": 25,
+    "family": "quest",
+    "doc": "slot_quest_dont_give_again_remaining_days = 25 (module_constants.py:1099)",
+    "line": 1099
+  },
+  {
+    "easy": "quest.expiration_days",
+    "native": "slot_quest_expiration_days",
+    "value": 23,
+    "family": "quest",
+    "doc": "slot_quest_expiration_days = 23 (module_constants.py:1097)",
+    "line": 1097
+  },
+  {
+    "easy": "quest.failure_consequence",
+    "native": "slot_quest_failure_consequence",
+    "value": 26,
+    "family": "quest",
+    "doc": "slot_quest_failure_consequence = 26 (module_constants.py:1101)",
+    "line": 1101
+  },
+  {
+    "easy": "quest.giver_center",
+    "native": "slot_quest_giver_center",
+    "value": 12,
+    "family": "quest",
+    "doc": "slot_quest_giver_center = 12 (module_constants.py:1085)",
+    "line": 1085
+  },
+  {
+    "easy": "quest.giver_troop",
+    "native": "slot_quest_giver_troop",
+    "value": 6,
+    "family": "quest",
+    "doc": "slot_quest_giver_troop = 6 (module_constants.py:1079)",
+    "line": 1079
+  },
+  {
+    "easy": "quest.gold_reward",
+    "native": "slot_quest_gold_reward",
+    "value": 22,
+    "family": "quest",
+    "doc": "slot_quest_gold_reward = 22 (module_constants.py:1096)",
+    "line": 1096
+  },
+  {
+    "easy": "quest.importance",
+    "native": "slot_quest_importance",
+    "value": 20,
+    "family": "quest",
+    "doc": "slot_quest_importance = 20 (module_constants.py:1094)",
+    "line": 1094
+  },
+  {
+    "easy": "quest.object_center",
+    "native": "slot_quest_object_center",
+    "value": 7,
+    "family": "quest",
+    "doc": "slot_quest_object_center = 7 (module_constants.py:1080)",
+    "line": 1080
+  },
+  {
+    "easy": "quest.object_faction",
+    "native": "slot_quest_object_faction",
+    "value": 15,
+    "family": "quest",
+    "doc": "slot_quest_object_faction = 15 (module_constants.py:1088)",
+    "line": 1088
+  },
+  {
+    "easy": "quest.object_state",
+    "native": "slot_quest_object_state",
+    "value": 17,
+    "family": "quest",
+    "doc": "slot_quest_object_state = 17 (module_constants.py:1091)",
+    "line": 1091
+  },
+  {
+    "easy": "quest.object_troop",
+    "native": "slot_quest_object_troop",
+    "value": 4,
+    "family": "quest",
+    "doc": "slot_quest_object_troop = 4 (module_constants.py:1077)",
+    "line": 1077
+  },
+  {
+    "easy": "quest.target_amount",
+    "native": "slot_quest_target_amount",
+    "value": 10,
+    "family": "quest",
+    "doc": "slot_quest_target_amount = 10 (module_constants.py:1083)",
+    "line": 1083
+  },
+  {
+    "easy": "quest.target_center",
+    "native": "slot_quest_target_center",
+    "value": 1,
+    "family": "quest",
+    "doc": "slot_quest_target_center = 1 (module_constants.py:1074)",
+    "line": 1074
+  },
+  {
+    "easy": "quest.target_dna",
+    "native": "slot_quest_target_dna",
+    "value": 13,
+    "family": "quest",
+    "doc": "slot_quest_target_dna = 13 (module_constants.py:1086)",
+    "line": 1086
+  },
+  {
+    "easy": "quest.target_faction",
+    "native": "slot_quest_target_faction",
+    "value": 3,
+    "family": "quest",
+    "doc": "slot_quest_target_faction = 3 (module_constants.py:1076)",
+    "line": 1076
+  },
+  {
+    "easy": "quest.target_item",
+    "native": "slot_quest_target_item",
+    "value": 14,
+    "family": "quest",
+    "doc": "slot_quest_target_item = 14 (module_constants.py:1087)",
+    "line": 1087
+  },
+  {
+    "easy": "quest.target_party",
+    "native": "slot_quest_target_party",
+    "value": 8,
+    "family": "quest",
+    "doc": "slot_quest_target_party = 8 (module_constants.py:1081)",
+    "line": 1081
+  },
+  {
+    "easy": "quest.target_party_template",
+    "native": "slot_quest_target_party_template",
+    "value": 9,
+    "family": "quest",
+    "doc": "slot_quest_target_party_template = 9 (module_constants.py:1082)",
+    "line": 1082
+  },
+  {
+    "easy": "quest.target_state",
+    "native": "slot_quest_target_state",
+    "value": 16,
+    "family": "quest",
+    "doc": "slot_quest_target_state = 16 (module_constants.py:1090)",
+    "line": 1090
+  },
+  {
+    "easy": "quest.target_troop",
+    "native": "slot_quest_target_troop",
+    "value": 2,
+    "family": "quest",
+    "doc": "slot_quest_target_troop = 2 (module_constants.py:1075)",
+    "line": 1075
+  },
+  {
+    "easy": "quest.temp_slot",
+    "native": "slot_quest_temp_slot",
+    "value": 27,
+    "family": "quest",
+    "doc": "slot_quest_temp_slot = 27 (module_constants.py:1102)",
+    "line": 1102
+  },
+  {
+    "easy": "quest.xp_reward",
+    "native": "slot_quest_xp_reward",
+    "value": 21,
+    "family": "quest",
+    "doc": "slot_quest_xp_reward = 21 (module_constants.py:1095)",
+    "line": 1095
+  },
+  {
+    "easy": "scene.belfry_props_begin",
+    "native": "slot_scene_belfry_props_begin",
+    "value": 10,
+    "family": "scene",
+    "doc": "slot_scene_belfry_props_begin = 10 (module_constants.py:634)",
+    "line": 634
+  },
+  {
+    "easy": "scene.ccoop_disallow_horses",
+    "native": "slot_scene_ccoop_disallow_horses",
+    "value": 1,
+    "family": "scene",
+    "doc": "slot_scene_ccoop_disallow_horses = 1 (module_constants.py:632)",
+    "line": 632
+  },
+  {
+    "easy": "scene.visited",
+    "native": "slot_scene_visited",
+    "value": 0,
+    "family": "scene",
+    "doc": "slot_scene_visited = 0 (module_constants.py:630)",
+    "line": 630
+  },
+  {
+    "easy": "team.flag_situation",
+    "native": "slot_team_flag_situation",
+    "value": 0,
+    "family": "team",
+    "doc": "slot_team_flag_situation = 0 (module_constants.py:1006)",
+    "line": 1006
+  },
+  {
+    "easy": "town.alley",
+    "native": "slot_town_alley",
+    "value": 17,
+    "family": "town",
+    "doc": "slot_town_alley = 17 (module_constants.py:249)",
+    "line": 249
+  },
+  {
+    "easy": "town.arena",
+    "native": "slot_town_arena",
+    "value": 16,
+    "family": "town",
+    "doc": "slot_town_arena = 16 (module_constants.py:248)",
+    "line": 248
+  },
+  {
+    "easy": "town.arena_melee_1_num_teams",
+    "native": "slot_town_arena_melee_1_num_teams",
+    "value": 80,
+    "family": "town",
+    "doc": "slot_town_arena_melee_1_num_teams = 80 (module_constants.py:347)",
+    "line": 347
+  },
+  {
+    "easy": "town.arena_melee_1_team_size",
+    "native": "slot_town_arena_melee_1_team_size",
+    "value": 81,
+    "family": "town",
+    "doc": "slot_town_arena_melee_1_team_size = 81 (module_constants.py:348)",
+    "line": 348
+  },
+  {
+    "easy": "town.arena_melee_2_num_teams",
+    "native": "slot_town_arena_melee_2_num_teams",
+    "value": 82,
+    "family": "town",
+    "doc": "slot_town_arena_melee_2_num_teams = 82 (module_constants.py:349)",
+    "line": 349
+  },
+  {
+    "easy": "town.arena_melee_2_team_size",
+    "native": "slot_town_arena_melee_2_team_size",
+    "value": 83,
+    "family": "town",
+    "doc": "slot_town_arena_melee_2_team_size = 83 (module_constants.py:350)",
+    "line": 350
+  },
+  {
+    "easy": "town.arena_melee_3_num_teams",
+    "native": "slot_town_arena_melee_3_num_teams",
+    "value": 84,
+    "family": "town",
+    "doc": "slot_town_arena_melee_3_num_teams = 84 (module_constants.py:351)",
+    "line": 351
+  },
+  {
+    "easy": "town.arena_melee_3_team_size",
+    "native": "slot_town_arena_melee_3_team_size",
+    "value": 85,
+    "family": "town",
+    "doc": "slot_town_arena_melee_3_team_size = 85 (module_constants.py:352)",
+    "line": 352
+  },
+  {
+    "easy": "town.arena_melee_cur_tier",
+    "native": "slot_town_arena_melee_cur_tier",
+    "value": 86,
+    "family": "town",
+    "doc": "slot_town_arena_melee_cur_tier = 86 (module_constants.py:353)",
+    "line": 353
+  },
+  {
+    "easy": "town.arena_melee_mission_tpl",
+    "native": "slot_town_arena_melee_mission_tpl",
+    "value": 78,
+    "family": "town",
+    "doc": "slot_town_arena_melee_mission_tpl = 78 (module_constants.py:345)",
+    "line": 345
+  },
+  {
+    "easy": "town.arena_torny_mission_tpl",
+    "native": "slot_town_arena_torny_mission_tpl",
+    "value": 79,
+    "family": "town",
+    "doc": "slot_town_arena_torny_mission_tpl = 79 (module_constants.py:346)",
+    "line": 346
+  },
+  {
+    "easy": "town.armorer",
+    "native": "slot_town_armorer",
+    "value": 22,
+    "family": "town",
+    "doc": "slot_town_armorer = 22 (module_constants.py:255)",
+    "line": 255
+  },
+  {
+    "easy": "town.castle",
+    "native": "slot_town_castle",
+    "value": 11,
+    "family": "town",
+    "doc": "slot_town_castle = 11 (module_constants.py:244)",
+    "line": 244
+  },
+  {
+    "easy": "town.center",
+    "native": "slot_town_center",
+    "value": 10,
+    "family": "town",
+    "doc": "slot_town_center = 10 (module_constants.py:243)",
+    "line": 243
+  },
+  {
+    "easy": "town.claimed_by_player",
+    "native": "slot_town_claimed_by_player",
+    "value": 9,
+    "family": "town",
+    "doc": "slot_town_claimed_by_player = 9 (module_constants.py:239)",
+    "line": 239
+  },
+  {
+    "easy": "town.elder",
+    "native": "slot_town_elder",
+    "value": 25,
+    "family": "town",
+    "doc": "slot_town_elder = 25 (module_constants.py:258)",
+    "line": 258
+  },
+  {
+    "easy": "town.has_tournament",
+    "native": "slot_town_has_tournament",
+    "value": 156,
+    "family": "town",
+    "doc": "slot_town_has_tournament = 156 (module_constants.py:420)",
+    "line": 420
+  },
+  {
+    "easy": "town.horse_merchant",
+    "native": "slot_town_horse_merchant",
+    "value": 24,
+    "family": "town",
+    "doc": "slot_town_horse_merchant = 24 (module_constants.py:257)",
+    "line": 257
+  },
+  {
+    "easy": "town.last_nearby_fire_time",
+    "native": "slot_town_last_nearby_fire_time",
+    "value": 240,
+    "family": "town",
+    "doc": "slot_town_last_nearby_fire_time = 240 (module_constants.py:530)",
+    "line": 530
+  },
+  {
+    "easy": "town.lord",
+    "native": "slot_town_lord",
+    "value": 7,
+    "family": "town",
+    "doc": "slot_town_lord = 7 (module_constants.py:237)",
+    "line": 237
+  },
+  {
+    "easy": "town.merchant",
+    "native": "slot_town_merchant",
+    "value": 23,
+    "family": "town",
+    "doc": "slot_town_merchant = 23 (module_constants.py:256)",
+    "line": 256
+  },
+  {
+    "easy": "town.player_odds",
+    "native": "slot_town_player_odds",
+    "value": 51,
+    "family": "town",
+    "doc": "slot_town_player_odds = 51 (module_constants.py:288)",
+    "line": 288
+  },
+  {
+    "easy": "town.prison",
+    "native": "slot_town_prison",
+    "value": 12,
+    "family": "town",
+    "doc": "slot_town_prison = 12 (module_constants.py:245)",
+    "line": 245
+  },
+  {
+    "easy": "town.prosperity",
+    "native": "slot_town_prosperity",
+    "value": 50,
+    "family": "town",
+    "doc": "slot_town_prosperity = 50 (module_constants.py:287)",
+    "line": 287
+  },
+  {
+    "easy": "town.rebellion_readiness",
+    "native": "slot_town_rebellion_readiness",
+    "value": 77,
+    "family": "town",
+    "doc": "slot_town_rebellion_readiness = 77 (module_constants.py:342)",
+    "line": 342
+  },
+  {
+    "easy": "town.reinforcement_party_template",
+    "native": "slot_town_reinforcement_party_template",
+    "value": 60,
+    "family": "town",
+    "doc": "slot_town_reinforcement_party_template = 60 (module_constants.py:301)",
+    "line": 301
+  },
+  {
+    "easy": "town.store",
+    "native": "slot_town_store",
+    "value": 14,
+    "family": "town",
+    "doc": "slot_town_store = 14 (module_constants.py:247)",
+    "line": 247
+  },
+  {
+    "easy": "town.tavern",
+    "native": "slot_town_tavern",
+    "value": 13,
+    "family": "town",
+    "doc": "slot_town_tavern = 13 (module_constants.py:246)",
+    "line": 246
+  },
+  {
+    "easy": "town.tavernkeeper",
+    "native": "slot_town_tavernkeeper",
+    "value": 20,
+    "family": "town",
+    "doc": "slot_town_tavernkeeper = 20 (module_constants.py:253)",
+    "line": 253
+  },
+  {
+    "easy": "town.tournament_max_team_size",
+    "native": "slot_town_tournament_max_team_size",
+    "value": 158,
+    "family": "town",
+    "doc": "slot_town_tournament_max_team_size = 158 (module_constants.py:422)",
+    "line": 422
+  },
+  {
+    "easy": "town.tournament_max_teams",
+    "native": "slot_town_tournament_max_teams",
+    "value": 157,
+    "family": "town",
+    "doc": "slot_town_tournament_max_teams = 157 (module_constants.py:421)",
+    "line": 421
+  },
+  {
+    "easy": "town.trade_good_prices_begin",
+    "native": "slot_town_trade_good_prices_begin",
+    "value": 250,
+    "family": "town",
+    "doc": "slot_town_trade_good_prices_begin = 250 (module_constants.py:540)",
+    "line": 540
+  },
+  {
+    "easy": "town.trade_good_productions_begin",
+    "native": "slot_town_trade_good_productions_begin",
+    "value": 500,
+    "family": "town",
+    "doc": "slot_town_trade_good_productions_begin = 500 (module_constants.py:479)",
+    "line": 479
+  },
+  {
+    "easy": "town.trade_route_1",
+    "native": "slot_town_trade_route_1",
+    "value": 190,
+    "family": "town",
+    "doc": "slot_town_trade_route_1 = 190 (module_constants.py:459)",
+    "line": 459
+  },
+  {
+    "easy": "town.trade_route_1",
+    "native": "slot_town_trade_routes_begin",
+    "value": 190,
+    "family": "town",
+    "doc": "slot_town_trade_routes_begin = 190 (module_constants.py:474)",
+    "line": 474,
+    "alias_of": "town.trade_route_1"
+  },
+  {
+    "easy": "town.trade_route_10",
+    "native": "slot_town_trade_route_10",
+    "value": 199,
+    "family": "town",
+    "doc": "slot_town_trade_route_10 = 199 (module_constants.py:468)",
+    "line": 468
+  },
+  {
+    "easy": "town.trade_route_11",
+    "native": "slot_town_trade_route_11",
+    "value": 200,
+    "family": "town",
+    "doc": "slot_town_trade_route_11 = 200 (module_constants.py:469)",
+    "line": 469
+  },
+  {
+    "easy": "town.trade_route_12",
+    "native": "slot_town_trade_route_12",
+    "value": 201,
+    "family": "town",
+    "doc": "slot_town_trade_route_12 = 201 (module_constants.py:470)",
+    "line": 470
+  },
+  {
+    "easy": "town.trade_route_13",
+    "native": "slot_town_trade_route_13",
+    "value": 202,
+    "family": "town",
+    "doc": "slot_town_trade_route_13 = 202 (module_constants.py:471)",
+    "line": 471
+  },
+  {
+    "easy": "town.trade_route_14",
+    "native": "slot_town_trade_route_14",
+    "value": 203,
+    "family": "town",
+    "doc": "slot_town_trade_route_14 = 203 (module_constants.py:472)",
+    "line": 472
+  },
+  {
+    "easy": "town.trade_route_15",
+    "native": "slot_town_trade_route_15",
+    "value": 204,
+    "family": "town",
+    "doc": "slot_town_trade_route_15 = 204 (module_constants.py:473)",
+    "line": 473
+  },
+  {
+    "easy": "town.trade_route_2",
+    "native": "slot_town_trade_route_2",
+    "value": 191,
+    "family": "town",
+    "doc": "slot_town_trade_route_2 = 191 (module_constants.py:460)",
+    "line": 460
+  },
+  {
+    "easy": "town.trade_route_3",
+    "native": "slot_town_trade_route_3",
+    "value": 192,
+    "family": "town",
+    "doc": "slot_town_trade_route_3 = 192 (module_constants.py:461)",
+    "line": 461
+  },
+  {
+    "easy": "town.trade_route_4",
+    "native": "slot_town_trade_route_4",
+    "value": 193,
+    "family": "town",
+    "doc": "slot_town_trade_route_4 = 193 (module_constants.py:462)",
+    "line": 462
+  },
+  {
+    "easy": "town.trade_route_5",
+    "native": "slot_town_trade_route_5",
+    "value": 194,
+    "family": "town",
+    "doc": "slot_town_trade_route_5 = 194 (module_constants.py:463)",
+    "line": 463
+  },
+  {
+    "easy": "town.trade_route_6",
+    "native": "slot_town_trade_route_6",
+    "value": 195,
+    "family": "town",
+    "doc": "slot_town_trade_route_6 = 195 (module_constants.py:464)",
+    "line": 464
+  },
+  {
+    "easy": "town.trade_route_7",
+    "native": "slot_town_trade_route_7",
+    "value": 196,
+    "family": "town",
+    "doc": "slot_town_trade_route_7 = 196 (module_constants.py:465)",
+    "line": 465
+  },
+  {
+    "easy": "town.trade_route_8",
+    "native": "slot_town_trade_route_8",
+    "value": 197,
+    "family": "town",
+    "doc": "slot_town_trade_route_8 = 197 (module_constants.py:466)",
+    "line": 466
+  },
+  {
+    "easy": "town.trade_route_9",
+    "native": "slot_town_trade_route_9",
+    "value": 198,
+    "family": "town",
+    "doc": "slot_town_trade_route_9 = 198 (module_constants.py:467)",
+    "line": 467
+  },
+  {
+    "easy": "town.trade_routes_end",
+    "native": "slot_town_trade_routes_end",
+    "value": 205,
+    "family": "town",
+    "doc": "slot_town_trade_routes_end = 205 (module_constants.py:475)",
+    "line": 475
+  },
+  {
+    "easy": "town.village_product",
+    "native": "slot_town_village_product",
+    "value": 76,
+    "family": "town",
+    "doc": "slot_town_village_product = 76 (module_constants.py:340)",
+    "line": 340
+  },
+  {
+    "easy": "town.walls",
+    "native": "slot_town_walls",
+    "value": 18,
+    "family": "town",
+    "doc": "slot_town_walls = 18 (module_constants.py:250)",
+    "line": 250
+  },
+  {
+    "easy": "town.wealth",
+    "native": "slot_town_wealth",
+    "value": 49,
+    "family": "town",
+    "doc": "slot_town_wealth = 49 (module_constants.py:286)",
+    "line": 286
+  },
+  {
+    "easy": "town.weaponsmith",
+    "native": "slot_town_weaponsmith",
+    "value": 21,
+    "family": "town",
+    "doc": "slot_town_weaponsmith = 21 (module_constants.py:254)",
+    "line": 254
+  },
+  {
+    "easy": "troop.2ary_morality_speech",
+    "native": "slot_troop_2ary_morality_speech",
+    "value": 117,
+    "family": "troop",
+    "doc": "slot_troop_2ary_morality_speech = 117 (module_constants.py:864)",
+    "line": 864
+  },
+  {
+    "easy": "troop.2ary_morality_state",
+    "native": "slot_troop_2ary_morality_state",
+    "value": 65,
+    "family": "troop",
+    "doc": "slot_troop_2ary_morality_state = 65 (module_constants.py:781)",
+    "line": 781
+  },
+  {
+    "easy": "troop.2ary_morality_type",
+    "native": "slot_troop_2ary_morality_type",
+    "value": 64,
+    "family": "troop",
+    "doc": "slot_troop_2ary_morality_type = 64 (module_constants.py:780)",
+    "line": 780
+  },
+  {
+    "easy": "troop.2ary_morality_value",
+    "native": "slot_troop_2ary_morality_value",
+    "value": 66,
+    "family": "troop",
+    "doc": "slot_troop_2ary_morality_value = 66 (module_constants.py:782)",
+    "line": 782
+  },
+  {
+    "easy": "troop.age",
+    "native": "slot_troop_age",
+    "value": 18,
+    "family": "troop",
+    "doc": "slot_troop_age = 18 (module_constants.py:682)",
+    "line": 682
+  },
+  {
+    "easy": "troop.age_appearance",
+    "native": "slot_troop_age_appearance",
+    "value": 19,
+    "family": "troop",
+    "doc": "slot_troop_age_appearance = 19 (module_constants.py:683)",
+    "line": 683
+  },
+  {
+    "easy": "troop.ally_routed_agents",
+    "native": "slot_troop_ally_routed_agents",
+    "value": 147,
+    "family": "troop",
+    "doc": "slot_troop_ally_routed_agents = 147 (module_constants.py:914)",
+    "line": 914
+  },
+  {
+    "easy": "troop.backstory_a",
+    "native": "slot_troop_backstory_a",
+    "value": 104,
+    "family": "troop",
+    "doc": "slot_troop_backstory_a = 104 (module_constants.py:851)",
+    "line": 851
+  },
+  {
+    "easy": "troop.backstory_b",
+    "native": "slot_troop_backstory_b",
+    "value": 105,
+    "family": "troop",
+    "doc": "slot_troop_backstory_b = 105 (module_constants.py:852)",
+    "line": 852
+  },
+  {
+    "easy": "troop.backstory_c",
+    "native": "slot_troop_backstory_c",
+    "value": 106,
+    "family": "troop",
+    "doc": "slot_troop_backstory_c = 106 (module_constants.py:853)",
+    "line": 853
+  },
+  {
+    "easy": "troop.backstory_delayed",
+    "native": "slot_troop_backstory_delayed",
+    "value": 107,
+    "family": "troop",
+    "doc": "slot_troop_backstory_delayed = 107 (module_constants.py:854)",
+    "line": 854
+  },
+  {
+    "easy": "troop.backstory_response_1",
+    "native": "slot_troop_backstory_response_1",
+    "value": 108,
+    "family": "troop",
+    "doc": "slot_troop_backstory_response_1 = 108 (module_constants.py:855)",
+    "line": 855
+  },
+  {
+    "easy": "troop.backstory_response_2",
+    "native": "slot_troop_backstory_response_2",
+    "value": 109,
+    "family": "troop",
+    "doc": "slot_troop_backstory_response_2 = 109 (module_constants.py:856)",
+    "line": 856
+  },
+  {
+    "easy": "troop.banner_scene_prop",
+    "native": "slot_troop_banner_scene_prop",
+    "value": 13,
+    "family": "troop",
+    "doc": "slot_troop_banner_scene_prop = 13 (module_constants.py:671)",
+    "line": 671
+  },
+  {
+    "easy": "troop.betrothal_time",
+    "native": "slot_troop_betrothal_time",
+    "value": 39,
+    "family": "troop",
+    "doc": "slot_troop_betrothal_time = 39 (module_constants.py:720)",
+    "line": 720
+  },
+  {
+    "easy": "troop.betrothed",
+    "native": "slot_troop_betrothed",
+    "value": 34,
+    "family": "troop",
+    "doc": "slot_troop_betrothed = 34 (module_constants.py:705)",
+    "line": 705
+  },
+  {
+    "easy": "troop.betrothed",
+    "native": "slot_troop_trainer_training_system_explained",
+    "value": 34,
+    "family": "troop",
+    "doc": "slot_troop_trainer_training_system_explained = 34 (module_constants.py:726)",
+    "line": 726,
+    "alias_of": "troop.betrothed"
+  },
+  {
+    "easy": "troop.change_to_faction",
+    "native": "slot_troop_change_to_faction",
+    "value": 55,
+    "family": "troop",
+    "doc": "slot_troop_change_to_faction = 55 (module_constants.py:755)",
+    "line": 755
+  },
+  {
+    "easy": "troop.coop_lord_spawned",
+    "native": "slot_troop_coop_lord_spawned",
+    "value": 155,
+    "family": "troop",
+    "doc": "slot_troop_coop_lord_spawned = 155 (module_constants.py:934)",
+    "line": 934
+  },
+  {
+    "easy": "troop.cur_center",
+    "native": "slot_troop_cur_center",
+    "value": 12,
+    "family": "troop",
+    "doc": "slot_troop_cur_center = 12 (module_constants.py:669)",
+    "line": 669
+  },
+  {
+    "easy": "troop.current_mission",
+    "native": "slot_troop_current_mission",
+    "value": 151,
+    "family": "troop",
+    "doc": "slot_troop_current_mission = 151 (module_constants.py:901)",
+    "line": 901
+  },
+  {
+    "easy": "troop.current_mission",
+    "native": "slot_troop_recent_offense_type",
+    "value": 151,
+    "family": "troop",
+    "doc": "slot_troop_recent_offense_type = 151 (module_constants.py:929)",
+    "line": 929,
+    "alias_of": "troop.current_mission"
+  },
+  {
+    "easy": "troop.current_rumor",
+    "native": "slot_troop_current_rumor",
+    "value": 45,
+    "family": "troop",
+    "doc": "slot_troop_current_rumor = 45 (module_constants.py:735)",
+    "line": 735
+  },
+  {
+    "easy": "troop.custom_banner_bg_color_1",
+    "native": "slot_troop_custom_banner_bg_color_1",
+    "value": 85,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_bg_color_1 = 85 (module_constants.py:831)",
+    "line": 831
+  },
+  {
+    "easy": "troop.custom_banner_bg_color_2",
+    "native": "slot_troop_custom_banner_bg_color_2",
+    "value": 86,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_bg_color_2 = 86 (module_constants.py:832)",
+    "line": 832
+  },
+  {
+    "easy": "troop.custom_banner_bg_type",
+    "native": "slot_troop_custom_banner_bg_type",
+    "value": 91,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_bg_type = 91 (module_constants.py:837)",
+    "line": 837
+  },
+  {
+    "easy": "troop.custom_banner_charge_color_1",
+    "native": "slot_troop_custom_banner_charge_color_1",
+    "value": 87,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_charge_color_1 = 87 (module_constants.py:833)",
+    "line": 833
+  },
+  {
+    "easy": "troop.custom_banner_charge_color_2",
+    "native": "slot_troop_custom_banner_charge_color_2",
+    "value": 88,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_charge_color_2 = 88 (module_constants.py:834)",
+    "line": 834
+  },
+  {
+    "easy": "troop.custom_banner_charge_color_3",
+    "native": "slot_troop_custom_banner_charge_color_3",
+    "value": 89,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_charge_color_3 = 89 (module_constants.py:835)",
+    "line": 835
+  },
+  {
+    "easy": "troop.custom_banner_charge_color_4",
+    "native": "slot_troop_custom_banner_charge_color_4",
+    "value": 90,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_charge_color_4 = 90 (module_constants.py:836)",
+    "line": 836
+  },
+  {
+    "easy": "troop.custom_banner_charge_type_1",
+    "native": "slot_troop_custom_banner_charge_type_1",
+    "value": 92,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_charge_type_1 = 92 (module_constants.py:838)",
+    "line": 838
+  },
+  {
+    "easy": "troop.custom_banner_charge_type_2",
+    "native": "slot_troop_custom_banner_charge_type_2",
+    "value": 93,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_charge_type_2 = 93 (module_constants.py:839)",
+    "line": 839
+  },
+  {
+    "easy": "troop.custom_banner_charge_type_3",
+    "native": "slot_troop_custom_banner_charge_type_3",
+    "value": 94,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_charge_type_3 = 94 (module_constants.py:840)",
+    "line": 840
+  },
+  {
+    "easy": "troop.custom_banner_charge_type_4",
+    "native": "slot_troop_custom_banner_charge_type_4",
+    "value": 95,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_charge_type_4 = 95 (module_constants.py:841)",
+    "line": 841
+  },
+  {
+    "easy": "troop.custom_banner_flag_type",
+    "native": "slot_troop_custom_banner_flag_type",
+    "value": 96,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_flag_type = 96 (module_constants.py:842)",
+    "line": 842
+  },
+  {
+    "easy": "troop.custom_banner_map_flag_type",
+    "native": "slot_troop_custom_banner_map_flag_type",
+    "value": 99,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_map_flag_type = 99 (module_constants.py:845)",
+    "line": 845
+  },
+  {
+    "easy": "troop.custom_banner_num_charges",
+    "native": "slot_troop_custom_banner_num_charges",
+    "value": 97,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_num_charges = 97 (module_constants.py:843)",
+    "line": 843
+  },
+  {
+    "easy": "troop.custom_banner_positioning",
+    "native": "slot_troop_custom_banner_positioning",
+    "value": 98,
+    "family": "troop",
+    "doc": "slot_troop_custom_banner_positioning = 98 (module_constants.py:844)",
+    "line": 844
+  },
+  {
+    "easy": "troop.days_on_mission",
+    "native": "slot_troop_controversy",
+    "value": 150,
+    "family": "troop",
+    "doc": "slot_troop_controversy = 150 (module_constants.py:928)",
+    "line": 928,
+    "alias_of": "troop.days_on_mission"
+  },
+  {
+    "easy": "troop.days_on_mission",
+    "native": "slot_troop_days_on_mission",
+    "value": 150,
+    "family": "troop",
+    "doc": "slot_troop_days_on_mission = 150 (module_constants.py:900)",
+    "line": 900
+  },
+  {
+    "easy": "troop.does_not_give_quest",
+    "native": "slot_troop_does_not_give_quest",
+    "value": 20,
+    "family": "troop",
+    "doc": "slot_troop_does_not_give_quest = 20 (module_constants.py:687)",
+    "line": 687
+  },
+  {
+    "easy": "troop.enemy_routed_agents",
+    "native": "slot_troop_enemy_routed_agents",
+    "value": 148,
+    "family": "troop",
+    "doc": "slot_troop_enemy_routed_agents = 148 (module_constants.py:915)",
+    "line": 915
+  },
+  {
+    "easy": "troop.father",
+    "native": "slot_troop_father",
+    "value": 31,
+    "family": "troop",
+    "doc": "slot_troop_father = 31 (module_constants.py:702)",
+    "line": 702
+  },
+  {
+    "easy": "troop.father",
+    "native": "slot_troop_trainer_waiting_for_result",
+    "value": 31,
+    "family": "troop",
+    "doc": "slot_troop_trainer_waiting_for_result = 31 (module_constants.py:723)",
+    "line": 723,
+    "alias_of": "troop.father"
+  },
+  {
+    "easy": "troop.fief_acceptance_string",
+    "native": "slot_troop_fief_acceptance_string",
+    "value": 138,
+    "family": "troop",
+    "doc": "slot_troop_fief_acceptance_string = 138 (module_constants.py:885)",
+    "line": 885
+  },
+  {
+    "easy": "troop.first_encountered",
+    "native": "slot_troop_first_encountered",
+    "value": 59,
+    "family": "troop",
+    "doc": "slot_troop_first_encountered = 59 (module_constants.py:763)",
+    "line": 763
+  },
+  {
+    "easy": "troop.guardian",
+    "native": "slot_troop_guardian",
+    "value": 33,
+    "family": "troop",
+    "doc": "slot_troop_guardian = 33 (module_constants.py:704)",
+    "line": 704
+  },
+  {
+    "easy": "troop.guardian",
+    "native": "slot_troop_trainer_num_opponents_to_beat",
+    "value": 33,
+    "family": "troop",
+    "doc": "slot_troop_trainer_num_opponents_to_beat = 33 (module_constants.py:725)",
+    "line": 725,
+    "alias_of": "troop.guardian"
+  },
+  {
+    "easy": "troop.home",
+    "native": "slot_troop_home",
+    "value": 60,
+    "family": "troop",
+    "doc": "slot_troop_home = 60 (module_constants.py:764)",
+    "line": 764
+  },
+  {
+    "easy": "troop.home_description",
+    "native": "slot_troop_home_description",
+    "value": 127,
+    "family": "troop",
+    "doc": "slot_troop_home_description = 127 (module_constants.py:874)",
+    "line": 874
+  },
+  {
+    "easy": "troop.home_description_2",
+    "native": "slot_troop_home_description_2",
+    "value": 128,
+    "family": "troop",
+    "doc": "slot_troop_home_description_2 = 128 (module_constants.py:875)",
+    "line": 875
+  },
+  {
+    "easy": "troop.home_intro",
+    "native": "slot_troop_home_intro",
+    "value": 126,
+    "family": "troop",
+    "doc": "slot_troop_home_intro = 126 (module_constants.py:873)",
+    "line": 873
+  },
+  {
+    "easy": "troop.home_recap",
+    "native": "slot_troop_home_recap",
+    "value": 129,
+    "family": "troop",
+    "doc": "slot_troop_home_recap = 129 (module_constants.py:876)",
+    "line": 876
+  },
+  {
+    "easy": "troop.home_speech_delivered",
+    "native": "slot_troop_discussed_rebellion",
+    "value": 78,
+    "family": "troop",
+    "doc": "slot_troop_discussed_rebellion = 78 (module_constants.py:807)",
+    "line": 807,
+    "alias_of": "troop.home_speech_delivered"
+  },
+  {
+    "easy": "troop.home_speech_delivered",
+    "native": "slot_troop_home_speech_delivered",
+    "value": 78,
+    "family": "troop",
+    "doc": "slot_troop_home_speech_delivered = 78 (module_constants.py:806)",
+    "line": 806
+  },
+  {
+    "easy": "troop.honorific",
+    "native": "slot_troop_honorific",
+    "value": 130,
+    "family": "troop",
+    "doc": "slot_troop_honorific = 130 (module_constants.py:877)",
+    "line": 877
+  },
+  {
+    "easy": "troop.intel_gathering_string",
+    "native": "slot_troop_intel_gathering_string",
+    "value": 137,
+    "family": "troop",
+    "doc": "slot_troop_intel_gathering_string = 137 (module_constants.py:884)",
+    "line": 884
+  },
+  {
+    "easy": "troop.intrigue_impatience",
+    "native": "slot_troop_intrigue_impatience",
+    "value": 51,
+    "family": "troop",
+    "doc": "slot_troop_intrigue_impatience = 51 (module_constants.py:746)",
+    "line": 746
+  },
+  {
+    "easy": "troop.intro",
+    "native": "slot_troop_intro",
+    "value": 101,
+    "family": "troop",
+    "doc": "slot_troop_intro = 101 (module_constants.py:848)",
+    "line": 848
+  },
+  {
+    "easy": "troop.intro_response_1",
+    "native": "slot_troop_intro_response_1",
+    "value": 102,
+    "family": "troop",
+    "doc": "slot_troop_intro_response_1 = 102 (module_constants.py:849)",
+    "line": 849
+  },
+  {
+    "easy": "troop.intro_response_2",
+    "native": "slot_troop_intro_response_2",
+    "value": 103,
+    "family": "troop",
+    "doc": "slot_troop_intro_response_2 = 103 (module_constants.py:850)",
+    "line": 850
+  },
+  {
+    "easy": "troop.kingsupport_argument",
+    "native": "slot_troop_kingsupport_argument",
+    "value": 143,
+    "family": "troop",
+    "doc": "slot_troop_kingsupport_argument = 143 (module_constants.py:896)",
+    "line": 896
+  },
+  {
+    "easy": "troop.kingsupport_objection_state",
+    "native": "slot_troop_kingsupport_objection_state",
+    "value": 145,
+    "family": "troop",
+    "doc": "slot_troop_kingsupport_objection_state = 145 (module_constants.py:898)",
+    "line": 898
+  },
+  {
+    "easy": "troop.kingsupport_objection_string",
+    "native": "slot_troop_kingsupport_objection_string",
+    "value": 136,
+    "family": "troop",
+    "doc": "slot_troop_kingsupport_objection_string = 136 (module_constants.py:883)",
+    "line": 883
+  },
+  {
+    "easy": "troop.kingsupport_opponent",
+    "native": "slot_troop_kingsupport_opponent",
+    "value": 144,
+    "family": "troop",
+    "doc": "slot_troop_kingsupport_opponent = 144 (module_constants.py:897)",
+    "line": 897
+  },
+  {
+    "easy": "troop.kingsupport_state",
+    "native": "slot_troop_kingsupport_state",
+    "value": 142,
+    "family": "troop",
+    "doc": "slot_troop_kingsupport_state = 142 (module_constants.py:895)",
+    "line": 895
+  },
+  {
+    "easy": "troop.kingsupport_string_1",
+    "native": "slot_troop_kingsupport_string_1",
+    "value": 131,
+    "family": "troop",
+    "doc": "slot_troop_kingsupport_string_1 = 131 (module_constants.py:878)",
+    "line": 878
+  },
+  {
+    "easy": "troop.kingsupport_string_2",
+    "native": "slot_troop_kingsupport_string_2",
+    "value": 132,
+    "family": "troop",
+    "doc": "slot_troop_kingsupport_string_2 = 132 (module_constants.py:879)",
+    "line": 879
+  },
+  {
+    "easy": "troop.kingsupport_string_2a",
+    "native": "slot_troop_kingsupport_string_2a",
+    "value": 133,
+    "family": "troop",
+    "doc": "slot_troop_kingsupport_string_2a = 133 (module_constants.py:880)",
+    "line": 880
+  },
+  {
+    "easy": "troop.kingsupport_string_2b",
+    "native": "slot_troop_kingsupport_string_2b",
+    "value": 134,
+    "family": "troop",
+    "doc": "slot_troop_kingsupport_string_2b = 134 (module_constants.py:881)",
+    "line": 881
+  },
+  {
+    "easy": "troop.kingsupport_string_3",
+    "native": "slot_troop_kingsupport_string_3",
+    "value": 135,
+    "family": "troop",
+    "doc": "slot_troop_kingsupport_string_3 = 135 (module_constants.py:882)",
+    "line": 882
+  },
+  {
+    "easy": "troop.last_comment_slot",
+    "native": "slot_troop_last_comment_slot",
+    "value": 29,
+    "family": "troop",
+    "doc": "slot_troop_last_comment_slot = 29 (module_constants.py:698)",
+    "line": 698
+  },
+  {
+    "easy": "troop.last_comment_time",
+    "native": "slot_troop_last_comment_time",
+    "value": 27,
+    "family": "troop",
+    "doc": "slot_troop_last_comment_time = 27 (module_constants.py:694)",
+    "line": 694
+  },
+  {
+    "easy": "troop.last_persuasion_time",
+    "native": "slot_troop_last_persuasion_time",
+    "value": 26,
+    "family": "troop",
+    "doc": "slot_troop_last_persuasion_time = 26 (module_constants.py:693)",
+    "line": 693
+  },
+  {
+    "easy": "troop.last_quest",
+    "native": "slot_troop_last_quest",
+    "value": 24,
+    "family": "troop",
+    "doc": "slot_troop_last_quest = 24 (module_constants.py:691)",
+    "line": 691
+  },
+  {
+    "easy": "troop.last_quest_betrayed",
+    "native": "slot_troop_last_quest_betrayed",
+    "value": 25,
+    "family": "troop",
+    "doc": "slot_troop_last_quest_betrayed = 25 (module_constants.py:692)",
+    "line": 692
+  },
+  {
+    "easy": "troop.last_talk_time",
+    "native": "slot_troop_last_talk_time",
+    "value": 4,
+    "family": "troop",
+    "doc": "slot_troop_last_talk_time = 4 (module_constants.py:652)",
+    "line": 652
+  },
+  {
+    "easy": "troop.leaded_party",
+    "native": "slot_troop_leaded_party",
+    "value": 10,
+    "family": "troop",
+    "doc": "slot_troop_leaded_party = 10 (module_constants.py:667)",
+    "line": 667
+  },
+  {
+    "easy": "troop.love_interest_1",
+    "native": "slot_troop_love_interest_1",
+    "value": 35,
+    "family": "troop",
+    "doc": "slot_troop_love_interest_1 = 35 (module_constants.py:710)",
+    "line": 710
+  },
+  {
+    "easy": "troop.love_interest_1",
+    "native": "slot_troop_trainer_opponent_troop",
+    "value": 35,
+    "family": "troop",
+    "doc": "slot_troop_trainer_opponent_troop = 35 (module_constants.py:727)",
+    "line": 727,
+    "alias_of": "troop.love_interest_1"
+  },
+  {
+    "easy": "troop.love_interest_2",
+    "native": "slot_troop_love_interest_2",
+    "value": 36,
+    "family": "troop",
+    "doc": "slot_troop_love_interest_2 = 36 (module_constants.py:711)",
+    "line": 711
+  },
+  {
+    "easy": "troop.love_interest_2",
+    "native": "slot_troop_trainer_training_difficulty",
+    "value": 36,
+    "family": "troop",
+    "doc": "slot_troop_trainer_training_difficulty = 36 (module_constants.py:728)",
+    "line": 728,
+    "alias_of": "troop.love_interest_2"
+  },
+  {
+    "easy": "troop.love_interest_3",
+    "native": "slot_troop_love_interest_3",
+    "value": 37,
+    "family": "troop",
+    "doc": "slot_troop_love_interest_3 = 37 (module_constants.py:712)",
+    "line": 712
+  },
+  {
+    "easy": "troop.love_interest_3",
+    "native": "slot_troop_trainer_training_fight_won",
+    "value": 37,
+    "family": "troop",
+    "doc": "slot_troop_trainer_training_fight_won = 37 (module_constants.py:729)",
+    "line": 729,
+    "alias_of": "troop.love_interest_3"
+  },
+  {
+    "easy": "troop.love_interests_end",
+    "native": "slot_troop_love_interests_end",
+    "value": 38,
+    "family": "troop",
+    "doc": "slot_troop_love_interests_end = 38 (module_constants.py:713)",
+    "line": 713
+  },
+  {
+    "easy": "troop.mentions_payment",
+    "native": "slot_troop_mentions_payment",
+    "value": 114,
+    "family": "troop",
+    "doc": "slot_troop_mentions_payment = 114 (module_constants.py:861)",
+    "line": 861
+  },
+  {
+    "easy": "troop.met",
+    "native": "slot_troop_courtship_state",
+    "value": 5,
+    "family": "troop",
+    "doc": "slot_troop_courtship_state = 5 (module_constants.py:654)",
+    "line": 654,
+    "alias_of": "troop.met"
+  },
+  {
+    "easy": "troop.met",
+    "native": "slot_troop_met",
+    "value": 5,
+    "family": "troop",
+    "doc": "slot_troop_met = 5 (module_constants.py:653)",
+    "line": 653
+  },
+  {
+    "easy": "troop.met_previously",
+    "native": "slot_troop_met_previously",
+    "value": 80,
+    "family": "troop",
+    "doc": "slot_troop_met_previously = 80 (module_constants.py:819)",
+    "line": 819
+  },
+  {
+    "easy": "troop.mission_object",
+    "native": "slot_troop_mission_object",
+    "value": 152,
+    "family": "troop",
+    "doc": "slot_troop_mission_object = 152 (module_constants.py:902)",
+    "line": 902
+  },
+  {
+    "easy": "troop.mission_object",
+    "native": "slot_troop_recent_offense_object",
+    "value": 152,
+    "family": "troop",
+    "doc": "slot_troop_recent_offense_object = 152 (module_constants.py:930)",
+    "line": 930,
+    "alias_of": "troop.mission_object"
+  },
+  {
+    "easy": "troop.mission_participation",
+    "native": "slot_troop_mission_participation",
+    "value": 149,
+    "family": "troop",
+    "doc": "slot_troop_mission_participation = 149 (module_constants.py:918)",
+    "line": 918
+  },
+  {
+    "easy": "troop.morality_penalties",
+    "native": "slot_troop_morality_penalties",
+    "value": 69,
+    "family": "troop",
+    "doc": "slot_troop_morality_penalties = 69 (module_constants.py:787)",
+    "line": 787
+  },
+  {
+    "easy": "troop.morality_speech",
+    "native": "slot_troop_morality_speech",
+    "value": 116,
+    "family": "troop",
+    "doc": "slot_troop_morality_speech = 116 (module_constants.py:863)",
+    "line": 863
+  },
+  {
+    "easy": "troop.morality_state",
+    "native": "slot_troop_morality_state",
+    "value": 61,
+    "family": "troop",
+    "doc": "slot_troop_morality_state = 61 (module_constants.py:766)",
+    "line": 766
+  },
+  {
+    "easy": "troop.morality_type",
+    "native": "slot_troop_morality_type",
+    "value": 62,
+    "family": "troop",
+    "doc": "slot_troop_morality_type = 62 (module_constants.py:771)",
+    "line": 771
+  },
+  {
+    "easy": "troop.morality_value",
+    "native": "slot_troop_morality_value",
+    "value": 63,
+    "family": "troop",
+    "doc": "slot_troop_morality_value = 63 (module_constants.py:778)",
+    "line": 778
+  },
+  {
+    "easy": "troop.mother",
+    "native": "slot_troop_mother",
+    "value": 32,
+    "family": "troop",
+    "doc": "slot_troop_mother = 32 (module_constants.py:703)",
+    "line": 703
+  },
+  {
+    "easy": "troop.mp_squad_type",
+    "native": "slot_troop_mp_squad_type",
+    "value": 156,
+    "family": "troop",
+    "doc": "slot_troop_mp_squad_type = 156 (module_constants.py:935)",
+    "line": 935
+  },
+  {
+    "easy": "troop.occupation",
+    "native": "slot_troop_occupation",
+    "value": 2,
+    "family": "troop",
+    "doc": "slot_troop_occupation = 2 (module_constants.py:643)",
+    "line": 643
+  },
+  {
+    "easy": "troop.original_faction",
+    "native": "slot_troop_original_faction",
+    "value": 14,
+    "family": "troop",
+    "doc": "slot_troop_original_faction = 14 (module_constants.py:673)",
+    "line": 673
+  },
+  {
+    "easy": "troop.party_template",
+    "native": "slot_troop_party_template",
+    "value": 6,
+    "family": "troop",
+    "doc": "slot_troop_party_template = 6 (module_constants.py:656)",
+    "line": 656
+  },
+  {
+    "easy": "troop.payment_response",
+    "native": "slot_troop_payment_response",
+    "value": 115,
+    "family": "troop",
+    "doc": "slot_troop_payment_response = 115 (module_constants.py:862)",
+    "line": 862
+  },
+  {
+    "easy": "troop.personalityclash2_object",
+    "native": "slot_troop_personalityclash2_object",
+    "value": 73,
+    "family": "troop",
+    "doc": "slot_troop_personalityclash2_object = 73 (module_constants.py:797)",
+    "line": 797
+  },
+  {
+    "easy": "troop.personalityclash2_speech",
+    "native": "slot_troop_personalityclash2_speech",
+    "value": 120,
+    "family": "troop",
+    "doc": "slot_troop_personalityclash2_speech = 120 (module_constants.py:867)",
+    "line": 867
+  },
+  {
+    "easy": "troop.personalityclash2_speech_b",
+    "native": "slot_troop_personalityclash2_speech_b",
+    "value": 121,
+    "family": "troop",
+    "doc": "slot_troop_personalityclash2_speech_b = 121 (module_constants.py:868)",
+    "line": 868
+  },
+  {
+    "easy": "troop.personalityclash2_state",
+    "native": "slot_troop_personalityclash2_state",
+    "value": 74,
+    "family": "troop",
+    "doc": "slot_troop_personalityclash2_state = 74 (module_constants.py:798)",
+    "line": 798
+  },
+  {
+    "easy": "troop.personalityclash_object",
+    "native": "slot_troop_personalityclash_object",
+    "value": 71,
+    "family": "troop",
+    "doc": "slot_troop_personalityclash_object = 71 (module_constants.py:790)",
+    "line": 790
+  },
+  {
+    "easy": "troop.personalityclash_penalties",
+    "native": "slot_troop_personalityclash_penalties",
+    "value": 77,
+    "family": "troop",
+    "doc": "slot_troop_personalityclash_penalties = 77 (module_constants.py:804)",
+    "line": 804
+  },
+  {
+    "easy": "troop.personalityclash_speech",
+    "native": "slot_troop_personalityclash_speech",
+    "value": 118,
+    "family": "troop",
+    "doc": "slot_troop_personalityclash_speech = 118 (module_constants.py:865)",
+    "line": 865
+  },
+  {
+    "easy": "troop.personalityclash_speech_b",
+    "native": "slot_troop_personalityclash_speech_b",
+    "value": 119,
+    "family": "troop",
+    "doc": "slot_troop_personalityclash_speech_b = 119 (module_constants.py:866)",
+    "line": 866
+  },
+  {
+    "easy": "troop.personalityclash_state",
+    "native": "slot_troop_personalityclash_state",
+    "value": 72,
+    "family": "troop",
+    "doc": "slot_troop_personalityclash_state = 72 (module_constants.py:792)",
+    "line": 792
+  },
+  {
+    "easy": "troop.personalitymatch_object",
+    "native": "slot_troop_personalitymatch_object",
+    "value": 75,
+    "family": "troop",
+    "doc": "slot_troop_personalitymatch_object = 75 (module_constants.py:800)",
+    "line": 800
+  },
+  {
+    "easy": "troop.personalitymatch_speech",
+    "native": "slot_troop_personalitymatch_speech",
+    "value": 122,
+    "family": "troop",
+    "doc": "slot_troop_personalitymatch_speech = 122 (module_constants.py:869)",
+    "line": 869
+  },
+  {
+    "easy": "troop.personalitymatch_speech_b",
+    "native": "slot_troop_personalitymatch_speech_b",
+    "value": 123,
+    "family": "troop",
+    "doc": "slot_troop_personalitymatch_speech_b = 123 (module_constants.py:870)",
+    "line": 870
+  },
+  {
+    "easy": "troop.personalitymatch_state",
+    "native": "slot_troop_personalitymatch_state",
+    "value": 76,
+    "family": "troop",
+    "doc": "slot_troop_personalitymatch_state = 76 (module_constants.py:801)",
+    "line": 801
+  },
+  {
+    "easy": "troop.player_debt",
+    "native": "slot_troop_player_debt",
+    "value": 21,
+    "family": "troop",
+    "doc": "slot_troop_player_debt = 21 (module_constants.py:688)",
+    "line": 688
+  },
+  {
+    "easy": "troop.player_order_object",
+    "native": "slot_troop_player_order_object",
+    "value": 17,
+    "family": "troop",
+    "doc": "slot_troop_player_order_object = 17 (module_constants.py:676)",
+    "line": 676
+  },
+  {
+    "easy": "troop.player_order_state",
+    "native": "slot_troop_player_order_state",
+    "value": 16,
+    "family": "troop",
+    "doc": "slot_troop_player_order_state = 16 (module_constants.py:675)",
+    "line": 675
+  },
+  {
+    "easy": "troop.player_relation",
+    "native": "slot_troop_player_relation",
+    "value": 22,
+    "family": "troop",
+    "doc": "slot_troop_player_relation = 22 (module_constants.py:689)",
+    "line": 689
+  },
+  {
+    "easy": "troop.player_routed_agents",
+    "native": "slot_troop_player_routed_agents",
+    "value": 146,
+    "family": "troop",
+    "doc": "slot_troop_player_routed_agents = 146 (module_constants.py:913)",
+    "line": 913
+  },
+  {
+    "easy": "troop.playerparty_history",
+    "native": "slot_troop_playerparty_history",
+    "value": 82,
+    "family": "troop",
+    "doc": "slot_troop_playerparty_history = 82 (module_constants.py:821)",
+    "line": 821
+  },
+  {
+    "easy": "troop.playerparty_history_string",
+    "native": "slot_troop_playerparty_history_string",
+    "value": 83,
+    "family": "troop",
+    "doc": "slot_troop_playerparty_history_string = 83 (module_constants.py:828)",
+    "line": 828
+  },
+  {
+    "easy": "troop.present_at_event",
+    "native": "slot_troop_present_at_event",
+    "value": 9,
+    "family": "troop",
+    "doc": "slot_troop_present_at_event = 9 (module_constants.py:665)",
+    "line": 665
+  },
+  {
+    "easy": "troop.prisoner_of_party",
+    "native": "slot_troop_prisoner_of_party",
+    "value": 8,
+    "family": "troop",
+    "doc": "slot_troop_prisoner_of_party = 8 (module_constants.py:662)",
+    "line": 662
+  },
+  {
+    "easy": "troop.promised_fief",
+    "native": "slot_troop_promised_fief",
+    "value": 47,
+    "family": "troop",
+    "doc": "slot_troop_promised_fief = 47 (module_constants.py:737)",
+    "line": 737
+  },
+  {
+    "easy": "troop.recent_offense_time",
+    "native": "slot_troop_recent_offense_time",
+    "value": 153,
+    "family": "troop",
+    "doc": "slot_troop_recent_offense_time = 153 (module_constants.py:931)",
+    "line": 931
+  },
+  {
+    "easy": "troop.recruitment_random",
+    "native": "slot_troop_recruitment_random",
+    "value": 50,
+    "family": "troop",
+    "doc": "slot_troop_recruitment_random = 50 (module_constants.py:741)",
+    "line": 741
+  },
+  {
+    "easy": "troop.rehire_speech",
+    "native": "slot_troop_rehire_speech",
+    "value": 125,
+    "family": "troop",
+    "doc": "slot_troop_rehire_speech = 125 (module_constants.py:872)",
+    "line": 872
+  },
+  {
+    "easy": "troop.relations_begin",
+    "native": "slot_troop_relations_begin",
+    "value": 0,
+    "family": "troop",
+    "doc": "slot_troop_relations_begin = 0 (module_constants.py:953)",
+    "line": 953
+  },
+  {
+    "easy": "troop.renown",
+    "native": "slot_troop_renown",
+    "value": 7,
+    "family": "troop",
+    "doc": "slot_troop_renown = 7 (module_constants.py:659)",
+    "line": 659
+  },
+  {
+    "easy": "troop.retirement_speech",
+    "native": "slot_troop_retirement_speech",
+    "value": 124,
+    "family": "troop",
+    "doc": "slot_troop_retirement_speech = 124 (module_constants.py:871)",
+    "line": 871
+  },
+  {
+    "easy": "troop.return_renown",
+    "native": "slot_troop_return_renown",
+    "value": 84,
+    "family": "troop",
+    "doc": "slot_troop_return_renown = 84 (module_constants.py:829)",
+    "line": 829
+  },
+  {
+    "easy": "troop.set_decision_seed",
+    "native": "slot_troop_set_decision_seed",
+    "value": 48,
+    "family": "troop",
+    "doc": "slot_troop_set_decision_seed = 48 (module_constants.py:739)",
+    "line": 739
+  },
+  {
+    "easy": "troop.signup",
+    "native": "slot_troop_signup",
+    "value": 110,
+    "family": "troop",
+    "doc": "slot_troop_signup = 110 (module_constants.py:857)",
+    "line": 857
+  },
+  {
+    "easy": "troop.signup_2",
+    "native": "slot_troop_signup_2",
+    "value": 111,
+    "family": "troop",
+    "doc": "slot_troop_signup_2 = 111 (module_constants.py:858)",
+    "line": 858
+  },
+  {
+    "easy": "troop.signup_response_1",
+    "native": "slot_troop_signup_response_1",
+    "value": 112,
+    "family": "troop",
+    "doc": "slot_troop_signup_response_1 = 112 (module_constants.py:859)",
+    "line": 859
+  },
+  {
+    "easy": "troop.signup_response_2",
+    "native": "slot_troop_signup_response_2",
+    "value": 113,
+    "family": "troop",
+    "doc": "slot_troop_signup_response_2 = 113 (module_constants.py:860)",
+    "line": 860
+  },
+  {
+    "easy": "troop.spawned_before",
+    "native": "slot_troop_spawned_before",
+    "value": 28,
+    "family": "troop",
+    "doc": "slot_troop_spawned_before = 28 (module_constants.py:695)",
+    "line": 695
+  },
+  {
+    "easy": "troop.spouse",
+    "native": "slot_troop_spouse",
+    "value": 30,
+    "family": "troop",
+    "doc": "slot_troop_spouse = 30 (module_constants.py:701)",
+    "line": 701
+  },
+  {
+    "easy": "troop.spouse",
+    "native": "slot_troop_trainer_met",
+    "value": 30,
+    "family": "troop",
+    "doc": "slot_troop_trainer_met = 30 (module_constants.py:722)",
+    "line": 722,
+    "alias_of": "troop.spouse"
+  },
+  {
+    "easy": "troop.stance_on_faction_issue",
+    "native": "slot_troop_stance_on_faction_issue",
+    "value": 154,
+    "family": "troop",
+    "doc": "slot_troop_stance_on_faction_issue = 154 (module_constants.py:932)",
+    "line": 932
+  },
+  {
+    "easy": "troop.state",
+    "native": "slot_troop_state",
+    "value": 3,
+    "family": "troop",
+    "doc": "slot_troop_state = 3 (module_constants.py:651)",
+    "line": 651
+  },
+  {
+    "easy": "troop.strings_end",
+    "native": "slot_troop_payment_request",
+    "value": 141,
+    "family": "troop",
+    "doc": "slot_troop_payment_request = 141 (module_constants.py:891)",
+    "line": 891,
+    "alias_of": "troop.strings_end"
+  },
+  {
+    "easy": "troop.strings_end",
+    "native": "slot_troop_strings_end",
+    "value": 141,
+    "family": "troop",
+    "doc": "slot_troop_strings_end = 141 (module_constants.py:889)",
+    "line": 889
+  },
+  {
+    "easy": "troop.temp_decision_seed",
+    "native": "slot_troop_temp_decision_seed",
+    "value": 49,
+    "family": "troop",
+    "doc": "slot_troop_temp_decision_seed = 49 (module_constants.py:740)",
+    "line": 740
+  },
+  {
+    "easy": "troop.temp_slot",
+    "native": "slot_troop_temp_slot",
+    "value": 46,
+    "family": "troop",
+    "doc": "slot_troop_temp_slot = 46 (module_constants.py:736)",
+    "line": 736
+  },
+  {
+    "easy": "troop.town_contact_type",
+    "native": "slot_troop_town_contact_type",
+    "value": 68,
+    "family": "troop",
+    "doc": "slot_troop_town_contact_type = 68 (module_constants.py:785)",
+    "line": 785
+  },
+  {
+    "easy": "troop.town_with_contacts",
+    "native": "slot_troop_town_with_contacts",
+    "value": 67,
+    "family": "troop",
+    "doc": "slot_troop_town_with_contacts = 67 (module_constants.py:784)",
+    "line": 784
+  },
+  {
+    "easy": "troop.turn_against_string",
+    "native": "slot_troop_turn_against_string",
+    "value": 140,
+    "family": "troop",
+    "doc": "slot_troop_turn_against_string = 140 (module_constants.py:887)",
+    "line": 887
+  },
+  {
+    "easy": "troop.turned_down_twice",
+    "native": "slot_troop_turned_down_twice",
+    "value": 81,
+    "family": "troop",
+    "doc": "slot_troop_turned_down_twice = 81 (module_constants.py:820)",
+    "line": 820
+  },
+  {
+    "easy": "troop.wealth",
+    "native": "slot_troop_wealth",
+    "value": 11,
+    "family": "troop",
+    "doc": "slot_troop_wealth = 11 (module_constants.py:668)",
+    "line": 668
+  },
+  {
+    "easy": "troop.will_join_prison_break",
+    "native": "slot_troop_will_join_prison_break",
+    "value": 161,
+    "family": "troop",
+    "doc": "slot_troop_will_join_prison_break = 161 (module_constants.py:948)",
+    "line": 948
+  },
+  {
+    "easy": "troop.woman_to_woman_string",
+    "native": "slot_troop_woman_to_woman_string",
+    "value": 139,
+    "family": "troop",
+    "doc": "slot_troop_woman_to_woman_string = 139 (module_constants.py:886)",
+    "line": 886
+  },
+  {
+    "easy": "village.bound_center",
+    "native": "slot_village_bound_center",
+    "value": 120,
+    "family": "village",
+    "doc": "slot_village_bound_center = 120 (module_constants.py:383)",
+    "line": 383
+  },
+  {
+    "easy": "village.farmer_party",
+    "native": "slot_village_farmer_party",
+    "value": 122,
+    "family": "village",
+    "doc": "slot_village_farmer_party = 122 (module_constants.py:385)",
+    "line": 385
+  },
+  {
+    "easy": "village.infested_by_bandits",
+    "native": "slot_village_infested_by_bandits",
+    "value": 39,
+    "family": "village",
+    "doc": "slot_village_infested_by_bandits = 39 (module_constants.py:276)",
+    "line": 276
+  },
+  {
+    "easy": "village.market_town",
+    "native": "slot_village_market_town",
+    "value": 121,
+    "family": "village",
+    "doc": "slot_village_market_town = 121 (module_constants.py:384)",
+    "line": 384
+  },
+  {
+    "easy": "village.number_of_cattle",
+    "native": "slot_village_number_of_cattle",
+    "value": 205,
+    "family": "village",
+    "doc": "slot_village_number_of_cattle = 205 (module_constants.py:483)",
+    "line": 483
+  },
+  {
+    "easy": "village.player_can_not_steal_cattle",
+    "native": "slot_village_player_can_not_steal_cattle",
+    "value": 46,
+    "family": "village",
+    "doc": "slot_village_player_can_not_steal_cattle = 46 (module_constants.py:282)",
+    "line": 282
+  },
+  {
+    "easy": "village.raid_progress",
+    "native": "slot_village_raid_progress",
+    "value": 36,
+    "family": "village",
+    "doc": "slot_village_raid_progress = 36 (module_constants.py:272)",
+    "line": 272
+  },
+  {
+    "easy": "village.raided_by",
+    "native": "slot_village_raided_by",
+    "value": 34,
+    "family": "village",
+    "doc": "slot_village_raided_by = 34 (module_constants.py:270)",
+    "line": 270
+  },
+  {
+    "easy": "village.recover_progress",
+    "native": "slot_village_recover_progress",
+    "value": 37,
+    "family": "village",
+    "doc": "slot_village_recover_progress = 37 (module_constants.py:273)",
+    "line": 273
+  },
+  {
+    "easy": "village.smoke_added",
+    "native": "slot_village_smoke_added",
+    "value": 38,
+    "family": "village",
+    "doc": "slot_village_smoke_added = 38 (module_constants.py:274)",
+    "line": 274
+  },
+  {
+    "easy": "village.state",
+    "native": "slot_village_state",
+    "value": 35,
+    "family": "village",
+    "doc": "slot_village_state = 35 (module_constants.py:271)",
+    "line": 271
+  }
+]

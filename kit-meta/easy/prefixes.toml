@@ -1,0 +1,242 @@
+# Easy-name prefix dictionary for kit constants (YÖN-3 L1b, D3-SOZLUK §3).
+# Longest prefix wins; `module` limits a rule to one kit header (`tf_`, `sf_` and
+# `mtf_` mean different things in different headers, e.g. troop vs text flags).
+# Evidence lines were measured on target/uw-staging/atlas.json (3056 constants).
+
+[[prefix]]
+prefix = "key_"
+family = "key"
+evidence = "header_triggers.py:132 (key_1)"
+
+[[prefix]]
+prefix = "gk_"
+family = "game_key"
+evidence = "header_triggers.py:260 (gk_move_forward)"
+
+[[prefix]]
+prefix = "ti_"
+family = "event"
+evidence = "header_triggers.py:12 (ti_question_answered)"
+
+[[prefix]]
+prefix = "knows_"
+family = "skills"
+evidence = "header_skills.py:52 (knows_trade_1)"
+
+[[prefix]]
+prefix = "skl_"
+family = "skill"
+evidence = "header_skills.py:9 (skl_trade)"
+
+[[prefix]]
+prefix = "str_"
+family = "attributes"
+evidence = "header_troops.py:90 (str_3)"
+
+[[prefix]]
+prefix = "agi_"
+family = "attributes"
+evidence = "header_troops.py:119 (agi_3)"
+
+[[prefix]]
+prefix = "cha_"
+family = "attributes"
+evidence = "header_troops.py:178 (cha_3)"
+
+[[prefix]]
+prefix = "int_"
+family = "attributes"
+evidence = "header_troops.py:148 (int_3)"
+
+[[prefix]]
+prefix = "multiplayer_"
+family = "multiplayer"
+evidence = "header_common.py:8 (multiplayer_event_set_item_selection)"
+
+[[prefix]]
+prefix = "multi_"
+module = "header_dialogs"
+family = "multi"
+evidence = "header_dialogs.py:25 (multi_line)"
+
+[[prefix]]
+prefix = "logent_"
+family = "log_entry"
+evidence = "module_constants.py:1169 (logent_village_raided)"
+
+[[prefix]]
+prefix = "itp_type_"
+family = "item.type"
+evidence = "header_items.py:13 (itp_type_horse)"
+
+[[prefix]]
+prefix = "itp_"
+family = "item.flag"
+evidence = "header_items.py:13 (itp_type_horse)"
+
+[[prefix]]
+prefix = "itcf_"
+family = "item.capability"
+evidence = "header_items.py:279 (itcf_thrust_onehanded)"
+
+[[prefix]]
+prefix = "itc_"
+family = "item.class"
+evidence = "header_items.py:371 (itc_cleaver)"
+
+[[prefix]]
+prefix = "tf_"
+module = "header_troops"
+family = "troop.flag"
+evidence = "header_troops.py:10 (tf_male)"
+
+[[prefix]]
+prefix = "tf_"
+module = "header_presentations"
+family = "text.flag"
+evidence = "header_presentations.py:9 (tf_left_align)"
+
+[[prefix]]
+prefix = "pf_"
+family = "party.flag"
+evidence = "header_parties.py:13 (pf_icon_mask)"
+
+[[prefix]]
+prefix = "prsntf_"
+family = "overlay.flag"
+evidence = "header_presentations.py:19 (prsntf_read_only)"
+
+[[prefix]]
+prefix = "sf_"
+module = "header_skills"
+family = "skill.flag"
+evidence = "header_skills.py:1 (sf_base_att_str)"
+
+[[prefix]]
+prefix = "sf_"
+module = "header_scenes"
+family = "scene.flag"
+evidence = "header_scenes.py:15 (sf_generate)"
+
+[[prefix]]
+prefix = "sf_"
+module = "header_sounds"
+family = "sound.flag"
+evidence = "header_sounds.py:41 (sf_vol_3)"
+
+[[prefix]]
+prefix = "arf_"
+family = "animation"
+evidence = "header_animations.py:1 (arf_blend_in_0)"
+
+[[prefix]]
+prefix = "imod_"
+family = "item.modifier"
+evidence = "header_item_modifiers.py:1 (imod_plain)"
+
+[[prefix]]
+prefix = "imodbit_"
+family = "item.modifier.bit"
+evidence = "header_item_modifiers.py:46 (imodbit_plain)"
+
+[[prefix]]
+prefix = "mtf_"
+module = "header_music"
+family = "music.flag"
+evidence = "header_music.py:8 (mtf_culture_1)"
+
+[[prefix]]
+prefix = "mtf_"
+module = "header_mission_templates"
+family = "mission.flag"
+evidence = "header_mission_templates.py:141 (mtf_arena_fight)"
+
+[[prefix]]
+prefix = "mtef_"
+family = "mission.entry.flag"
+evidence = "header_mission_templates.py:85 (mtef_enemy_party)"
+
+[[prefix]]
+prefix = "mordr_"
+family = "move_order"
+evidence = "header_mission_templates.py:27 (mordr_hold)"
+
+[[prefix]]
+prefix = "amf_"
+family = "animation.flag"
+evidence = "header_animations.py:73 (amf_priority_mask)"
+
+[[prefix]]
+prefix = "acf_"
+family = "animation.condition"
+evidence = "header_animations.py:103 (acf_synch_with_horse)"
+
+[[prefix]]
+prefix = "sokf_"
+family = "scene_prop.flag"
+evidence = "header_scene_props.py:7 (sokf_type_container)"
+
+[[prefix]]
+prefix = "tag_"
+family = "tag"
+evidence = "header_common.py:359 (tag_register)"
+
+[[prefix]]
+prefix = "courage_"
+family = "courage"
+evidence = "header_parties.py:73 (courage_4)"
+
+[[prefix]]
+prefix = "tc_"
+family = "tc"
+evidence = "module_constants.py:1141 (tc_town_talk)"
+
+[[prefix]]
+prefix = "aggressiveness_"
+family = "aggressiveness"
+evidence = "header_parties.py:86 (aggressiveness_0)"
+
+[[prefix]]
+prefix = "aggresiveness_"
+family = "aggresiveness"
+evidence = "header_troops.py:63 (aggresiveness_1)"
+
+[[prefix]]
+prefix = "lrep_"
+family = "lord_reputation"
+evidence = "module_constants.py:1285 (lrep_none)"
+
+[[prefix]]
+prefix = "af_"
+family = "agent.flag"
+evidence = "header_mission_templates.py:115 (af_override_weapons)"
+
+[[prefix]]
+prefix = "aisb_"
+family = "aisb"
+evidence = "header_mission_templates.py:68 (aisb_hold)"
+
+[[prefix]]
+prefix = "ai_"
+family = "ai"
+evidence = "header_parties.py:52 (ai_bhvr_hold)"
+
+[[prefix]]
+prefix = "rt_"
+family = "terrain"
+evidence = "header_terrain_types.py:1 (rt_water)"
+
+[[prefix]]
+prefix = "ground_"
+family = "ground"
+evidence = "header_ground_types.py:1 (ground_gray_stone)"
+
+[[prefix]]
+prefix = "psf_"
+family = "particle.flag"
+evidence = "header_particle_systems.py:7 (psf_always_emit)"
+
+[[prefix]]
+prefix = "wpt_"
+family = "weapon.proficiency"
+evidence = "header_troops.py:39 (wpt_one_handed_weapon)"
