@@ -117,3 +117,10 @@ Bu, döngünün ilk sözleşmesidir (`finalForm`). Sonraki fazlar için sözleş
 - "Hardwired" kayıtların sırası asla bozulmaz.
 - Derleyicinin çıktısı belirlenimci: aynı girdi → bayt bayt aynı çıktı.
 - TaleWorlds'ün kit dosyaları açık kaynak depoya konmaz; kit yolu ayardan okunur.
+
+## Sahibinin kararları (2026-11-21, YÖN-3 konuşması)
+
+- Hedef: Module System'in tamamını Module System bilmeden kullanmak. Sistem bittiğinde modcu yeni bir mekanik ya da arayüz istediğinde derleyiciye yama gerekmez. Gizlilik vb. yalnız örnektir; olasılık sınırsızdır.
+- Dil **İngilizce**. **Çok kolay** ve aynı zamanda **tam kontrol**. Yazım mantık olarak hemen anlaşılmalı (cümle taklidi değil, okunur ve düzenli).
+- Görsel editör ileride olabilir, şimdi değil.
+- **İlk kabul denemesi (sınav, kapsam değil):** oyun doğrudan başlar; oyuncunun adı "Alex"; karakter yaratma soruları yok; yüz otomatik seçilmiş sabit bir yüz; oyuncu Praven şehrinin içinde başlar; ekranda dinamik güncellenen bir stamina çubuğu; Alt basılı tutulunca koşma (stamina harcar, bırakınca dolar). Oyunda denenerek kabul edilir.
