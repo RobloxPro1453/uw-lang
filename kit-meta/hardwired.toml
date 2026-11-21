@@ -1,0 +1,539 @@
+# Records the game engine itself depends on, table by table: the records and positions a from-scratch
+# mod (`base = "empty"`) has to keep, because the engine reads them by position, not by name.
+#
+# Every line carries kit evidence: `evidence` is a `file:line` in the kit rooted at
+# `Module_system 1.171/`, and `position` is the record's index in the kit's `ID_<table>.py` — the kit
+# writes ID = list index (`process_items.py:12-14`, `process_troops.py:99-102`,
+# `process_strings.py:18-20`). Warband itself is closed source, so the engine's real expectation is
+# only readable from the kit's own "hardwired / hardcoded" comments: docs/meclis/kanit-H2.md collects
+# them, docs/meclis/denetim-H1.md marks what could not be verified.
+#
+# `certainty`:
+#   "comment"  = a kit comment marks exactly this boundary.
+#   "inferred" = no marker sits at this boundary; the need is read from other kit evidence.
+#
+# Checked by crates/uw_decomp/tests/hardwired_t122.rs (same id and position in the kit's ID file, and
+# the id/position in `target/uw-staging/atlas.json` when that dump exists).
+
+# Troops: `module_troops.py:258` "Troops before this point are hardwired into the game and their order
+# should not be changed!" — 4 records, `ID_troops.py:1-4`.
+[[record]]
+table = "troops"
+id = "trp_player"
+position = 0
+reason = "The player's troop, first of the 4 troops the marker covers (ID_troops.py:1)."
+evidence = "module_troops.py:258"
+certainty = "comment"
+
+[[record]]
+table = "troops"
+id = "trp_multiplayer_profile_troop_male"
+position = 1
+reason = "Male multiplayer profile troop, second of the 4 (ID_troops.py:2)."
+evidence = "module_troops.py:258"
+certainty = "comment"
+
+[[record]]
+table = "troops"
+id = "trp_multiplayer_profile_troop_female"
+position = 2
+reason = "Female multiplayer profile troop, third of the 4 (ID_troops.py:3)."
+evidence = "module_troops.py:258"
+certainty = "comment"
+
+[[record]]
+table = "troops"
+id = "trp_temp_troop"
+position = 3
+reason = "Temporary troop, the last the marker covers; p_camp_bandits holds it (ID_troops.py:4)."
+evidence = "module_troops.py:258"
+certainty = "comment"
+
+# Items: `module_items.py:73` "Items before this point are hardwired and their order should not be
+# changed!" — 17 records, `ID_items.py:1-17`.
+#
+# Unresolved conflict, deliberately not locked here: a second marker, `module_items.py:223` "ITEMS
+# before this point are hardcoded into item_codes.h", sits after 125 items; the last one is itm_butter
+# (ID_items.py:125). Both markers are real kit comments and which one the engine follows is unproven
+# (docs/meclis/denetim-H1.md:13, kanit-H2.md:17), so only the narrower boundary the first marker names
+# is written here.
+[[record]]
+table = "items"
+id = "itm_no_item"
+position = 0
+reason = "The invalid/placeholder item the kit keeps at index 0, first of the 17 (ID_items.py:1)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_spear"
+position = 1
+reason = "Tutorial spear, second of the 17; the kit repeats this name later (ID_items.py:2)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_club"
+position = 2
+reason = "Tutorial club, third of the 17 (ID_items.py:3)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_battle_axe"
+position = 3
+reason = "Tutorial battle axe, fourth of the 17 (ID_items.py:4)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_arrows"
+position = 4
+reason = "Tutorial arrows, fifth of the 17 (ID_items.py:5)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_bolts"
+position = 5
+reason = "Tutorial bolts, sixth of the 17 (ID_items.py:6)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_short_bow"
+position = 6
+reason = "Tutorial short bow, seventh of the 17 (ID_items.py:7)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_crossbow"
+position = 7
+reason = "Tutorial crossbow, eighth of the 17 (ID_items.py:8)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_throwing_daggers"
+position = 8
+reason = "Tutorial throwing daggers, ninth of the 17 (ID_items.py:9)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_saddle_horse"
+position = 9
+reason = "Tutorial saddle horse, tenth of the 17 (ID_items.py:10)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_shield"
+position = 10
+reason = "Tutorial shield, eleventh of the 17 (ID_items.py:11)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_staff_no_attack"
+position = 11
+reason = "Tutorial staff without attack, twelfth of the 17 (ID_items.py:12)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_staff"
+position = 12
+reason = "Tutorial staff, thirteenth of the 17 (ID_items.py:13)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_sword"
+position = 13
+reason = "Tutorial sword, fourteenth of the 17 (ID_items.py:14)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_axe"
+position = 14
+reason = "Tutorial axe, fifteenth of the 17 (ID_items.py:15)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_tutorial_dagger"
+position = 15
+reason = "Tutorial dagger, sixteenth of the 17 (ID_items.py:16)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+[[record]]
+table = "items"
+id = "itm_horse_meat"
+position = 16
+reason = "Horse meat, the last item the marker covers (ID_items.py:17)."
+evidence = "module_items.py:73"
+certainty = "comment"
+
+# Factions: `module_factions.py:24` "Factions before this point are hardwired into the game end their
+# order should not be changed." — 3 records, `ID_factions.py:1-3`.
+[[record]]
+table = "factions"
+id = "fac_no_faction"
+position = 0
+reason = "No faction, first of the 3 the marker covers (ID_factions.py:1)."
+evidence = "module_factions.py:24"
+certainty = "comment"
+
+[[record]]
+table = "factions"
+id = "fac_commoners"
+position = 1
+reason = "Commoners, second of the 3 (ID_factions.py:2)."
+evidence = "module_factions.py:24"
+certainty = "comment"
+
+[[record]]
+table = "factions"
+id = "fac_outlaws"
+position = 2
+reason = "Outlaws, last of the 3 (ID_factions.py:3)."
+evidence = "module_factions.py:24"
+certainty = "comment"
+
+# Parties: `module_parties.py:47` "parties before this point are hardwired. Their order should not be
+# changed." — 3 records, `ID_parties.py:1-3`.
+[[record]]
+table = "parties"
+id = "p_main_party"
+position = 0
+reason = "The player's party on the map, first of the 3 the marker covers (ID_parties.py:1)."
+evidence = "module_parties.py:47"
+certainty = "comment"
+
+[[record]]
+table = "parties"
+id = "p_temp_party"
+position = 1
+reason = "Scratch party the kit fills, second of the 3 (ID_parties.py:2)."
+evidence = "module_parties.py:47"
+certainty = "comment"
+
+[[record]]
+table = "parties"
+id = "p_camp_bandits"
+position = 2
+reason = "Bandit party of the camp, last of the 3 (ID_parties.py:3)."
+evidence = "module_parties.py:47"
+certainty = "comment"
+
+# Party templates: `module_party_templates.py:33` "Party templates before this point are hard-wired
+# into the game and should not be changed." — 4 records, `ID_party_templates.py:1-4`.
+[[record]]
+table = "party_templates"
+id = "pt_none"
+position = 0
+reason = "Empty party template, first of the 4 the marker covers (ID_party_templates.py:1)."
+evidence = "module_party_templates.py:33"
+certainty = "comment"
+
+[[record]]
+table = "party_templates"
+id = "pt_rescued_prisoners"
+position = 1
+reason = "Rescued prisoners, second of the 4 (ID_party_templates.py:2)."
+evidence = "module_party_templates.py:33"
+certainty = "comment"
+
+[[record]]
+table = "party_templates"
+id = "pt_enemy"
+position = 2
+reason = "Enemy party, third of the 4 (ID_party_templates.py:3)."
+evidence = "module_party_templates.py:33"
+certainty = "comment"
+
+[[record]]
+table = "party_templates"
+id = "pt_hero_party"
+position = 3
+reason = "Hero party, last of the 4 (ID_party_templates.py:4)."
+evidence = "module_party_templates.py:33"
+certainty = "comment"
+
+# Strings: `module_strings.py:7` "Strings before this point are hardwired." — 4 records,
+# `ID_strings.py:1-4`.
+[[record]]
+table = "strings"
+id = "str_no_string"
+position = 0
+reason = "The \"NO STRING!\" placeholder, first of the 4 the marker covers (ID_strings.py:1)."
+evidence = "module_strings.py:7"
+certainty = "comment"
+
+[[record]]
+table = "strings"
+id = "str_empty_string"
+position = 1
+reason = "A single space, second of the 4 (ID_strings.py:2)."
+evidence = "module_strings.py:7"
+certainty = "comment"
+
+[[record]]
+table = "strings"
+id = "str_yes"
+position = 2
+reason = "The yes answer, third of the 4 (ID_strings.py:3)."
+evidence = "module_strings.py:7"
+certainty = "comment"
+
+[[record]]
+table = "strings"
+id = "str_no"
+position = 3
+reason = "The no answer, last of the 4 (ID_strings.py:4)."
+evidence = "module_strings.py:7"
+certainty = "comment"
+
+# Mission templates: `module_mission_templates.py:1549` "mission templates before this point are
+# hardwired into the game." — 2 records, `ID_mission_templates.py:1-2` (the records are
+# `module_mission_templates.py:1277` and `:1533`).
+[[record]]
+table = "mission_templates"
+id = "mst_town_default"
+position = 0
+reason = "The town mission every town and castle map uses, first of the 2 (ID_mission_templates.py:1)."
+evidence = "module_mission_templates.py:1549"
+certainty = "comment"
+
+[[record]]
+table = "mission_templates"
+id = "mst_conversation_encounter"
+position = 1
+reason = "The conversation mission, last of the 2 (ID_mission_templates.py:2)."
+evidence = "module_mission_templates.py:1549"
+certainty = "comment"
+
+# Skills: `module_skills.py:14` "Hardcoded skills are {names (indexes, beginning with 0)}" lists 22
+# skills by name (lines 15-36). The number in brackets in that list is the game's own skill number,
+# not the list index (Engineer is written "(18)" but holds index 8), so the position is the value in
+# `ID_skills.py`, which the atlas dump agrees with. The reserved skills between them stay where they are.
+[[record]]
+table = "skills"
+id = "skl_trade"
+position = 0
+reason = "Trade, the kit's list names it first (module_skills.py:15, ID_skills.py:1)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_leadership"
+position = 1
+reason = "Leadership, second named skill (module_skills.py:16, ID_skills.py:2)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_prisoner_management"
+position = 2
+reason = "Prisoner Management, third named skill (module_skills.py:17, ID_skills.py:3)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_first_aid"
+position = 9
+reason = "First Aid, named fourth; Engineer sits just before it and 4 reserved skills plus Persuasion fill indexes 3-7 (module_skills.py:18, ID_skills.py:10)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_surgery"
+position = 10
+reason = "Surgery, fifth named skill (module_skills.py:19, ID_skills.py:11)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_wound_treatment"
+position = 11
+reason = "Wound Treatment, sixth named skill (module_skills.py:20, ID_skills.py:12)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_inventory_management"
+position = 12
+reason = "Inventory Management, seventh named skill (module_skills.py:21, ID_skills.py:13)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_spotting"
+position = 13
+reason = "Spotting, eighth named skill (module_skills.py:22, ID_skills.py:14)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_pathfinding"
+position = 14
+reason = "Pathfinding, ninth named skill (module_skills.py:23, ID_skills.py:15)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_tactics"
+position = 15
+reason = "Tactics, tenth named skill (module_skills.py:24, ID_skills.py:16)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_tracking"
+position = 16
+reason = "Tracking, eleventh named skill (module_skills.py:25, ID_skills.py:17)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_trainer"
+position = 17
+reason = "Trainer, twelfth named skill (module_skills.py:26, ID_skills.py:18)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_engineer"
+position = 8
+reason = "Engineer, thirteenth named skill; the kit writes (18) but its index is 8, right after Persuasion (module_skills.py:27, ID_skills.py:9)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_horse_archery"
+position = 23
+reason = "Horse Archery, fourteenth named skill; 4 reserved skills and Looting fill indexes 18-22 (module_skills.py:28, ID_skills.py:24)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_riding"
+position = 24
+reason = "Riding, fifteenth named skill (module_skills.py:29, ID_skills.py:25)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_athletics"
+position = 25
+reason = "Athletics, sixteenth named skill (module_skills.py:30, ID_skills.py:26)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_shield"
+position = 26
+reason = "Shield, seventeenth named skill (module_skills.py:31, ID_skills.py:27)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_weapon_master"
+position = 27
+reason = "Weapon Master, eighteenth named skill (module_skills.py:32, ID_skills.py:28)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_power_draw"
+position = 33
+reason = "Power Draw, nineteenth named skill; 5 reserved skills follow Weapon Master (module_skills.py:33, ID_skills.py:34)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_power_throw"
+position = 34
+reason = "Power Throw, twentieth named skill (module_skills.py:34, ID_skills.py:35)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_power_strike"
+position = 35
+reason = "Power Strike, twenty-first named skill (module_skills.py:35, ID_skills.py:36)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+[[record]]
+table = "skills"
+id = "skl_ironflesh"
+position = 36
+reason = "Ironflesh, the last named skill (module_skills.py:36, ID_skills.py:37)."
+evidence = "module_skills.py:14"
+certainty = "comment"
+
+# Menus: `module_game_menus.py:35` "Note: The first Menu is the initial character creation menu." —
+# only position 0 is marked; menus 1-14 are unmarked (docs/meclis/denetim-H1.md:40-53).
+[[record]]
+table = "menus"
+id = "menu_start_game_0"
+position = 0
+reason = "The character-creation menu the engine opens first (module_game_menus.py:39, ID_menus.py:1)."
+evidence = "module_game_menus.py:35"
+certainty = "comment"
+
+# Animations: `module_animations.py:77-80` "All of the animations are hardcoded ... each animation must
+# stay at the same position"; only the ids of the `unused_human_anim_*` / `unused_horse_anim_*` entries
+# may change. The rule covers all 670 positions, so no position may be added, removed or moved; the
+# first one is written here as the anchor and the table stays locked as a whole.
+[[record]]
+table = "animations"
+id = "anim_stand"
+position = 0
+reason = "Standing animation, position 0; the marker fixes all 670 animation positions (ID_animations.py:1)."
+evidence = "module_animations.py:77"
+certainty = "comment"
+
+# Scenes are deliberately absent: `module_scenes.py` carries no hardwired/hardcoded marker for
+# scn_random_scene / scn_conversation_scene (positions 0 and 1), so the engine's need for them is
+# unproven and not written here (docs/meclis/denetim-H1.md:51).
