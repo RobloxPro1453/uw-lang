@@ -4,6 +4,13 @@
 
 ## Sıra
 
+**YÖN 3 DİL KATMANI (meclis 2026-11-21, `docs/meclis/yon3/dil/KARAR-DIL.md`; EN ÖNCELİKLİ):** Module System'siz Module System. Sıra L1 → L2 → L3 → L4 → L5; aşağıdaki Y3-P* dünya paketleri bunlardan sonra gelir.
+
+- [ ] **L1** Otomatik söz dağarcığı: `kit-meta/easy/` (işlem/sabit/slot, D3 kuralları), `uw words` + editör, `uw coverage --easy` (kavram sızıntısı dahil).
+- [ ] **L2** Çekirdek sözdizimi + IR: `feature`, `on <olay>`, nesne/özellik, `const/var/agent var`, birimler, `when/where`, `became`.
+- [ ] **L3** Gizli altyapı: görev dağıtıcısı, girdi katmanı, HUD yöneticisi (tek presentation), başlangıç akışı, gözlemci.
+- [ ] **L4** Alex denemesi uçtan uca (KARAR-DIL §7): derleme + golden + sahibinin oyun denemesi.
+- [ ] **L5** Kör sınav: D4'ün 8 mekaniği golden; sonra sahibinden 10 yeni kör istek.
 **YÖN 3 (meclis 2026-11-21, `docs/meclis/yon3/KARAR.md`; EN ÖNCELİKLİ, KURUCU MODEL maddesinin yerini alır):** sıra P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9. Yeni madde "şu alan eklensin" diye açılmaz, mekanizma düzeyinde açılır.
 
 - [ ] **Y3-P0** `uw coverage` v1 (envanter kitten, golden `// covers:`, gümüş/altın, `--json`).
