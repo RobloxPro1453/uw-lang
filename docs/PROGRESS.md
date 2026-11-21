@@ -3,6 +3,10 @@
 En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulundu, nerede takıldı, nasıl doğrulandı, sıradaki ne. Ayrıntıyı tekrarlamayın; ilgili belgeye yönlendirin. Kayıt silinmez; 30 kaydı geçince eskiler tek paragrafa özetlenir, kalıcı bilgi `docs/KNOWLEDGE.md`'ye taşınır.
 
 <!-- Biçim (bu yorum şablondur, silmeyin):
+## 2026-11-21 · YÖN-3 meclisi + dallar birleşti (Claude)
+T-116 (lord satırı) ve opencode oturumundan T-117 (etki raporu) + T-118 (override alanı) birleşti; doğrulama: testler 450 geçti 0 hata, `uw new --check` 12815/12815, `build-project --compare-native` 32/32; push edildi.
+4 koltuklu meclis (mimar, kanıtçı, avukat, ölçümcü) opencode taslağını denetledi: elle "yapı zinciri" reddedildi, yerine game_start kuru yorumlayıcı + snapshot; override bugün 2/27 tablo; gerçek kapsama tahmini gümüş %8-12. Karar `docs/meclis/yon3/KARAR.md`.
+Sıradaki: Y3-P0 `uw coverage`, Y3-P1 genel katkı (27 tablo), Y3-P2 yorumlayıcı.
 ## 2026-01-15 14:30 · kısa başlık (kim: Claude / otonom / sahibi)
 Ne yapıldı (commit kısa kimliği). Ne bulundu. Doğrulama: "testler 42/42" gibi komut çıktısından. Sıradaki: ...
 -->

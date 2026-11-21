@@ -1,5 +1,14 @@
 # Devir: sonraki oturum buradan başlar
 
+## 000000000000. YÖN-3 (2026-11-21) — ÖNCE BUNU OKU
+
+YÖN-3 meclisi toplandı, karar: **`docs/meclis/yon3/KARAR.md`** (dünya durumu derleyicisi). Koltuklar
+`M1-MIMAR/M2-KANIT/M3-AVUKAT/M4-OLCUM.md`; opencode'un ücretsiz model meclisi arşivde `docs/meclis/opencode/`.
+Birleşti ve push edildi: T-116 (lord satırı) ve opencode oturumunun T-117 (etki raporu) + T-118 (override
+alanı). Ölçü: testler 450/450, new --check 12815/12815, build-project 32/32. cv/T-115 boş (şerit hiç
+commit atmadı), cv/T-059/061/062 eski dallar. `opencode-session/` klasörü eski bir tam kopya: kod oradan
+alındı, artık kaynak değil (içinde kit var, commit edilmez). DUR kaldırıldı. Sıradaki: ROADMAP "YÖN 3" P0 → P9.
+Dikkat: `cv guard` "[kaynak: varsayilan]" uyarısı yanlış (%100 der); gerçek kota `get_usage` ile.
 ## 00000000000. GECE SONU (2026-11-16) — ÖNCE BUNU OKU
 
 Sahibi: haftalık kota yenilenene kadar (21 Kasım) **yeni iş yok**; yenilenince uzun, tam meclis:

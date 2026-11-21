@@ -2,6 +2,8 @@
 
 Durum: 2026-11-15 büyük meclisinin kararıyla belirlendi (`docs/meclis/KARAR.md`; kanıtlar `docs/meclis/kanit-*.md`), sonra sahibinin cevapları ve Manus değerlendirmesiyle (`docs/meclis/manus-cevabi-degerlendirme.md`) düzeltildi. Etiketler: **KESİN** = mühendislik kararı ya da kitte kanıtlı; **KANITLANACAK** = motor davranışına bağlı, Faz 0 deneyi (D1–D10, bkz. KARAR §6) bitmeden kesin sayılmaz; **SORULDU** = sahibine sade dille yeniden soruldu (`.evrim/otonom/SORULAR.md`).
 
+**YÖN-3 (2026-11-21, `docs/meclis/yon3/KARAR.md`) bu belgenin üstündedir:** dünya durumu derleyicisi — `base = native|empty`, katkılar 27 tabloda tek yoldan, Native `game_start` derleme anında kuru yorumlanır (snapshot + bağımlılık izi; elle zincir tablosu yok), `auto` = sorumluluk devri, özel satır için yeni Rust yolu açılmaz. Aşağıdaki bölümler çeliştiğinde KARAR geçerlidir; bölümler paketler ilerledikçe güncellenir.
+
 **Değişmez ilke (sahibi):** UW'nin belli bir amacı yok. Amaca özel yerleşik özellik (prolog silici, sprint ekleyici…) yapılmaz; Native'in her girdisi aynı genel mekanizmayla değiştirilir. Örneklerdeki praven/prolog yalnız kabul testidir.
 
 ## Büyük resim

@@ -4,6 +4,18 @@
 
 ## Sıra
 
+**YÖN 3 (meclis 2026-11-21, `docs/meclis/yon3/KARAR.md`; EN ÖNCELİKLİ, KURUCU MODEL maddesinin yerini alır):** sıra P0 → P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8 → P9. Yeni madde "şu alan eklensin" diye açılmaz, mekanizma düzeyinde açılır.
+
+- [ ] **Y3-P0** `uw coverage` v1 (envanter kitten, golden `// covers:`, gümüş/altın, `--json`).
+- [ ] **Y3-P1** Genel katkı: `override` / `new … like` 27 tablonun hepsinde tek yoldan (bugün 2/27).
+- [ ] **Y3-P2** `game_start` kuru yorumlayıcı + iz (snapshot).
+- [ ] **Y3-P3** Snapshot oyun doğrulaması (N=50 hücre ≥%98; sahibi oyun deneyi).
+- [ ] **Y3-P4** Bağımlılık izi → etki raporu (`effects.rs` sabiti silinir).
+- [ ] **Y3-P5** Slot adı sözlüğü kitten (%100, uydurma 0).
+- [ ] **Y3-P6** `start = native` üretimi; `owner`/`lord` genel alana eritilir.
+- [ ] **Y3-P7** `disable`, `like` aralık/ofset bağları.
+- [ ] **Y3-P8** `raw slot` kaçışı (raporda, ölçümde kusur).
+- [ ] **Y3-P9** `base = empty` + iki büyük sınav (Native yeniden üretim; her şeyi sil, sıfırdan kur).
 **YÖN 2 (büyük meclis kararı 2026-11-15, `docs/meclis/YON2-KARAR.md`):** sıra P1 → P3a → P2 → P3b → P5 → P6 → Y5-Y8. Eski maddeler (harita, D5-D10, kit-meta) bu fazların parçası olarak sürer.
 
 - [x] **Y0** Büyük meclis (2026-11-15; karar `docs/meclis/YON2-KARAR.md`, kararname "Yön 2").

@@ -172,3 +172,8 @@ Bu dosya, otonom yazılım ofisinin kendi kendine aldığı tempo ayarlarını, 
 - **Bulgu:** Sahibi: dil kolay yazılmalı, kafaya oturmalı; "temeli kursak, en son derince sözdizimine karar versek?" Derleyicinin içi sözdiziminden bağımsız ara yapıyla çalışıyor; geri çevirici her şeyi yeniden basabildiği için sözdizimi değişikliği projelere otomatik taşınabilir.
 - **Karar:** Yön sabit: oyunda görünen adlar, nesne mantığı (`player.gold`), tek iş tek satır, Native kaçış kapısı (`docs/meclis/kolay-dil-taslak.md`). Yazım ayrıntıları **geçici**; son sözdizimi meclisi, ad katmanı + anlam kütüphanesi + olay altyapısı çalışınca gerçek örneklerle toplanır. Bu arada sözdiziminden bağımsız temel kurulur.
 - **Beklenen etki:** Sözdizimi tartışması işi durdurmaz; karar, çalışan örnekler görülerek verilir.
+
+## [2026-11-21] [mimari] YÖN-3: dünya durumu derleyicisi (meclis, sahibinin yetkisiyle)
+- **Bulgu:** YÖN-2 her isteğe ayrı Rust yolu açtı (owner, lord…); opencode taslağının "yapı zinciri şeması" aynı hastalığın elle tablo hâli (T-117 sabit dizi). Kâğıt kapıları kitin kapsamını ölçtü, dilinkini değil.
+- **Karar:** `docs/meclis/yon3/KARAR.md`. Modcu varlık + bağ + başlangıç değeri yazar; `base = native|empty`; katkılar (`new/override/disable/like`) 27 tabloda tek yoldan; Native `game_start` derleme anında kuru yorumlanır (snapshot + bağımlılık izi), elle zincir tablosu YASAK; `auto` = sorumluluk devri, raporlanır; özel satır için yeni Rust yolu açılmaz; kolay sözcükler `lib/*.uw`'de. Bitti = `uw coverage` (golden `covers:` ile gümüş/altın) + kör istek sınavı (`git diff crates/` boşken) + Native yeniden üretim ve sıfırdan kurulum sınavları.
+- **Beklenen etki:** Yeni istek derleyiciye kod eklemeden yazılır; ilerleme tek sayıyla ölçülür.
