@@ -130,6 +130,10 @@ def dump_constants():
             m = CONST_RE.match(line)
             if m and isinstance(getattr(mod, m.group(1), None), (int, long))                     and not isinstance(getattr(mod, m.group(1)), bool):
                 seen[m.group(1)] = no
+            # Trigger kinds (`ti_on_agent_spawn = -20.0`, header_triggers.py) are floats; keep them so
+            # tools can list every hook (uw coverage hook grid).
+            elif m and m.group(1).startswith("ti_") and isinstance(getattr(mod, m.group(1), None), float):
+                seen[m.group(1)] = no
         for name, no in sorted(seen.items(), key=lambda kv: kv[1]):
             out.append({"name": name, "value": getattr(mod, name), "module": path[:-3], "line": no})
     return out
