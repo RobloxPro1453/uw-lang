@@ -723,6 +723,16 @@ name = "uw_diag"
 version = "0.0.1"
 
 [[package]]
+name = "uw_easy"
+version = "0.0.1"
+dependencies = [
+ "serde",
+ "serde_json",
+ "toml",
+ "uw_atlas",
+]
+
+[[package]]
 name = "uw_emit"
 version = "0.0.1"
 dependencies = [
