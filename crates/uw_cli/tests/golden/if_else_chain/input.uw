@@ -12,3 +12,8 @@ on game.start {
         display_message("@UW: broke.")
     }
 }
+
+// covers: scripts.hook
+// covers: hook.game_start
+// covers: op.party_is_active
+// covers: op.display_message

@@ -10,3 +10,5 @@ on enter mountain_road when time.hour >= 12 {
         say "Bandits took your shield!"
     }
 }
+
+// covers: simple_triggers.new

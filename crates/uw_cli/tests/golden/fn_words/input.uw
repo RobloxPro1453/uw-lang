@@ -19,3 +19,8 @@ on game.start {
     reward_player(9)
     reward_player(11)
 }
+
+// covers: scripts.hook
+// covers: hook.game_start
+// covers: op.troop_add_gold
+// covers: op.display_message

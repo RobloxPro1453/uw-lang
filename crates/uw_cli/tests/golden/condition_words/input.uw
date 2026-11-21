@@ -34,3 +34,7 @@ override menu_start_phase_2 {
         say "Not ready."
     }
 }
+
+// covers: simple_triggers.new
+// covers: menus.override
+// covers: op.party_is_active

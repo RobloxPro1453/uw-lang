@@ -15,3 +15,6 @@ on game.start {
     :renown = player.renown
     :honor = player.honor
 }
+
+// covers: scripts.hook
+// covers: hook.game_start

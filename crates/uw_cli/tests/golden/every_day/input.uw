@@ -16,3 +16,5 @@ every hour {
 every 0.5 hours {
     say("@Half an hour passed.")
 }
+
+// covers: simple_triggers.new

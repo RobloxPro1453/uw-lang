@@ -12,3 +12,5 @@ dialog king_harlaus first_meeting {
         say("@He nods.")
     } -> end
 }
+
+// covers: dialogs.new
