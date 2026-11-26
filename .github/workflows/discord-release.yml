@@ -1,0 +1,59 @@
+# Posts a release announcement to Discord.
+# Major releases (v0.X.0 before 1.0, vX.0.0 after) mention the Modder and Developer roles;
+# patch releases mention only the Developer role; pre-releases mention no one.
+# Required repository secrets: DISCORD_ANNOUNCE_WEBHOOK, DISCORD_MODDER_ROLE_ID, DISCORD_DEVELOPER_ROLE_ID.
+name: Discord release announcement
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send announcement
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_ANNOUNCE_WEBHOOK }}
+          MODDER: ${{ secrets.DISCORD_MODDER_ROLE_ID }}
+          DEVELOPER: ${{ secrets.DISCORD_DEVELOPER_ROLE_ID }}
+          TAG: ${{ github.event.release.tag_name }}
+          NAME: ${{ github.event.release.name }}
+          BODY: ${{ github.event.release.body }}
+          URL: ${{ github.event.release.html_url }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          if [ -z "$WEBHOOK" ]; then
+            echo "DISCORD_ANNOUNCE_WEBHOOK is not set; skipping."
+            exit 0
+          fi
+
+          version="${TAG#v}"
+          IFS=. read -r major minor patch <<< "$version"
+          major=${major:-0}; minor=${minor:-0}; patch=${patch%%[-+]*}; patch=${patch:-0}
+
+          if [ "$PRERELEASE" = "true" ]; then
+            kind="Pre-release"; mentions=""; roles="[]"
+          elif { [ "$major" = "0" ] && [ "$patch" = "0" ]; } || { [ "$major" != "0" ] && [ "$minor" = "0" ] && [ "$patch" = "0" ]; }; then
+            kind="Major release"; mentions="<@&$MODDER> <@&$DEVELOPER>"; roles="[\"$MODDER\",\"$DEVELOPER\"]"
+          else
+            kind="Update"; mentions="<@&$DEVELOPER>"; roles="[\"$DEVELOPER\"]"
+          fi
+
+          title="${NAME:-$TAG}"
+          desc="$(printf '%s' "$BODY" | head -c 3500)"
+
+          payload=$(jq -n \
+            --arg content "$mentions" \
+            --arg title "$kind: $title" \
+            --arg desc "$desc" \
+            --arg url "$URL" \
+            --argjson roles "$roles" \
+            '{username: "UW Releases", content: $content,
+              allowed_mentions: {roles: $roles},
+              embeds: [{title: $title, url: $url, description: $desc, color: 13214247}]}')
+
+          curl -fsS -H "Content-Type: application/json" -d "$payload" "$WEBHOOK"

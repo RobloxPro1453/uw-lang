@@ -2,6 +2,8 @@
 
 A general-purpose modding language and compiler for *Mount & Blade: Warband* 1.174, written in Rust. UW compiles to the official Module System 1.171, so you get the full power of the engine without writing Module System Python.
 
+[![Discord](https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/cjKbchTa2c)
+
 > Unofficial and not affiliated with or endorsed by TaleWorlds Entertainment. Mount & Blade and Warband are trademarks of their respective owners.
 
 <p align="center">
@@ -144,6 +146,8 @@ Main commands (see `uw --help` for all of them):
 ## Contributing
 
 Issues and pull requests are welcome. Run `cargo build --workspace` and `cargo test --workspace` before submitting; tests that need the kit or Python 2.7 skip themselves when those are missing. A guiding rule: the compiler gets general language mechanisms only; a specific gameplay mechanic belongs in user code under `features/`. See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+
+Questions, ideas and showcases are welcome on the [Discord server](https://discord.gg/cjKbchTa2c).
 
 ## License
 
