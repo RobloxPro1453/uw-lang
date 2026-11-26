@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="690" viewBox="0 0 1280 690" role="img" aria-labelledby="t d">
+  <title id="t">One line of UW becomes seven lines of Module System</title>
+  <desc id="d">The UW line player.agent.stamina += 15 per second, from examples/alex, fans out into the seven Module System operations uw build writes for it in module_scripts.py. Each part of the line has its own color, and the same color marks the operation it produced.</desc>
+  <style>
+    .serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif; }
+    .mono  { font-family: "Cascadia Mono", Consolas, "SF Mono", Menlo, "Liberation Mono", monospace; }
+    .code  { font-size: 18px; fill: #c3cfdf; }
+    .op    { font-size: 15.5px; fill: #e9edf2; }
+    .gloss { font-size: 15px; font-style: italic; fill: #93a6c2; }
+    .azure   { fill: #8ec3f2; } .purpure { fill: #c49be6; } .or { fill: #e3b448; }
+    .gules   { fill: #ec6b62; } .vert    { fill: #6cc28a; } .tenne { fill: #ef9550; }
+    .ray { fill: none; stroke-width: 2; stroke-linecap: round; }
+  </style>
+
+  <rect width="1280" height="690" rx="16" fill="#14213a"/>
+
+  <!-- heading -->
+  <text x="56" y="82" class="serif" font-size="34" font-weight="700" fill="#e9edf2">One line of UW becomes seven lines of Module System</text>
+  <text x="56" y="114" class="serif" font-size="17" fill="#93a6c2">From examples/alex, which ran in game on 22 November 2026. Everything on the right is real uw build output.</text>
+
+  <!-- left: the UW file -->
+  <text x="56" y="214" class="serif gloss">features/stamina.uw</text>
+
+  <text x="56" y="262" class="mono code" textLength="230" lengthAdjust="spacingAndGlyphs">var agent.stamina = 100</text>
+  <text x="296" y="262" class="mono code tenne" textLength="90" lengthAdjust="spacingAndGlyphs">in 0..100</text>
+  <line x1="296" y1="270" x2="386" y2="270" stroke="#ef9550" stroke-width="2"/>
+
+  <text x="56" y="300" class="mono code" textLength="180" lengthAdjust="spacingAndGlyphs">while in mission {</text>
+
+  <text x="96" y="338" class="mono code azure" font-weight="600" textLength="120" lengthAdjust="spacingAndGlyphs">player.agent</text>
+  <text x="216" y="338" class="mono code purpure" font-weight="600" textLength="80" lengthAdjust="spacingAndGlyphs">.stamina</text>
+  <text x="306" y="338" class="mono code vert" font-weight="600" textLength="20" lengthAdjust="spacingAndGlyphs">+=</text>
+  <text x="336" y="338" class="mono code or" font-weight="600" textLength="20" lengthAdjust="spacingAndGlyphs">15</text>
+  <text x="366" y="338" class="mono code gules" font-weight="600" textLength="100" lengthAdjust="spacingAndGlyphs">per second</text>
+  <line x1="96" y1="346" x2="214" y2="346" stroke="#8ec3f2" stroke-width="2"/>
+  <line x1="218" y1="346" x2="296" y2="346" stroke="#c49be6" stroke-width="2"/>
+  <line x1="306" y1="346" x2="326" y2="346" stroke="#6cc28a" stroke-width="2"/>
+  <line x1="336" y1="346" x2="356" y2="346" stroke="#e3b448" stroke-width="2"/>
+  <line x1="366" y1="346" x2="466" y2="346" stroke="#ec6b62" stroke-width="2"/>
+
+  <text x="56" y="376" class="mono code">}</text>
+
+  <text x="56" y="436" class="serif" font-size="15.5" fill="#c3cfdf">The line never mentions agent ids, slots,</text>
+  <text x="56" y="459" class="serif" font-size="15.5" fill="#c3cfdf">frame time or scripts. The compiler writes</text>
+  <text x="56" y="482" class="serif" font-size="15.5" fill="#c3cfdf">them, checked against the kit before building.</text>
+
+  <!-- the fan: one line, seven operations -->
+  <g class="ray">
+    <path d="M476 332 C 590 332, 600 209, 708 209" stroke="#8ec3f2"/>
+    <path d="M476 332 C 590 332, 600 255, 708 255" stroke="#c49be6"/>
+    <path d="M476 332 C 590 332, 600 301, 708 301" stroke="#e3b448"/>
+    <path d="M476 332 C 590 332, 600 347, 708 347" stroke="#ec6b62"/>
+    <path d="M476 332 C 590 332, 600 393, 708 393" stroke="#6cc28a"/>
+    <path d="M396 256 C 560 256, 590 439, 708 439" stroke="#ef9550"/>
+    <path d="M476 332 C 590 332, 600 485, 708 485" stroke="#c49be6"/>
+  </g>
+  <circle cx="476" cy="332" r="4.5" fill="#e9edf2"/>
+  <circle cx="396" cy="256" r="3.5" fill="#ef9550"/>
+  <circle cx="710" cy="209" r="3.5" fill="#8ec3f2"/>
+  <circle cx="710" cy="255" r="3.5" fill="#c49be6"/>
+  <circle cx="710" cy="301" r="3.5" fill="#e3b448"/>
+  <circle cx="710" cy="347" r="3.5" fill="#ec6b62"/>
+  <circle cx="710" cy="393" r="3.5" fill="#6cc28a"/>
+  <circle cx="710" cy="439" r="3.5" fill="#ef9550"/>
+  <circle cx="710" cy="485" r="3.5" fill="#c49be6"/>
+
+  <!-- right: what module_scripts.py gets -->
+  <text x="724" y="166" class="serif gloss">module_scripts.py, inside the new script uw_mission_frame</text>
+
+  <text x="724" y="214" class="mono op">(<tspan class="azure">get_player_agent_no</tspan>, ":_uw8"),</text>
+  <text x="724" y="235" class="serif gloss">player.agent: the player’s character in this scene</text>
+
+  <text x="724" y="260" class="mono op">(<tspan class="purpure">agent_get_slot</tspan>, ":_uw9", ":_uw8", <tspan class="purpure">29</tspan>),</text>
+  <text x="724" y="281" class="serif gloss">.stamina lives in slot 29 of that agent, fixed in slots.lock</text>
+
+  <text x="724" y="306" class="mono op">(<tspan class="or">store_mul</tspan>, ":_uw10", <tspan class="or">15000</tspan>, ":uw_frame_ms"),</text>
+  <text x="724" y="327" class="serif gloss">15 is stored as 15000, since Warband counts in whole numbers</text>
+
+  <text x="724" y="352" class="mono op">(<tspan class="gules">val_div</tspan>, ":_uw10", <tspan class="gules">1000</tspan>),</text>
+  <text x="724" y="373" class="serif gloss">per second: times this frame’s milliseconds, over a thousand</text>
+
+  <text x="724" y="398" class="mono op">(<tspan class="vert">val_add</tspan>, ":_uw9", ":_uw10"),</text>
+  <text x="724" y="419" class="serif gloss">+= adds it</text>
+
+  <text x="724" y="444" class="mono op">(<tspan class="tenne">val_clamp</tspan>, ":_uw9", <tspan class="tenne">0</tspan>, <tspan class="tenne">100001</tspan>),</text>
+  <text x="724" y="465" class="serif gloss">in 0..100, from the var line, holds on every write</text>
+
+  <text x="724" y="490" class="mono op">(<tspan class="purpure">agent_set_slot</tspan>, ":_uw8", <tspan class="purpure">29</tspan>, ":_uw9"),</text>
+  <text x="724" y="511" class="serif gloss">and back into the same slot</text>
+
+  <!-- written once for the whole mod -->
+  <line x1="56" y1="560" x2="1224" y2="560" stroke="#2a3a57" stroke-width="1"/>
+  <text x="56" y="596" class="serif" font-size="16" font-weight="700" fill="#e9edf2">Written once for the whole mod, however many features it has</text>
+
+  <text x="56" y="632" class="mono" font-size="14" fill="#c3cfdf">(0, 0, 0, [], [(call_script, "script_uw_mission_frame")])</text>
+  <text x="56" y="654" class="serif gloss">one trigger, added to each of the 41 single-player mission templates</text>
+
+  <text x="724" y="632" class="mono" font-size="14" fill="#c3cfdf">[agent]  stamina = 29</text>
+  <text x="724" y="654" class="serif gloss">slots.lock: the number never changes, so old saves stay readable</text>
+</svg>

@@ -1,0 +1,35 @@
+# Sound records: `field_2` is the sound flag set, decoded with the `sf_` constants of
+# header_sounds.py; the other fields are the atlas value as it is.
+# The kit's module_sounds.py has no field-description comment, so the positions have no kit
+# name and stay `field_<n>`; the shape is the tuple (id, flags, sample list) written in the
+# `sounds` list at line 3. §2.
+table = "sounds"
+kind = "sound"
+id_prefix = "snd_"
+
+[[fields]]
+name = "field_1"
+ty = "raw"
+source = "module_sounds.py:3"
+
+[[fields]]
+name = "field_2"
+ty = "flags:sf_2d,sf_looping,sf_start_at_random_pos,sf_stream_from_hd,sf_always_send_via_network"
+# process_sounds.py:30-31 reads sound[2] as the sample list and sound[1] as the sound flags.
+source = "process_sounds.py:31"
+
+# header_scenes.py and header_skills.py also define `sf_` names (sf_indoors = 0x1), so the one-bit
+# sound flags above are listed by their exact names, not the shared `sf_` prefix.
+# sf_priority_15 is the 0xf0 priority mask, sf_vol_15 the 0xf00 volume mask (header_sounds.py:13,29).
+[[fields.enums]]
+mask = "sf_priority_15"
+prefix = "sf_priority_"
+
+[[fields.enums]]
+mask = "sf_vol_15"
+prefix = "sf_vol_"
+
+[[fields]]
+name = "field_3"
+ty = "raw"
+source = "module_sounds.py:3"

@@ -1,0 +1,124 @@
+// UW's own words: every mod may call these without defining them. Each `fn` is plain UW
+// and its comment names the Native operation.
+
+// Give the player gold (`troop_add_gold`).
+fn give_gold(:amount) {
+    troop_add_gold(trp_player, :amount)
+}
+
+// Take at most what the player has (`store_troop_gold` + `ge`).
+fn take_gold(:amount) {
+    store_troop_gold(:gold, trp_player)
+    if :gold >= :amount {
+        troop_remove_gold(trp_player, :amount)
+    } else {
+        troop_remove_gold(trp_player, :gold)
+    }
+}
+
+// Give the player an item (`troop_add_item`).
+fn give_item(:item) {
+    troop_add_item(trp_player, :item)
+}
+
+// Take an item from the player (`troop_remove_item`).
+fn take_item(:item) {
+    troop_remove_item(trp_player, :item)
+}
+
+// Add troops to the player's party (`party_add_members`).
+fn add_troops(:troop, :count) {
+    party_add_members(p_main_party, :troop, :count)
+}
+
+// Remove troops from the player's party (`party_remove_members`).
+fn remove_troops(:troop, :count) {
+    party_remove_members(p_main_party, :troop, :count)
+}
+
+// Add renown (`script_change_troop_renown`).
+fn add_renown(:amount) {
+    call_script("script_change_troop_renown", trp_player, :amount)
+}
+
+// Add honor (`script_change_player_honor`).
+fn add_honor(:amount) {
+    call_script("script_change_player_honor", :amount)
+}
+
+// Move the player's party next to another party (`party_relocate_near_party`).
+fn move_near(:party) {
+    party_relocate_near_party(p_main_party, :party, 1)
+}
+
+// Return to the map (`change_screen_map`).
+fn show_map() {
+    change_screen_map()
+}
+
+// Show a message (`display_message`).
+fn say(:text) {
+    display_message(:text)
+}
+
+// Read the player's gold (`store_troop_gold`).
+fn player.gold.get(:out) {
+    store_troop_gold(:out, trp_player)
+}
+
+// Give the player gold (`troop_add_gold`).
+fn player.gold.add(:amount) {
+    give_gold(:amount)
+}
+
+// Take at most what the player has (`store_troop_gold` + `ge`).
+fn player.gold.remove(:amount) {
+    take_gold(:amount)
+}
+
+// Read renown (`troop_get_slot` + `slot_troop_renown`).
+fn player.renown.get(:out) {
+    troop_get_slot(:out, trp_player, slot_troop_renown)
+}
+
+// Add renown (`script_change_troop_renown`).
+fn player.renown.add(:amount) {
+    add_renown(:amount)
+}
+
+// Read honor (`$player_honor`, a global).
+fn player.honor.get(:out) {
+    assign(:out, $player_honor)
+}
+
+// Add honor (`script_change_player_honor`).
+fn player.honor.add(:amount) {
+    add_honor(:amount)
+}
+
+// Read the player's level (`store_character_level`).
+// The page names no operation that changes the level (it grows with XP), so there is no `.set`.
+fn player.level.get(:out) {
+    store_character_level(:out, trp_player)
+}
+
+// Read the time of day in game hours (`store_time_of_day`).
+fn time.hour.get(:out) {
+    store_time_of_day(:out)
+}
+
+// Does the player carry this item? (`player_has_item`).
+// A `test fn` is a condition word: write `if player.has(iron_shield) { … }` (T-114).
+test fn player.has(:item) {
+    player_has_item(:item)
+}
+
+// Give the player an item, as `player.give(iron_shield)` — docs/bilgi/anlam/oyuncu-varliklari.md:49.
+fn player.give(:item) {
+    give_item(:item)
+}
+
+// Take an item from the player, as `player.remove(iron_shield)` — docs/bilgi/anlam/oyuncu-varliklari.md:50.
+fn player.remove(:item) {
+    take_item(:item)
+}

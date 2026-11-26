@@ -1,0 +1,18 @@
+// Grammar 2, guide 3.5: assignment and arithmetic. Every line shows the Native operations it
+// becomes: a single value is `assign`, `a + b` is `store_add`, `+=` is `val_add` (and so on), and
+// nested arithmetic goes through UW's own `:_uwN` locals.
+mod golden_arith
+
+on game.start {
+    $g_gold = 100              // assign($g_gold, 100)
+    $g_gold += 50              // val_add($g_gold, 50)
+    $g_gold -= 10              // val_sub
+    :bonus = 2 * 250 + 500     // store_mul then store_add: `*` binds tighter than `+`
+    :total = $g_gold + :bonus  // both sides are plain values, no temporary needed
+    :half = :total / 2         // the game only knows whole numbers: 7 / 2 is 3
+    :rest = :total % 7         // store_mod
+    :loss = -:bonus            // store_sub(:loss, 0, :bonus)
+    $g_gold = (:bonus + 1) * 2 // parentheses first: store_add, then store_mul into $g_gold
+}
+
+// covers: scripts.hook

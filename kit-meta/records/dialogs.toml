@@ -1,0 +1,54 @@
+# Dialog records: `dialogue_partner` names the kit's speaker flags (header_dialogs.py:15-25);
+# every other field is still the atlas value as it is (a state name, a text id or an operation block).
+# Field names and order follow the layout comment at the top of the kit's module_dialogs.py
+# (`source` points at it); §2.
+table = "dialogs"
+kind = "dialog"
+id_prefix = ""
+list = true
+
+# Field 0 is the speaker: a troop-id in the low 12 bits (a party-template id when `party_tpl` is
+# set), with flag bits or-ed on top (header_dialogs.py:15-25). No type names an id inside a `flags:`
+# value, so that index prints as the `rest` remainder;
+# `other(troop_id)` (header_dialogs.py:27-30) is not used in Native's module_dialogs.py, so bits
+# above `multi_line` are only ever that remainder too.
+[[fields]]
+name = "dialogue_partner"
+ty = "flags:plyr,party_tpl,auto_proceed,multi_line"
+enums = [
+  { mask = "anyone", prefix = "anyone" },
+  { mask = "repeat_for_troops", prefix = "repeat_for" },
+]
+source = "module_dialogs.py:21"
+
+[[fields]]
+name = "starting_dialog_state"
+ty = "raw"
+source = "module_dialogs.py:29"
+
+[[fields]]
+name = "conditions_block"
+ty = "raw"
+source = "module_dialogs.py:38"
+
+[[fields]]
+name = "dialog_text"
+ty = "raw"
+source = "module_dialogs.py:39"
+
+[[fields]]
+name = "ending_dialog_state"
+ty = "raw"
+source = "module_dialogs.py:40"
+
+[[fields]]
+name = "consequences_block"
+ty = "raw"
+source = "module_dialogs.py:42"
+
+# Field 7 is left out when a line has no voice-over (process_dialogs.py:180 writes NO_VOICEOVER).
+[[fields]]
+name = "voice_over"
+ty = "raw"
+optional = true
+source = "module_dialogs.py:43"

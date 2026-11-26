@@ -1,0 +1,1514 @@
+{
+ "menu_arena_duel_conclusion": {
+  "kisa": "Düello sonucu: kazanma/kaybetme metni ve sonrasında sohbet",
+  "uzun": "Düellonun bitiminde açılan bu menü, ilgili görevlerde düellonun kazanılıp kaybedildiğine göre bir sonuç metni gösterir; görev yoksa rakibin adı gösterilir. Devam seçilince oyuncu ve düello ettiği kişi bir görüşme sahnesine yerleştirilir ve harita üzerinde konuşma ekranına geçilir. Menü açılırken ayrılma durumu ayarlıysa önce ekran geri döndürülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3675",
+  "bilinmeyen": []
+ },
+ "menu_arena_duel_fight": {
+  "kisa": "Düello hazırlığı: devam edince düello sahnesi başlar",
+  "uzun": "Bu menü, oyuncuya rakibiyle düelloya hazırlandığını söyler ve devam etme seçeneği sunar. Devam edildiğinde düellonun yapılacağı sahne seçilir: karşılaşılan taraf bir şehirse şehir arenası, değilse en yakın şehir arenası ya da araziye göre eğitim alanı sahnelerinden biri kullanılır. Oyuncu ve düello edeceği kişi sahneye yerleştirilir, düello karşılaşması başlatılır ve sonuç menüsüne geçilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3624",
+  "bilinmeyen": []
+ },
+ "menu_auto_return": {
+  "kisa": "Otomatik geri dönen teknik yardımcı menü",
+  "uzun": "Görünürde bir içerik sunmayan, açıldığı anda ekranı çağıran yere geri döndüren teknik bir menüdür. Metni yalnızca kendisinin otomatik döndüğünü belirten bir yer tutucudur ve hiçbir seçenek içermez. Doğrudan oyuncuya yönelik değil, kod içinden çağrılan bir kısayol olarak kullanılır.",
+  "guven": "orta",
+  "kaynak": "module_game_menus.py:2012",
+  "bilinmeyen": []
+ },
+ "menu_auto_return_to_map": {
+  "kisa": "Haritaya otomatik dönüş menüsü (stub)",
+  "uzun": "İçeriği 'stub' olan boş bir menüdür; açıldığında hiçbir seçenek göstermeden doğrudan harita ekranına döner. Başka bir yerden çağrılarak kullanılır; oyuncuya görünür bir menü sunmaz.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13914",
+  "bilinmeyen": []
+ },
+ "menu_bandit_lair": {
+  "kisa": "Haydut ini menüsü: saldırı, ayrılma ve zafer sonrası devam",
+  "uzun": "Oyuncu bir haydut inine yaklaştığında açılan menüdür. İnin durumuna göre metin değişir; oyuncuya ini basma veya ayrılma seçenekleri sunulur. Saldırı seçilirse oyuncunun seviyesine göre haydutlar oluşturulup uygun ini sahnesinde savaş başlatılır. Zaferden sonra devam seçeneği çıkar ve ini temizlenir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13922",
+  "bilinmeyen": []
+ },
+ "menu_battle_debrief": {
+  "kisa": "Savaş sonrası özet menüsü: sonuç, kayıplar ve başarımlar",
+  "uzun": "Bir savaş bittiğinde açılan bu ekran, savaşın sonucunu ve iki tarafın kayıplarını gösterir; müttefik varsa onların kayıpları da eklenir. Zafer durumunda oyuncuya şöhret verilir ve bazı başarımlar açılabilir; ayrıca moral ve birlik durumu güncellenir. Sonuç, yenilgi, geri çekilme veya yaralı kurtarılma gibi durumlara göre farklı bir arka plan resmi ve açıklama gösterilir; ağır kayıplarda yol arkadaşları itiraz edebilir. Alttaki tek seçenek, oyuncuyu bir sonraki menüye geçirir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:4293",
+  "bilinmeyen": []
+ },
+ "menu_battlefields": {
+  "kisa": "Savaş alanı seçim menüsü: beş alan ve ayrılma",
+  "uzun": "Bir savaş alanı seçmek için gösterilen menü. Oyuncu Field 1'den Field 5'e kadar beş alandan birini seçebilir veya ayrılabilir. Seçim yapınca ilgili alan sahnesine geçilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5270",
+  "bilinmeyen": []
+ },
+ "menu_besiegers_camp_with_allies": {
+  "kisa": "Müttefik kuşatma kampı: komutanla görüşme, hücuma katılma, ayrılma",
+  "uzun": "Bir yer kuşatma altındayken müttefik orduyla birlikte kampa girdiğinizde açılan menüdür. Üst metinde kuşatılan yerin adı ve kampı kuran tarafın sancağı gösterilir; arka planda düşman ve müttefik taraflar hazırlanır. Seçenekler: kuşatma komutanıyla görüşmek (sizi bir konuşma sahnesine götürür), hücuma bizzat katılmak (savaş sahnesine geçer, ilgili görev aktifse deneyim puanı verir), askerleri sizsiz hücuma göndermek (en az üç sağlıklı asker ister ve savaşı simülasyonla çözer) ve kamptan ayrılmak. Menü açıldığında düşman savaşamaz durumdaysa ya da teslim olmuşsa karşı tarafın tüm üyeleri yaralanır ve menüden çıkılır; savaş kaybedilip müttefik asker kalmazsa da yine çıkılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5373",
+  "bilinmeyen": []
+ },
+ "menu_camp": {
+  "kisa": "Kamp menüsü: dinlenme, eylemler ve hileler",
+  "uzun": "Oyuncu yolda kamp kurduğunda açılan ana menüdür; arka planda kamp resmi gösterilir. Seçenekler arasında bir eylem seçmek, burada bir süre beklemek (saldırıya açık şekilde, çok uzun süreye kadar dinlenme) ve yolculuğa devam etmek bulunur; çöl arazisinde beklenirse bir başarı (achievement) açılır. Hile modu açıksa ek olarak rastgele bir eğitim sahnesine sokan 'gezinti' seçeneği ile hile menüsü de görünür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:2998",
+  "bilinmeyen": []
+ },
+ "menu_camp_action": {
+  "kisa": "Kamp eylem menüsü: esir alma, kitap, emeklilik",
+  "uzun": "Kamp ekranından açılan 'bir eylem seç' menüsüdür ve oyuncuya kamp içinde yapabileceği işleri listeler. Seçenekler arasında esirleri askere alma, kitap okuma, krallığı yeniden adlandırma, maceradan emekli olma ve kampa geri dönme vardır; hile modu açıksa bayrak değiştirme seçeneği de görünür. Krallık adını değiştirme seçeneği yalnızca oyuncunun kendi krallığı kurulmuş ve başında o varsa çıkar.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3249",
+  "bilinmeyen": []
+ },
+ "menu_camp_action_read_book": {
+  "kisa": "Kamp menüsü: okunacak kitap seçimi",
+  "uzun": "Kamp menüsünden açılır ve oyuncunun envanterindeki, okuma kaydı henüz 0 olan kitapları seçenek olarak listeler. Bir kitap seçilince okuma ekranına geçilir. \"Back to camp menu.\" seçeneği kamp menüsüne döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3400",
+  "bilinmeyen": []
+ },
+ "menu_camp_action_read_book_start": {
+  "kisa": "Kitap okuma: zeka gereksinimi kontrolü",
+  "uzun": "Bir kitap seçildikten sonra açılır; oyuncunun zeka seviyesi kitabın zeka gereksinimini karşılıyorsa kitap okunmaya başlanır ve okunan kitap olarak kaydedilir. Karşılamıyorsa metnin anlaşılmaz olduğu ve okumanın yarıda kaldığı anlatılır. \"Continue...\" seçeneği kamp menüsüne döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3468",
+  "bilinmeyen": []
+ },
+ "menu_camp_cheat": {
+  "kisa": "Hile menüsü: eşya, hava, şöhret ve not güncelleme",
+  "uzun": "Yalnızca hile modu açıkken kamp menüsünden ulaşılabilen bir hile ekranıdır. Oyuncu buradan eşya arayabilir, havayı değiştirebilir, şöhretini 100 artırabilir, onurunu 1 artırabilir; lordların ve krallıkların siyasi/güncel notlarını yenileyebilir, ozanları yeniden dağıtabilir ve 'sonsuz kamp' ile hızlı dinlenme başlatabilir. Hata ayıklama mesajlarının seviyesini de (tümü, sadece ekonomi, sadece siyaset) ayarlayabilir; işlemlerden sonra çoğu seçenek menüyü yeniden açar ve kampa dönüş seçeneği vardır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3036",
+  "bilinmeyen": []
+ },
+ "menu_camp_no_prisoners": {
+  "kisa": "Bilgi menüsü: askere alınacak esir yok",
+  "uzun": "Oyuncuya esirlerinden askere alabileceği kimse olmadığını söyleyen basit bir bilgi menüsüdür. Esirleri askere alma menüsü, elinizde kahraman olmayan esir bulunmadığını tespit ettiğinde buraya yönlendirir. Tek seçenek, oyuncuyu kamp menüsüne geri götürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3388",
+  "bilinmeyen": []
+ },
+ "menu_camp_recruit_prisoners": {
+  "kisa": "Esirleri askere alma: ikna şansı ve moral bedeli",
+  "uzun": "Bu menü, esirlerinize özgürlük karşılığında askeriniz olmayı teklif etmenizi sağlar; kamp eylem menüsündeki seçenek, son denemeden 24 saat geçmeden görünmez. Elinizde kahraman olmayan esir yoksa doğrudan 'esir yok' menüsüne geçilir; varsa ikna becerinize bağlı bir şansla ya kimse kabul etmez ya da rastgele bir esir grubundan, partinizdeki boş yere sığdığı kadar asker teklifi kabul eder. Kabul ederseniz bu kişiler esir listesinden çıkarılıp partinize katılır ve her biri için partinin morali biraz düşer; reddedebilir veya kampa dönebilirsiniz.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3257",
+  "bilinmeyen": []
+ },
+ "menu_cannot_enter_court": {
+  "kisa": "Ziyafette lord salonuna girememe menüsü",
+  "uzun": "Lordun salonunda ziyafet varken oyuncunun yeterli statüsü yoksa açılır. Oyuncuya davet edilmediği gösterilir; şöhretini artırmayı veya turnuvada öne çıkmayı deneyebileceği anlatılır. Devam seçeneği oyuncuyu şehir menüsüne geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:9902",
+  "bilinmeyen": []
+ },
+ "menu_captivity_avoid_wilderness": {
+  "kisa": "Yaralı halde uyanma: esaretten kurtulma metni",
+  "uzun": "Oyuncuya dünyanın karardığını, saatler sonra düştüğü yerde uyandığını ve düşmanların onu ölü sanıp bıraktığını anlatan bir hikâye metni gösterilir. Hiçbir seçenek yoktur; giriş kodu ve seçenek listesi boştur, yani oyuncudan bir eylem beklenmez.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12019",
+  "bilinmeyen": []
+ },
+ "menu_captivity_castle_check": {
+  "kisa": "Kale esaretinin nasıl biteceğine rastgele karar veren menü",
+  "uzun": "Oyuncu görmeden çalışan bir karar menüsüdür; esaretin sonunu rastgele belirler. Yakalayan tarafın oyuncunun tarafıyla ilişkisi olumluysa esir değişimiyle serbest bırakılır; değilse rastgele bir çekilişle bazen fidye teklif edilir (bedel oyuncunun seviyesine ve altın miktarına göre hesaplanır ve oyuncunun parası yetmelidir), bazen esir değişimi yapılır, bazen de oyuncu kalede esir kalmaya devam eder.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12256",
+  "bilinmeyen": []
+ },
+ "menu_captivity_castle_remain": {
+  "kisa": "Esaret: hücrede günlerin geçmesi, tutsaklığın sürmesi",
+  "uzun": "Oyuncunun hücresinde günlerin geçtiğini, gardiyanların davranışlarına katlanıp güçten düştüğünü anlatan ekran. Arka planda oyuncunun cinsiyetine göre erkek ya da kadın tutsak resmi gösterilir; tuşlar devre dışıdır ve ekran ölçeklenir. Açılışta rastgele bir süre daha tutsak kalınır ve ardından kale esaret kontrol menüsüne geçilir. 'Devam' seçeneği oyuncunun esir durumunu koruyup oyun ekranına döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12354",
+  "bilinmeyen": []
+ },
+ "menu_captivity_castle_taken_prisoner": {
+  "kisa": "Kalede esir düşme: zindana atılma anlatımı ve 'Devam'",
+  "uzun": "Silahları alınıp zindana atıldığını anlatan metinle açılır; cinsiyete göre erkek ya da kadın esir resmi gösterilir. Devam'a basıldığında oyuncu esir sayılır, rastgele 16-22 saat boyunca tutulur ve esir olma olayı betiği çalıştırılır. Sonunda otomatik olarak kale esareti kontrol menüsüne geçilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12205",
+  "bilinmeyen": []
+ },
+ "menu_captivity_end_exchanged_with_prisoner": {
+  "kisa": "Esaret bitişi: tutsak değişimiyle serbest kalma",
+  "uzun": "Oyuncu esirken, tutsakların karşılıklı değiş tokuş edilmesiyle serbest bırakıldığını anlatan bir ekran. Ekranda tek bir 'Devam' seçeneği var; seçilince oyuncunun esaret durumu sona erer, onu esir alan grup (varsa) oyuncunun partisinin yakınına taşınır ve çevredeki gruplar kısa süre oyuncuyu yok sayacak şekilde ayarlanır. Kamera oyuncunun partisine döner, dinlenme durdurulur ve oyun normal ekrana döner. Yani oyuncu bu ekranı görünce esaretten çıkmış olur.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12290",
+  "bilinmeyen": []
+ },
+ "menu_captivity_end_propose_ransom": {
+  "kisa": "Esaret bitişi: fidye teklifi, kabul veya reddet",
+  "uzun": "Zindanda geçen günlerin ardından bir gardiyanın, oyuncunun gizli servetinden belirli bir miktar denar karşılığında onu salıvermeyi teklif ettiği ekran. Oyuncuya iki seçenek sunulur: teklifi kabul etmek (yeterli altın varsa ödeme yapılır, esaret biter ve normale dönülür) ya da reddetmek (esaret sürer, rastgele bir süre daha tutsak kalınır ve ardından kale esaret kontrol ekranına geçilir). Teklifi kabul edebilmek için oyuncunun o an yeterince altını olması gerekir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12313",
+  "bilinmeyen": []
+ },
+ "menu_captivity_end_wilderness_escape": {
+  "kisa": "Kır esaretinden kaçış: kaçış müziği ve 'Devam' düğmesi",
+  "uzun": "Günlerce sürüklendikten sonra oyuncunun kaçmayı başardığını anlatan menüdür; kaçış müziği çalınır ve oyuncunun cinsiyetine göre farklı bir kaçış resmi gösterilir. Devam'a basıldığında esaret biter, oyuncu grubu yakalayan grubun yakınına taşınır ve çevredeki gruplar bir süreliğine oyuncuyu görmezden gelir (kod yorumunda bu sürenin, esaret sonrası art arda yenilgi şikayetleri yüzünden artırıldığı belirtiliyor). Kamera oyuncunun kendi grubuna döner ve dinlenme durdurulur.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12175",
+  "bilinmeyen": []
+ },
+ "menu_captivity_rescue_lord_taken_prisoner": {
+  "kisa": "Kılık değiştirerek lord kurtarmaya çalışırken yakalanma menüsü",
+  "uzun": "Bir lordu kurtarmak için kılık değiştiren oyuncunun fark edilip dövüldüğünü ve hücresine geri atıldığını anlatan menüdür; cinsiyete göre esir resmi gösterilir. Devam'a basıldığında oyuncu esir olur, rastgele 16-22 saat tutulur ve esir olma olayı betiği çalıştırılır. Ardından otomatik olarak kale esareti kontrol menüsüne geçilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12230",
+  "bilinmeyen": []
+ },
+ "menu_captivity_start_castle_defeat": {
+  "kisa": "Kale savunmasında yenilince esirliğe geçişi başlatan ara menü",
+  "uzun": "Kale kuşatmasında savunma tarafı olarak yenildiğinde çalışan yer tutucu geçiş menüsüdür. Oyuncuyu esir işaretler, yakalayan tarafı saklar ve kale esareti menüsüne yönlendirir. Ekranda bir içerik gösterilmez; esaret anlatımı bir sonraki menüde gelir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12094",
+  "bilinmeyen": []
+ },
+ "menu_captivity_start_castle_surrender": {
+  "kisa": "Kalede teslim olunca esirliğe geçişi başlatan ara menü",
+  "uzun": "Bir kaleyi savunurken teslim olunduğunda devreye giren geçiş menüsüdür; metni henüz doldurulmamış bir yer tutucudur ('Stub'). Oyuncuyu esir işaretler, yakalayan tarafı kaydeder ve doğrudan kale esareti menüsüne atlar; oyuncu burada bir şey görmez, bir sonraki menüde zindan anlatımı çıkar.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12082",
+  "bilinmeyen": []
+ },
+ "menu_captivity_start_under_siege_defeat": {
+  "kisa": "Kuşatma sırasında yenilince oyuncunun esir alınmasını başlatan menü",
+  "uzun": "Kuşatma altındayken kaybedildiğinde açılan menüdür ve 'düşmanların seni esir alıyor' metnini gösterir. Oyuncuyu esir durumuna alır, yakalayan tarafı kaydeder ve kale esareti menüsüne atlar. Kale savunması sürümünden farklı olarak başarım sayacı güncellemesi içermez.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12106",
+  "bilinmeyen": []
+ },
+ "menu_captivity_start_wilderness": {
+  "kisa": "Esaret başlangıcı: oyuncuyu esir işaretleyip yönlendirir",
+  "uzun": "Ekranda metin olarak yalnızca 'Stub' yazılıdır; bu, oyuncuya bilgi veren değil yönlendirme yapan bir menüdür. Oyuncuyu esir olarak işaretler ve teslim olup olmadığına bakarak onu ya teslim olma ya da yenilgi esareti menüsüne gönderir. Seçenek sunmaz.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12033",
+  "bilinmeyen": []
+ },
+ "menu_captivity_start_wilderness_defeat": {
+  "kisa": "Açık alanda yenilince oyuncunun esir alınmasını başlatan menü",
+  "uzun": "Oyuncu kırda bir çatışmayı kaybettiğinde açılan ara menüdür. Oyuncuyu esir durumuna geçirir, onu yakalayan tarafı kaydeder ve oyuncuyu kır esareti menüsüne yönlendirir. Ayrıca karşı tarafın lideri bir krallık kahramanıysa ilgili başarım sayacını artırır; oyuncuya yalnızca kısa bir 'esir alındınız' metni gösterilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12061",
+  "bilinmeyen": []
+ },
+ "menu_captivity_start_wilderness_surrender": {
+  "kisa": "Teslim esareti: yakalayan taraf kaydedilip esir menüsüne geçiş",
+  "uzun": "Yine 'Stub' metinli, ekranda bir şey göstermeyen bir yönlendirme menüdür. Oyuncuyu esir olarak işaretler, otomatik menü değerini sıfırlar, karşılaşılan tarafı 'yakalayan taraf' olarak kaydeder ve esir alınma menüsüne geçer. Seçenek sunmaz.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12049",
+  "bilinmeyen": []
+ },
+ "menu_captivity_wilderness_check": {
+  "kisa": "Kır esaretinden sonra kaçış menüsüne yönlendiren kısa ara menü",
+  "uzun": "İçeriği olmayan bir köprü menüdür; hiçbir şey göstermeden doğrudan kır esaretinden kaçış menüsüne atlar. Oyuncu bu adımı fark etmez.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12168",
+  "bilinmeyen": []
+ },
+ "menu_captivity_wilderness_taken_prisoner": {
+  "kisa": "Kırda esir düşme sahnesi: resim ve 'Devam' düğmesi",
+  "uzun": "Oyuncu kırda esir alındığında, esir düşme resmiyle birlikte gösterilen menüdür. Devam'a basıldığında kamera yakalayan tarafa çevrilir, oyuncu esir sayılır ve rastgele 18-30 saat boyunca esaret altında kalır; ilgili olay ve süre betikleri çalıştırılır. Ardından otomatik olarak kır esareti kontrol menüsüne geçilir. Kodda, yoldaşların esir düşerken ayrıca atılmasını sağlayan eski blok yorum satırına alınmış; yorumda bunun başka bir menüde zaten yapıldığı belirtiliyor.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12119",
+  "bilinmeyen": []
+ },
+ "menu_castle_attack_walls_simulate": {
+  "kisa": "Kuşatma hücumunun otomatik simülasyonu: kayıplar ve Devam",
+  "uzun": "Oyuncu kuşatmada surlara hücumu bizzat yönetmek yerine otomatik hesaplattığında bu ekran açılır. Oyun iki tarafın gücünü hesaplar, bu güce göre her iki tarafa da kayıp verdirir ve ekranda kendi kayıplarınız ile düşman kayıplarını yazar. Kendi askerleriniz bittiyse başarısızlık, düşmanın askerleri bittiyse başarı metni gösterilir; aksi halde saldırının sürdüğü söylenir. Tek seçenek olan 'Devam' kuşatma menüsüne geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6398",
+  "bilinmeyen": []
+ },
+ "menu_castle_attack_walls_with_allies_simulate": {
+  "kisa": "Müttefikli kuşatma simülasyonu: üç tarafın kayıpları",
+  "uzun": "Müttefiklerle birlikte yapılan sur saldırısı otomatik hesaplandığında bu ekran açılır. Oyuncunun partisi, müttefik kuvvetler ve düşman için güç hesaplanır; kayıplar bu oranlara göre üç tarafa da dağıtılır ve ekranda kendi kayıplarınız, müttefiklerin kayıpları ve düşman kayıpları ayrı ayrı gösterilir. Askeri kalan taraf durumuna göre başarı, başarısızlık ya da devam metni çıkar. 'Devam' seçeneği müttefiklerle birlikte olunan kuşatma kampı menüsüne döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6456",
+  "bilinmeyen": []
+ },
+ "menu_castle_besiege": {
+  "kisa": "Kale kuşatma menüsü: yiyecek, hazırlık ve komutanla görüşme",
+  "uzun": "Oyuncu bir kaleyi kuşattığında bu menü açılır; arka plan oyuncunun cinsiyetine göre değişir ve kalenin kuşatılmışlık durumu kaydedilir. Menü, kalenin yiyecek stoğunun kaç gün dayanacağını veya savunucuların açlığa düşüp düşmediğini gösterir; ayrıca duvar saldırısı ya da kuşatma kulesi hazırlığının kalan süresini bildirir. Komutanla görüşme seçeneği sunulur; kale savaşmadan bırakılırsa bağlı birlikler ayrılır ve yönlendirilir. Kuşatma zafer, teslimiyet veya yenilgiyle biterse oyun ilgili sonuç menülerine geçer.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5950",
+  "bilinmeyen": []
+ },
+ "menu_castle_besiege_inner_battle": {
+  "kisa": "Kuşatma iç savaşı menüsü: mesaj ve devam seçeneği",
+  "uzun": "Sur içi çatışması sırasında açılan bir menüdür. Oyuncunun cinsiyetine göre arka plan resmini ayarlar ve savaş sonucuna göre savunmaya çekilme veya sokak çatışması gibi durum metinleri gösterir. 'Continue...' seçeneği, şehir merkezi ya da kale sahnesinde yeni bir görev başlatır ve kuşatma aşamasını ilerletir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6223",
+  "bilinmeyen": []
+ },
+ "menu_castle_entry_denied": {
+  "kisa": "Kale girişi reddedildiğinde gösterilen bilgi menüsü",
+  "uzun": "Oyuncu bir kaleye girmeye çalışıp da kale lordu izin vermediğinde açılır. Ekranda kaleye alınmadığınızı ve daha fazla yaklaşırsanız muhafızların ateş edeceğini anlatan bir metin görürsünüz. Tek seçenek olan devam ile kale dışındaki muhafız menüsüne dönersiniz; bu sırada menü resmi de ayarlanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5873",
+  "bilinmeyen": []
+ },
+ "menu_castle_entry_granted": {
+  "kisa": "Kale girişi onaylandı menüsü: kısa bekleyişten sonra şehir menüsüne geçiş",
+  "uzun": "Kale kapısından giriş izni verildiğinde gösterilir; muhafızların kısa bir bekleyişin ardından kapıları açıp partiyi içeri aldığı anlatılır. Menü açılırken kale resmi ayarlanır. Tek seçenek 'Devam' olup oyuncuyu şehir menüsüne yönlendirir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5860",
+  "bilinmeyen": []
+ },
+ "menu_castle_guard": {
+  "kisa": "Kale kapısı menüsü: giriş izni isteme, komutanla görüşme, ayrılma",
+  "uzun": "Oyuncu bir kalenin kapısına yaklaştığında açılır; surlardaki adamların onu dikkatle izlediği anlatılır. 'Giriş izni iste' seçeneği yalnızca yer kale türündeyse ve ilişki düşmanca değilse görünür; kale lordu yoksa ya da oyuncuyla ilişkisi çok kötü değilse giriş onaylanır, aksi halde reddedilir. Komutanla görüşme seçeneği ayrı bir görüşme menüsüne götürür, ayrılma ise haritaya döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5823",
+  "bilinmeyen": []
+ },
+ "menu_castle_meeting": {
+  "kisa": "Kalede görüşülecek soyluyu seçme menüsü",
+  "uzun": "Kale ile ilgili görüşme akışında, o anda kaleye bağlı partide bulunan krallık soyluları arasından kiminle görüşmek istediğinizi seçmenizi sağlar. Menü açılırken mevcut soylular taranır ve her biri bir isim seçeneği olarak listelenir. Bir isim seçildiğinde o kişi görüşme için işaretlenir ve görüşme menüsüne geçilir; vazgeçme seçeneği ise kale muhafızı menüsüne döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5887",
+  "bilinmeyen": []
+ },
+ "menu_castle_meeting_selected": {
+  "kisa": "Seçilen soyluyla kale kapısında görüşme sahnesi",
+  "uzun": "Bir soyluyla görüşme seçildikten sonra açılır; metinde isteğinizin içeriye iletildiği ve seçilen kişinin avluda göründüğü anlatılır. Devam edildiğinde oyun konuşma sahnesine geçer, oyuncu ve seçilen soylu sahneye yerleştirilir ve aralarında bir konuşma başlatılır. Görüşme bağlamı kale kapısı olarak ayarlanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5929",
+  "bilinmeyen": []
+ },
+ "menu_castle_outside": {
+  "kisa": "Kale/şehir dışı menüsü: karşılaşma hazırlığı, bayrak ve giriş yasağı bilgisi",
+  "uzun": "Oyuncu bir kale ya da şehrin dışına geldiğinde açılan menüdür. Giriş kodunda karşılaşılan taraf ve ilişki durumuna göre yerin kimin bayrağı altında olduğu, savunmasız olup olmadığı ve girişin yasaklanıp yasaklanmadığı hesaplanır; menü metninde bu bilgiler gösterilir. Ayrıca eskort ve kaçırılan kız gibi bazı görevlerde konuşma sahnesine geçiş yapılır. Seçeneklerin tamamı verilen kodda görünmediği için menüdeki tüm eylemler bilinmiyor.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5498",
+  "bilinmeyen": []
+ },
+ "menu_castle_taken": {
+  "kisa": "Kale alındı ekranı: fetih sonrası ilk bilgi ve devam",
+  "uzun": "Bir kale ya da şehir oyuncunun birliklerince ele geçirildiğinde açılan, tuşları kilitleyen bilgi ekranıdır. Açılışta kuşatma kaldırılır, merkezin saygınlığı biraz düşer, oyuncuya az miktarda ün verilir ve ele geçirilen yer oyuncunun krallığına (ya da desteklediği tarafa) bağlanır. Metin, kalenin düştüğünü ve burayı savunmak için asker koyabileceğini söyler; oyuncu yalnızca 'Devam' seçeneğini görür ve sonrasında otomatik olarak kaleye girer.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6564",
+  "bilinmeyen": []
+ },
+ "menu_castle_taken_2": {
+  "kisa": "Zafer sonrası: kaleyi kendine, eşine isteme ya da istememe",
+  "uzun": "Kale veya şehir alındıktan sonra, oyuncunun kendi krallığında olduğu durumda açılan ekrandır; metin, kazandığı zaferi hükümdara bildirme zamanı geldiğini söyler. Oyuncu 'İste' seçeneğiyle kalenin kendisine verilmesini talep edebilir (bu seçenek yalnızca hükümdara bağlılık yemini etmişse görünür), eşi oyuncunun krallığında bir beylik kahramanıysa kalenin eşine verilmesini isteyebilir ya da hiçbir ödül istemeyebilir. Yemin etmemişse metinde hükümdarın onu bu yerin sahibi saymayacağı belirtilir. Her seçenek sonrası oyuncu otomatik olarak kaleye girer.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6632",
+  "bilinmeyen": []
+ },
+ "menu_castle_taken_by_friends": {
+  "kisa": "Dost kuvvetler kaleyi alınca merkezin devri (arka plan ekranı)",
+  "uzun": "Kale dost ya da müttefik kuvvetlerce alındığında oyuncuya kısa bir 'gösterilecek bir şey yok' ekranı çıkar ve hiçbir seçenek sunulmaz. Arka planda kale boşaltılır, merkez son alan liderin fraksiyonuna bağlanır, merkezin refahı 5 azalır ve alan tarafa 20 (merkez şehirse 40) savaş hasarı uygulanır; olay ayrıca günlüğe kaydedilir. Ardından ekran kendiliğinden kapanıp oyuna dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6533",
+  "bilinmeyen": []
+ },
+ "menu_cattle_herd": {
+  "kisa": "Sığır sürüsü: sür, durdur, kes veya ayrıl",
+  "uzun": "Bir sığır sürüsüyle karşılaşıldığında açılır; inek sesi çalınır ve sürü resmi arka plan olur. Sürüyü ilerletme, durdurma, hayvan kesme veya ayrılma seçenekleri sunulur. Kesme seçeneği, sürüyü taşıma görevi bu sürüyü hedefliyorsa gizlenir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3529",
+  "bilinmeyen": []
+ },
+ "menu_cattle_herd_kill": {
+  "kisa": "Sığır kesme: kaç hayvan kesileceğini seç",
+  "uzun": "Sürüden kaç hayvan kesileceğini sorar; sürüdeki hayvan sayısına göre 1-5 arası seçenekler görünür. Seçim yapılınca ilgili sayıda hayvan kesilir, kesim sesi çalınır ve ganimet ekranı açılır. \"Go back.\" seçeneği sürü menüsüne döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3568",
+  "bilinmeyen": []
+ },
+ "menu_cattle_herd_kill_end": {
+  "kisa": "Sığır kesimi sonrası ara menü",
+  "uzun": "Sığır kesme işleminden sonra kullanılan ara menüdür; metinde bunun okunmaması gerektiği belirtilir. Açılır açılmaz ekranı geri döndürür ve herhangi bir seçenek sunmaz.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3615",
+  "bilinmeyen": []
+ },
+ "menu_center_improve": {
+  "kisa": "Merkez geliştirme onayı: mühendislik, maliyet ve süre",
+  "uzun": "Bir merkezde geliştirme yapmadan önce açılır. Partideki en yüksek mühendislik becerisine göre maliyet ve süre hesaplanır. Oyuncu onaylarsa altın düşer, geliştirme zamanı kaydedilir ve yönetim menüsüne dönülür; parası yetmezse uyarı seçeneği görür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8010",
+  "bilinmeyen": []
+ },
+ "menu_center_manage": {
+  "kisa": "Yerleşim yönetimi: mevcut yapılar ve inşaat seçenekleri",
+  "uzun": "Bir köy, kasaba veya kalenin yönetim ekranıdır; üst kısımda yerleşimin türüne göre sahip olduğu geliştirmeler ve varsa sürmekte olan inşaatın kaç gün sonra biteceği yazar. Seçenekler yerleşim türüne göre değişir: köylerde kona, değirmen, gözetleme kulesi ve okul; her yerde ulak noktası; kasaba ve kalelerde ise zindan kulesi inşa edilebilir. Zaten inşaat sürüyorsa veya yapı mevcutsa ilgili seçenek görünmez; seçim yapılınca inşaat menüsüne geçilir. 'Geri dön' seçeneği bir önceki menüye döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:7913",
+  "bilinmeyen": []
+ },
+ "menu_center_reports": {
+  "kisa": "Yerleşim raporu: kira, gümrük geliri ve yiyecek stoğu",
+  "uzun": "Karşılaşılan yerleşim için kira geliri, gümrük geliri ve yiyecek stoğunun kaç gün yeteceğini gösterir. Yiyecek tüketimi sıfırsa süre çok yüksek bir değer olarak görünür. Oyuncu buradan fiyat ve üretim ekranına geçebilir veya köy ya da kasaba menüsüne geri dönebilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10889",
+  "bilinmeyen": []
+ },
+ "menu_character_report": {
+  "kisa": "Karakter raporu: şöhret, onur, dostlar, düşmanlar, mülkler",
+  "uzun": "Oyuncunun genel durumunu tek ekranda özetleyen bir rapor menüsüdür. Ekranda şöhret (renown), onur puanı, hakimiyet hakkı, okunan kitap, lordlar arasından dostlar (ilişkisi 20'nin üzerinde olanlar) ve düşmanlar (ilişkisi -20'nin altında olanlar), sahip olunan merkezler ve bağlı olunan krallık bilgisi gösterilir. 'Continue' seçeneği oyuncuyu Raporlar menüsüne geri götürür. Hile modu açıksa ek olarak hakimiyet hakkını, onuru, şöhreti, ikna becerisini ve konuşulan kişiyle ilişkiyi artıran hile seçenekleri görünür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:2694",
+  "bilinmeyen": []
+ },
+ "menu_cheat_change_weather": {
+  "kisa": "Hile menüsü: bulut ve sis miktarını artır/azalt",
+  "uzun": "Bu bir hile menüsüdür; üstte ekranda mevcut bulut miktarı ve sis yoğunluğu sayı olarak gösterilir. Dört seçenek bulut miktarını ve sis miktarını beşer beşer artırıp azaltır; değerler 0 ile 100 arasında sınırlanır. Son seçenek kamp menüsüne geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3201",
+  "bilinmeyen": []
+ },
+ "menu_cheat_find_item": {
+  "kisa": "Hile: eşya listesini aralık aralık gezip seçme",
+  "uzun": "Hile menüsündeki 'eşya bul' seçeneğiyle açılır ve oyunun tüm eşya listesini küçük aralıklar hâlinde sunar; başlıkta hangi aralıkta bulunulduğu yazar. 'Sonraki aralık' seçeneğiyle listede ilerlenir, listenin sonuna gelince başa dönülür. Bir aralık seçildiğinde o aralıktaki eşyalar bir hile karakterinin envanterine konur ve ticaret ekranı açılır; böylece oyuncu bu eşyaları alabilir. Kampa dönüş seçeneği de bulunur.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3159",
+  "bilinmeyen": []
+ },
+ "menu_choose_skill": {
+  "kisa": "Karakter oluşturma sonu: maceracı olarak yola çıkma menüsü",
+  "uzun": "Karakter oluşturmanın sonunda açılan menüdür; oyuncunun cinsiyetine ve soylu/sıradan geçmişine göre bir zorluk değeri hesaplayıp ekranda kısa bir açıklama metni gösterir. Menüdeki tek etkin seçenek oyuncuyu maceracı olarak başlatır: bu seçenek bazı özellikleri (güç, çeviklik, karizma gibi) ve liderlik/binicilik gibi becerileri yükseltir. Ardından seçilen geçmişe ve cinsiyete göre ek beceriler, bir yuvarlak kalkan, şöhret/onur ve altın verir. Koddaki yorum satırlarına alınmış eski kılıç, okçuluk ve tıp başlangıç seçenekleri artık kullanılmıyor; menü tüm tuşları devre dışı bırakacak şekilde ayarlı.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:1355",
+  "bilinmeyen": []
+ },
+ "menu_close": {
+  "kisa": "Ekranı kapatıp geri dönen yardımcı menü",
+  "uzun": "İçinde seçenek bulunmayan bir kapatma menüsüdür. Açıldığı anda mevcut ekrandan çıkıp önceki ekrana döner. Başka menülerdeki yönlendirmelerle kullanılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8516",
+  "bilinmeyen": []
+ },
+ "menu_collect_taxes": {
+  "kisa": "Vergi toplama: süre tahmini ve başlatma",
+  "uzun": "Oyuncuya, partisindeki en iyi ticaret becerisine sahip kişinin tahminiyle vergi toplamanın kaç gün süreceğini söyler. Kasaba veya köy olmasına ve parti büyüklüğüne göre süre ve beklenen gelir hesaplanır. 'Start collecting' vergi toplamayı başlatıp zamanı ilerletir; diğer seçenek işi daha sonraya bırakır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10417",
+  "bilinmeyen": []
+ },
+ "menu_collect_taxes_complete": {
+  "kisa": "Vergi toplama bitti: toplanan para ve görev sahibi",
+  "uzun": "Vergi toplamanın tamamlandığını, ne kadar para toplandığını ve parayı kime götürmen gerektiğini bildirir. Görev başarıyla kapatılır ve bazı durumlarda gittiğin yerle ilişkin düşer. 'Continue' ile önceki ekrana dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10502",
+  "bilinmeyen": []
+ },
+ "menu_collect_taxes_failed": {
+  "kisa": "Vergi toplama görevi başarısız: isyan çıktı, görev iptal",
+  "uzun": "Vergi toplarken halk isyan edince açılır. Menü, toplanan vergi miktarını ve görevi veren kişiyi gösterir; görev başarısız sayılır ve dinlenme durdurulur. Devam seçeneği oyuncuyu haritaya döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10537",
+  "bilinmeyen": []
+ },
+ "menu_collect_taxes_rebels_killed": {
+  "kisa": "Vergi isyanı bastırıldı bildirimi",
+  "uzun": "Vergi toplarken çıkan isyanı bastırdığını ve bunun caydırıcı olacağını anlatan bir bilgi ekranıdır. Buton olarak yalnızca 'Continue' vardır ve harita ekranına döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10523",
+  "bilinmeyen": []
+ },
+ "menu_collect_taxes_revolt": {
+  "kisa": "Vergi toplarken isyan: çatışma görevi başlıyor",
+  "uzun": "Vergi toplama sırasında öfkeli köylüler veya kasabalılar silahlarla yaklaşınca açılır. Devam seçeneği, hedef yerleşimin arka sokağında veya dış alanında bir çatışma görevi başlatır. Karşı tarafa oyuncunun seviyesine göre sayısı artan vergi isyancıları yerleştirilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10576",
+  "bilinmeyen": []
+ },
+ "menu_collect_taxes_revolt_warning": {
+  "kisa": "Vergi toplama uyarısı: halk isyan etmek üzere",
+  "uzun": "Vergi toplarken halkın tepkisinin yükseldiğini bildirir. Oyuncu vergi toplamaya devam edebilir ya da toplamı yarıya indirmeyi seçebilir; yarıya indirme seçeneği bir bayrak ayarlar ve görevi veren kişi bundan hoşnut olmayabilir. Her iki seçenek de ekrandan çıkarır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10557",
+  "bilinmeyen": []
+ },
+ "menu_companion_report": {
+  "kisa": "Yoldaş raporu: yoldaşların görev ve konum durumları",
+  "uzun": "Bu menü, hizmetteki yoldaşların nerede olduğunu ve ne yaptığını listeler; görevde olanlar, partide olanlar, ayrılanlar ve savaş sonrası kaybolanlar gibi durumları gösterir. Oyuncunun eşi veya nişanlısı varsa adı ve bulunduğu yer ya da konumun bilinmediği bilgisi de eklenir. Hiç yoldaş yoksa bunu belirten bir metin gösterilir. Alttaki devam seçeneği raporlar menüsüne döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:2193",
+  "bilinmeyen": []
+ },
+ "menu_construct_ladders": {
+  "kisa": "Merdiven yapım menüsü: mühendislik becerisine göre süre",
+  "uzun": "Kuşatma sırasında merdiven yapmak için açılan menüdür. Partideki en yüksek Mühendislik becerisine göre tahmini süreyi gösterir; oyuncu 'Do it.' seçeneğiyle inşayı başlatır ve belirtilen saat kadar dinlenir. 'Go back' ile kuşatma menüsüne döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6317",
+  "bilinmeyen": []
+ },
+ "menu_construct_siege_tower": {
+  "kisa": "Kuşatma kulesi inşa menüsü: mühendislik becerisine göre süre",
+  "uzun": "Kuşatma sırasında kule yapmak için açılan menüdür. En yüksek Mühendislik becerisine göre tahmini inşa süresini gösterir; 'Start building.' seçeneğiyle inşayı başlatır ve süre boyunca dinlenir. 'Go back' ile kuşatma menüsüne döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6359",
+  "bilinmeyen": []
+ },
+ "menu_courtship_relations": {
+  "kisa": "Rapor: tanışılan hanımlarla ilişki durumu ve bilinen şiirler",
+  "uzun": "Bu menü, oyuncunun ilişkisi pozitif olan ve tanışmış sayılan hanımları, her biri için ilişki puanı ve son görüşmenin kaç gün önce olduğu bilgisiyle listeler. Listenin altında oyuncunun bildiği (daha önce okuduğu) şiir türleri ayrı satırlar olarak eklenir; bunlar alegorik, trajik, komik, kahramanlık ve mistik şiirlerdir. Menü yalnızca bilgi amaçlıdır, 'Continue' seçeneği raporlar menüsüne döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:2096",
+  "bilinmeyen": []
+ },
+ "menu_custom_battle_end": {
+  "kisa": "Savaş sonu özeti: kayıp sayıları ve kişisel öldürme sayısı",
+  "uzun": "Savaş bittiğinde açılan bu menü, hangi tarafın kazandığını belirtir ve sayıları yerleştirir: düşman tarafından kaç kişinin öldüğü, kendi tarafından kaç askerin kaybedildiği ve oyuncunun bizzat kaç kişiyi öldürdüğü/yaraladığı gösterilir. Menü açılırken müzik durumu sıfırlanır ve düşman tarafındaki ölü sayısı 100 veya üzerindeyse 'ACHIEVEMENT_LOOK_AT_THE_BONES' başarımı açılır. Tek seçenek olan 'Continue' ekranı kapatır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:899",
+  "bilinmeyen": []
+ },
+ "menu_custom_battle_scene": {
+  "kisa": "Hızlı savaş sahnesi seçim menüsü (5 sahne + geri dön)",
+  "uzun": "Bu menü, oyuncuya beş hazır hızlı savaş haritasından birini seçtirir; seçeneklerin adları çevrilmemiş metin olarak görünür ve menü tüm tuşları devre dışı bırakır. Bir sahne seçildiğinde oyun önce görevi 'mt_ai_training' olarak ayarlar, ilgili sahneye atlar ve ekranı göreve çevirir; yani savaş hemen başlar. 'Go back' seçeneği ise oyundan çıkmayı (ekranı kapatmayı) sağlar. Menünün metni çevrilmemiş olarak işaretlenmiştir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:617",
+  "bilinmeyen": []
+ },
+ "menu_cut_siege_without_fight": {
+  "kisa": "Kuşatma hattından çatışmasız geçiş menüsü",
+  "uzun": "Kuşatma hattından çatışma olmadan geçildiğinde gösterilen menü. Devam seçeneği, karşı tarafın oyuncu krallığına ait olup olmamasına göre oyuncuyu kasaba veya kale menüsüne yönlendirir. Oyuncu burada yalnızca devam edebilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5358",
+  "bilinmeyen": []
+ },
+ "menu_debug_alert_from_s65": {
+  "kisa": "Hata ayıklama uyarısı: {s65} mesajını gösterir",
+  "uzun": "Hata ayıklama amaçlı bir menüdür; ekranda {s65} metnini gösterir. 'Devam' seçildiğinde hata ayıklama mesaj kuyruğu sıfırlanır ve önceki ekrana dönülür. Normal oyuncu akışında karşılaşılması beklenmeyen bir uyarı ekranıdır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13899",
+  "bilinmeyen": []
+ },
+ "menu_dhorak_keep": {
+  "kisa": "Dhorak Keep menüsü: kaleye girme veya ayrılma",
+  "uzun": "Dhorak Keep'e girildiğinde gösterilen menü. Oyuncu kaleye girmeyi ya da ayrılmayı seçebilir. Giriş seçeneği kalenin sahnesine götürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5285",
+  "bilinmeyen": []
+ },
+ "menu_disembark": {
+  "kisa": "Gemiden inme onayı: evet ya da hayır",
+  "uzun": "Oyuncu gemiden inmek istediğinde sorulur. Evet denirse oyuncu normal duruma döner, bulunduğu yerde gemiyi temsil eden bir parti oluşturulur veya etkinleştirilir ve gemi karada görünür şekilde bırakılır. Hayır denirse sadece önceki ekrana dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10833",
+  "bilinmeyen": []
+ },
+ "menu_encounter_retreat": {
+  "kisa": "Karşılaşmadan geri çekilme menüsü: askerlerine düşmanı tutmalarını söylersin",
+  "uzun": "Bu menü, bir karşılaşmadan geri çekilirken açılır ve askerlerinden bir kısmının düşmanı oyalarken senin kalan birliklerle çekilmeni anlatır. 'Continue...' seçeneği seçilince geri çekilme davranışı işlenir; karşılaşılan taraftaki krallık kahramanı NPC'ler için korkakça geri çekilme kaydı eklenebilir. Ardından karşılaşılan taraf oyuncuyu yok sayar, karşılaşma kapanır ve oyun ekranına dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:4087",
+  "bilinmeyen": []
+ },
+ "menu_encounter_retreat_confirm": {
+  "kisa": "Geri çekilme onayı: taktik planı ve geride bırakılacak asker sayısı",
+  "uzun": "Oyuncu geri çekilmek istediğinde açılan onay ekranıdır. Partideki en yüksek taktik becerisine sahip kişi bir kaçış planı önerir ve geride bırakılması gereken asker sayısını gösterir. Onay verilirse belirtilen sayıda asker rastgele kaybedilir, bir kısmı esir düşebilir ve moral düşer; ardından geri çekilme menüsüne geçilir. Reddedilirse karşılaşma menüsüne dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:4043",
+  "bilinmeyen": []
+ },
+ "menu_end_game": {
+  "kisa": "Oyun sonu: emeklilik ve oyundan çıkış",
+  "uzun": "Emeklilik kararı verildiğinde gösterilen kapanış menüsüdür; oyuncunun silahlarını satıp yerleştiği anlatılır. Tek seçenek olan \"Farewell.\" oyunu kapatır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3514",
+  "bilinmeyen": []
+ },
+ "menu_enemy_offer_ransom_for_prisoner": {
+  "kisa": "Düşman, elinizdeki bir esir için fidye teklif ediyor",
+  "uzun": "Bir düşman fraksiyon, elinizde tuttuğunuz bir esir karşılığında gümüş para önerdiğinde açılır; teklif edilen miktar esire göre hesaplanır ve metinde fraksiyon adıyla birlikte gösterilir. Kabul ederseniz parayı alır, esiri elinizden çıkarırsınız (kadın oyuncuda lord satma sayacı da artar). Reddederseniz o karakterle ilişkiniz düşer ve onurunuz bir miktar azalır.",
+  "guven": "orta",
+  "kaynak": "module_game_menus.py:11539",
+  "bilinmeyen": []
+ },
+ "menu_enemy_slipped_away": {
+  "kisa": "Düşman kaçtığında gösterilen ara ekran: Devam ile zafer menüsüne geçer",
+  "uzun": "Düşmanın savaştan kaçtığı durumlarda oyuncuya kısa bir bilgi metni gösteren basit bir ekrandır; metin, oyun tarafından doldurulan bir değişkenden gelir. Tek seçeneği olan 'Devam' seçildiğinde oyuncuyu savaş sonrası işlemleri yapan zafer menüsüne yönlendirir. Böylece kaçma durumunda da esir, görev ve müttefik teşekkürü gibi savaş sonu kontrolleri normal şekilde çalışır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:4810",
+  "bilinmeyen": []
+ },
+ "menu_enter_your_own_castle": {
+  "kisa": "Kendi kalene yaklaşınca açılan karşılama menüsü",
+  "uzun": "Oyuncu kendi kalesine yaklaştığında açılır; kale muhafızları kapıları açıp oyuncuyu karşılar. Metin, oyuncunun krallık lideri olup olmamasına göre kral/kraliçe ya da lord/leydi hitabıyla gösterilir. Devam seçeneği kale/şehir menüsüne geçer.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:7317",
+  "bilinmeyen": []
+ },
+ "menu_establish_court": {
+  "kisa": "Saray kurma menüsü: araç ve kadife harcayarak şehri saray yapma",
+  "uzun": "Oyuncuya, karşılaştığı yerleşimi (s4) sarayı yapmak isteyip istemediğini soran bir onay menüsüdür. 'Kur' seçeneği yalnızca oyuncunun envanterinde alet ve kadife varsa görünür; seçilirse bu iki eşya oyuncudan alınır, oyuncunun sarayı mevcut şehir olarak ayarlanır ve şehir menüsüne dönülür. 'Vazgeç' seçeneği hiçbir şey harcamadan yine şehir menüsüne döndürür. Oyuncu, saray kurmanın tadilat gerektirdiğini ve takipçilerinin taşınmasının biraz sürebileceğini belirten bir bilgi metni görür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:14449",
+  "bilinmeyen": []
+ },
+ "menu_faction_orders": {
+  "kisa": "Debug menüsü: krallıkların savaş ve yapay zekâ durumunu listeler",
+  "uzun": "Bu menü, oyundaki her etkin krallık için (oyuncunun desteklediği fraksiyon hariç) o krallığın şu anki yapay zekâ durumunu gösterir: savunma, ordu toplama, bir kaleyi kuşatma, köy yağmalama, ziyafet düzenleme gibi. Ayrıca mareşali, gündemdeki siyasi konuyu (örneğin yeni mareşal atama veya tımar dağıtma), destek birliklerini ve krallığın istikrarını listeler. Menü açıldığında sadece bilgi göstermekle kalmaz; NPC karar betiğini çalıştırıp krallığın yeni stratejisini ve dinlenme sayaçlarını da günceller. Oyuncu ekranda bu krallıklara ait metin satırlarından oluşan bir özet görür.",
+  "guven": "orta",
+  "kaynak": "module_game_menus.py:2379",
+  "bilinmeyen": []
+ },
+ "menu_faction_relations_report": {
+  "kisa": "Rapor ekranı: krallıklarla ilişki puanlarını listeler",
+  "uzun": "Bu ekran, oyuncunun kendi fraksiyonunun her aktif krallıkla olan ilişkisini tek tek listeler; her satırda krallık adı, sayısal bir ilişki değeri ve bu değere karşılık gelen bir sıfat (en olumludan en olumsuza doğru) yazar. Oyuncunun kendi destek fraksiyonu listeye dahil edilmez, yalnızca savaş/ilişki durumu 'aktif' olan krallıklar görünür. Alttaki 'Continue...' seçeneği oyuncuyu rapor menüsüne geri götürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:2918",
+  "bilinmeyen": []
+ },
+ "menu_four_ways_inn": {
+  "kisa": "Four Ways Inn menüsü: haneye girme veya ayrılma",
+  "uzun": "Four Ways Inn'e varıldığında otomatik açılan menü. Oyuncu haneye girmeyi ya da ayrılmayı seçebilir. Giriş seçeneği oyuncuyu hanenin sahnesine götürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5239",
+  "bilinmeyen": []
+ },
+ "menu_give_center_to_player": {
+  "kisa": "Lordun toprak teklifi: kabul et veya reddet",
+  "uzun": "Lordun oyuncuya yeni bir yerleşim vermeyi teklif ettiği mesaj menüsüdür. Metinde lordun sadık hizmet karşılığında {s2}yi vereceği söylenir. Oyuncu kabul ederse yerleşim oyuncuya verilir ve onay menüsüne geçilir; reddederse yerleşim oyuncu tarafından reddedildi olarak işaretlenir ve menüden çıkılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6871",
+  "bilinmeyen": []
+ },
+ "menu_give_center_to_player_2": {
+  "kisa": "Yeni fief onayı: gelir, asker ve savunma sorumluluğu",
+  "uzun": "Oyuncunun yeni lord olarak onaylandığını anlatan bilgi menüsüdür; toprak teklifini kabul ettikten sonra açılır. Oyuncuya artık gelir toplayabileceği, asker toplayabileceği ve toprakları yönetebileceği, ayrıca fiefi ve halkı savunması gerektiği söylenir. Yerleşim kale ise bağlı köyün adı da gösterilir; devam seçeneği menüden çıkar.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6895",
+  "bilinmeyen": []
+ },
+ "menu_invite_player_to_faction": {
+  "kisa": "Vassallık teklifi: bir bölge verilerek katılma daveti",
+  "uzun": "Krallık lideri, belirli bir bölgenin verilmesi karşılığında oyuncuya vassallık teklif eder. Kabul edilirse 30 günlük yemin görevi başlar; reddedilirse liderle ilişki -3 düşer ve teklif geri çekilir. Menüde haberci görseli ve teklif metni görünür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12524",
+  "bilinmeyen": []
+ },
+ "menu_invite_player_to_faction_accepted": {
+  "kisa": "Vassallık kabulü: yemin için lideri bulma hatırlatması",
+  "uzun": "Vassallık teklifi kabul edildikten sonra açılır; oyuncuya yeminini şahsen liderin önünde yapması gerektiği söylenir. Liderin konumu hakkında bilgi gösterilir ve 'Devam' ile ekran kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12564",
+  "bilinmeyen": []
+ },
+ "menu_invite_player_to_faction_without_center": {
+  "kisa": "Vassallık teklifi: toprak verilmeden katılma daveti",
+  "uzun": "Bir krallık lideri, oyuncuya toprak ya da unvan vermeden vassal olmayı teklif eder. Kabul edilirse 30 gün içinde lideri bulup yemin etme görevi başlar; reddedilirse liderle ilişki -3, krallıkla -10 düşer ve menü kapanır. Oyuncu haberci görseliyle birlikte teklif metnini görür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12481",
+  "bilinmeyen": []
+ },
+ "menu_join_battle": {
+  "kisa": "Savaşa katılma menüsü: müttefike yardım, saldırı ve ayrılma",
+  "uzun": "Oyuncu bir müttefik partisine düşmana karşı yardım ederken açılır; üst metinde iki tarafın savaşa uygun asker sayıları gösterilir. Giriş kodu karşılaşma durumunu ve savaş sonucunu kontrol eder; düşman biterse zafer menüsüne, oyuncu tarafı yenilirse karşılaşmadan çıkışa yönlendirir. Seçenekler hücum etmeyi, askerleri saldırtıp geride kalmayı ve ayrılmayı sunar.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5010",
+  "bilinmeyen": []
+ },
+ "menu_join_order_attack": {
+  "kisa": "Askerleri saldırtma menüsü: otomatik çatışma ve kayıp raporu",
+  "uzun": "Oyuncu savaşta askerlerine müttefiklerle saldırma emri verip kendisi geride kaldığında açılır; yalnız en az 3 sağlıklı asker varsa seçilebilir. Menü, tarafların güçlerine göre kayıpları hesaplar ve oyuncu, müttefik ve düşman kayıplarını metin olarak gösterir. Devam seçeneği oyuncuyu savaş katılma menüsüne geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5090",
+  "bilinmeyen": []
+ },
+ "menu_join_siege_outside": {
+  "kisa": "Kuşatma menüsü: kuşatmacılara yaklaşma, içeri geçme veya ayrılma",
+  "uzun": "Bir yerin kuşatma altında olduğu durumda açılan menü; kuşatan ve kuşatılan tarafın adları gösterilir. Oyuncunun ilişkilerine göre kuşatma kampına yaklaşma, kuşatma hattından geçip içeri girme veya ayrılma seçenekleri sunulur. Arka plan resmi oyuncunun cinsiyetine göre değişir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5322",
+  "bilinmeyen": []
+ },
+ "menu_kill_local_merchant_begin": {
+  "kisa": "Yerel tüccarı öldürme görevi: karanlık ara sokakta pusu",
+  "uzun": "Yerel tüccarı öldürme görevinin başlangıç menüsüdür; oyuncu kurbanını karanlık bir ara sokakta takip eder. 'Devam' seçeneği kasabanın ara sokak sahnesini hazırlar, oyuncuyu ve tüccarı sahneye yerleştirir ve görev modunu başlatır. Böylece oyuncu dövüşün geçeceği sahneye geçer.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13876",
+  "bilinmeyen": []
+ },
+ "menu_kingdom_army_follow_failed": {
+  "kisa": "Kraliyet ordusu: orduyu takip etme görevinde başarısızlık",
+  "uzun": "Oyuncunun mareşali takip etmeyi başaramadığını anlatan bilgi ekranı; mareşalin oyuncunun başka işlerle meşgul olduğunu varsaydığı belirtilir. Arka planda haberci resmi gösterilir. Ekran açıldığında ordunun peşinden gitme görevi iptal edilir (ilişki cezası satırı kodda yorum satırı olarak devre dışı bırakılmıştır). 'Devam' seçilince oyun normal ekrana döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12462",
+  "bilinmeyen": []
+ },
+ "menu_kingdom_army_quest_join_siege_order": {
+  "kisa": "Kraliyet ordusu emri: kuşatmaya katılma bildirimi",
+  "uzun": "Mareşalin, oyuncuya belirtilen kalenin kuşatmasına katılmasını ve saldırıda yer almasını emrettiği ekran. Arka planda haberci resmi gösterilir; mareşalin ve hedef kalenin adları metne yazılır. 'Devam' seçilince önce ordunun peşinden gitme görevi sona erdirilir, ardından 'orduyla kuşatmaya katıl' görevi başlatılır ve oyuncuya emir metni gösterilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12434",
+  "bilinmeyen": []
+ },
+ "menu_kingdom_army_quest_messenger": {
+  "kisa": "Kraliyet ordusu: mareşalden görüşme çağrısı haberi",
+  "uzun": "Oyuncunun krallığının mareşalinin, yapmasını istediği bir iş hakkında konuşmak üzere onu en kısa sürede görmek istediğini bildiren ekran. Arka planda haberci resmi gösterilir ve mareşalin adı metne yerleştirilir. 'Devam' seçilince oyun normal ekrana döner; bu ekranda herhangi bir görev başlatılmaz, yalnızca çağrı iletilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12417",
+  "bilinmeyen": []
+ },
+ "menu_kingdom_army_quest_report_to_army": {
+  "kisa": "Kraliyet ordusu görevi: orduya katılma çağrısı bildirimi",
+  "uzun": "Krallığın mareşalinin haberci göndererek oyuncudan yeni askeri sefere katılmasını istediği ekran; en az belirli sayıda askerle gelmesi gerektiği belirtilir. Arka planda haberci resmi gösterilir ve hedef kişinin konumu hakkında bilgi verilir. 'Devam' seçilince 'orduya katılma raporu' görevi başlatılır, görev metni oluşturulur ve oyuncuya hedefin konumu bildirilir. Yani oyuncu bu ekranla birlikte yeni bir görev alır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12381",
+  "bilinmeyen": []
+ },
+ "menu_lady_visit": {
+  "kisa": "Ziyaret menüsü: şehirdeki ilgi duyulan hanımlardan birini seçme",
+  "uzun": "Bu menü, oyuncuya şehirdeki ilgi duyduğu hanımlardan hangisini ziyaret etmek istediğini sorar. Yalnızca ilgili değişkeni sıfırdan büyük olan hanımlar seçenek olarak görünür ve seçilen hanımın bilgisi bahçe menüsüne taşınır. 'Ayrıl' seçeneği oyuncuyu şehir menüsüne geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:9915",
+  "bilinmeyen": []
+ },
+ "menu_leave_faction": {
+  "kisa": "Yeminden dönme: toprakları bırak, elinde tut veya vazgeç",
+  "uzun": "Oyuncunun lorduna karşı yeminini bozma kararını verdiği menüdür; kale talebi reddedildikten sonra buraya yönlendirilebilir. Oyuncu topraklarını geri vererek ayrılmayı, {s2} dahil topraklarını kendi adına tutmayı veya sadık kalıp kararı kabul etmeyi seçer. Toprakları tutma seçeneği oyuncu fraksiyonunu etkinleştirir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6839",
+  "bilinmeyen": []
+ },
+ "menu_lord_relations": {
+  "kisa": "Rapor: tanışılan lordlarla ilişki puanları, yüksekten düşüğe",
+  "uzun": "Bu menü, oyuncunun tanıştığı ve bir krallığa bağlı olan lordları (krallık kahramanlarını) ilişki puanına göre büyükten küçüğe sıralayarak gösterir. Sıralama için her lordun puanı hesaplanır ve en yüksek puanlı olan sırayla listeye eklenir; isimler tıklanabilir bağlantı olarak ve yanlarında ilişki puanıyla birlikte görünür. Yalnızca daha önce tanışılmış lordlar listeye girer. 'Continue' seçeneği raporlar menüsüne geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:2149",
+  "bilinmeyen": []
+ },
+ "menu_lost_tavern_duel": {
+  "kisa": "Meyhane düellosu kaybı: sonuç anlatımı",
+  "uzun": "Meyhanedeki bir düelloyu kaybettikten sonra açılan, tuşları kapatan bir sonuç menüsüdür. Rakibin sıradan bir sarhoş mu yoksa kiralık bir suikastçı mı olduğuna göre farklı bir kayıp metni gösterir. Devam denince kiralık suikastçının konum bilgisi temizlenir ve oyuncu kasaba menüsüne döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:14425",
+  "bilinmeyen": []
+ },
+ "menu_marshall_selection_candidate_ask": {
+  "kisa": "Mareşal adaylığı: krala karşı teklif ekranı",
+  "uzun": "Metin, kralın ({s15}) krallık ({s23}) için yakında yeni bir mareşal seçeceğini ve bazı lordların oyuncunun adını önerdiğini söyler. Oyuncu teklifi kabul ederse mareşal seçim sunumu (prsnt_marshall_selection) açılır; reddederse kendi renown değeri sıralamadan çıkarılır ve yine aynı sunum başlatılır. Sunum zaten bitmişse ekran doğrudan kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:11960",
+  "bilinmeyen": []
+ },
+ "menu_minister_confirm": {
+  "kisa": "Bakan atamasını onaylayan menü: yeni bakanın sarayda olduğunu söyler",
+  "uzun": "Atanan başbakanı onaylamak için açılır; yeni bakanın sarayda bulunduğunu ve düzenli olarak danışılması gerektiğini belirtir. Kod, bakan oyuncunun partisindeyse onu partiden çıkarır ve bakanın adını metne yerleştirir. Devam seçeneği krallık adlandırma sunumunu başlatır; bazı durumlarda ekran geri döndürülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13020",
+  "bilinmeyen": []
+ },
+ "menu_morale_report": {
+  "kisa": "Rapor: parti moralini ve morali etkileyen etkenleri gösterir",
+  "uzun": "Bu menü, oyuncunun partisinin (kervanının) moralini ve bu morali oluşturan parçaları tek bir metin olarak gösterir. Açılışta bir script çağrılarak moral değerleri hesaplanır; ardından temel moral (50), parti büyüklüğü, liderlik, yiyecek çeşitliliği, yiyecek yokluğu, maaş borcu ve son olaylar gibi kalemler artı/eksi işaretleriyle listelenir. Ayrıca her krallık için o krallığın askerlerine ait ekstra moral değeri varsa ayrı satırlar halinde eklenir. Oyuncu burada yalnızca bilgi görür; 'Continue' seçeneği raporlar menüsüne geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:2019",
+  "bilinmeyen": []
+ },
+ "menu_notification_border_incident": {
+  "kisa": "Bildirim menüsü: sınır olayı ve iki taraf arasında kışkırtma",
+  "uzun": "Bir sınır olayı bildirimi için açılan menü. Kod iki köyü ve bağlı oldukları tarafları bulur; olay bazen hayvan hırsızlığı, bazen kadın kaçırma, bazen de dere yüzünden kavga olarak rastgele seçilir. Olay günlüğe yazılır ve hedef taraf için 30 günlük kışkırtma süresi ayarlanır. Oyuncu bildirimi görür ve 'Continue' ile kapatır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12758",
+  "bilinmeyen": []
+ },
+ "menu_notification_casus_belli_expired": {
+  "kisa": "Bildirim: krallık kışkırtmaya yanıt vermedi, itibar kaybı",
+  "uzun": "Bir krallık, başka bir krallığın kışkırtmalarına yanıt vermeyince liderinin savaş yanlısı tebaası nezdinde itibar kaybettiği bildirilir. 'Devam' denince krallık için tartışmalı politika kaydı işlenir ve ekran kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12666",
+  "bilinmeyen": []
+ },
+ "menu_notification_center_lost": {
+  "kisa": "Bildirim: bir merkez/mülk kaybedildi",
+  "uzun": "Oyuncunun bir merkezini s1 adıyla başka bir fraksiyona, s2 adıyla kaybettiğini bildirir. Menüde kaybedilen merkezin not/simge tablosu gösterilir. Devam seçeneği ekranı geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13349",
+  "bilinmeyen": []
+ },
+ "menu_notification_center_under_siege": {
+  "kisa": "Kuşatma bildirimi: bir merkez kuşatıldı",
+  "uzun": "Bir merkezin düşman tarafından kuşatıldığını bildiren menüdür. Kod, kuşatılan yerin, kuşatan kişinin ve fraksiyonun adlarını hazırlar ve merkez için bir tablo görseli ayarlar. Devam seçeneğiyle menüden çıkılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13223",
+  "bilinmeyen": []
+ },
+ "menu_notification_court_lost": {
+  "kisa": "Saray kaybı bildirimi: saray yeni bir kaleye taşınabilir",
+  "uzun": "Oyuncunun sarayı kaybolduğunda açılan bir bildirim menüsüdür. Kod, saray için uygun bir kale arar; bulursa eşin konumunu da oraya taşır ve mesajı buna göre hazırlar. Bağımsız krallık yoksa sarayın artık sürdürülmediğini belirtir; oyuncu mesajı okuyup devam seçeneğiyle döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13053",
+  "bilinmeyen": []
+ },
+ "menu_notification_faction_defeated": {
+  "kisa": "Bildirim: fraksiyon yok edildi; isyancıysanız yönetimi devralırsınız",
+  "uzun": "Bir fraksiyonun ortadan kalktığını bildirir ve adını gösterir. Devam'a basıldığında, oyuncu bu fraksiyonun taht iddiacısını destekliyorsa isyancılar o fraksiyona geçer; iddiacı lider, oyuncu mareşal olur ve fraksiyona bağlı lordlarla oyuncunun ilişkisi +5 artar. Bu durum yoksa menü sadece kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13493",
+  "bilinmeyen": []
+ },
+ "menu_notification_feast_quest_expired": {
+  "kisa": "Bildirim: ziyafet görevinin süresi doldu",
+  "uzun": "Bir ziyafetle ilgili görevin süresi dolduğunda oyuncuya kısa bir bilgi metni gösterir. 'Devam' seçeneğiyle ekran kapanır.",
+  "guven": "orta",
+  "kaynak": "module_game_menus.py:12629",
+  "bilinmeyen": []
+ },
+ "menu_notification_lady_requests_visit": {
+  "kisa": "Mektup bildirimi: bir leydi ziyaret daveti gönderir",
+  "uzun": "Bir kadın, bir leydiden mektup getirir; menüde leydinin adı, bulunduğu yer ve son ziyaretten bu yana geçen süreye göre değişen bir mesaj gösterilir. Oyuncu 'kısa süre içinde geleceğini' söylerse leydiyi ziyaret etme görevi başlar ve göreve 30 günlük geçerlilik verilir. 'Rahatsız olduğunu' söylerse leydiye mesaj gönderilmemesi işaretlenir. Menüde yalnızca devam etmeyi sağlayan seçenekler vardır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13671",
+  "bilinmeyen": []
+ },
+ "menu_notification_lord_defects": {
+  "kisa": "Bildirim: bir lord krallık değiştirdi, topraklarıyla birlikte",
+  "uzun": "Bir lordun eski krallığını bırakıp topraklarıyla birlikte başka bir krallığa geçtiğini bildirir. Metinde lordun adı, eski ve yeni krallık gösterilir. 'Devam' ile kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12692",
+  "bilinmeyen": []
+ },
+ "menu_notification_oath_renounced_faction_defeated": {
+  "kisa": "Bildirim: eski fraksiyon yenildi, mücadele bitti",
+  "uzun": "Oyuncunun yeminini bozmasından sonra başlayan mücadelenin, eski fraksiyonunun yenilmesiyle bittiğini bildirir. s1 eski fraksiyonun adıdır ve menüde o fraksiyonun simgesi veya afişi gösterilir. Devam seçeneği ekranı geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13325",
+  "bilinmeyen": []
+ },
+ "menu_notification_one_faction_left": {
+  "kisa": "Bildirim: tek krallık kaldı, fetih ve başarımlar",
+  "uzun": "Bir krallığın tüm rakiplerini yenip tek krallık olarak kaldığını bildirir; s1 o krallığın adıdır. Menü açılırken krallığın simgesi veya afişi gösterilir. Oyuncunun krallığıysa ve lideri oyuncuysa ilgili başarım, değilse başka bir başarım açılır; oyuncu kadınsa ek bir başarım daha açılır. Devam seçeneği ekranı geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13289",
+  "bilinmeyen": []
+ },
+ "menu_notification_peace_declared": {
+  "kisa": "Bildirim: iki fraksiyon barış yaptı",
+  "uzun": "İki fraksiyonun barış anlaşması yaptığını bildirir. Kod fraksiyon adlarını hazırlar ve iki fraksiyonlu bir tablo/simge gösterir; açıklama metni kısmı etkin değildir ve s57 temizlenir. Devam seçeneği ekranı geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13459",
+  "bilinmeyen": []
+ },
+ "menu_notification_player_faction_active": {
+  "kisa": "Oyuncu kral olduğunda açılan menü: saray ve bakan atama",
+  "uzun": "Oyuncu kendi adına toprak sahibi olup hiçbir krallığa bağlı değilken bu menü gösterilir; oyuncunun artık hükümdar olduğunu ve sarayının nerede bulunduğunu anlatır. Kod, oyuncunun sarayını belirler, bir başarım açar ve taç giyme müziği çalar. Menüde eşini veya yanındaki yol arkadaşlarından birini başbakan olarak atama seçenekleri sunulur; uygun kimse yoksa yöreden bir kişi atanabilir. Seçim yapılınca bakan onay menüsüne geçilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12840",
+  "bilinmeyen": []
+ },
+ "menu_notification_player_faction_deactive": {
+  "kisa": "Krallık topraksız kalınca açılan bildirim",
+  "uzun": "Oyuncunun krallığı hiç toprak tutmadığında gösterilen bildirim menüsüdür. Arka planda krallık sancağı için bir tablo görseli ayarlanır. Devam seçeneğiyle menüden çıkılır ve oyuncunun bakan ataması temizlenir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13126",
+  "bilinmeyen": []
+ },
+ "menu_notification_player_faction_political_issue_resolved": {
+  "kisa": "Krallık kararı bildirimi: lider bir görev veya unvan dağıtımını duyurur",
+  "uzun": "Oyuncunun krallığında bir siyasi konu çözüldüğünde gösterilen bildirim menüsüdür. Krallık liderinin, danışmanlarıyla görüştükten sonra bir kişiye bir görev ya da unvan verdiğini anlatır. Metindeki isimler lider, verilen şey ve ödülü alan kişi olarak doldurulur. Devam seçeneği ekranı kapatır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:14189",
+  "bilinmeyen": []
+ },
+ "menu_notification_player_faction_political_issue_resolved_for_player": {
+  "kisa": "Krallık ödülü: yerleşim veya mareşallik teklifi",
+  "uzun": "Oyuncunun krallığında lordlar bir siyasi konuyu karara bağlayınca açılan bir bildirim menüsüdür. Oyuncuya liderin adıyla bir onur verildiğini söyler: ya bir yerleşim yeri ya da mareşallik. Oyuncu kabul ederse ödül verilir ve krallıktaki lordların bu konudaki tutumları sıfırlanır; reddederse benzer bir ödül için 30 gün bekleme başlar. Ekranda kabul et ve reddet seçenekleri görünür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:14218",
+  "bilinmeyen": []
+ },
+ "menu_notification_player_feast_in_progress": {
+  "kisa": "Bildirim: eşiniz şölene hazırlanıyor; salonun adı gösterilir",
+  "uzun": "Eşinizin salonunuzda bir şölen için hazırlıklara başladığını bildirir. Bildirimde salonun/partinin adı gösterilir. Devam'a basınca menü kapanır; başka bir işlem yapılmaz.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13656",
+  "bilinmeyen": []
+ },
+ "menu_notification_player_kingdom_holds_feast": {
+  "kisa": "Ziyafet daveti bildirimi; düğün fırsatı eklenebilir",
+  "uzun": "Oyuncunun krallığındaki lordların bir ziyafette toplanacağını bildiren menüdür. Kod, ziyafeti düzenleyen lordun, fraksiyonun ve yerin adlarını hazırlar; haberci resmi gösterilir. Nişan görevi etkinse ve görevi veren oyuncunun krallığındaysa mesaja düğün fırsatı notu eklenir. Devam seçeneğiyle çıkılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13173",
+  "bilinmeyen": []
+ },
+ "menu_notification_player_should_consult": {
+  "kisa": "Bildirim: bakan görüşme istiyor; bakanla görüş görevi başlatır",
+  "uzun": "Bakanın krallıkta sorunlar olduğunu ve kendisiyle görüşülmesi gerektiğini bildirir. Devam'a basınca 30 günlük bakanla görüş görevi başlar; görevi veren bakan, yer saraydır. Oyuncu bildirimi görür ve görev günlüğüne eklenir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13623",
+  "bilinmeyen": []
+ },
+ "menu_notification_player_wedding_day": {
+  "kisa": "Düğün hazırlığı bildirimi: tören yeri hazır",
+  "uzun": "Bir haberci, oyuncunun belirtilen yerdeki düğün hazırlıklarının tamamlandığını ve hemen gelmesi gerektiğini bildirir. Menüde haberci resmi arka plan olarak gösterilir; haberci ve yer adları kodda doldurulur. Devam seçeneğiyle menüden çıkılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13156",
+  "bilinmeyen": []
+ },
+ "menu_notification_rebels_switched_to_faction": {
+  "kisa": "Bildirim: isyan başarılı; yeni hükümdarla teşekkür konuşması başlatır",
+  "uzun": "İsyanın kazandığını ve fraksiyonun tek hükümdarının iddiacı olduğunu bildirir. Devam'a basınca yeni hükümdarla harita üzerinde bir teşekkür konuşması başlar. Bu menü, isyancıların fraksiyona geçtiği önceki bildirimden çağrılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13594",
+  "bilinmeyen": []
+ },
+ "menu_notification_relieved_as_marshal": {
+  "kisa": "Mareşallikten alınma bildirimi: hizmet gününe göre altın ve şöhret",
+  "uzun": "Oyuncuya, krallık liderinin onu mareşallik görevinden aldığını bildiren bir mesaj menüsüdür. Mareşal olarak geçirdiği gün sayısına göre oyuncuya bir kese altın ve şöhret verilir; bu değerlerin alt ve üst sınırları vardır. Ardından mareşallik gün sayacı sıfırlanır ve 15 gün boyunca oyuncuya yeniden mareşallik verilmemesi için bir sayaç ayarlanır. 'Devam' seçeneği ekranı kapatıp oyuna döndürür; mesajda liderin adı ve cinsiyetine göre zamir kullanılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:14476",
+  "bilinmeyen": []
+ },
+ "menu_notification_sortie_possible": {
+  "kisa": "Bildirim: sur dışında düşman görüldü, huruç hazırlığı",
+  "uzun": "Bir kalenin surları dışında düşman görüldüğünde ve savunucular huruç hazırlığı yaptığında oyuncuya bildirilir. Metinde kalenin adı ve hazırlığı yöneten kişi gösterilir; oyuncu isterse katılabilir. 'Devam' ile kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12644",
+  "bilinmeyen": []
+ },
+ "menu_notification_treason_indictment": {
+  "kisa": "Bildirim menüsü: ihanet suçlaması ve mal müsaderesi",
+  "uzun": "Bir ihanet suçlaması bildirimi için açılan menü. Kod, suçlanan kişiyi ve eski devleti okur; oyuncu suçlanmışsa malına el konulduğu ve kaçması gerektiği anlatılır. Başka bir lord suçlanmışsa lordun adı, devleti ve sürgün yeri metne yerleştirilir. Oyuncu metni görür ve 'Continue' ile geri döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12715",
+  "bilinmeyen": []
+ },
+ "menu_notification_troop_joined_players_faction": {
+  "kisa": "Bildirim: asker oyuncunun krallığına katıldı",
+  "uzun": "Bir askerin başka bir fraksiyondan ayrılıp oyuncunun krallığına katıldığını iyi haber olarak bildirir. s1 askerin, s2 ayrıldığı fraksiyonun, s3 oyuncunun krallığının adıdır. Askerin simgesi gösterilir ve devam seçeneği ekranı geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13391",
+  "bilinmeyen": []
+ },
+ "menu_notification_troop_left_players_faction": {
+  "kisa": "Bildirim: asker oyuncunun krallığından ayrıldı",
+  "uzun": "Bir askerin oyuncunun krallığından ayrılıp başka bir fraksiyona katıldığını ihanet olarak bildirir. s1 askerin, s2 oyuncunun krallığının, s3 yeni fraksiyonun adıdır. Askerin simgesi gösterilir ve devam seçeneği ekranı geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13370",
+  "bilinmeyen": []
+ },
+ "menu_notification_truce_expired": {
+  "kisa": "Bildirim: iki krallık arasındaki ateşkes sona erdi",
+  "uzun": "İki krallık arasındaki ateşkesin süresi dolduğunda oyuncuya bilgi verir. Menüde ilgili krallığın bayrağı gösterilir ve 'Devam' ile kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12607",
+  "bilinmeyen": []
+ },
+ "menu_notification_village_raid_started": {
+  "kisa": "Köy yağması başladı bildirimi",
+  "uzun": "Bir köye saldırı başladığını ve yağmanın sürdüğünü bildiren menüdür. Kod, saldırıya uğrayan yerin, saldıran kişinin ve fraksiyonun adlarını hazırlar; merkez için tablo görseli ayarlar. Devam seçeneğiyle menüden çıkılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13267",
+  "bilinmeyen": []
+ },
+ "menu_notification_village_raided": {
+  "kisa": "Köy yağmalandı bildirimi",
+  "uzun": "Bir köyün düşmanlar tarafından yağmalandığını bildiren menüdür. Kod, yağmalanan yerin, yağmacının ve fraksiyonun adlarını hazırlar; merkez için tablo görseli gösterir. Devam seçeneğiyle çıkılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13245",
+  "bilinmeyen": []
+ },
+ "menu_notification_war_declared": {
+  "kisa": "Bildirim: iki fraksiyon arasında savaş ilan edildi",
+  "uzun": "Bir fraksiyonun diğerine savaş ilan ettiğini bildirir. Kod iki fraksiyonun adını s1 ve s2 olarak hazırlar ve iki fraksiyonlu bir tablo/simge gösterir. Oyuncunun kendi fraksiyonu için özel metin kısımları yorum satırına alınmış, yani bu kayıtta etkin değildir. Devam seçeneği ekranı geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:13412",
+  "bilinmeyen": []
+ },
+ "menu_oath_fulfilled": {
+  "kisa": "Sözleşme bitiş menüsü: yenile veya bağından kurtul",
+  "uzun": "Oyuncunun {s1} ile yaptığı süreli hizmet sözleşmesi dolduğunda açılan menüdür. Oyuncuya sözleşmesinin bittiği söylenir ve iki seçenek sunulur: sözleşmeyi bir ay daha yenilemek ya da bağdan kurtulmak. Yenileme seçeneği bir sonraki yenileme gününü 30 gün sonrasına ayarlar ve menüden çıkar. Bağdan kurtulma seçeneği, yorumda belirtildiği gibi toprakları geri vererek oyuncuyu gruptan çıkarır ve menüden çıkar.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6924",
+  "bilinmeyen": []
+ },
+ "menu_order_attack_2": {
+  "kisa": "Saldırı çözümleme menüsü: kayıplar ve saldırıyı sürdürme/geri çekme",
+  "uzun": "Bu menüde tuşlar devre dışıdır ve saldırı sonucu bir arka plan resmiyle birlikte kayıplar hâlinde gösterilir. Menü açılırken tarafların güçleri hesaplanır, iki tarafa da kayıplar verilir ve savaşın sürüp sürmediği ya da başarılı/başarısız olduğu belirlenir. Oyuncu kayıp özetini görür; kalan duruma göre saldırıyı sürdürme veya askerleri geri çekme seçenekleri sunulur.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:4133",
+  "bilinmeyen": []
+ },
+ "menu_order_attack_begin": {
+  "kisa": "Saldırı hazırlığı menüsü: saldırıyı başlat veya geri çağır",
+  "uzun": "Bu menü, birliklerin düşmana saldırmaya hazırlandığı anda gösterilir. 'Order the attack to begin.' seçeneği saldırıyı başlatır ve oyunu saldırı çözümleme menüsüne geçirir; karşı taraf köy çiftçileriyse bir başarım da açılabilir. 'Call them back.' seçeneği ise askerleri geri çağırıp basit karşılaşma menüsüne döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:4113",
+  "bilinmeyen": []
+ },
+ "menu_party_size_report": {
+  "kisa": "Parti büyüklüğü raporu: liderlik, karizma ve şöhret etkisi",
+  "uzun": "Oyuncunun yanında taşıyabileceği asker sayısının üst sınırını ve bu sınırın nerelerden geldiğini gösteren bir rapor menüsüdür. Ekranda temel 30 kişilik kapasiteye liderlik becerisinin beş katı, karizma değeri ve şöhretin 25'e bölümü eklenerek toplam limit hesaplanır ve gösterilir. 'Continue' seçeneği oyuncuyu Raporlar menüsüne geri götürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:2874",
+  "bilinmeyen": []
+ },
+ "menu_past_life_explanation": {
+  "kisa": "Geçmiş hikâyesi metnini parça parça gösteren bilgi menüsü",
+  "uzun": "Oyuncunun seçtiği geçmişe ait hikâye metnini ekranda gösterir; metin birden fazla parçaya bölünmüştür ve her açılışta bir sonraki parçaya geçilir. Alttaki buton, sona gelinmediyse 'sonraki parçayı gör' anlamına gelir, sona gelindiyse başa dönmeyi önerir; ayrıca devam etme ve seçim menüsüne geri dönme seçenekleri vardır. Menü tüm tuşları devre dışı bırakır, yani oyuncu yalnızca bu butonlarla ilerler.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:1981",
+  "bilinmeyen": []
+ },
+ "menu_permanent_damage": {
+  "kisa": "Yenilgi sonrası kalıcı özellik kaybı menüsü",
+  "uzun": "Ağır bir yenilgiden sonra açılabilir. Oyuncunun güç, çeviklik veya zekâ özelliklerinden rastgele birini 1 azaltır ve bunu kısa bir metinle bildirir (karizma hariç tutulur). Oyuncu devam etmek için tek seçeneğe tıklar ve önceki ekrana döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:4891",
+  "bilinmeyen": []
+ },
+ "menu_pre_join": {
+  "kisa": "İki taraf arasındaki savaşa müdahale seçim menüsü",
+  "uzun": "Oyuncu iki parti arasında süren bir savaşa denk geldiğinde açılır. Tarafların oyuncuya karşı ilişkisine göre saldıranlara ya da savunanlara yardım etme seçenekleri sunulur; seçim yapılınca savaşa katılma menüsüne geçilir. Oyuncu isterse karışmadan çekip gidebilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:4971",
+  "bilinmeyen": []
+ },
+ "menu_price_and_production": {
+  "kisa": "Fiyat ve üretim bilgisi menüsü (hata ayıklama)",
+  "uzun": "Karşılaşılan kasaba veya köy için ticari malların üretim, tüketim ve fiyat dökümünü hesaplayıp gösterir. Şehir ve köylerin ortalama sıkıntı değerlerini ve Calradia geneli ortalamaları da hesaplar. Hile modu açıksa ek bir debug mesajı yazılır. Geri seçeneği, karşılaşılan yerleşim türüne göre köy veya kasaba menüsüne döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10922",
+  "bilinmeyen": []
+ },
+ "menu_question_peace_offer": {
+  "kisa": "Barış teklifi: kabul et veya reddet",
+  "uzun": "Bir krallık oyuncuya barış anlaşması teklif eder; menüde krallık bayrağı ve teklif metni görünür. Kabul edilirse oyuncunun desteklediği krallık ile barış başlatılır; reddedilirse o krallıkla ilişki -5 düşer.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:12581",
+  "bilinmeyen": []
+ },
+ "menu_recruit_volunteers": {
+  "kisa": "Köy gönüllülerini askere alma menüsü",
+  "uzun": "Köyde gönüllü asker toplarken açılır. Köydeki gönüllü sayısı, oyuncunun partisindeki boş yer ve altın miktarına göre kaç kişinin katılabileceği hesaplanır; kişi başı 10 dinar maliyet gösterilir. Yeterli para yoksa bunu belirten bir seçenek çıkar; varsa askere alma ya da vazgeçme seçenekleri görünür. Gönüllü yoksa kimsenin katılmak istemediğine dair bir mesaj gösterilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:7731",
+  "bilinmeyen": []
+ },
+ "menu_reports": {
+  "kisa": "Raporlar menüsü: şöhret, onur, moral ve parti büyüklüğü",
+  "uzun": "Bu menü, oyuncunun şöhretini, onur derecesini, partisinin moralini ve parti büyüklüğü sınırını tek bir ekranda özetler. Altındaki seçeneklerle karakter raporu, parti büyüklüğü raporu, yoldaş görev raporu, haftalık bütçe raporu, parti morali raporu, lordlarla ilişkiler, kur ilişkileri ve fraksiyon ilişkileri raporu gibi ayrı ekranlara geçilir. 'Seyahate devam' seçeneği menüden çıkıp oyuna döner. Hile modu açıksa ek olarak fraksiyon emirleri ve yoldaş durum kontrolü gibi hile seçenekleri de görünür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:530",
+  "bilinmeyen": []
+ },
+ "menu_requested_castle_granted_to_another": {
+  "kisa": "Kale talebi reddi: kral parayla ödüllendirir, kaleyi başkasına verir",
+  "uzun": "Oyuncu bir kale istediğinde kraldan gelen mesaj menüsüdür. Kral, oyuncunun zaten toprakları olduğu gerekçesiyle kale talebini reddeder; 900 dinar gönderir ve kaleyi başka bir beye verir. Oyuncu kararı kabul ederse parayı alıp menüden çıkar; yeminini bozmayı seçerse ayrılma menüsüne geçer ve yine parayı alır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6769",
+  "bilinmeyen": []
+ },
+ "menu_requested_castle_granted_to_another_female": {
+  "kisa": "Kale talebi reddi (kadın): kral parayla ödüllendirir, kaleyi başkasına verir",
+  "uzun": "Kadın oyuncunun kocası için kale istediği durumdaki mesaj menüsüdür. Kral, kocasının zaten toprakları olduğu gerekçesiyle talebi reddeder; 900 dinar gönderir ve kaleyi başka birine verir. Tek seçenek, kararı kabul edip parayı almaktır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6806",
+  "bilinmeyen": []
+ },
+ "menu_requested_castle_granted_to_player": {
+  "kisa": "Hükümdardan haber: kale sana verildi",
+  "uzun": "Oyuncu bir kale veya şehir talep ettikten sonra, hükümdarın onu kendisine verdiğini bildiren mesaj ekranıdır; arka planda haberci resmi görünür. Metin, hükümdarın kaleyi (bir köyü de kapsayacak şekilde) tüm gelir ve unvanlarıyla oyuncuya verdiğini, yemini sürdüğü sürece onun adına tutacağını söyler. 'Devam' denince merkez oyuncuya devredilir ve ardından devir sonrası ekrana geçilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6692",
+  "bilinmeyen": []
+ },
+ "menu_requested_castle_granted_to_player_husband": {
+  "kisa": "Hükümdardan haber: kale eşine verildi",
+  "uzun": "Oyuncu kalenin eşine verilmesini talep ettiğinde açılan, hükümdarın kararını bildiren mesaj ekranıdır; arka planda haberci resmi gösterilir. Metin, hükümdarın kaleyi (varsa bağlı köyüyle birlikte) oyuncunun kocasına verdiğini söyler. 'Devam' denince merkez eşe devredilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6727",
+  "bilinmeyen": []
+ },
+ "menu_retirement_verify": {
+  "kisa": "Emeklilik onayı: gün ve şans bilgisi",
+  "uzun": "Oyuncu emekli olmayı seçtiğinde onay için açılır; mevcut günü ve şans değerini gösterir. \"Yes.\" seçeneği emeklilik sunumunu başlatır, \"No.\" seçeneği kamp menüsüne döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3493",
+  "bilinmeyen": []
+ },
+ "menu_salt_mine": {
+  "kisa": "Tuz madeni menüsü: madene girme veya ayrılma",
+  "uzun": "Tuz madenine girildiğinde otomatik açılan menü. Oyuncu madene girmeyi ya da ayrılmayı seçebilir. Menü açılırken fiyat oranları sıfırlanır ve tuz için bir fiyat oranı ayarlanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5229",
+  "bilinmeyen": []
+ },
+ "menu_ship_reembark": {
+  "kisa": "Gemiye yeniden binme onayı: evet ya da hayır",
+  "uzun": "Oyuncu gemisine geri binmek istediğinde sorulur. Evet denirse oyuncu gemi durumuna geçer, yakındaki bir su konumuna taşınır ve karşılaşılan gemi partisi devre dışı bırakılır. Hayır denirse sadece önceki ekrana dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10867",
+  "bilinmeyen": []
+ },
+ "menu_siege_attack_meets_sally": {
+  "kisa": "Savunucuların kuşatma saldırısına dışarı çıkarak karşılık vermesi",
+  "uzun": "Kuşatma saldırısı sırasında savunucuların kaleden dışarı çıkıp saldırıya karşılık verdiği durumda açılır. Arka plan görseli bu çatışma sahnesine göre ayarlanır. Tek bir devam seçeneği vardır; seçilince savaş değerlendirme menüsüne geçilir ve ilgili görev ekranı açılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:6206",
+  "bilinmeyen": []
+ },
+ "menu_siege_join_defense": {
+  "kisa": "Kuşatma savunması menüsü: kayıpları gösterir ve devam eder",
+  "uzun": "Kuşatma savunmasına katılınca açılan menüdür; oyuncu, müttefik ve düşman birliklerinin gücüne göre kayıplar hesaplanır. Ekranda tarafların kayıpları ve durum metni gösterilir; devam seçeneği savunma kuşatma menüsüne geçirir. Oyuncu tarafı tamamen düşerse başarısızlık, düşman tamamen düşerse başarı durumu ayarlanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:7251",
+  "bilinmeyen": []
+ },
+ "menu_siege_started_defender": {
+  "kisa": "Kuşatma menüsü: savunmadayken düşman saldırısı başladığında açılır",
+  "uzun": "Oyuncu bir kale veya şehri savunurken düşman surlara saldırı başlattığında bu menü açılır. Menüde savaşa hazır asker sayıları gösterilir ve oyuncuya savaşa katılma veya askerlerini savaşa gönderme gibi seçenekler sunulur. Giriş kodu, savaş sonucunu (zafer, yenilgi, düşmanın geri çekilmesi) değerlendirip ilgili menülere yönlendirir; ayrıca düşman geri çekilirse kuşatmanın sürdüğü bilgisi verilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:7105",
+  "bilinmeyen": []
+ },
+ "menu_simple_encounter": {
+  "kisa": "Karşılaşma menüsü: savaşa uygun asker sayıları ve karşılaşma akışı",
+  "uzun": "Bir partiyle karşılaşıldığında açılan temel karşılaşma ekranıdır. Üstte karşı taraf ve savaşa uygun asker sayıları gösterilir; yeni karşılaşmada köy yağması gibi durumlar ve yakındaki partilerin savaşa katılması ayarlanır. Sonraki turlarda savaş sonucu ve kaçış koşulları kontrol edilir; zafer durumunda toplam zafer menüsüne geçilebilir. Oyuncu karşılaşma metnini ve asker sayılarını görür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:3741",
+  "bilinmeyen": []
+ },
+ "menu_sneak_into_town_caught": {
+  "kisa": "Kasabaya gizlice girerken yakalanma: savaş ya da teslim ol",
+  "uzun": "Bir kasabaya gizlice girmeye çalışırken muhafızların sizi tanıyıp alarm vermesiyle açılır. Metin, tüm kasaba muhafızları üzerinize gelmeden kapılardan kaçmanız gerektiğini anlatır. Oyuncu ya savaşarak kaçmayı seçer (kapılar kilitli sayılır ve bir çatışma sahnesi başlar) ya da teslim olur ve esaret menüsüne yönlendirilir.",
+  "guven": "orta",
+  "kaynak": "module_game_menus.py:11411",
+  "bilinmeyen": []
+ },
+ "menu_sneak_into_town_caught_dispersed_guards": {
+  "kisa": "Muhafızları püskürtüp gizli girişi tamamlama",
+  "uzun": "Gizlice girerken yakalanıp muhafızları püskürttüğünüzde gösterilir; metin, izinizi kaybettirip sokaklarda takipçilerden kurtulduğunuzu anlatır. Tek seçenek olan devam ile kasabaya girmiş sayılırsınız ve kasaba menüsü açılır.",
+  "guven": "orta",
+  "kaynak": "module_game_menus.py:11474",
+  "bilinmeyen": []
+ },
+ "menu_sneak_into_town_caught_ran_away": {
+  "kisa": "Gizli girişte kaçış: geri çekilme ve mahkumların durumu",
+  "uzun": "Gizlice girmeye çalışırken yakalanıp kapılardan geri çekildiğinizde açılır. Hapisbozma göreviyle ilgili karakterler burada ele alınır: kaçmayı başaranlar için bir buluşma hazırlanıp serbest bırakılır, yaralanıp geride kalanlar için metne bir not eklenir. Devam edildiğinde ekran kapanır ve son gizli giriş denemesinin yeri ile zamanı kaydedilir.",
+  "guven": "orta",
+  "kaynak": "module_game_menus.py:11489",
+  "bilinmeyen": []
+ },
+ "menu_sneak_into_town_suceeded": {
+  "kisa": "Şehre sızma başarılı: gizlice şehre girildi mesajı",
+  "uzun": "Oyuncu kılık değiştirerek şehre girmeyi başardığında bu menü açılır. Metin, zavallı bir hacı kılığında muhafızları atlattığını söyler. 'Devam' seçeneğiyle şehre sızma durumu işaretlenir ve şehir menüsüne geçilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:11398",
+  "bilinmeyen": []
+ },
+ "menu_start_character_1": {
+  "kisa": "Karakter geçmişi menüsü: soylu, tüccar, savaşçı, avcı, göçebe, hırsız",
+  "uzun": "Yeni oyun başlarken karakterin aile geçmişinin seçildiği menüdür. Oyuncu soylu, gezgin tüccar, emektar savaşçı, avcı, bozkır göçebesi veya hırsız seçeneklerinden birini seçer; seçim, karakterin geçmiş türünü belirleyen bir değere yazılır ve cinsiyete göre bir geçmiş metni hazırlanır. Ardından bir sonraki karakter oluşturma adımına geçilir. Menü açılırken bazı metin alanları temizlenir ve klavye kısayolları devre dışı bırakılır; geri dön seçeneği bir önceki başlangıç menüsüne götürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:955",
+  "bilinmeyen": []
+ },
+ "menu_start_character_2": {
+  "kisa": "Karakter oluşturma: ikinci geçmiş seçimi",
+  "uzun": "Karakter yaratma sırasında erken yaşam geçmişini seçtiren bir menüdür. Oyuncuya sarayda page, zanaatkâr çırağı, dükkân yardımcısı, sokak çocuğu ve bozkır çocuğu gibi seçenekler sunulur. Seçim yapılınca ilgili geçmiş cevabı kaydedilir ve karakter oluşturmanın sonraki adımına geçilir. 'Geri dön' seçeneği ise önceki karakter oluşturma menüsüne döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:1038",
+  "bilinmeyen": []
+ },
+ "menu_start_character_3": {
+  "kisa": "Karakter yaratma: gençlik geçmişi seçimi",
+  "uzun": "Yeni oyun için karakter oluşturma akışında açılan bu menü, oyuncuya genç yetişkinlik döneminde hangi yolu izlediğini sorar. Seçenekler arasında şövalye adaylığı (sadece erkek), saray hanımı (sadece kadın), ozan, üniversite öğrencisi, gezgin satıcı, demirci ve kaçak avcı gibi geçmişler bulunur. Oyuncunun seçimi $background_answer_3 değişkenine yazılır ve ardından bir sonraki karakter oluşturma menüsüne geçilir. Menüde tüm tuşlar devre dışıdır; bu yüzden oyuncunun bu adımda bir seçenek seçmesi gerekir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:1155",
+  "bilinmeyen": []
+ },
+ "menu_start_character_4": {
+  "kisa": "Karakter yaratma: maceracı olma nedenini seçme menüsü",
+  "uzun": "Bu menü karakter oluşturma sırasında açılır ve oyuncuya eski hayatını bırakıp maceracı olmaya karar vermesinin nedenini sorar. Seçenekler arasında intikam, sevilen birini kaybetme, gezinme isteği, evden zorla çıkarılma ve para/güç hırsı bulunur; ayrıca geri dönme seçeneği vardır. Bir seçim yapılınca arka plan cevabı kaydedilir, ilgili açıklama metni hazırlanır ve oyun beceri seçme menüsüne geçilir. Tüm tuşlar devre dışıdır; oyuncu yalnızca bu seçeneklerle ilerleyebilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:1290",
+  "bilinmeyen": []
+ },
+ "menu_start_game_0": {
+  "kisa": "Oyun başlangıcı: karakter yaratma öncesi tanıtım menüsü",
+  "uzun": "Oyun başında açılan tanıtım menüsüdür; oyuncuya karakter yaratmadan önce kısa bir açıklama gösterir. 'Devam' seçeneği bir sonraki başlangıç menüsüne geçer, 'Geri' seçeneği ise oyundan çıkar. Menüde tüm tuşlar devre dışı bırakılmıştır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:39",
+  "bilinmeyen": []
+ },
+ "menu_start_game_1": {
+  "kisa": "Karakter oluşturma: cinsiyet seçimi (erkek/kadın)",
+  "uzun": "Yeni oyun başlarken karakter yaratma akışında açılan bu menü, oyuncunun cinsiyetini seçmesini ister. 'Male' seçeneği oyuncu askerinin tipini 0 yapıp cinsiyet değişkenini erkek olarak ayarlar, 'Female' seçeneği tipi 1 yapıp değişkeni kadın olarak ayarlar; her iki seçenek de ardından karakter yaratmanın bir sonraki menüsüne geçer. 'Go back' seçeneği ise bir önceki başlangıç menüsüne döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:928",
+  "bilinmeyen": []
+ },
+ "menu_start_game_3": {
+  "kisa": "Özel savaş senaryosu menüsü: senaryolar kapalı, yalnızca geri dönüş var",
+  "uzun": "Bu menü, özel savaş için senaryo seçimini gösteren bir ekrandır ve açıldığında tüm tuşlar devre dışı bırakılır. Giriş kodunda senaryo değişkeni sıfırlanır; ancak gerçek senaryo seçenekleri yorum satırına alınmıştır. Bu yüzden oyuncuya etkin bir senaryo listesi sunulmaz; yalnızca geri dönüş seçeneği görünür. Geri dönüş seçildiğinde ekran kapatılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:198",
+  "bilinmeyen": []
+ },
+ "menu_start_phase_2": {
+  "kisa": "Yeni oyun: başlangıç şehri ve krallık seçimi",
+  "uzun": "Yeni oyun başlangıcında Calradia ve krallıklar anlatılır; oyuncu altı farklı başlangıç şehrine karavan ya da gemiyle katılma seçeneğinden birini seçer. Seçim, başlangıç şehrini ve yolculuk metnini belirleyip bir sonraki başlangıç menüsüne atlar. Kodda ayrıca normalde etkin olmayan bir hile seçeneği vardır; açılırsa oyuncuya tecrübe, beceri, asker ve eşya verir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:55",
+  "bilinmeyen": []
+ },
+ "menu_start_phase_2_5": {
+  "kisa": "Başlangıç: yolculuk anlatımı, tek devam seçeneği",
+  "uzun": "Başlangıç aşamasında açılan, tuşları kapatan bir anlatım menüsüdür. Yolculuk metnini gösterir ve yalnızca devam seçeneği sunar. Devam denince bir sonraki başlangıç menüsüne geçilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:14279",
+  "bilinmeyen": []
+ },
+ "menu_start_phase_3": {
+  "kisa": "Başlangıç: handa uyanış ve sokak çatışması",
+  "uzun": "Başlangıç hikâyesinde handa uyandıktan sonra sokakta bir kılıç sesi duyulduğunu anlatan menüdür. Devam denince oyuncunun morali yükseltilir, başlangıç kasabası ayarlanır ve sokak çatışması sahnesi hazırlanır. Hikâye aşaması 1 veya 3 ise metni göstermek yerine doğrudan bir sonraki başlangıç menüsüne yönlendirir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:14295",
+  "bilinmeyen": []
+ },
+ "menu_start_phase_4": {
+  "kisa": "Başlangıç: tüccarla buluşma veya kasaba çatışması",
+  "uzun": "Başlangıç hikâyesinin bir aşamasını gösteren menüdür; metin, hikâye aşamasına göre tüccar ve kasaba halkıyla ilgili olayları anlatır. Devam seçeneği, oyuncuyu kasabadaki tüccarın odasına götürüp konuşma görevi başlatabilir ya da kasaba çatışmasını hazırlayabilir. Hangi devam seçeneğinin görüneceği, o anki başlangıç hikâyesi aşamasına bağlıdır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:14338",
+  "bilinmeyen": []
+ },
+ "menu_test_scene": {
+  "kisa": "Test sahnesi menüsü: dokuz farklı test sahnesine giriş",
+  "uzun": "Test sahnesine girildiğinde gösterilen menü. Oyuncu numaralandırılmış dokuz giriş seçeneğiyle farklı test/multi sahnelerine gidebilir veya ayrılabilir. Seçeneklerin hepsi ilgili sahneye geçiş yapar.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5251",
+  "bilinmeyen": []
+ },
+ "menu_total_defeat": {
+  "kisa": "Oyuncu tamamen yenildiğinde sonuçları işleyen menü",
+  "uzun": "Oyuncunun partisi bir savaşta tamamen yenildiğinde açılır. Yenilen tarafın esir kahramanlarını serbest bırakır, savaşın siyasi sonuçlarını uygular, eşyalara el konulmasını işler ve yoldaşları esir alır. Yenilgi sayacı bir artar; bazen kalıcı hasar menüsüne geçilir, aksi halde müsabakadan çıkılıp önceki ekrana dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:4820",
+  "bilinmeyen": []
+ },
+ "menu_total_victory": {
+  "kisa": "Savaş sonrası gizli menü: esirler, müttefik teşekkürü, görev kontrolü",
+  "uzun": "Oyuncuya doğrudan gösterilmesi düşünülmeyen, iç kullanıma yönelik bir menüdür; metni bilerek anlamsız bir yer tutucudur. Bir savaş kazanıldığında devreye girer ve arka planda birçok iş yapar: haritaya kaçan askerlerden oluşan yeni bir grup ekler, haydut izleme görevini başarılı sayar, esir alınan kahramanları hapisten çıkarıp ilişkileri günceller ve bazı başarımları açar. Yanında müttefik varsa savaş sonunda müttefik lideriyle bir teşekkür konuşması başlatır; yoksa yenilen düşman liderleriyle konuşma akışına geçer. Oyuncu genelde bu menünün metnini değil, ardından açılan konuşmayı ya da bir sonraki ekranı görür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:4434",
+  "bilinmeyen": []
+ },
+ "menu_tournament_bet": {
+  "kisa": "Turnuva bahis menüsü: oran ve bahis miktarı seçimi",
+  "uzun": "Turnuvada kendine bahis koymak isteyen oyuncuya kazanma oranını ve daha önce yatırdığı parayı gösterir. Sadece oyuncunun parasının yettiği 5, 10, 20, 50 ve 100 denarlık seçenekler listelenir. Bir miktar seçilince onay menüsüne geçilir; 'Go back' turnuva menüsüne döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10292",
+  "bilinmeyen": []
+ },
+ "menu_tournament_bet_confirm": {
+  "kisa": "Bahis onayı: miktar ve kazanınca alınacak para",
+  "uzun": "Seçilen bahis miktarını ve turnuvayı kazanınca ne kadar kazanılacağını göstererek onay ister. 'Go ahead' bahsi yerleştirip turnuva menüsüne döner; 'Forget it' ise bahis menüsüne geri götürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10367",
+  "bilinmeyen": []
+ },
+ "menu_tournament_participants": {
+  "kisa": "Turnuva katılımcılarının isim listesi",
+  "uzun": "Turnuvadaki yarışmacıların adlarını bir çığırtkana sorup liste halinde gösterir. Liste açılırken katılımcılar sıralanır ve isimleri tek tek eklenir. 'Go back' turnuva menüsüne döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10394",
+  "bilinmeyen": []
+ },
+ "menu_tournament_withdraw_verify": {
+  "kisa": "Turnuvadan çekilme onayı: evet veya hayır seçimi",
+  "uzun": "Oyuncuya turnuvadan çekilmek isteyip istemediğini soran onay menüsüdür. 'Evet' seçeneği oyuncuyu turnuvanın başka biri tarafından kazanıldığı menüye götürür; 'Hayır' seçeneği turnuva menüsüne geri döndürür. Menünün kendi giriş kodu yoktur.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10277",
+  "bilinmeyen": []
+ },
+ "menu_town": {
+  "kisa": "Şehir/kale menüsü: giriş, kuşatma, ticaret ve ziyaret",
+  "uzun": "Oyuncu bir şehre veya kaleye girdiğinde açılan ana menüdür. Mevcut merkezi belirler, müzik durumunu ayarlar ve merkezle ilgili notları günceller. Kuşatma varsa savunma menüsüne yönlendirebilir; dinlenme sonrası ticaret değerlendirmesi ve görev menüleri gibi durumları işler. Oyuncu burada merkezin adını, lordun bayrağını, refah ve ilişki bilgilerini görür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8526",
+  "bilinmeyen": []
+ },
+ "menu_town_bandits_failed": {
+  "kisa": "Gece haydutları yenilgisi: para kaybı ve kurtarılma",
+  "uzun": "Şehirdeki haydutlarla mücadelede yenilince açılır. Oyuncunun parasının bir kısmı alınır ve şehirde haydut kalmaz. Metin, yoldaşlar veya kasabalılar tarafından kurtarıldığını anlatır; devam edince ekrandan çıkılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8062",
+  "bilinmeyen": []
+ },
+ "menu_town_bandits_succeeded": {
+  "kisa": "Gece haydutları zaferi: ödül ve görev tamamlama",
+  "uzun": "Şehirdeki haydutları yendikten sonra açılır. Haydutlar temizlenir, oyuncuya deneyim ve altın verilir. İlgili gece haydutları görevi bu merkezdeyse başarılı sayılır. Devam edince ekrandan çıkılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8091",
+  "bilinmeyen": []
+ },
+ "menu_town_tournament": {
+  "kisa": "Turnuva menüsü: raunt bilgisi, bahis, katılımcılar ve dövüş",
+  "uzun": "Turnuva sırasında oyuncuya kaldığı turu, kalan katılımcı sayısını ve sonraki turun takım yapısını gösterir. Giriş kodunda katılımcılar sıralanır; oyuncu elenmişse kayıp menüsüne, tek katılımcı kaldıysa kazanma menüsüne geçilir; aksi halde sonraki tur hazırlanır. Oyuncu katılımcıları görüntüleyebilir, uygun turda kendine bahis koyabilir ve sonraki rauntta dövüşmeyi seçebilir. Dövüş seçilince arena sahnesi ve misafirler ayarlanır, takımlar karıştırılır ve turnuva dövüş görevi başlatılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10075",
+  "bilinmeyen": []
+ },
+ "menu_town_tournament_lost": {
+  "kisa": "Turnuva kaybı menüsü: elenme ve olası ziyafet daveti",
+  "uzun": "Oyuncu turnuvadan elendiğinde gösterilen menüdür. Bazı koşullar sağlanırsa, örneğin itibar eşikleri ve şehirde süren bir ziyafet varsa, ek bir davet metni gösterilir. 'Devam' seçeneği, turnuvayı başka birinin kazandığını bildiren menüye geçer.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:9976",
+  "bilinmeyen": []
+ },
+ "menu_town_tournament_won": {
+  "kisa": "Turnuva zaferi menüsü: ödül, itibar, tecrübe ve altın",
+  "uzun": "Oyuncu turnuvayı kazandığında açılan menüdür. Oyuncuya 200 dinar ödül, 20 itibar, 250 tecrübe puanı ve şehirle +1 ilişki verilir; kazanılan bahis varsa ek altın da eklenir. Bazı koşullarda ziyafet daveti metni gösterilir ve 'Devam' ile şehir menüsüne dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10000",
+  "bilinmeyen": []
+ },
+ "menu_town_tournament_won_by_another": {
+  "kisa": "Turnuvayı başkası kazandı menüsü: kazananı duyurur",
+  "uzun": "Turnuvayı oyuncu yerine başka bir yarışmacı kazandığında gösterilir. Katılımcı listesi temizlenir, kazanan belirlenir ve kazanan bir kahramansa 20 itibar alır. 'Devam' seçeneği oyuncuyu şehir menüsüne döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10046",
+  "bilinmeyen": []
+ },
+ "menu_town_trade": {
+  "kisa": "Kasaba pazarı: fiyat değerlendirme ve tüccarlarla ticaret",
+  "uzun": "Kasabada pazara yönelince açılan menüdür; yerel fiyatları değerlendirme ve silah, zırh, at ile mal tüccarlarıyla ticaret yapma seçenekleri sunar. Tüccar seçenekleri yalnızca kasabada ilgili tüccar mevcutsa görünür. Fiyat değerlendirme seçeneği için kasabanın fraksiyonuyla ilişkinin negatif olmaması gerekir. Geri seçeneği kasaba menüsüne döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:11048",
+  "bilinmeyen": []
+ },
+ "menu_town_trade_assessment": {
+  "kisa": "Ticaret değerlendirme menüsü: en kârlı mal ve şehirleri hesaplar",
+  "uzun": "Partideki en yüksek ticaret becerisine sahip üyenin becerisi kullanılır. Menü, şehirlerdeki tüccar envanterlerini ve alım-satım fiyatlarını karşılaştırarak en kârlı birkaç mal-şehir fırsatını bulur. Oyuncuya bu fırsatlar metin olarak gösterilir; menü açıkken tüm tuşlar devre dışıdır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:11126",
+  "bilinmeyen": []
+ },
+ "menu_town_trade_assessment_begin": {
+  "kisa": "Ticaret fiyatlarını değerlendirme: dinlenip piyasayı inceleme",
+  "uzun": "Pazardaki ticaret mallarının fiyatlarını değerlendirmek için açılan ara menüdür; oyuncu ticaret becerisine göre daha kısa süre dinlenerek piyasa bilgisi toplar. Devam seçeneği dinlenmeyi başlatır ve süre sonunda ekran geri döner; dinlenme saldırıya uğramadan geçer. Geri seçeneği pazar menüsüne döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:11095",
+  "bilinmeyen": []
+ },
+ "menu_train_peasants_against_bandits": {
+  "kisa": "Köylü eğitimi menüsü: süre ve eğitimi başlatma",
+  "uzun": "Köylüleri savaşa hazırlama görevinde açılır. Partideki en yüksek eğitmen becerisini ve eğitimin kaç saat süreceğini hesaplayıp gösterir; kimin eğiteceğini belirtir. Oyuncu eğitimi başlatabilir ya da daha sonraya bırakıp köy menüsüne dönebilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10612",
+  "bilinmeyen": []
+ },
+ "menu_train_peasants_against_bandits_attack": {
+  "kisa": "Köylü eğitimi sırasında haydut saldırısı uyarısı ve savaş seçeneği",
+  "uzun": "Köylüleri haydutlara karşı eğitme görevi sırasında, köyden gelen bir gözcünün haydutların göründüğünü haber vermesiyle açılır. Oyuncuya haydutlara karşı hazırlanması için tek bir seçenek sunulur. Bu seçilince rastgele bir haydut türü ve eğitilen köylüler bir köy dış mekânında savaşa sokulur; ardından savaş sonucu menüsüne geçilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10719",
+  "bilinmeyen": []
+ },
+ "menu_train_peasants_against_bandits_attack_result": {
+  "kisa": "Köylü-haydut savaşı sonucu: başarı ya da köyün yağmalanması",
+  "uzun": "Köylüleri haydutlara karşı eğitme savaşının ardından sonucu gösterir. Savaş kazanıldıysa görev başarılı sayılır ve köylülerin teşekkür ettiği menüye geçilir. Kaybedilirse görev başarısız olur, köyün yağmalandığı anlatılır ve yağmalanmış köy resmi gösterilir. Devam seçeneği köyü yağmalanmış duruma getirir, yerleşimle ilişkiyi düşürür ve görevi sonlandırır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10765",
+  "bilinmeyen": []
+ },
+ "menu_train_peasants_against_bandits_ready": {
+  "kisa": "Eğitim tamam: pratik savaşını başlatma menüsü",
+  "uzun": "Köylülere temel askerlik verildikten sonra açılır. Oyuncunun seviyesine ve görevde kalan miktara göre kaç köylünün pratiğe hazır olduğunu hesaplar ve gösterir. Pratik savaşını başlatma seçeneği köyde eğitim görevini ve sonuç menüsünü devreye sokar.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10648",
+  "bilinmeyen": []
+ },
+ "menu_train_peasants_against_bandits_success": {
+  "kisa": "Köy kurtarıldı: köylüler ödül teklif ediyor, kabul et ya da reddet",
+  "uzun": "Haydutlar yenildiğinde açılır; köylüler minnettarlıklarını göstermek için ellerindeki eşyaları sunar. Oyuncu ödülü kabul ederse köyün ileri geleninin envanteri açılır, reddederse yerleşimle ilişkisi biraz daha artar ve onur kazanır. Görev sona erer, yerleşimle ilişki yükselir ve bir kayıt düşülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10799",
+  "bilinmeyen": []
+ },
+ "menu_train_peasants_against_bandits_training_result": {
+  "kisa": "Köylü eğitimi sonucu: başarı ya da yenilgi",
+  "uzun": "Köylülerle yapılan pratik savaşın ardından sonucu gösterir. Başarısızlıkta köylülerin cesaretlendiğini, başarıda ise savunma dersi anlatıldığını belirtir; başarı görev ilerlemesini eğitilen köylü sayısı kadar artırır. Devam seçeneği hedef tamamlandıysa saldırı menüsüne geçer, aksi halde haritaya döner.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:10688",
+  "bilinmeyen": []
+ },
+ "menu_training_ground": {
+  "kisa": "Talim alanı menüsü: eğitmen, yakın dövüş, okçuluk, atlı talim",
+  "uzun": "Bir talim alanına yaklaştığınızda açılır ve ne tür idman yapmak istediğinizi sorar. Eğitmenle konuşabilir, yakın dövüş, menzilli silah veya atlı talim seçebilir, hile modu açıksa test alanlarına gidebilir ya da ayrılabilirsiniz. Yakın dövüş seçeneği yalnızca yaralı değilseniz ve partinizde savaşabilecek birden fazla kişi varsa görünür. Menü açılırken üçten fazla talim yapılmışsa bir süre dinlenilir ve otomatik olarak dışarı çıkılır.",
+  "guven": "orta",
+  "kaynak": "module_game_menus.py:11579",
+  "bilinmeyen": []
+ },
+ "menu_training_ground_description": {
+  "kisa": "Eğitim alanı tanıtım ekranı: tek 'Devam' seçeneği",
+  "uzun": "Bu menü yalnızca bir metin ({s0} değişkeni) gösterir ve 'Devam...' seçeneği sunar. Devam seçilince oyuncu eğitim alanı sahnesine aktarılır ve görev (mission) ekranı açılır; yani antrenmanın fiilen başladığı yerdir. Kaynakta başka seçenek ya da giriş kodu yok.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:11845",
+  "bilinmeyen": []
+ },
+ "menu_training_ground_selection_details_melee_1": {
+  "kisa": "Talim alanı: kaç rakiple yakın dövüş yapılacağını seçme",
+  "uzun": "Antrenman alanında yakın dövüş (melee) talimine başlamadan önce açılan menü. Oyuncuya kaç rakiple karşılaşmak istediği sorulur; 'Bir' ile 'Dört' arasındaki seçenekler yalnızca partide o kadar uygun adam varsa görünür, bu sayı bir betikle hesaplanır. Seçim yapılınca rakip seçme menüsüne geçilir; 'Cancel.' ile talim alanı menüsüne dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:11650",
+  "bilinmeyen": []
+ },
+ "menu_training_ground_selection_details_melee_2": {
+  "kisa": "Talim alanı: yakın dövüş için tek tek rakip seçme",
+  "uzun": "Bir önceki menüde kaç rakiple dövüşüleceği belirlendikten sonra açılır. Başlıkta kaçıncı rakip seçildiği gösterilir ve her rakip için ayrı bir satır sunulur; satırların metni ve seçilebilirliği betiklerle üretilir. Oyuncu belirli bir rakibi seçebileceği gibi 'rastgele seç' seçeneğini de kullanabilir; 'Go back.' ile talim alanı menüsüne dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:11686",
+  "bilinmeyen": []
+ },
+ "menu_training_ground_selection_details_mounted": {
+  "kisa": "Talim alanı: atlı talim için silah türü seçme",
+  "uzun": "At üstünde yapılacak talimde hangi silahla çalışılacağını soran menü. Tek elli silah, mızrak benzeri uzun silah, yay ve fırlatma silahı seçenekleri vardır. Bir seçenek tıklanınca ilgili silah türüyle talim başlatılır; 'Go back.' ile talim alanı menüsüne dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:11744",
+  "bilinmeyen": []
+ },
+ "menu_training_ground_selection_details_ranged_1": {
+  "kisa": "Talim alanı: menzilli silah türü seçme",
+  "uzun": "Menzilli talim öncesinde hangi silahla çalışılacağını sorar: yay, arbalet veya fırlatma silahı. Seçim yapıldığında mod menzilli talim olarak ayarlanır, seçilen silah türü saklanır ve menzil (mesafe) seçme menüsüne geçilir. 'Go back.' ile talim alanı menüsüne dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:11773",
+  "bilinmeyen": []
+ },
+ "menu_training_ground_selection_details_ranged_2": {
+  "kisa": "Talim alanı: menzilli talimde atış mesafesi seçme",
+  "uzun": "Silah türü belirlendikten sonra hangi mesafeden atış yapılacağını sorar. 10, 20, 30 ve 40 yard her durumda sunulur; 50, 60 ve 70 yard seçenekleri yalnızca menzilli talim modu etkinse görünür. Seçilen mesafe ve daha önce saklanan silah türüyle talim başlatılır; 'Go back.' ile talim alanı menüsüne dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:11804",
+  "bilinmeyen": []
+ },
+ "menu_training_ground_training_result": {
+  "kisa": "Eğitim sonucu: birliklerin kazandığı tecrübe listelenir",
+  "uzun": "Bu ekran tüm tuşları devre dışı bırakır (mnf_disable_all_keys) ve seçilen birlikler ile oyuncunun kazandığı tecrübe puanlarını satır satır yazar. Puanlar; eğitimin başarı oranına, oyuncunun eğitmen (trainer) becerisine, yakın dövüş modunda olunup olunmadığına ve gruptaki kişi sayısına göre hesaplanır. Başarı oranına göre 'eğitim çok iyi/kötü gitti' benzeri bir yorum satırı eklenir; tek 'Devam...' seçeneği eğitim alanı menüsüne geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:11859",
+  "bilinmeyen": []
+ },
+ "menu_tutorial": {
+  "kisa": "Eğitim menüsü: silah talimi alanı, seçenekler kodda kapalı",
+  "uzun": "Bu menü, oyuncuya yerel halkın silah talimi yaptığı bir alana yaklaştığını ve burada savaş becerilerini geliştirebileceğini söyler. Menü açılırken daha önce girilmişse ekran kapanır; girilmemişse mnu_tutorial geçiş menüsü ayarlanır ve giriş işareti konur. Kaynakta listelenen eğitim seçenekleri yorum satırına alınmıştır, yani bu sürümde etkin değildir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:321",
+  "bilinmeyen": []
+ },
+ "menu_village": {
+  "kisa": "Köy menüsü: köy bilgisi, sahibi, ilişki ve köy olayları",
+  "uzun": "Oyuncu bir köye girdiğinde açılan ekrandır; köyün adını, refah durumunu, hangi lorda/faksiyona ait olduğunu ve oyuncuyla olan ilişki puanını gösterir. Ekran açılırken köyün durumu kontrol edilir: köy yağmalanmışsa ya da yağma sürüyorsa buna göre farklı bilgi metni ve arka plan resmi gösterilir, yağma devam ediyorsa ilgili menüye yönlendirilir. Köy haydutlar tarafından basılmışsa kaç haydut olduğu ve hangi haydut türü olduğu yazılır, buna uygun bir resim seçilir. Hile modu açıksa refah değeri ayrıca mesaj olarak ekrana basılır; menünün devamı (kısaltılan kısım) burada görünmediği için seçeneklerin tamamı hakkında yorum yapılmıyor.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:7340",
+  "bilinmeyen": []
+ },
+ "menu_village_hostile_action": {
+  "kisa": "Köy menüsü: düşmanca eylem seçenekleri",
+  "uzun": "Bir köye düşmanca davranmak istendiğinde açılan seçenek menüsüdür. Köy normal durumdaysa ve haydutlar tarafından basılmamışsa zorla erzak alma, sığır çalma ve köyü yağmalayıp yakma gibi seçenekler sunulur. Yağma seçeneği ancak köyün tarafıyla ilişki olumsuzsa görünür; ayrıca hile modu açıksa rapor gösterme seçeneği de eklenir. 'Vazgeç' seçeneği oyuncuyu köy menüsüne geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:7665",
+  "bilinmeyen": []
+ },
+ "menu_village_hunt_down_fugitive_defeated": {
+  "kisa": "Firariyle dövüşte yenilme sonrası menü",
+  "uzun": "Köyde bir firariyi yakalama sahnesinde oyuncu yenildiğinde açılır. Metin, oyuncunun ağır bir darbe aldığını, baygın kaldığını ve yaralı ama ölümcül olmayan bir halde uyandığını anlatır. Tek bir devam seçeneği vardır ve bu seçenek oyuncuyu köy menüsüne geri döndürür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:7812",
+  "bilinmeyen": []
+ },
+ "menu_village_infest_bandits_result": {
+  "kisa": "Köyü basan haydutlarla mücadele sonucu",
+  "uzun": "Köydeki haydut istilasını temizleme görevinin savaş sonucunu gösteren menüdür. Savaş kazanıldıysa doğrudan istilanın kaldırıldığı menüye geçilir. Kaybedilirse haydutların köyü yakıp yıktığı anlatılır ve köy yağmalanmış duruma getirilir. Devam edildiğinde ilgili görev başarısız sayılır, köyle ilişki düşer ve ardından köy menüsü açılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:7824",
+  "bilinmeyen": []
+ },
+ "menu_village_infestation_removed": {
+  "kisa": "Köy haydutlardan temizlendi: ganimet ve ödül seçimi",
+  "uzun": "Bir köyü basan haydutları yendikten sonra açılan bir sonuç ekranıdır; tüm tuşlar kapatıldığı için oyuncu yalnızca sunulan seçeneklerden birini seçebilir. Ekranda, köylülerin haydutlardan kurtulduğu ve minnet olarak ellerinden geleni sunduğu anlatılır. Arka planda köyün haydut kaydı sıfırlanır, oyuncuya ganimet ve deneyim verilir; ilgili görev aktifse tamamlanır ve köyle ilişki artar (görev türüne göre farklı miktarda). Oyuncu ya eşyaları 'hakkı' olarak alıp ganimet ekranına geçer ya da reddederek ek ilişki ve onur kazanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:7864",
+  "bilinmeyen": []
+ },
+ "menu_village_loot_complete": {
+  "kisa": "Köy yağması tamamlanınca ganimet ve itibar sonuçlarını gösteren menü",
+  "uzun": "Köyü yağmalama tamamlanınca açılır; oyuncuya ganimet payı olarak denar verilir ve parti morali artar. Köy, köyün lordu ve köyün devletiyle ilişkiler düşer; yoldaşlar bu davranışa itiraz edebilir. Devam edildiğinde yağma ekranına geçilir, envantere mal eklenir ve köyden sığır çalınabilir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8362",
+  "bilinmeyen": []
+ },
+ "menu_village_loot_continue": {
+  "kisa": "Köy yağmasına devam etmek isteyip istemediğini sorar",
+  "uzun": "Oyuncuya köyü yağmalamaya devam etmek isteyip istemediği sorulur. 'Evet' denirse 3 saat boyunca dinlenilir (saldırıya açık halde) ve ekrandan dönülür. 'Hayır' denirse köyün yağmalanma durumu temizlenir ve ekrandan dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8500",
+  "bilinmeyen": []
+ },
+ "menu_village_loot_defeat": {
+  "kisa": "Köy yağması başarısız olunca gösterilen yenilgi menüsü",
+  "uzun": "Köylülerin direnip oyuncunun kuvvetlerini püskürttüğü durumda açılır. Ekranda bu yenilgiyi anlatan metin ve arka plan görseli gösterilir. Tek seçenek devam edip önceki ekrana dönmektir.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8488",
+  "bilinmeyen": []
+ },
+ "menu_village_loot_no_resist": {
+  "kisa": "Köy yağmalama menüsü: direniş yok, yağmala veya bırak",
+  "uzun": "Köylülerin korkup kaçtığı, köyün savunmasız kaldığı durumda gösterilir. 'Yağmala ve yak' seçilirse köy yağmalanıyor durumuna geçer ve oyuncunun partisi kaydedilir; ardından birkaç saatlik dinlenme başlar ve ekrandan çıkılır. 'Köyü rahat bırak' seçilirse hiçbir şey yapılmadan çıkılır. Bu menüye, saldırı menüsünde oyuncunun partisi 25 kişiden büyükse ya da köylü kalmamışsa/savaş kazanılmışsa atlanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8336",
+  "bilinmeyen": []
+ },
+ "menu_village_start_attack": {
+  "kisa": "Köy saldırısı menüsü: köylüler direnir, saldır ya da vazgeç",
+  "uzun": "Köylülerin aletlerini kapıp direnmeye hazırlandığını anlatan menüdür. 'Saldır' seçilirse köy yağma savaşı başlar; köyle ve varsa lord'la ilişki düşer, savaş sonrası menüye geçilir. 'Köyü rahat bırak' seçilirse çıkılır. Bu menü, erzak alma menüsünde oyuncunun partisi küçük ve köy kalabalıksa oraya yönlendirilerek açılır; ayrıca oyuncunun partisi 25 kişiden büyükse doğrudan direnişsiz yağma menüsüne atlanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8273",
+  "bilinmeyen": []
+ },
+ "menu_village_steal_cattle": {
+  "kisa": "Köyden sığır çalma sonucu: başarı/başarısızlık ve itibar",
+  "uzun": "Sığır çalma denemesinin sonucunu gösterir. Rastgele sayıya göre hiç sığır alınamaz ya da bir miktar sığır sürüsü oluşturulup köyün sığır sayısı azalır. Başarıda köyle ve varsa köyün lorduyla ilişki düşer; başarısızlıkta da köyle ilişki düşer. Devam edince ekrandan çıkılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8147",
+  "bilinmeyen": []
+ },
+ "menu_village_steal_cattle_confirm": {
+  "kisa": "Köyden sığır çalma onayı: ganimet becerisi ve miktar",
+  "uzun": "Köyden sığır çalmadan önce açılır. Partideki en yüksek ganimet becerisi ve çalınabilecek yaklaşık sığır sayısı gösterilir. Onaylanınca saldırıya açık şekilde saatler geçirilir ve çalma menüsüne geçilir; vazgeçilirse çıkılır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8118",
+  "bilinmeyen": []
+ },
+ "menu_village_take_food": {
+  "kisa": "Köy menüsü: köylülerden erzak al veya bırak",
+  "uzun": "Köylülerin isteksizce erzak getirdiği bir menüdür. 'Erzağı al' seçilirse köyle ve varsa köy lord'uyla ilişki düşer; yağma becerisi arttıkça köyün eşyalarından daha fazlası ganimet olarak alınır ve ganimet ekranı açılır. 'Bırak' seçilirse köy menüsüne dönülür. Bu kayıtta menünün hangi seçenekle açıldığı gösterilmiyor; ancak başlangıç kodunda oyuncunun partisi çok küçük ve köy kalabalıksa köylülerin direniş menüsüne yönlendirildiği görülüyor.",
+  "guven": "orta",
+  "kaynak": "module_game_menus.py:8212",
+  "bilinmeyen": []
+ },
+ "menu_village_take_food_confirm": {
+  "kisa": "Köyden zorla erzak alma onayı: bir saat",
+  "uzun": "Köylülerden zorla erzak almadan önce açılır. Metin bunun en az bir saat süreceğini söyler. Onaylanınca bir saat geçirilir ve erzak alma menüsüne yönlendirilir; vazgeçilirse düşmanca eylem menüsüne dönülür.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:8193",
+  "bilinmeyen": []
+ },
+ "menu_zendar": {
+  "kisa": "Zendar kasabası menüsü: şehir merkezi, taverna, tüccar, arena ve ayrılma",
+  "uzun": "Zendar kasabasına girildiğinde otomatik açılan menü. Oyuncu kasaba merkezine, tavernaya, tüccara veya arenaya giden kapılardan birini seçebilir ya da kasabadan ayrılabilir. Menü açılırken fiyat oranları sıfırlanır ve bazı eşyalar için fiyat oranı ayarlanır.",
+  "guven": "yuksek",
+  "kaynak": "module_game_menus.py:5209",
+  "bilinmeyen": []
+ }
+}

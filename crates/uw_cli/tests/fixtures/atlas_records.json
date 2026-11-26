@@ -1,0 +1,17 @@
+{
+      "schema": 1, "kit_hash": "records",
+      "ops": [], "hooks": [], "ranges": [],
+      "tables": {
+        "factions": {"module":"module_factions","var":"factions","id_file":"ID_factions","id_prefix":"fac_","ref_tag":"fac",
+          "entries": [
+            {"index":0,"name":"no_faction","id":"fac_no_faction","dup":null,"line":26,
+              "value":[-7,0.5,"He said \"hi\"",{"list":[1,2]}]},
+            {"index":1,"name":"forest_bandits","id":"fac_forest_bandits","dup":null,"line":30,
+              "value":[0,1.5,"plain",{"list":[]}]}
+          ]},
+        "parties": {"module":"module_parties","var":"parties","id_file":"ID_parties","id_prefix":"p_","ref_tag":"p",
+          "entries": [
+            {"index":0,"name":"main_party","id":"p_main_party","dup":null,"line":1,"value":[]}
+          ]}
+      }
+    }

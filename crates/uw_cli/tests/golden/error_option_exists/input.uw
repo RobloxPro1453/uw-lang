@@ -1,0 +1,8 @@
+// Grammar 2, guide 3.7: a new option may not reuse an option the Native menu already has (E0206).
+mod golden_bad_option
+
+override menu_start_phase_2 {
+    option town_1 "This option already exists." {
+        display_message("@UW: never shown.")
+    }
+}

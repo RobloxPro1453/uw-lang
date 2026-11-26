@@ -1,0 +1,129 @@
+# Party records: the fields the kit explains are typed (refs, the packed flag word, the packed
+# personality and the AI behaviour); every other field is still the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_parties.py
+# (`source` points at it); §2.
+table = "parties"
+kind = "party"
+id_prefix = "p_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_parties.py:10"
+
+[[fields]]
+name = "name"
+ty = "raw"
+source = "module_parties.py:12"
+
+# Bits 0-7 are the map icon index (`pf_icon_mask`, header_parties.py:13), whose `icon_*` ids are
+# the map_icons table (ID_map_icons.py:13); bits 8-26 are the `pf_*` flags (header_parties.py:14-32).
+# `pf_carry_goods_bits`/`pf_carry_gold_bits` are the packed numbers.
+[[fields]]
+name = "party_flags"
+ty = "bits"
+source = "module_parties.py:13"
+
+[[fields.parts]]
+name = "icon"
+shift = 0
+width = 8
+ty = "ref:map_icons"
+source = "header_parties.py:13"
+
+[[fields.parts]]
+name = "flags"
+shift = 8
+width = 19
+ty = "flags:pf_"
+source = "header_parties.py:14"
+
+[[fields.parts]]
+name = "carry_goods"
+shift = 48
+width = 8
+source = "header_parties.py:35"
+
+[[fields.parts]]
+name = "carry_gold"
+shift = 56
+width = 8
+source = "header_parties.py:36"
+
+# A value of 0 is `no_menu` (module_parties.py:28), the default party encounter system
+# (module_parties.py:14), not menu 0 (`menu_start_game_0`, ID_menus.py:1).
+[[fields]]
+name = "menu"
+ty = "ref:menus"
+none = 0
+source = "module_parties.py:14"
+
+[[fields]]
+name = "party_template"
+ty = "ref:party_templates"
+source = "module_parties.py:15"
+
+[[fields]]
+name = "faction"
+ty = "ref:factions"
+source = "module_parties.py:16"
+
+# The three packed personality numbers: courage is bits 0-3 (header_parties.py:73-84),
+# aggressiveness bits 4-7 (header_parties.py:86-101) and banditness bit 8 (header_parties.py:103).
+# `courage_4`..`courage_15` are defined a second time in header_troops.py, so the atlas holds each
+# twice and a `flags` enum group cannot name them uniquely; the packed parts stay readable and exact.
+[[fields]]
+name = "personality"
+ty = "bits"
+source = "module_parties.py:17"
+
+[[fields.parts]]
+name = "courage"
+shift = 0
+width = 4
+source = "header_parties.py:73"
+
+[[fields.parts]]
+name = "aggressiveness"
+shift = 4
+width = 4
+source = "header_parties.py:86"
+
+[[fields.parts]]
+name = "banditness"
+shift = 8
+width = 1
+source = "header_parties.py:103"
+
+# The kit names every AI behaviour 0-11 (header_parties.py:52-64); 0 is ai_bhvr_hold.
+[[fields]]
+name = "ai_behavior"
+ty = "flags:ai_bhvr_"
+source = "module_parties.py:18"
+enums = [{ mask = 0xFF, prefix = "ai_bhvr_" }]
+zero = "ai_bhvr_hold"
+
+# The target is a party id (process_parties.py:34-42); the kit writes 0 for "no target"
+# (module_parties.py:19), though party 0 is the real p_main_party.
+[[fields]]
+name = "ai_target"
+ty = "ref:parties"
+none = 0
+source = "module_parties.py:19"
+
+[[fields]]
+name = "initial_coordinates"
+ty = "raw"
+source = "module_parties.py:20"
+
+# A stack is a tuple of (troop, count, member flags); the records core has no tuple element type.
+[[fields]]
+name = "stacks"
+ty = "raw"
+source = "module_parties.py:21"
+
+[[fields]]
+name = "direction"
+ty = "raw"
+optional = true
+source = "module_parties.py:25"

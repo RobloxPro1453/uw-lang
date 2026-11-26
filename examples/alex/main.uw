@@ -1,0 +1,51 @@
+// main.uw — the whole game (core language, docs/dil/CORE-v0.md).
+// Alex starts in Praven's streets: no character creation, no prologue. Every engine word is the kit's own:
+// things by their kit name (troop.player, party.town_6 = Praven, scene.town_6_center = Praven's streets,
+// item.linen_tunic, skill.athletics), constants by their easy name (ca.strength) and the kit's operations.
+
+const FACE = "0x00000004bf086143259d061a9046e23500000000001db52c0000000000000000"  // a face code from the kit (Borcha's)
+
+var walked_in = 0   // 1 once the game has jumped into Praven
+
+on game.start {
+    // What character creation would have given: Alex's own choice of stats, skills, money and gear.
+    troop.player.raise_attribute(ca.strength, 3)
+    troop.player.raise_attribute(ca.agility, 3)
+    troop.player.raise_attribute(ca.intelligence, 1)
+    troop.player.raise_attribute(ca.charisma, 2)
+    troop.player.raise_skill(skill.athletics, 2)
+    troop.player.raise_skill(skill.power_strike, 1)
+    troop.player.raise_skill(skill.riding, 1)
+    troop.player.raise_skill(skill.leadership, 1)
+    troop.player.add_gold(300)
+    troop.player.add_item(item.linen_tunic)
+    troop.player.add_item(item.wrapping_boots)
+    troop.player.add_item(item.sword_medieval_a)
+    troop.player.add_item(item.smoked_fish)
+    troop.player.equip_items()
+
+    party.main_party.relocate_near_party(party.town_6, 1)   // on the map, Alex stands next to Praven
+}
+
+// The engine opens start_game_0 right after `game.start`. Native's questions are skipped by returning at once;
+// the engine itself then shows its character window and face editor (no kit operation skips those:
+// docs/bilgi/baslangic-akisi.md) and opens start_phase_2 ...
+on menu.start_game_0.enter {
+    screen.return()
+}
+
+// ... where Alex gets the fixed name and face (after the editor, so they win) and walks into Praven's streets;
+// when Alex leaves the town, this menu opens again: go to the map.
+on menu.start_phase_2.enter {
+    if walked_in == 0 {
+        walked_in = 1
+        troop.player.name = "Alex"
+        troop.player.face_keys = FACE
+        party.main_party.name = "Alex"   // the name the map shows over Alex's party
+        mission.jump = mission_template.town_center
+        scene.town_6_center.jump(0)
+        screen.mission()
+    } else {
+        screen.map()
+    }
+}

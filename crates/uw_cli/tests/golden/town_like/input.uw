@@ -1,0 +1,8 @@
+// T-099: a new town is a copy of a Native party with some fields changed, added at the end of the
+// party list, so Native's own parties keep their numbers. `like` takes the game name (`praven`).
+town riverhold like praven {
+    name "Riverhold"
+    initial_coordinates (35, -12)
+}
+
+// covers: parties.like

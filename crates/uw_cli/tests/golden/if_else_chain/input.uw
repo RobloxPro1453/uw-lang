@@ -1,0 +1,18 @@
+// Grammar 2, guide 3.6: `if / else if / else` becomes `try_begin / else_try / try_end`, and only
+// the block of the first condition that holds runs.
+mod golden_if
+
+on game.start {
+    $g_gold = 250
+    if $g_gold >= 1000 {
+        display_message("@UW: that is a lot of gold.")
+    } else if $g_gold > 0 and party_is_active(p_main_party) {
+        display_message("@UW: some gold, and the party is still out there.")
+    } else {
+        display_message("@UW: broke.")
+    }
+}
+
+// covers: scripts.hook
+// covers: op.party_is_active
+// covers: op.display_message

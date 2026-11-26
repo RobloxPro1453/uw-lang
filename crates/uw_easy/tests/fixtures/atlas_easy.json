@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "kit_hash": "easy-fixture",
+  "ops": [],
+  "hooks": [],
+  "ranges": [],
+  "constants": [
+    {"name": "key_escape", "value": 1, "module": "header_triggers", "line": 208},
+    {"name": "key_1", "value": 2, "module": "header_triggers", "line": 132},
+    {"name": "key_left_alt", "value": 56, "module": "header_triggers", "line": 228},
+    {"name": "prsntf_read_only", "value": 1, "module": "header_presentations", "line": 19},
+    {"name": "prsntf_manual_end_only", "value": 2, "module": "header_presentations", "line": 20},
+    {"name": "tf_hero", "value": 16, "module": "header_troops", "line": 14},
+    {"name": "tf_male", "value": 0, "module": "header_troops", "line": 10},
+    {"name": "tf_left_align", "value": 4, "module": "header_presentations", "line": 9},
+    {"name": "tf_center_justify", "value": 16, "module": "header_presentations", "line": 11},
+    {"name": "itp_type_horse", "value": 1, "module": "header_items", "line": 13},
+    {"name": "itp_type_arrows", "value": 5, "module": "header_items", "line": 17},
+    {"name": "itp_type_bow", "value": 8, "module": "header_items", "line": 20},
+    {"name": "imodbit_plain", "value": 1, "module": "header_item_modifiers", "line": 46},
+    {"name": "knows_riding_3", "value": 237684487542793012780631851008, "module": "header_skills", "line": 294},
+    {"name": "str_3", "value": 85070591730234615865843651857942052867, "module": "header_troops", "line": 90},
+    {"name": "logent_village_raided", "value": 1, "module": "module_constants", "line": 1169},
+    {"name": "slot_town_lord", "value": 7, "module": "module_constants", "line": 237},
+    {"name": "slot_party_ignore_player_until", "value": 9, "module": "module_constants", "line": 1116},
+    {"name": "slot_party_template_lair_type", "value": 3, "module": "module_constants", "line": 1111},
+    {"name": "slot_party_template_lair_party", "value": 4, "module": "module_constants", "line": 1112},
+    {"name": "slot_faction_quick_battle_tier_1_infantry", "value": 41, "module": "module_constants", "line": null},
+    {"name": "slot_faction_tier_1_troop", "value": 41, "module": "module_constants", "line": null}
+  ],
+  "tables": {}
+}

@@ -1,0 +1,12 @@
+# Build output
+target/
+
+# TaleWorlds Module System kit (obtained separately, never committed)
+Module_system 1.171/
+
+
+# Generated or local files
+flow.json
+flow_*.json
+akis.html
+*.vsix

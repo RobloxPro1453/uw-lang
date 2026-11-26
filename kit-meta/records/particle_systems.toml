@@ -1,0 +1,131 @@
+# Particle system records: `particle_system_flags` decodes with the `psf_` constants of
+# header_particle_systems.py; the other fields are the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_particle_systems.py
+# (`source` points at it); §2.
+table = "particle_systems"
+kind = "particle_system"
+id_prefix = "psys_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_particle_systems.py:15"
+
+[[fields]]
+name = "particle_system_flags"
+ty = "flags:psf_"
+source = "module_particle_systems.py:17"
+
+[[fields]]
+name = "mesh_name"
+ty = "raw"
+source = "module_particle_systems.py:18"
+
+# The kit spells this "Num particles per second" (module_particle_systems.py:20).
+[[fields]]
+name = "number_particles_per_second"
+ty = "raw"
+source = "module_particle_systems.py:20"
+
+[[fields]]
+name = "particle_life"
+ty = "raw"
+source = "module_particle_systems.py:21"
+
+[[fields]]
+name = "damping"
+ty = "raw"
+source = "module_particle_systems.py:22"
+
+[[fields]]
+name = "gravity_strength"
+ty = "raw"
+source = "module_particle_systems.py:23"
+
+[[fields]]
+name = "turbulance_size"
+ty = "raw"
+source = "module_particle_systems.py:24"
+
+[[fields]]
+name = "turbulance_strength"
+ty = "raw"
+source = "module_particle_systems.py:25"
+
+[[fields]]
+name = "alpha_key_1"
+ty = "raw"
+source = "module_particle_systems.py:27"
+
+[[fields]]
+name = "alpha_key_2"
+ty = "raw"
+source = "module_particle_systems.py:27"
+
+[[fields]]
+name = "red_key_1"
+ty = "raw"
+source = "module_particle_systems.py:28"
+
+[[fields]]
+name = "red_key_2"
+ty = "raw"
+source = "module_particle_systems.py:28"
+
+[[fields]]
+name = "green_key_1"
+ty = "raw"
+source = "module_particle_systems.py:29"
+
+[[fields]]
+name = "green_key_2"
+ty = "raw"
+source = "module_particle_systems.py:29"
+
+[[fields]]
+name = "blue_key_1"
+ty = "raw"
+source = "module_particle_systems.py:30"
+
+[[fields]]
+name = "blue_key_2"
+ty = "raw"
+source = "module_particle_systems.py:30"
+
+[[fields]]
+name = "scale_key_1"
+ty = "raw"
+source = "module_particle_systems.py:31"
+
+[[fields]]
+name = "scale_key_2"
+ty = "raw"
+source = "module_particle_systems.py:31"
+
+[[fields]]
+name = "emit_box_size"
+ty = "raw"
+source = "module_particle_systems.py:36"
+
+[[fields]]
+name = "emit_velocity"
+ty = "raw"
+source = "module_particle_systems.py:37"
+
+# The kit spells this "Emit dir randomness" (module_particle_systems.py:38).
+[[fields]]
+name = "emit_direction_randomness"
+ty = "raw"
+source = "module_particle_systems.py:38"
+
+[[fields]]
+name = "particle_rotation_speed"
+ty = "raw"
+optional = true
+source = "module_particle_systems.py:39"
+
+[[fields]]
+name = "particle_rotation_damping"
+ty = "raw"
+optional = true
+source = "module_particle_systems.py:40"

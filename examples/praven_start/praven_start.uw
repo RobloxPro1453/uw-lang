@@ -1,0 +1,12 @@
+// praven_start: character creation as in Native, then no prologue:
+// the game starts on the map next to Praven.
+// Why menu start_phase_2: the engine opens it after character creation
+// (D4, docs/bilgi/baslangic-akisi.md).
+mod praven_start
+
+override menu start_phase_2 {
+    on enter {
+        party_relocate_near_party(p_main_party, p_town_6, 1)
+        change_screen_map()
+    }
+}

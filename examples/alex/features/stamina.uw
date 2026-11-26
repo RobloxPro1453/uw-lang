@@ -1,0 +1,15 @@
+// features/stamina.uw — a resource with a bar; knows nothing about sprinting
+var agent.stamina = 100 in 0..100
+
+while in mission {
+    player.agent.stamina += 15 per second
+}
+
+ui.bar stamina_bar {
+    value      = player.agent.stamina
+    max        = 100
+    position   = bottom_left
+    size       = (220, 14)
+    color      = #3FA34D
+    label      = "Stamina"
+}

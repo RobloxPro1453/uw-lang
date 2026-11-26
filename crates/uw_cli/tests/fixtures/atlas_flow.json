@@ -1,0 +1,36 @@
+{
+  "schema": 1, "kit_hash": "flow",
+  "ops": [
+    {"name":"call_script","code":1,"line":10,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+    {"name":"eq","code":31,"line":11,"signature":"","lhs":false,"can_fail":true,"global_lhs":false},
+    {"name":"jump_to_menu","code":2060,"line":30,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+    {"name":"change_screen_map","code":2052,"line":31,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+    {"name":"neg","code":2147483648,"line":1,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+    {"name":"this_or_next","code":1073741824,"line":2,"signature":"","lhs":false,"can_fail":false,"global_lhs":false}
+  ],
+  "hooks": [],
+  "constants": [
+    {"name":"op_num_value_bits","value":56,"module":"header_common","line":1},
+    {"name":"tag_register","value":1,"module":"header_common","line":2}
+  ],
+  "ranges": [],
+  "tables": {
+    "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","ref_tag":"mnu",
+      "entries": [
+        {"index":0,"name":"start","id":"menu_start","dup":null,"line":10,"value":["start",0,"Start here^{s10}","none",{"list":[]},{"list":[
+          ["go",{"list":[]},"Go",{"list":[[2060,"mnu_town"]]}],
+          ["cheat",{"list":[[31,1,0]]},"Cheat",{"list":[[1,"script_give",72057594037927939],[2060,"mnu_town"]]}],
+          ["go",{"list":[]},"Go again",{"list":[[2060,"mnu_town"]]}]
+        ]}]},
+        {"index":1,"name":"town","id":"menu_town","dup":null,"line":20,"value":["town",0,"A town","none",{"list":[[2052]]},{"list":[
+          ["back",{"list":[]},"Back",{"list":[[2060,"mnu_start"]]}],
+          ["broken"]
+        ]}]},
+        {"index":2,"name":"start_phase_2","id":"menu_start_phase_2","dup":null,"line":30,"value":["start_phase_2",0,"","none",{"list":[[2060,"mnu_nowhere"]]},{"list":[]}]}
+      ]},
+    "scripts": {"module":"module_scripts","var":"scripts","id_file":"ID_scripts","id_prefix":"script_","ref_tag":"script",
+      "entries": [
+        {"index":0,"name":"give","id":"script_give","dup":null,"line":5,"value":["give",{"list":[]}]}
+      ]}
+  }
+}

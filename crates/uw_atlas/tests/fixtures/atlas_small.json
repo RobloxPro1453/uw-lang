@@ -1,0 +1,853 @@
+{
+ "schema": 1,
+ "kit_hash": "fixture",
+ "ops": [
+  {
+   "can_fail": false,
+   "code": 1,
+   "global_lhs": false,
+   "lhs": false,
+   "line": 14,
+   "name": "call_script",
+   "signature": "(call_script,<script_id>),"
+  },
+  {
+   "can_fail": false,
+   "code": 3,
+   "global_lhs": false,
+   "lhs": false,
+   "line": 15,
+   "name": "end_try",
+   "signature": "deprecated, use try_end instead"
+  },
+  {
+   "can_fail": false,
+   "code": 3,
+   "global_lhs": false,
+   "lhs": false,
+   "line": 16,
+   "name": "try_end",
+   "signature": "(try_end),"
+  },
+  {
+   "can_fail": false,
+   "code": 4,
+   "global_lhs": false,
+   "lhs": false,
+   "line": 17,
+   "name": "try_begin",
+   "signature": "(try_begin),"
+  },
+  {
+   "can_fail": true,
+   "code": 31,
+   "global_lhs": false,
+   "lhs": false,
+   "line": 41,
+   "name": "eq",
+   "signature": "equal to\t\t      -- (eq,<value>,<value>),"
+  },
+  {
+   "can_fail": false,
+   "code": 1623,
+   "global_lhs": false,
+   "lhs": false,
+   "line": 667,
+   "name": "party_relocate_near_party",
+   "signature": "(party_relocate_near_party,<party_id>,<target_party_id>,<value_spawn_radius>),"
+  },
+  {
+   "can_fail": false,
+   "code": 2120,
+   "global_lhs": false,
+   "lhs": true,
+   "line": 1168,
+   "name": "store_add",
+   "signature": "dest, op1, op2 :      dest = op1 + op2"
+  },
+  {
+   "can_fail": false,
+   "code": 2133,
+   "global_lhs": false,
+   "lhs": true,
+   "line": 1191,
+   "name": "assign",
+   "signature": "had to put this here so that it can be called from conditions."
+  }
+ ],
+ "hooks": [
+  "game_start",
+  "game_get_use_string",
+  "game_quick_start"
+ ],
+ "ranges": [
+  {
+   "line": 33,
+   "name": "slot_item_positions_begin",
+   "value": 23
+  },
+  {
+   "line": 36,
+   "name": "slot_item_multiplayer_faction_price_multipliers_begin",
+   "value": 30
+  }
+ ],
+ "tables": {
+  "parties": {
+   "entries": [
+    {
+     "dup": null,
+     "id": "p_main_party",
+     "index": 0,
+     "line": 44,
+     "name": "main_party",
+     "value": [
+      "main_party",
+      "Main Party",
+      1048576,
+      0,
+      0,
+      13,
+      0,
+      0,
+      0,
+      [
+       17,
+       52.5
+      ],
+      {
+       "list": [
+        [
+         0,
+         1,
+         0
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "dup": null,
+     "id": "p_temp_party",
+     "index": 1,
+     "line": 45,
+     "name": "temp_party",
+     "value": [
+      "temp_party",
+      "{!}temp_party",
+      256,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      [
+       0,
+       0
+      ],
+      {
+       "list": []
+      }
+     ]
+    },
+    {
+     "dup": null,
+     "id": "p_town_6",
+     "index": 26,
+     "line": 82,
+     "name": "town_6",
+     "value": [
+      "town_6",
+      "Praven",
+      4219916,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0,
+      [
+       -96,
+       26.4
+      ],
+      {
+       "list": []
+      },
+      155
+     ]
+    }
+   ],
+   "id_file": "ID_parties",
+   "id_prefix": "p_",
+   "module": "module_parties",
+   "var": "parties"
+  },
+  "items": {
+   "entries": [
+    {
+     "dup": null,
+     "id": "itm_no_item",
+     "index": 0,
+     "line": 52,
+     "name": "no_item",
+     "value": {
+      "list": [
+       "no_item",
+       "INVALID ITEM",
+       {
+        "list": [
+         [
+          "invalid_item",
+          0
+         ]
+        ]
+       },
+       12582914,
+       9223388529554358287,
+       3,
+       124626215085671927699734528,
+       0
+      ]
+     }
+    },
+    {
+     "dup": 1,
+     "id": null,
+     "index": 1,
+     "line": 54,
+     "name": "tutorial_spear",
+     "value": {
+      "list": [
+       "tutorial_spear",
+       "Spear",
+       {
+        "list": [
+         [
+          "spear",
+          0
+         ]
+        ]
+       },
+       138674180,
+       4222124851986688,
+       0,
+       96900916098657452147343360,
+       8202
+      ]
+     }
+    },
+    {
+     "dup": 2,
+     "id": "itm_tutorial_spear",
+     "index": 130,
+     "line": 237,
+     "name": "tutorial_spear",
+     "value": {
+      "list": [
+       "tutorial_spear",
+       "Spear",
+       {
+        "list": [
+         [
+          "spear",
+          0
+         ]
+        ]
+       },
+       138674180,
+       4222124851986688,
+       0,
+       96900916098657452147343360,
+       8202
+      ]
+     }
+    }
+   ],
+   "id_file": "ID_items",
+   "id_prefix": "itm_",
+   "module": "module_items",
+   "var": "items"
+  },
+  "dialogs": {
+   "entries": [
+    {
+     "dup": null,
+     "id": null,
+     "index": 0,
+     "line": null,
+     "name": null,
+     "value": {
+      "list": [
+       4095,
+       "start",
+       {
+        "list": [
+         [
+          2200,
+          "$g_talk_troop"
+         ],
+         [
+          2199,
+          "$g_talk_agent"
+         ],
+         [
+          2173,
+          "$g_talk_troop_faction",
+          "$g_talk_troop"
+         ],
+         [
+          1,
+          "script_troop_get_player_relation",
+          "$g_talk_troop"
+         ],
+         [
+          2133,
+          "$g_talk_troop_relation",
+          72057594037927936
+         ],
+         [
+          2170,
+          ":persuasion",
+          "skl_persuasion",
+          "trp_player"
+         ],
+         [
+          2133,
+          "$g_talk_troop_effective_relation",
+          "$g_talk_troop_relation"
+         ],
+         [
+          2105,
+          "$g_talk_troop_effective_relation",
+          ":persuasion"
+         ],
+         4,
+         [
+          32,
+          "$g_talk_troop_effective_relation",
+          0
+         ],
+         [
+          2120,
+          ":persuasion_modifier",
+          10,
+          ":persuasion"
+         ],
+         [
+          2107,
+          "$g_talk_troop_effective_relation",
+          ":persuasion_modifier"
+         ],
+         [
+          2108,
+          "$g_talk_troop_effective_relation",
+          10
+         ],
+         5,
+         [
+          2147483678,
+          "$g_talk_troop_effective_relation",
+          0
+         ],
+         [
+          2121,
+          ":persuasion_modifier",
+          20,
+          ":persuasion"
+         ],
+         [
+          2107,
+          "$g_talk_troop_effective_relation",
+          ":persuasion_modifier"
+         ],
+         [
+          2108,
+          "$g_talk_troop_effective_relation",
+          20
+         ],
+         3,
+         [
+          2112,
+          "$g_talk_troop_effective_relation",
+          -100,
+          101
+         ],
+         4,
+         [
+          31,
+          "$cheat_mode",
+          1
+         ],
+         [
+          2133,
+          72057594037927939,
+          "$g_talk_troop_effective_relation"
+         ],
+         [
+          1106,
+          "str_test_effective_relation_=_reg3"
+         ],
+         3,
+         4,
+         [
+          1073741857,
+          "$g_talk_troop",
+          "trp_village_1_elder",
+          "trp_merchants_end"
+         ],
+         [
+          33,
+          "$g_talk_troop",
+          "trp_town_1_mayor",
+          "trp_village_1_elder"
+         ],
+         [
+          521,
+          "$g_talk_troop_relation",
+          "$current_town",
+          26
+         ],
+         3,
+         [
+          2190,
+          "$g_talk_troop_faction_relation",
+          "$g_talk_troop_faction",
+          "fac_player_faction"
+         ],
+         [
+          2133,
+          "$g_talk_troop_party",
+          "$g_encountered_party"
+         ],
+         4,
+         [
+          560,
+          "$g_talk_troop",
+          10,
+          1
+         ],
+         [
+          520,
+          "$g_talk_troop_party",
+          "$g_talk_troop",
+          10
+         ],
+         3,
+         [
+          2270,
+          "$g_current_hours"
+         ],
+         [
+          520,
+          "$g_talk_troop_last_talk_time",
+          "$g_talk_troop",
+          4
+         ],
+         [
+          500,
+          "$g_talk_troop",
+          4,
+          "$g_current_hours"
+         ],
+         [
+          2121,
+          "$g_time_since_last_talk",
+          "$g_current_hours",
+          "$g_talk_troop_last_talk_time"
+         ],
+         [
+          520,
+          "$g_talk_troop_met",
+          "$g_talk_troop",
+          5
+         ],
+         [
+          2110,
+          "$g_talk_troop_met",
+          1
+         ],
+         4,
+         [
+          540,
+          "$g_talk_troop",
+          5,
+          0
+         ],
+         [
+          500,
+          "$g_talk_troop",
+          5,
+          1
+         ],
+         4,
+         [
+          33,
+          "$g_talk_troop",
+          "trp_knight_1_1_wife",
+          "trp_heroes_end"
+         ],
+         3,
+         3,
+         4,
+         [
+          1,
+          "script_party_calculate_strength",
+          "p_collective_enemy",
+          0
+         ],
+         [
+          2133,
+          "$g_enemy_strength",
+          72057594037927936
+         ],
+         [
+          1,
+          "script_party_calculate_strength",
+          "p_main_party",
+          0
+         ],
+         [
+          2133,
+          "$g_ally_strength",
+          72057594037927936
+         ],
+         [
+          2122,
+          "$g_strength_ratio",
+          "$g_ally_strength",
+          100
+         ],
+         [
+          2133,
+          ":enemy_strength",
+          "$g_enemy_strength"
+         ],
+         [
+          2111,
+          ":enemy_strength",
+          1
+         ],
+         [
+          2108,
+          "$g_strength_ratio",
+          ":enemy_strength"
+         ],
+         3,
+         [
+          2133,
+          "$g_comment_found",
+          0
+         ],
+         [
+          2133,
+          "$g_comment_has_rejoinder",
+          0
+         ],
+         [
+          2133,
+          "$g_romantic_comment_made",
+          0
+         ],
+         [
+          2133,
+          "$skip_lord_assumes_argument",
+          0
+         ],
+         [
+          2133,
+          "$bypass_female_vassal_explanation",
+          0
+         ],
+         [
+          2133,
+          "$g_done_wedding_comment",
+          0
+         ],
+         4,
+         [
+          1507,
+          "$g_talk_troop"
+         ],
+         [
+          2020,
+          1
+         ],
+         [
+          1,
+          "script_setup_talk_info"
+         ],
+         3,
+         [
+          2133,
+          "$g_last_comment_copied_to_s42",
+          0
+         ],
+         4,
+         [
+          540,
+          "$g_talk_troop",
+          2,
+          2
+         ],
+         [
+          1,
+          "script_get_relevant_comment_to_s42"
+         ],
+         [
+          2133,
+          "$g_comment_found",
+          72057594037927936
+         ],
+         3,
+         [
+          1506,
+          72057594037928001,
+          "$g_talk_troop"
+         ],
+         4,
+         [
+          542,
+          "$g_talk_troop_faction",
+          11,
+          "$g_talk_troop"
+         ],
+         [
+          2320,
+          64,
+          "@{reg65?my Lady:my Lord}"
+         ],
+         [
+          2320,
+          65,
+          "@{reg65?my Lady:my Lord}"
+         ],
+         [
+          2320,
+          66,
+          "@{reg65?My Lady:My Lord}"
+         ],
+         [
+          2320,
+          67,
+          "@{reg65?My Lady:My Lord}"
+         ],
+         5,
+         [
+          2320,
+          64,
+          "@{reg65?madame:sir}"
+         ],
+         [
+          2320,
+          65,
+          "@{reg65?madame:sir}"
+         ],
+         [
+          2320,
+          66,
+          "@{reg65?Madame:Sir}"
+         ],
+         [
+          2320,
+          67,
+          "@{reg65?Madame:Sir}"
+         ],
+         3,
+         4,
+         [
+          32,
+          "$cheat_mode",
+          0
+         ],
+         [
+          2133,
+          72057594037927940,
+          "$talk_context"
+         ],
+         [
+          1106,
+          "@{!}DEBUG -- Talk context: {reg4}"
+         ],
+         3,
+         4,
+         [
+          32,
+          "$cheat_mode",
+          0
+         ],
+         [
+          2133,
+          72057594037927940,
+          "$g_time_since_last_talk"
+         ],
+         [
+          1106,
+          "@{!}DEBUG -- Time since last talk: {reg4}"
+         ],
+         3,
+         4,
+         [
+          31,
+          "$cheat_mode",
+          0
+         ],
+         [
+          2240,
+          ":quest"
+         ],
+         [
+          30,
+          ":quest",
+          0
+         ],
+         [
+          2336,
+          4,
+          ":quest"
+         ],
+         3,
+         [
+          31,
+          1,
+          0
+         ]
+        ]
+       },
+       "{!}Warning: This line is never displayed. It is just for storing conversation variables.",
+       "close_window",
+       {
+        "list": []
+       }
+      ]
+     }
+    },
+    {
+     "dup": null,
+     "id": null,
+     "index": 1,
+     "line": null,
+     "name": null,
+     "value": {
+      "list": [
+       4095,
+       "member_chat",
+       {
+        "list": [
+         [
+          2200,
+          "$g_talk_troop"
+         ],
+         4,
+         [
+          33,
+          "$g_talk_troop",
+          "trp_npc1",
+          "trp_kingdom_1_lord"
+         ],
+         [
+          2020,
+          1
+         ],
+         [
+          1,
+          "script_setup_talk_info_companions"
+         ],
+         5,
+         [
+          33,
+          "$g_talk_troop",
+          "trp_kingdom_1_pretender",
+          "trp_knight_1_1_wife"
+         ],
+         [
+          2020,
+          1
+         ],
+         [
+          1,
+          "script_setup_talk_info"
+         ],
+         3,
+         [
+          1506,
+          72057594037928001,
+          "$g_talk_troop"
+         ],
+         [
+          1506,
+          72057594037928001,
+          "$g_talk_troop"
+         ],
+         4,
+         [
+          542,
+          "$g_talk_troop_faction",
+          11,
+          "$g_talk_troop"
+         ],
+         [
+          2320,
+          64,
+          "@{reg65?my Lady:my Lord}"
+         ],
+         [
+          2320,
+          65,
+          "@{reg65?my Lady:my Lord}"
+         ],
+         [
+          2320,
+          66,
+          "@{reg65?My Lady:My Lord}"
+         ],
+         5,
+         [
+          2320,
+          64,
+          "@{reg65?madame:sir}"
+         ],
+         [
+          2320,
+          65,
+          "@{reg65?madame:sir}"
+         ],
+         [
+          2320,
+          66,
+          "@{reg65?Madame:Sir}"
+         ],
+         3,
+         [
+          2270,
+          "$g_current_hours"
+         ],
+         [
+          500,
+          "$g_talk_troop",
+          4,
+          "$g_current_hours"
+         ],
+         [
+          31,
+          1,
+          0
+         ]
+        ]
+       },
+       "{!}Warning: This line is never displayed. It is just for storing conversation variables.",
+       "close_window",
+       {
+        "list": []
+       }
+      ]
+     }
+    }
+   ],
+   "id_file": null,
+   "id_prefix": null,
+   "module": "module_dialogs",
+   "var": "dialogs"
+  }
+ }
+}

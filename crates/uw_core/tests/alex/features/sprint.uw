@@ -1,0 +1,11 @@
+// features/sprint.uw — hold Alt to run
+const SPEED = 150%
+const COST = 35 per second
+
+while key.held(alt) and player.agent.stamina > 0 {
+    player.agent.speed_modifier = SPEED
+    player.agent.stamina -= COST
+}
+otherwise {
+    player.agent.speed_modifier = 100%
+}

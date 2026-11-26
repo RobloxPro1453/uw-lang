@@ -1,0 +1,20 @@
+// T-088: `every …` becomes one new simple trigger appended to simple_triggers, after Native's own
+// list; the interval is in game hours (24 = a day).
+mod every_day
+
+every day {
+    if player.gold < 100 {
+        player.gold += 10
+    }
+}
+every 6 hours {
+    say("@Six hours passed.")
+}
+every hour {
+    say("@An hour passed.")
+}
+every 0.5 hours {
+    say("@Half an hour passed.")
+}
+
+// covers: simple_triggers.new

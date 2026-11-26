@@ -1,0 +1,352 @@
+{
+ "mst_ai_training": {
+  "kisa": "Eğitim alanı: 30 kişilik dost grubuyla antrenman",
+  "uzun": "Bu şablon, 'eğitime başlıyorsun' mesajıyla açılan bir antrenman sahnesidir. 0 numaralı giriş noktasından, aynı takımda ve silahlı olarak 30 kişi sahneye girer; kodda herhangi bir düşman takımı tanımlanmadığı için bu kişiler dost taraftadır, yani ortam bir savaştan çok alıştırma amaçlıdır. Savaş emir paneli (dost birliklere emir verme arayüzü) bu sahnede açıktır; sekme tuşuna basıldığında sahne sonlandırılır. Yorum satırına alınmış eski yağmur/sis ayarları ve ilk giriş noktası tanımları artık kullanılmıyor.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:3876",
+  "bilinmeyen": []
+ },
+ "mst_alley_fight": {
+  "kisa": "Ara sokak çatışması: tüccar konuşması, haydutlar ve kaçış engeli",
+  "uzun": "Bu görev şablonu, dar bir sokakta geçen çatışma sahnesini kurar; savaş modu açılır ve envanter kullanılamaz. Sahnedeki tüccar türündeki karakterler tarafsız takıma alınır ve oyuncuya yaklaşıp arka sokak konuşmasını başlatır; konuşma bitene kadar sekmeyle sahneden çıkılamaz. Konuşma tamamlandığında ya da oyuncu düşürüldüğünde görev sonlanır, önceki ekrana dönülür ve oyuncunun canı en az 90'a çekilir. Ayrıca tek takım kalınca başlangıç kasabasının krallığına göre bir tüccar sahneye eklenir.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:15098",
+  "bilinmeyen": []
+ },
+ "mst_arena_challenge_fight": {
+  "kisa": "Arena düello sahnesi: envanter kapalı, tek takım kalınca biter",
+  "uzun": "Bu görev şablonu arenada bir yakın dövüş karşılaşması kurar; oyuncu savaşa girer, envanterini kullanamaz ve sekmeyle sahneden çıkmaya çalışırsa ayrılamayacağına dair mesaj görür. Sahne başlarken flama/sandık değişimi yapılır ve arena müziği ayarlanır. Ana kahraman düşerse veya etkin takım sayısı bire inerse görev sonlanır; ilgili düello görevleri aktifse ve hedef uyuyorsa başarılı ya da başarısız sayılır. Kod yorumu bu bölümün artık kullanılmayan bir lord düellosu betiği olduğunu, asıl lord düelloları için alttaki betiğin kullanılması gerektiğini belirtir.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:3993",
+  "bilinmeyen": []
+ },
+ "mst_arena_melee_fight": {
+  "kisa": "Arena melee dövüşü: takımlar, ziyaretçi girişleri ve antrenman silahları",
+  "uzun": "Arenada takım halinde yapılan melee dövüşünün kurallarını ve giriş noktalarını tanımlar. Giriş noktaları ziyaretçi kaynağı olarak işaretlenmiş; savaşçılar kırmızı, mavi, yeşil ve sarı arena tunikleriyle antrenman silahları, kalkan, yay ve at gibi ekipmanlarla başlatılır. Kodda ayrıca 32-39 arası ek girişlerde farklı takımlara pratik silahlar verildiği ve 40-49 aralığının henüz kullanılmadığı belirtilir. Oyuncu bu şablonda arenada takım savaşına girer.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:3920",
+  "bilinmeyen": []
+ },
+ "mst_back_alley_kill_local_merchant": {
+  "kisa": "Arka sokak: yerel tüccarı öldürme görevinin dövüşü",
+  "uzun": "Yerel tüccarı öldürme görevi için arka sokakta geçen savaş sahnesi; siz ve tüccar tarafı atsız, silahsız kısıtlamalarla hazır başlar ve pusu müziği çalar. Envanter kapalıdır, sekme tuşuna basınca ayrılamayacağınız mesajı çıkar. Tüccarın canı 1 ile 30 arasına düştüğünde ve sizin canınız 50'nin üzerindeyken tüccarla otomatik bir konuşma başlar. Siz düşerseniz görev başarısız sayılır; tüccar ölürse şehirle ilişkiniz bir miktar azalır ve görev başarılı olur, ardından sahne kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:2108",
+  "bilinmeyen": []
+ },
+ "mst_back_alley_revolt": {
+  "kisa": "Arka sokak isyanı: vergi toplarken asilerle çatışma",
+  "uzun": "Vergi toplama sırasında çıkan isyanı bastırdığınız savaş sahnesi; siz en fazla dört adamla sopa taşıyarak, karşı taraf ise asiler olarak başlar. Savaş müziği çalar, envanter kapalıdır ve sancak düzeni kurulur. Sekme tuşuna basınca kaçmak isteyip istemediğiniz sorulur; onaylarsanız vergi toplama başarısız menüsüne dönülür, aksi hâlde ayrılamayacağınız mesajı görünür. Siz düşerseniz yine başarısız menüsüne, tüm asiler ölürse asilerin öldürüldüğü menüye geçilir ve sahne kapanır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:2175",
+  "bilinmeyen": []
+ },
+ "mst_bandit_lair": {
+  "kisa": "Haydut ini pususu: savaş, takviye ve tüccar akrabası görevi",
+  "uzun": "Bu kayıt, bir haydut inine yapılan baskında savaşın nasıl işleyeceğini tanımlar: iki taraf için giriş noktaları ve savaş modu ayarlanır, envanter kullanılamaz. Oyuncu sekme tuşuyla sahadan ayrılamaz; belirli aralıklarla oyuncunun seviyesine göre ek haydutlar gelir. Karşılaşılan taraf haydut ini (pt_looter_lair) ise ve tüccarın akrabasını kurtarma görevi açıksa, akraba oyuncuya yaklaştığında konuşma başlar.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:14707",
+  "bilinmeyen": []
+ },
+ "mst_bandits_at_night": {
+  "kisa": "Gece kasabada haydut pususu: sokak savaşı görev şablonu",
+  "uzun": "Bir kasabaya gece girdiğinizde haydutların pusuya yattığı sokak çatışmasının kurallarını tanımlar. Sahne başlarken 'pusu' müziği çalar, savaş modu açılır ve kasaba kapıları hazırlanır. Oyuncu dışındaki tüm kişiler rakip tarafa atanır; oyuncu sekme tuşuna bassa da 'şimdi ayrılamazsın' mesajı görür ve alandan çıkamaz. Oyuncu düşerse başarısızlık, karşı taraf yenilirse başarı menüsü açılır ve görev sonlanır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:1908",
+  "bilinmeyen": []
+ },
+ "mst_besiege_inner_battle_castle": {
+  "kisa": "Kuşatma şablonu: kale içi çarpışma kuralları ve giriş noktaları",
+  "uzun": "Bu şablon, kuşatma sırasında kalenin içinde geçen çarpışmanın kurallarını tanımlar: saldıranlar ve savunanlar belirli giriş noktalarından, atsız ve silahlı olarak sahneye girer. Görev başlamadan önce sancaklar ve sandık düzenlenir, çarpışma müziği kültüre göre ayarlanır. Oyuncu geri çekilme sorusuna onay verirse ya da ana karakter düşerse savaş sona erer, kayıplar sayılır ve sonuç yenilgi olarak işlenir. Ayrıca dost ateşi kontrolü, zafer koşulu, zafer ekranı, emir paneli ve envanter tetikleyicileri çalışır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:2734",
+  "bilinmeyen": []
+ },
+ "mst_besiege_inner_battle_town_center": {
+  "kisa": "Kuşatma şablonu: şehir merkezinde iç çarpışma",
+  "uzun": "Bu şablon, kuşatılan bir yerleşimin merkezinde geçen iç çarpışmanın kurallarını tanımlar; saldıranlar tek bir giriş noktasından, savunanlar ise birden çok noktadan atsız ve silahlı olarak sahneye girer. Görev öncesinde sancaklar ve sandık düzenlenir, çarpışma müziği ayarlanır. Oyuncu geri çekilmeyi seçerse veya ana karakter düşerse savaş sonlandırılır, kayıplar sayılır ve sonuç yenilgi olur. Dost ateşi kontrolü, zafer koşulu, zafer ekranı, emir paneli ve envanter tetikleyicileri burada da etkindir.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:2798",
+  "bilinmeyen": []
+ },
+ "mst_camera_test": {
+  "kisa": "Geliştirici için kamera testi sahnesi",
+  "uzun": "Bu, oyun içi bir görev yerine kamerayı denemek için hazırlanmış bir test sahnesidir; açılışta 'kamera testi' mesajı görünür. Tetikleyici her çalıştığında kamera modu değiştirilir ve kamera, 3 numaralı giriş noktasının konumuna yerleştirilir; böylece görüntü oyuncunun arkasından değil, sabit bir noktadan alınır. Sahneye herhangi bir birlik yerleştirilmediği (giriş noktası tanımları yorum satırına alınmış) ve sekme tuşuna basınca sahnenin kapandığı görülüyor; yani normal oyunda karşılaşılmayan bir deneme sahnesi.",
+  "guven": "orta",
+  "kaynak": "module_mission_templates.py:3904",
+  "bilinmeyen": []
+ },
+ "mst_castle_attack_walls_belfry": {
+  "kisa": "Kuşatma kulesi (belfry) ile surlara tırmanma savaşı sahnesi",
+  "uzun": "Saldıranların kuşatma kulesiyle surlara tırmandığı savaşı kurar; savunmacılar surlar ve kule çevresindeki giriş noktalarına yerleştirilir, okçular öne alınır. Sahnede kule hareket ettirilir, döndürülür ve askerler kuleye atanır. Saldırganlara başlangıçta dağılma emri verilirken bu emirlerin ekrana yazılması engellenir. Takviye gelişi, ok ikmali ve zafer/yenilgi koşulları ortak kuşatma script'leriyle yönetilir; bu sahne sırasında envanter açılamaz ve düşen düşman askerleri kayıplara eklenir.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:2962",
+  "bilinmeyen": []
+ },
+ "mst_castle_attack_walls_defenders_sally": {
+  "kisa": "Kuşatma sırasında savunmacıların dışarı çıktığı sally savaşı sahnesi",
+  "uzun": "Bu şablon, kuşatma altındaki kalenin savunmacılarının dışarı çıkarak saldırdığı savaşı kurar. Sahnede atlar kullanılmaz, tarafların birbirine düşman olduğu ayarlanır, kuşatma nesneleri kaldırılır ve sancaklar yeniden düzenlenir. Oyuncu normal savaş arayüzünü (emir paneli, envanter) görür; düşen askerler düşman kayıpları hanesine yazılır. Tüm düşmanlar yenilirse savaş kazanılır ve bu çıkışın yaşandığı işaretlenip kuşatma süreci sıfırlanır; oyuncu düşerse geri çekilme canlandırılır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:2862",
+  "bilinmeyen": []
+ },
+ "mst_castle_attack_walls_ladder": {
+  "kisa": "Kale surlarına merdivenle saldırı: giriş noktaları ve kuşatma kuralları",
+  "uzun": "Bu şablon, bir kalenin surlarına merdivenle yapılan saldırı sahnesinin kurallarını tanımlar. Saldıran ve savunan takımlar için giriş noktaları belirlenir; savunan okçular öncelikli olarak ayrı noktalardan girer. Ortak savaş ve kuşatma tetikleyicileriyle başlangıç, takviye, zafer/yenilgi ve sipariş paneli gibi işler yürütülür. Bir asker öldüğünde veya yaralandığında, düşman tarafındaysa toplam düşman kayıplarına eklenir; yaralıysa yaralı olarak işlenir.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:3043",
+  "bilinmeyen": []
+ },
+ "mst_castle_visit": {
+  "kisa": "Kale ziyareti sahnesi: silahsız gezinti ve zindan kaçışı",
+  "uzun": "Oyuncu bir kale içine girdiğinde bu sahne kurulur. Sahnedeki karakterler at ve silah zorlamasıyla donatılmaz; giriş noktalarının bir kısmı kapılar ve ziyaretçiler için ayrılmıştır, 40-46 arası noktalar ise grup üyeleri içindir. Sahne aynı zamanda zindan kaçışı/hapishaneden firar durumlarında da kullanılır: kaçışa katılacak mahkumlar oyuncunun takımına alınır, kalenin muhafızları alarma geçirilir, sivil karakterler savaştan uzak durur ve konuşma kapatılır. Oyuncu zindan muhafızını öldürürse ekranda zindanın anahtarlarını aldığına dair bir mesaj görür. (Kaynakta kodun bir bölümü kısaltılmış olarak verildi.)",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:3159",
+  "bilinmeyen": []
+ },
+ "mst_conversation_encounter": {
+  "kisa": "Konuşma karşılaşması sahnesi: 32 giriş noktası, tetikleyici yok",
+  "uzun": "Bu şablon, iki tarafın yüz yüze konuştuğu karşılaşma sahnelerinin kurallarını tanımlar. Sahnede 32 giriş noktası vardır; bunların 12'si ilk gruba (0-11), 5'i tutsaklara (12-16), kalanı da karşı tarafa (17-31) ayrılmıştır; hepsi 'ziyaretçi kaynağı' olarak işaretlenmiş ve tam miğfer giydirme kuralı açıktır. Tetikleyici listesi boştur, yani bu sahnede ek bir olay kuralı çalışmaz. Dosyadaki yorum, bu noktaya kadarki görev şablonlarının oyuna gömülü olduğunu, yani doğrudan oyun tarafından çağrıldığını belirtir.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:1533",
+  "bilinmeyen": []
+ },
+ "mst_duel_with_lord": {
+  "kisa": "Arena düellosu: bir lordla teke tek dövüş, görevi bitirir",
+  "uzun": "Bu şablon, bir lordla arena içinde yapılan teke tek dövüş sahnesini kurar. Oyuncu ve karşı taraf, sade kılıç ve arena kıyafetiyle, savaşa hazır olarak sahneye yerleştirilir; envanter kullanılamaz ve sekmeye basılırsa sahneden çıkılamayacağı bildirilir. Dövüş sırasında arena müziği çalar; oyuncu yere düşerse ya da bir taraftan başka kimse kalmadığında sahne biter. Bu bitişte, oyuncunun elindeki ilgili düello görevi (hedef kişi bu dövüşülen lord ise) duruma göre başarısız ya da başarılı sayılır; ayrıca aynı hedefe bağlı 'denounce_lord' görevi için de benzer kontrol yapılır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:4061",
+  "bilinmeyen": []
+ },
+ "mst_lead_charge": {
+  "kisa": "Savaş görevi: ordunu savaşa yönetme, takviye ve moral düzeni",
+  "uzun": "Bu görev şablonu, oyuncunun ordusunu savaşa soktuğu çarpışma sahnesinin kurallarını tanımlar; savaş modu ve envanter eşitlemesi açıktır. Askerler sahneye girdiğinde takım ataması yapılır ve cesaret puanı seviye, birlik morali ve rastgelelikle hesaplanır; ölen veya yaralanan askerler düşman kayıplarını ve cesaret puanlarını günceller. Savaş sırasında savunucu ve saldıran taraflara belirli koşullarla takviye gelir; süre, takım sayısı ve takviye aşamaları kontrol edilir. Oyuncu geri çekilme sorusuna cevap verirse 20 saniyeden sonra geri çekilme simüle edilir ve görev biter; zafer koşulları, müzik ve sancak gibi ortak savaş tetikleyicileri de çalışır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:2216",
+  "bilinmeyen": []
+ },
+ "mst_meeting_merchant": {
+  "kisa": "Tüccarla buluşma sahnesi: diyalog, müzik ve çıkış kontrolü",
+  "uzun": "Bu görev şablonu, bir tüccarla buluşma sahnesini kurar. Sahne ilk açıldığında ziyaret edildi olarak işaretlenir ve gizlice giriş, taverna veya kasaba durumuna göre müzik seçilir; tüccar türündeki karakterler ayrı bir takıma alınır. Tüccarla konuşma bitince oyuncuya sekme tuşuyla kasabadan çıkabileceği gösterilir. Sekmeye basılırsa görev sonlanır, ana grup kasaba çevresinde bir konuma taşınır ve haritaya dönülür; konuşma bitmeden basılırsa çıkılamayacağı mesajı görünür.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:15265",
+  "bilinmeyen": []
+ },
+ "mst_multiplayer_bt": {
+  "kisa": "Çok oyunculu savaş sahnesi: iki takım için 64 giriş noktası",
+  "uzun": "Bu şablon, çok oyunculu takım savaşı (battle) türünün oynandığı sahnedeki kuralları tanımlar; savaş modu açıktır ve sahne 64 giriş noktası içerir. Giriş noktalarının yarısı 0, yarısı 1 numaralı takıma aittir; oyuncular bu noktalarda silahlı olarak belirir ve bazı noktalar otomatik sıfırlanmayacak şekilde işaretlenmiştir. Tur başlamadan önce oyun türü savaş olarak ayarlanır, tur ve ölüm modu sayacları sıfırlanır, sunucu tarafında oyuncu katılımı ve oylar işlenir. Tur başladıktan sonra takım bayrakları belirlenir ve ölüm modu noktasında bayrak direkleri yerleştirilir. Oyuncu, iki takım arasında geçen bir çok oyunculu savaşta kendini bulur.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:11166",
+  "bilinmeyen": []
+ },
+ "mst_multiplayer_ccoop": {
+  "kisa": "Çok oyunculu istila (cephane) savaş sahnesi kuralları",
+  "uzun": "Bu şablon, çok oyunculu \"Invasion\" olarak anılan takım hâlinde dalga dalga gelen düşmana karşı savaşılan modun sahne kurallarını tanımlar. Sahne iki takım için hazırlanmış çok sayıda giriş noktası içerir: ilk 32 nokta 0. takım, sonraki noktalar 1. takım (düşmanlar) içindir; aralarında hapishane arabası girişleri ve düşman dalgalarının doğduğu ayrı noktalar da yorumlarla işaretlenmiştir. Savaş başladığında ortak savaş başlangıcı ve oylama kontrolü tetiklenir; her asker doğduğunda sunucu tarafında ortak doğma işlemleri çalıştırılır. Oyuncu, takım arkadaşlarıyla birlikte kendisine ayrılan giriş noktasından sahneye girip gelen düşman dalgalarına karşı savaşır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:13409",
+  "bilinmeyen": []
+ },
+ "mst_multiplayer_cf": {
+  "kisa": "Çok oyunculu bayrak kapma modu için sahne şablonu",
+  "uzun": "Bu şablon, çok oyunculu 'bayrak kapma' (capture the flag) modunun oynandığı sahnelerin kurallarını tanımlar. Kodda iki takım için toplam 66 doğma noktası (giriş noktası) listelenir; takım 0 için 0-31 ve 64, takım 1 için 32-63 ve 65 numaralı noktalar kullanılır. Görev başlarken oyun türü bayrak kapma olarak ayarlanır, takım bayrakları belirlenir, bayrakların yerde kalma sayaçları sıfırlanır ve oyuncular sunucuya katıldığında ilgili ortak betikler çalıştırılır. Oyuncu, çok oyunculu bir sunucuda bu modun seçildiği haritaya girdiğinde iki takımın belirlenen noktalarda doğduğu bir bayrak kapma maçı görür.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:9489",
+  "bilinmeyen": []
+ },
+ "mst_multiplayer_dm": {
+  "kisa": "Çok oyunculu ölüm maçı: herkesin birbirine düşman olduğu sahne",
+  "uzun": "Bu şablon, çok oyunculu ölüm maçı (deathmatch) modunun oynandığı sahnenin kurallarını tanımlar. Sahne başlamadan önce oyun türü ölüm maçı olarak ayarlanır, herkes birbirine düşman yapılır ve bu moda ait olmayan bazı harita nesneleri (yıkım hedefleri ve karargâh bayrakları) sahneden kaldırılır. Sahne başladığında iki takım için giriş noktaları hazırlanır, hareket edebilen nesneler başlangıç konumlarına konur ve oyuncuların doğmasına izin verilir; bir oyuncu katıldığında veya doğduğunda ilgili sunucu betikleri çalıştırılır. Maç bittiğinde ise oyuncunun öldürme ve ölüm sayılarına bakılarak bir başarımla ilgili hesap yapılır. Kodda 0-31 numaralı giriş noktaları bir takıma, 32-63 numaralı olanlar diğer takıma ayrılmıştır ve tüm oyuncular doğrudan tetikte başlar.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:7827",
+  "bilinmeyen": []
+ },
+ "mst_multiplayer_duel": {
+  "kisa": "Çok oyunculu düello sahnesi: iki takım için başlangıç noktaları ve kurallar",
+  "uzun": "Bu görev şablonu, çok oyunculu düello modunda sahnenin nasıl işleyeceğini belirler. Sahnede 64 adet başlangıç noktası tanımlanır; bunların ilk 32'si 0. takım, son 32'si 1. takım içindir. Görev başlamadan önce takımlar birbirine dost gibi ayarlanır ve düello modu açılır; yorumda bunun dost ateşini engellediği belirtilir. Görev sona erdiğinde istatistik ekranı açılır ve oyunculara maç sonu bilgileri gösterilir.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:15661",
+  "bilinmeyen": []
+ },
+ "mst_multiplayer_fd": {
+  "kisa": "Çok oyunculu yıkım görevi: iki takımın doğma noktaları ve kurulum",
+  "uzun": "Bu şablon, çok oyunculu yıkım modu için sahne kurallarını tanımlar; sunucu tarafında görev başlamadan önce oyun türünü yıkım olarak ayarlar. Görev başlarken çok oyunculu değişkenleri hazırlar, karargâh bayraklarını kaldırır ve iki takımın bayraklarını belirler. Doğma yönlendiricilerini kapatır, sahne eşyalarını ve hareketli objelerin ilk konumlarını hazırlar; ayrıca mancınık ve trebuchet gibi yıkılabilir hedefleri tanımlar. Oyuncular iki takım için ayrılmış doğma noktalarından savaşa girer.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:12356",
+  "bilinmeyen": []
+ },
+ "mst_multiplayer_hq": {
+  "kisa": "Çok oyunculu karargâh modu: bayraklı takım savaşı sahnesi",
+  "uzun": "Bu şablon, çok oyunculu oyundaki 'karargâh' (headquarters) oyun türünün oynandığı savaş sahnesini tanımlar. Sahneye iki takım için toplam 64 başlangıç noktası konur; ilk 32 nokta 0. takıma, son 32 nokta 1. takıma aittir ve herkes silahlı olarak başlar. Görev başlamadan önce oyun türü karargâh olarak ayarlanır, iki takımın puanı oyunun azami puanına göre başlatılır ve bayrak sahipliği bilgileri sıfırlanır. Görev başladıktan sonra her takımın bayrağı belirlenir ve takımlar kendi bayraklarının bulunduğu sahne nesnelerinin yakınında doğacak şekilde ayarlanır; ayrıca oyuncu katılımı ve doğma anlarında ortak çok oyunculu betikler çalıştırılır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:8465",
+  "bilinmeyen": []
+ },
+ "mst_multiplayer_sg": {
+  "kisa": "Çok oyunculu kuşatma savaşı için görev şablonu",
+  "uzun": "Bu kayıt, çok oyunculu kuşatma modu için savaş kurallarını ve iki takıma ait çok sayıda doğma noktasını tanımlar. Sunucuda bir oyuncu katıldığında, tur süresine göre harcanan yeniden doğma sayısı hesaplanıp oyuncuya bildirilir. Görev başlamadan önce oyun türü kuşatma olarak ayarlanır, bayrak ve tur değişkenleri sıfırlanır; görev başladıktan sonra takım bayrakları belirlenir ve doğma yönlendirmeleri kapatılır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:10172",
+  "bilinmeyen": []
+ },
+ "mst_multiplayer_tdm": {
+  "kisa": "Çok oyunculu takım ölüm maçı görev şablonu",
+  "uzun": "Bu kayıt, çok oyunculu takım ölüm maçı için savaş modunda bir görev şablonu tanımlar. Sahneye iki takım için 32'şer doğma noktası koyar; oyuncular bu noktalarda tetikte başlar. Görev başlarken oyun türünü takım ölüm maçına ayarlar, gerekli çok oyunculu değişkenleri ve sahne nesnelerini hazırlar. Görev sonunda takım puanlarını karşılaştırarak kazanan taraftaki oyuncu için bir başarım kontrolü yapar.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:8182",
+  "bilinmeyen": []
+ },
+ "mst_quick_battle_battle": {
+  "kisa": "Hızlı savaş sahnesi: iki takım, 32 başlangıç noktası ve zafer/yenilgi kontrolleri",
+  "uzun": "Bu görev şablonu, hızlı savaş için savaş kurallı bir sahne düzeni tanımlar; ilk 16 giriş noktası 0. takıma, sonraki 16 giriş noktası 1. takıma aittir ve herkes uyanık/silahlı başlar. Sahne başlamadan gün saati 15'e ayarlanır; savaş başında sonuç değişkeni sıfırlanır ve müzik duruma göre ayarlanır. Savaş sırasında özel savaş sekmeleri ve soruları, envanterin kullanılamaması, zafer/yenilgi koşulları ile zafer gösterimi tetikleyicilerle çalışır. Oyuncu iki takımın çarpıştığı savaş sahnesini görür; sonuç zafer/yenilgi kontrolleriyle belirlenir.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:7608",
+  "bilinmeyen": []
+ },
+ "mst_quick_battle_siege": {
+  "kisa": "Hızlı savaş kuşatma sahnesi: iki tarafın başlangıç noktaları ve kuşatma kuralları",
+  "uzun": "Bu şablon, 'hızlı savaş' (custom battle) türündeki bir kuşatma savaşının nasıl kurulacağını tanımlar. İçinde 0'dan 47'ye kadar numaralanmış 48 başlangıç noktası var; bunların bir kısmı 0. takıma (savunan), bir kısmı 1. takıma (saldıran) ayrılmış ve askerler at üstünde, silahları hazır şekilde başlıyor. Sahne başlamadan önce günün saati 15'e ayarlanıyor; ayrıca savunan/saldıran takım numaraları ve onların ikinci takım karşılıkları (2 ve 3) atanıyor. Şablon, savaş başlangıcı, sancak kurulumu, özel savaş başlatma menüsü, zafer/yenilgi kontrolü ve kuşatma araçlarıyla (koçbaşı ve kule) ilgili hazır kuşatma tetikleyicilerini çağırıyor; böylece oyuncu kuşatma düzeninde savaşı başlatıp sonucunu görebiliyor.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:7673",
+  "bilinmeyen": []
+ },
+ "mst_sneak_caught_fight": {
+  "kisa": "Gizli görevde yakalanınca çıkan savaş; oyuncu hacı kılığında",
+  "uzun": "Bu sahne, gizli bir görev sırasında yakalanınca oynanan savaşı kurar; açılışta 'kaçmak için savaşmalısın' türünde bir mesaj gösterilir. Oyuncu takımı, 0 ve 1 numaralı giriş noktalarından hacı kılığı giydirilerek (pilgrim_disguise) çıkar; karşı taraf ise 2'den 64'e kadar çok sayıda giriş noktasından silahlı ve atlı olarak gelir, yani kalabalık bir düşman grubuna karşı az sayıda kişisin. Sahne başlamadan önce bir script ile bayraklar ve sandık düzenlenir; başladıktan sonra muhafız sayısı 5 olarak alınır ve kasabadaki 'son yakın yangın zamanı' ile şu anki saat karşılaştırılarak bu sayı değiştirilebilir. Dosyadaki kod burada kesildiği için muhafız sayısının tam olarak nasıl değiştiği görülemiyor.",
+  "guven": "orta",
+  "kaynak": "module_mission_templates.py:3665",
+  "bilinmeyen": []
+ },
+ "mst_town_center": {
+  "kisa": "Kasaba merkezi ziyareti: giriş noktaları, sesler ve kasaba kalabalığı",
+  "uzun": "Kasabaya normal ziyaret sırasında kullanılan görev şablonudur; sahnedeki giriş noktalarını ve kasaba içi temel kurulumu tanımlar. Görev başlarken kasaba kapıları, bayraklar/sandık ve ortam sesleri ayarlanır; kasaba sakinleri ve dolaşanlar tetikleyicilerle yönetilir. Envanter ve sekme tuşu gibi eylemler moda göre sınırlandırılır; kaçış veya hapishane baskını bağlamında bazı kişiler oyuncu tarafına geçebilir. Oyuncu kasabada gezerken bu kurallar ve sesler devreye girer.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:1553",
+  "bilinmeyen": []
+ },
+ "mst_town_default": {
+  "kisa": "Kasaba ziyareti: giriş noktaları, müzik ve taverna kavgası",
+  "uzun": "Bu şablon, bir kasabaya normal ziyaret sırasında sahnenin kurallarını belirler: oyuncu ve ziyaretçiler için giriş noktaları tanımlanır ve sahne ziyaret edildi olarak işaretlenir. Gizlice girme, taverna sohbeti veya normal kasaba durumuna göre müzik ayarlanır; görev başlamadan önce bazı hazırlık scriptleri çalışır. Tavernada sarhoş kavgacı ya da kiralık suikastçı varsa, konuşma ekranı kapalıyken ve oyuncu yeterince yaklaşınca kavga tetiklenebilir. Envanter tuşu bu görevde engellenir; sekme tuşuyla çıkış için de özel bir kontrol yapılır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:1277",
+  "bilinmeyen": []
+ },
+ "mst_town_fight": {
+  "kisa": "Kasaba çatışması: giriş noktaları, muhafızlar ve tüccar yönlendirme",
+  "uzun": "Bu şablon, bir kasabada çıkan çatışma sahnesinin kurallarını tanımlar. Sahne başlamadan önce konuşmalar kapatılır, savaş modu açılır ve bazı sayaçlar sıfırlanır; ayrıca kasaba yürüyüşçüleri hazırlanır. Görev sırasında oyuncunun öldürdüğü 1. takım ajanları ile 0. takım kayıpları sayılır. Bir tüccar karakteri, belirli anlarda uzaktaki bir giriş noktasına veya oyuncuya doğru yönlendirilir.",
+  "guven": "orta",
+  "kaynak": "module_mission_templates.py:15400",
+  "bilinmeyen": []
+ },
+ "mst_training_ground_trainer_talk": {
+  "kisa": "Eğitim alanındaki eğitmenle konuşma sahnesi",
+  "uzun": "Bu, eğitim alanında eğitmenle konuşurken açılan ayrı bir sahnedir; ilk giriş noktalarında karakterler at ve silah zorlaması olmadan, yaya olarak yerleştirilir. Sahne başlamadan önce flamalar ve sandıkla ilgili bir betik çağrılır; envanter tuşu ve sekme tuşu bu sahnede devre dışı bırakılır (bastırılır). Belirli aralıklarla çalışan bir tetikleyici, eğitmen yardım mesajını en fazla iki kez göstermeyi amaçlar; ancak bu kayıtta mesajı gösteren satırlar yorum satırı yapılmış durumda, yani yalnızca sayaç artırılıyor gibi görünüyor.",
+  "guven": "orta",
+  "kaynak": "module_mission_templates.py:3361",
+  "bilinmeyen": []
+ },
+ "mst_training_ground_trainer_training": {
+  "kisa": "Eğitim alanı eğitmeni antrenman dövüşü kuralları",
+  "uzun": "Bu kayıt, eğitim alanındaki eğitmenle yapılan antrenman dövüşünün sahne kurallarını tanımlar. Dövüşte takımlar için antrenman kalkanı, kılıcı, sopası ve botu gibi ekipmanlar hazırlanır; oyuncuya arena dövüşü yapacağına dair bir mesaj gösterilir. Dövüş başlamadan önce bayrak ve sandık düzeni değiştirilir; oyuncu düşerse, tek takım kalırsa veya soruya 0 cevabı verilirse eğitmen konuşma sahnesine geri dönülür. Dövüş sırasında envanter tuşuna basılırsa envanterin arenada kullanılamayacağı bildirilir.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:3401",
+  "bilinmeyen": []
+ },
+ "mst_training_ground_training": {
+  "kisa": "Eğitim alanı: yakın dövüş, atış ve atlı hedef talimi",
+  "uzun": "Bu görev şablonu eğitim alanındaki antrenman sahnelerini kurar. Oyuncuya alıştırma sopası verilir ve karşı takımda dört eğitim rakibi çıkar; atış ve atlı talim modlarında hedef kabaklar yerleştirilir veya rastgele kaldırılır. Görev başında hedef sayacı sıfırlanır ve bazı sahne hazırlıkları yapılır; envanter bu görevde kullanılamaz. Yakın dövüşte oyuncu düşerse veya tek takım kalırsa sonuç oranı belirlenip sonuç menüsüne geçilir.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:3454",
+  "bilinmeyen": []
+ },
+ "mst_tutorial_1": {
+  "kisa": "Eğitim alanı görevi: silah verme, hedef ve ok talimi",
+  "uzun": "Bu görev şablonu, oyuncu eğitim alanına girdiğinde çalışır; oyuncuya eğitim kalkanı, kılıcı, kısa yay, ok, deri yelek ve bot verilir. Ekranda eğitim mesajları gösterilir ve sarı bayrakla işaretlenen giriş noktalarına ilerlemesi istenir; kapılar açılır, hedeflerin vurulması ve ok talimi gibi adımlar sayılır. Sekme tuşuna basınca eğitimin erken aşamasında çıkmak isteyip istemediği sorulur; envanter tuşu bu görevde kullanılamaz.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:6286",
+  "bilinmeyen": []
+ },
+ "mst_tutorial_2": {
+  "kisa": "Eğitim görevi 2: kalkanla savunma, kapı ve maceman idmanı",
+  "uzun": "Bu, eğitim alanında geçen ikinci öğretici görevdir; oyuncu sahneye girerken kalkan, deri yelek ve deri botla donatılır. Oyuncu giriş noktasına yaklaşınca bir kapı açılır, içeri geçince kapı arkasından kapanır ve sopalı eğitim askeri (maceman) savunma talimi için yaklaşır; bu sırada oyuncunun tekme atması engellenir. Sekme tuşuna basıldığında 'çıkmak istiyor musunuz' sorusu çıkar, envanter tuşu ise bu görevde kullanılamaz uyarısı verir. Eğitim okçusunun okları belirli aralıklarla yenilenir ve oyuncu yere düşerse görev bitiş durumuna alınır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:6494",
+  "bilinmeyen": []
+ },
+ "mst_tutorial_3": {
+  "kisa": "Eğitim alanı: tutorial 3 ders mesajları ve yönlendirmeler",
+  "uzun": "Bu görev şablonu oyuncuyu eğitim alanına sokar; oyuncuya deri yelek ve bot verilir, eğitim düşmanları sahneye yerleştirilir. Görev durumuna göre ders mesajları gösterilir, oyuncuya saldırmayan bir eğitim asası verilir, kapı/bariyer hareket ettirilir ve eğitim düşmanları belirli noktalara yönlendirilir. Sekme tuşuna basınca belirli bir durumdan önce çıkmak isteyip istemediği sorulur; envanter tuşu bu eğitimde kullanılamaz mesajı verir; oyuncu düşerse durum 100'e ayarlanır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:6779",
+  "bilinmeyen": []
+ },
+ "mst_tutorial_3_2": {
+  "kisa": "Eğitim sahası: 3_2 aşaması, rehberli dövüş ve kapı/bariyer ilerlemesi",
+  "uzun": "Bu görev şablonu eğitim görevinin 3_2 aşamasını açar; oyuncu eğitim sahasına girer ve sırasıyla eğitimdeki topuzlu ve kılıçlı düşmanlarla dövüşür. Ekranda adım adım eğitim mesajları gösterilir; oyuncu belirli noktalara yaklaştıkça kapılar ve bariyerler hareket eder, düşmanlar harekete geçer. Envanter tuşu bu görevde kullanılamaz; sekmeyle çıkmak istenirse onay kutusu sorulur. Oyuncu düşerse görev durumu 100'e ayarlanır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:7036",
+  "bilinmeyen": []
+ },
+ "mst_tutorial_4": {
+  "kisa": "Eğitim görevi: at, ekipman ve sarı bayrağı takip ederek ilerleme",
+  "uzun": "Bu görev şablonu eğitim alanında geçen bir tutorial sahnesi kurar; oyuncuya eğitim ekipmanları verilir ve bir at oluşturulur. Sarı bayrak sırayla giriş noktalarına taşınır; oyuncu bayrağa yaklaştıkça eğitim mesajları ilerler ve durum sayaçları artar. Envanter tuşu kullanılamaz; sekme tuşuna basınca erken aşamada ayrılmak isteyip istemediği sorulur, onaylanırsa görev kapatılır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:7190",
+  "bilinmeyen": []
+ },
+ "mst_tutorial_5": {
+  "kisa": "Eğitim alanı: bayraklarla birlik yönlendirme ve okçu/atatlı alıştırması",
+  "uzun": "mst_tutorial_5, eğitim alanına girişte çalışan bir görev şablonudur; oyuncuya eğitim kılıcı, kalkan, yay, ok, at ve deri giysiler verilir. Sahnedeki sarı ve kırmızı bayraklar sırayla hareket eder; oyuncunun ve piyadelerin belirli giriş noktalarına yaklaşmasına göre mesajlar gösterilir ve aşama ilerler. Bir aşamada Vaegir okçuları sahneye eklenir; sekme tuşu erken aşamada çıkış onayı sorar, envanter tuşu ise eğitimde kullanılamaz mesajı verir.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:7405",
+  "bilinmeyen": []
+ },
+ "mst_tutorial_training_ground": {
+  "kisa": "Eğitim alanı görevi: talim, okçuluk ve ayrılma soruları",
+  "uzun": "Bu görev şablonu, oyuncunun eğitim alanına girmesiyle açılan talim sahnesini tanımlar. Giriş noktalarına yerleştirilen karakterlerin bir kısmına alıştırma kılıcı, bir kısmına alıştırma yayı ve oku verilir; oyuncu ayrıca fare hareketini gösteren bir sunum görür. Sekme tuşuna basıldığında eğitimden ayrılmak isteyip istemediği sorulur; envanter tuşu bu eğitimde kullanılamaz mesajı verir. Sahne başlarken karakterler savaşmaya hazır başlar, ölümcül olmayacak ve kalkanları kırılmayacak şekilde ayarlanır; okçuların hedeflere yönelmesi gibi talim davranışları düzenlenir.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:4703",
+  "bilinmeyen": []
+ },
+ "mst_village_attack_bandits": {
+  "kisa": "Köy saldırısı: haydutlarla savaş düzeni ve geri çekilme",
+  "uzun": "Bu görev şablonu, oyuncunun adamlarıyla haydutlara karşı savaştığı köy saldırısı sahnesinin kurallarını tanımlar. Sahne açıldığında taraflar için giriş noktaları ve yedek kuvvetler ayarlanır; savaş müziği ve ortak savaş kontrolleri devreye girer. Oyuncu savaş sırasında emir panelini ve envanteri kullanabilir; kahraman düşerse veya geri çekilme onaylanırsa savaş sonuçlanıp görev sonlandırılır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:2423",
+  "bilinmeyen": []
+ },
+ "mst_village_center": {
+  "kisa": "Köy içi sahnesi: köyde gezinti, köylüler ve kaçak görevi",
+  "uzun": "Oyuncu bir köyün içine girdiğinde (sokakta yürürken) bu sahne kuralları devreye girer. Sahne ilk açıldığında köy 'ziyaret edildi' olarak işaretlenir, etrafta dolaşan köy sakinleri yerleştirilir ve gezinti müziği çalar; birkaç saniyede bir bu kişiler güncellenir ve ortam sesleri duyulur. Envanter tuşu serbesttir, alandan çıkınca oyun 'kasabadan çıktım' bilgisini kaydeder. Ayrıca 'kaçak avı' görevi sürüyorsa takip edilir: oyuncu yere düşerse görev başarısız sayılıp özel bir menü açılır, kaçak ölmüşse görev başarıyla tamamlanır ve oyuncunun köyle ilişkisi bir miktar azalır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:1833",
+  "bilinmeyen": []
+ },
+ "mst_village_raid": {
+  "kisa": "Köy baskını savaşı: saldıranlar, savunanlar, takviye ve zafer/kaçış",
+  "uzun": "Bu görev şablonu, oyuncunun adamlarıyla köy baskınına gittiği savaş sahnesini kurar; savaş modu açık başlar ve birliklere hücum emri verilir. Savunan ve saldıran takımlar silahlı olarak yerleştirilir; belirli aralıklarla azalan taraflara takviye eklenir. Düşmanlar yenilip ana karakter ayakta kalırsa zafer bildirimiyle görev biter; ana karakter düşerse yenilgi sayılır. Sekme/kaçış soru penceresi, savaş müziği, envanter ve emir panelleri de bu sahnede çalışır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:2481",
+  "bilinmeyen": []
+ },
+ "mst_village_training": {
+  "kisa": "Köy meydanı: köylülere sopalarla yapılan antrenman dövüşü",
+  "uzun": "Köyde köylüleri haydutlara karşı eğittiğiniz sahne. İki taraf da yalnızca sopa ve eğitim çizmesiyle, hazır ve alarm durumunda başlar; sahne bir arena dövüşü kurallarıyla çalışır. Görev başlamadan önce eğitimin başarı bayrağı sıfırlanır; siz ayakta kaldığınız hâlde dövüş biterse başarı bayrağı açılır ve sahne kapanır. Sekme tuşu arena kurallarıyla, envanter ise ayrı bir kural ile ele alınır; soru penceresine olumsuz yanıt verilirse sahne sonlanır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:1981",
+  "bilinmeyen": []
+ },
+ "mst_visit_town_castle": {
+  "kisa": "Lordun salonu: kale veya şehirdeki soylu ziyareti sahnesi",
+  "uzun": "Bir şehir ya da kalede lordun salonuna girdiğinizde açılan ziyaret sahnesi; giriş noktaları oyuncu, kapılar ve kale lordları için ayrı ayrı tanımlanmış. Sahneye giren her karakterin özellikleri ayrı bir betikle hazırlanır ve sancak/sandık düzeni kurulur. Saray sohbeti sırasında ilgili fraksiyon şehirde ziyafet veriyorsa ziyafet müziği, aksi hâlde hapishane müziği çalar. Sekme tuşu normalde sahneyi kapatmaz; hapishaneden kaçış sırasında bölgeden çıkılırsa uyarı mesajı gösterilip kaçma-yakalanma dövüşüne geçilir. Envanter tuşu için de ayrı bir kural tanımlı.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:2020",
+  "bilinmeyen": []
+ },
+ "mst_wedding": {
+  "kisa": "Düğün sahnesi: konuklar, gelin-damat ve sinematik kamera",
+  "uzun": "Bu şablon, düğün sahnesinin kurallarını ve giriş noktalarını tanımlar. Sahne başlayınca düğün müziği çalınır; gelin, damat, gelinin babası ve piskopos gibi özel kişiler yerleştirilir, konuklar uygun kıyafet ve animasyonlarla görünür. Kamera başlangıçta sinematik biçimde hareket eder; sekme tuşuna basılınca veya bir soru yanıtlanınca sahne kapatılır.",
+  "guven": "yuksek",
+  "kaynak": "module_mission_templates.py:4384",
+  "bilinmeyen": []
+ }
+}

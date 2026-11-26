@@ -1,0 +1,11 @@
+[package]
+name = "uw_start"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+uw_atlas = { path = "../uw_atlas" }
+uw_decomp = { path = "../uw_decomp" }
+serde_json = { version = "1", features = ["arbitrary_precision"] }

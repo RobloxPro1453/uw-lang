@@ -1,0 +1,11 @@
+// T-079: UW's own words from lib/core.uw, called without defining them.
+mod lib_words
+
+on game.start {
+    give_gold(1000)
+    take_gold(250)
+    move_near(praven)
+    show_map()
+}
+
+// covers: scripts.hook

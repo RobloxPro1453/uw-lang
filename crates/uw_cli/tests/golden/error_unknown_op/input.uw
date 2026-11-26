@@ -1,0 +1,7 @@
+mod broken
+
+override menu start_phase_2 {
+    on enter {
+        change_screan_map()
+    }
+}

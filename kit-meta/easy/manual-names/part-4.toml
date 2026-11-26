@@ -1,0 +1,158 @@
+# Easy names for 31 unnamed kit operations, part 4 of 4.
+# Rules: see crates/uw_easy/src/ops.rs. Native names copied
+# exactly from kit-meta/easy/manual.toml.
+
+[[name]]
+native = "talk_info_set_line"
+easy = "talk_info.line"
+why = "N1: talk_info.* namespace; set_ drops (R2)"
+
+[[name]]
+native = "change_screen_return"
+easy = "screen.return"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_loot"
+easy = "screen.loot"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_trade"
+easy = "screen.trade"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_exchange_members"
+easy = "screen.exchange_members"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_trade_prisoners"
+easy = "screen.trade_prisoners"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_buy_mercenaries"
+easy = "screen.buy_mercenaries"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_view_character"
+easy = "screen.view_character"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_training"
+easy = "screen.training"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_mission"
+easy = "screen.mission"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_map_conversation"
+easy = "screen.map_conversation"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_equip_other"
+easy = "screen.equip_other"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_map"
+easy = "screen.map"
+why = "N1: screen.* namespace ( §2b example: change_screen_map)"
+
+[[name]]
+native = "change_screen_notes"
+easy = "screen.notes"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_quit"
+easy = "screen.quit"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_give_members"
+easy = "screen.give_members"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_controls"
+easy = "screen.controls"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "change_screen_options"
+easy = "screen.options"
+why = "N1: screen.* namespace ( §2b, change_screen_* pattern)"
+
+[[name]]
+native = "disable_menu_option"
+easy = "menu.disable_option"
+why = "N1: menu.* namespace; verb kept (like menu.jump)"
+
+[[name]]
+native = "convert_to_fixed_point"
+easy = "math.to_fixed_point"
+why = "R9: value/arithmetic helper"
+
+[[name]]
+native = "convert_from_fixed_point"
+easy = "math.from_fixed_point"
+why = "R9: value/arithmetic helper"
+
+[[name]]
+native = "shuffle_range"
+easy = "math.shuffle_range"
+why = "R9: value/arithmetic helper"
+
+[[name]]
+native = "store_item_value"
+easy = "item.base_value"
+why = "R1c; name clash on item.value, so use base_value"
+
+[[name]]
+native = "store01_random_parties_in_range"
+easy = "game.random_parties_in_range"
+why = "R6-like global store; returns two random parties, plural kept"
+
+[[name]]
+native = "reset_mission_timer_a"
+easy = "mission.reset_timer_a"
+why = "R4: mission.* namespace method (mission.timer_a is taken)"
+
+[[name]]
+native = "reset_mission_timer_b"
+easy = "mission.reset_timer_b"
+why = "R4: mission.* namespace method (mission.timer_b is taken)"
+
+[[name]]
+native = "reset_mission_timer_c"
+easy = "mission.reset_timer_c"
+why = "R4: mission.* namespace method (mission.timer_c is taken)"
+
+[[name]]
+native = "show_troop_details"
+easy = "troop.show_details"
+why = "R4: troop subject, method verb (no get/set)"
+
+[[name]]
+native = "rebuild_shadow_map"
+easy = "scene.rebuild_shadow_map"
+why = "global render command; shadow map belongs to the current scene"
+
+[[name]]
+native = "this_or_next"
+easy = "flow.or"
+why = "R11 flow core op §2 example: a or b"
+
+[[name]]
+native = "neg"
+easy = "flow.not"
+why = "R11 flow core op §2 example: not <expr>"

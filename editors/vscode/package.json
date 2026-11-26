@@ -1,0 +1,50 @@
+{
+  "name": "uw-lang",
+  "displayName": "UW (Universal Warband)",
+  "description": "Syntax highlighting, diagnostics, completion and hover for Universal Warband `.uw` files.",
+  "version": "0.1.0",
+  "publisher": "uw-lang",
+  "license": "MIT OR Apache-2.0",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:uw"
+  ],
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "configuration": {
+      "title": "UW",
+      "properties": {
+        "uw.path": {
+          "type": "string",
+          "default": "uw",
+          "description": "Path to the `uw` command (`uw` when it is on PATH)."
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "uw",
+        "aliases": [
+          "UW",
+          "uw"
+        ],
+        "extensions": [
+          ".uw"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "uw",
+        "scopeName": "source.uw",
+        "path": "./syntaxes/uw.tmLanguage.json"
+      }
+    ]
+  }
+}

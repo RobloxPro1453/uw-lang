@@ -1,0 +1,27 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/uw_diag",
+    "crates/uw_syntax",
+    "crates/uw_atlas",
+    "crates/uw_easy",
+    "crates/uw_check",
+    "crates/uw_lower",
+    "crates/uw_emit",
+    "crates/uw_kitrun",
+    "crates/uw_decomp",
+    "crates/uw_start",
+    "crates/uw_core",
+    "crates/uw_cli",
+]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "UW: a general-purpose modding language and compiler for Mount & Blade: Warband 1.174, compiling to the Module System"
+repository = "https://github.com/RobloxPro1453/uw-lang"
+
+# Keep our own code fast to compile while optimizing JSON parsing so 15 MB atlas.json loads ~10x faster in tests.
+[profile.dev.package.serde_json]
+opt-level = 2

@@ -1,0 +1,40 @@
+// T-114 condition words: `test fn player.has` is inlined wherever a condition goes, and
+// `say "…"` is `say("…")`. `not` and `or` keep working around a condition word.
+mod condition_words
+
+// A condition word may call another one; its operations are inlined in order.
+test fn player.ready(:item) {
+    player.has(:item)
+    party_is_active(p_main_party)
+}
+
+area mountain_road [(10, 20), (40, 20), (40, 60), (10, 60)]
+
+on enter mountain_road when time.hour >= 12 {
+    if player.has(iron_shield) {
+        player.remove(iron_shield)
+        say "Bandits took your shield!"
+    }
+    if not player.has(iron_shield) or player.gold >= 100 {
+        say "The road is quiet."
+    }
+}
+
+override menu_start_phase_2 {
+    option uw_has_shield "Ask about the shield." when player.has(iron_shield) {
+        say "You still carry it."
+    }
+    option uw_no_shield "Ask about the toll." when not player.has(iron_shield) {
+        player.give(iron_shield)
+    }
+    option uw_ready "Are you ready?" when player.ready(iron_shield) {
+        say "Ready."
+    }
+    option uw_not_ready "Not ready?" when not player.ready(iron_shield) {
+        say "Not ready."
+    }
+}
+
+// covers: simple_triggers.new
+// covers: menus.override
+// covers: op.party_is_active

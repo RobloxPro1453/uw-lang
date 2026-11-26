@@ -1,0 +1,57 @@
+# Hand-made property vocabulary of the UW core language v0 (docs/dil/CORE-v0.md §4).
+#
+# The lowering (`crates/uw_core/src/lower`) knows no property names: one `[[property]]` entry says what a
+# dotted path means in Native operations. The compiler stays generic; adding a property is adding data.
+#
+#   path       dotted pattern. The last part is the property name and the parts before it name the kind of
+#              object it lives on; the parts in front of the name at the use site are that object
+#              (`player.agent` in `player.agent.speed`), available in a template as `{object}`. `{name}` in
+#              a call marks an argument (`key.held({key})`).
+#   unit       engine unit of the value at this boundary. `"int"`: UW number ÷ 1000 (the engine counts
+#              whole units), `"percent"`: the percent number as written (`150%` → 150), `"text"`: a string.
+#              Omitted: the value goes through unchanged.
+#   get        ops that write the value of the property into `{dest}`.
+#   set        ops that store `{value}` into the property.
+#   cond       ops that test the property (a Native condition; it fails when it does not hold).
+#   aliases    alternative spellings accepted as a call argument (`alt` → `left_alt`).
+#
+# A template argument is a placeholder (`{dest}`, `{value}`, `{object}`, or a call argument) or a literal:
+# `@text` (a quick string), an integer, a global (`$uw_x`), or a name the atlas must know (`trp_player`,
+# `key_left_alt`).
+
+[[property]]
+path = "player.name"
+unit = "text"
+set = [{ op = "troop_set_name", args = ["trp_player", "{value}"] }]
+
+# The language's mission clock (CORE-v0 §4 "Time"): seconds of mission time, the same clock `every 0.5
+# seconds`, `after` and `15 per second` run on (the compiler's saved `$uw_clock_ms`, lower/time.rs). Game time
+# is the kit's own `game.current_hours`. `mission.time + 2 seconds` is a ready time the modder keeps.
+[[property]]
+path = "mission.time"
+get = [{ op = "assign", args = ["{dest}", "$uw_clock_ms"] }]
+
+[[property]]
+path = "player.agent"
+unit = "int"
+get = [{ op = "get_player_agent_no", args = ["{dest}"] }]
+
+[[property]]
+path = "key.held({key})"
+aliases = { alt = "left_alt" }
+cond = [{ op = "key_is_down", args = ["key_{key}"] }]
+
+# Keys (D3). `on key.pressed(q)` / `on key.released(q)` use `key.pressed` and `key.held`; a name the kit
+# has no `key_<name>` for is a game control (`gk_<name>`, rebindable by the player): `control.*`.
+[[property]]
+path = "key.pressed({key})"
+aliases = { alt = "left_alt" }
+cond = [{ op = "key_clicked", args = ["key_{key}"] }]
+
+[[property]]
+path = "control.held({control})"
+cond = [{ op = "game_key_is_down", args = ["gk_{control}"] }]
+
+[[property]]
+path = "control.pressed({control})"
+cond = [{ op = "game_key_clicked", args = ["gk_{control}"] }]

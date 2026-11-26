@@ -1,0 +1,159 @@
+[[name]]
+native = "add_party_note_tableau_mesh"
+easy = "party.add_note_tableau_mesh"
+why = "R4: subject = first entity param (party_id), verb kept"
+
+[[name]]
+native = "add_quest_note_tableau_mesh"
+easy = "quest.add_note_tableau_mesh"
+why = "R4: subject = first entity param (quest_id), verb kept"
+
+[[name]]
+native = "add_quest_note_from_dialog"
+easy = "quest.add_note_from_dialog"
+why = "R4: subject = first entity param (quest_id)"
+
+[[name]]
+native = "add_quest_note_from_sreg"
+easy = "quest.add_note_from_string_reg"
+why = "R4; sreg = string register (ops.json: text.store_string_reg)"
+
+[[name]]
+native = "add_troop_note_from_dialog"
+easy = "troop.add_note_from_dialog"
+why = "R4: subject = first entity param (troop_id)"
+
+[[name]]
+native = "add_faction_note_from_dialog"
+easy = "faction.add_note_from_dialog"
+why = "R4: subject = first entity param (faction_id)"
+
+[[name]]
+native = "add_party_note_from_dialog"
+easy = "party.add_note_from_dialog"
+why = "R4: subject = first entity param (party_id)"
+
+[[name]]
+native = "add_troop_note_from_sreg"
+easy = "troop.add_note_from_string_reg"
+why = "R4; sreg = string register (ops.json: text.store_string_reg)"
+
+[[name]]
+native = "add_faction_note_from_sreg"
+easy = "faction.add_note_from_string_reg"
+why = "R4; sreg = string register (ops.json: text.store_string_reg)"
+
+[[name]]
+native = "add_party_note_from_sreg"
+easy = "party.add_note_from_string_reg"
+why = "R4; sreg = string register (ops.json: text.store_string_reg)"
+
+[[name]]
+native = "dialog_box"
+easy = "dialog.show"
+why = "manual UI namespace (dialog_box -> dialog), show verb"
+
+[[name]]
+native = "tutorial_box"
+easy = "dialog.show_tutorial"
+why = "manual: deprecated alias of dialog_box, so the tutorial variant of dialog.show"
+
+[[name]]
+native = "question_box"
+easy = "dialog.ask"
+why = "manual UI namespace, doc word ask (question_box -> ask)"
+
+[[name]]
+native = "tutorial_message"
+easy = "tutorial_message.show"
+why = "R2b: tutorial_message_ namespace, show verb"
+
+[[name]]
+native = "tutorial_message_set_position"
+easy = "tutorial_message.position"
+why = "R2: set_ drops, property write"
+
+[[name]]
+native = "tutorial_message_set_size"
+easy = "tutorial_message.size"
+why = "R2: set_ drops, property write"
+
+[[name]]
+native = "tutorial_message_set_center_justify"
+easy = "tutorial_message.center_justify"
+why = "R2: set_ drops, property write"
+
+[[name]]
+native = "tutorial_message_set_background"
+easy = "tutorial_message.background"
+why = "R2: set_ drops, property write"
+
+[[name]]
+native = "reset_price_rates"
+easy = "game.reset_price_rates"
+why = "R7: global write, no subject param"
+
+[[name]]
+native = "remove_member_from_party"
+easy = "troop.remove_from_party"
+why = "R4: subject = first entity param (troop_id)"
+
+[[name]]
+native = "remove_regular_prisoners"
+easy = "party.remove_regular_prisoners"
+why = "R4: subject = first entity param (party_id)"
+
+[[name]]
+native = "remove_troops_from_companions"
+easy = "troop.remove_from_companions"
+why = "R4: subject = first entity param (troop_id)"
+
+[[name]]
+native = "remove_troops_from_prisoners"
+easy = "troop.remove_from_prisoners"
+why = "R4: subject = first entity param (troop_id)"
+
+[[name]]
+native = "add_companion_party"
+easy = "troop.add_companion_party"
+why = "R4: subject = first entity param (troop_id_hero)"
+
+[[name]]
+native = "add_troop_to_site"
+easy = "troop.add_to_site"
+why = "R4: subject = first entity param (troop_id)"
+
+[[name]]
+native = "remove_troop_from_site"
+easy = "troop.remove_from_site"
+why = "R4: subject = first entity param (troop_id)"
+
+[[name]]
+native = "modify_visitors_at_site"
+easy = "scene.modify_visitors"
+why = "R4: subject = first entity param (scene_id)"
+
+[[name]]
+native = "reset_visitors"
+easy = "game.reset_visitors"
+why = "R7: global write, no subject param"
+
+[[name]]
+native = "add_visitors_to_current_scene"
+easy = "scene.add_visitors"
+why = "manual: doc"
+
+[[name]]
+native = "setup_quest_text"
+easy = "quest.setup_text"
+why = "R4: subject = first entity param (quest_id)"
+
+[[name]]
+native = "setup_quest_giver"
+easy = "quest.setup_giver"
+why = "R4: subject = first entity param (quest_id)"
+
+[[name]]
+native = "start_encounter"
+easy = "party.start_encounter"
+why = "R4: subject = first entity param (party_id)"

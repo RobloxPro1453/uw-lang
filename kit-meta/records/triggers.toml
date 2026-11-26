@@ -1,0 +1,31 @@
+# Trigger records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_triggers.py
+# (`source` points at it); §2.
+table = "triggers"
+kind = "trigger"
+id_prefix = ""
+
+[[fields]]
+name = "check_interval"
+ty = "raw"
+source = "module_triggers.py:13"
+
+[[fields]]
+name = "delay_interval"
+ty = "raw"
+source = "module_triggers.py:14"
+
+[[fields]]
+name = "rearm_interval"
+ty = "raw"
+source = "module_triggers.py:16"
+
+[[fields]]
+name = "conditions_block"
+ty = "raw"
+source = "module_triggers.py:18"
+
+[[fields]]
+name = "consequences_block"
+ty = "raw"
+source = "module_triggers.py:22"

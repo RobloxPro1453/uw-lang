@@ -1,0 +1,5 @@
+// covers: skills.override
+// T-119: a skill field is read through skills.toml, like a troop field through troops.toml.
+override skill ironflesh {
+    maximum_level 12
+}

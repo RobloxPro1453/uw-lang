@@ -1,0 +1,16 @@
+# Script records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_scripts.py
+# (`source` points at it); §2.
+table = "scripts"
+kind = "script"
+id_prefix = "script_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_scripts.py:21"
+
+[[fields]]
+name = "operation_block"
+ty = "raw"
+source = "module_scripts.py:22"

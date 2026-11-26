@@ -1,0 +1,56 @@
+# Tableau-material records, round 1 (raw): every field is the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's
+# module_tableau_materials.py (`source` points at it); §2.
+table = "tableau_materials"
+kind = "tableau_material"
+id_prefix = "tableau_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_tableau_materials.py:10"
+
+[[fields]]
+name = "tableau_flags"
+ty = "raw"
+source = "module_tableau_materials.py:11"
+
+[[fields]]
+name = "sample_material_name"
+ty = "raw"
+source = "module_tableau_materials.py:12"
+
+[[fields]]
+name = "width"
+ty = "raw"
+source = "module_tableau_materials.py:13"
+
+[[fields]]
+name = "height"
+ty = "raw"
+source = "module_tableau_materials.py:14"
+
+[[fields]]
+name = "mesh_min_x"
+ty = "raw"
+source = "module_tableau_materials.py:15"
+
+[[fields]]
+name = "mesh_min_y"
+ty = "raw"
+source = "module_tableau_materials.py:16"
+
+[[fields]]
+name = "mesh_max_x"
+ty = "raw"
+source = "module_tableau_materials.py:17"
+
+[[fields]]
+name = "mesh_max_y"
+ty = "raw"
+source = "module_tableau_materials.py:18"
+
+[[fields]]
+name = "operations"
+ty = "raw"
+source = "module_tableau_materials.py:19"

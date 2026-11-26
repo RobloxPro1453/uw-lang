@@ -1,0 +1,38 @@
+# Postfx parameter records: `flags` decodes with the `fxf_` constants of header_postfx.py; the other
+# fields are the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_postfx.py
+# (`source` points at it); §2.
+table = "postfx_params"
+kind = "postfx_param"
+id_prefix = "pfx_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_postfx.py:5"
+
+[[fields]]
+name = "flags"
+ty = "flags:fxf_"
+# module_postfx.py:6 names it "flags"; header_postfx.py:7 defines fxf_highhdr.
+source = "module_postfx.py:6"
+
+[[fields]]
+name = "tonemap_operator_type"
+ty = "raw"
+source = "module_postfx.py:7"
+
+[[fields]]
+name = "shader_parameters1"
+ty = "raw"
+source = "module_postfx.py:8"
+
+[[fields]]
+name = "shader_parameters2"
+ty = "raw"
+source = "module_postfx.py:9"
+
+[[fields]]
+name = "shader_parameters3"
+ty = "raw"
+source = "module_postfx.py:10"

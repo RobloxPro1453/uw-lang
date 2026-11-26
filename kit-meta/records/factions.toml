@@ -1,0 +1,56 @@
+# Faction records: `faction_flags` is a `bits` value (bit 0 is `ff_always_hide_label`, bits 8..15
+# are the packed `max_player_rating`); every other field is still the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's module_factions.py
+# (`source` points at it); §2.
+table = "factions"
+kind = "faction"
+id_prefix = "fac_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_factions.py:5"
+
+[[fields]]
+name = "name"
+ty = "raw"
+source = "module_factions.py:7"
+
+[[fields]]
+name = "faction_flags"
+ty = "bits"
+source = "module_factions.py:8"
+
+# header_factions.py:9-11 packs the hide-label flag in bit 0 and the rating in bits 8..15.
+[[fields.parts]]
+name = "always_hide_label"
+shift = 0
+width = 1
+source = "header_factions.py:9"
+
+[[fields.parts]]
+name = "max_player_rating"
+shift = 8
+width = 8
+source = "header_factions.py:10"
+
+[[fields]]
+name = "coherence"
+ty = "raw"
+source = "module_factions.py:9"
+
+[[fields]]
+name = "relations"
+ty = "raw"
+source = "module_factions.py:10"
+
+[[fields]]
+name = "ranks"
+ty = "raw"
+source = "module_factions.py:15"
+
+[[fields]]
+name = "faction_color"
+ty = "raw"
+optional = true
+source = "module_factions.py:16"

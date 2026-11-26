@@ -1,0 +1,19 @@
+// features/sprint.uw — hold Alt while moving to run; running dry leaves you tired for a moment.
+// Every engine word here is the kit's own (agent.speed = the agent's velocity, agent.speed_modifier);
+// "moving", the costs and the rest are this file's design, written with the clock (mission.time).
+const SPEED = 150%
+const COST = 35 per second
+const MOVING = 0.5   // metres per second: slower than this counts as standing
+
+var agent.rested_at = 0   // mission.time when the player may run again
+
+while key.held(alt) and player.agent.speed > MOVING and player.agent.stamina > 0 and mission.time >= player.agent.rested_at {
+    player.agent.speed_modifier = SPEED
+    player.agent.stamina -= COST
+    if player.agent.stamina <= 0 {
+        player.agent.rested_at = mission.time + 2 seconds
+    }
+}
+otherwise {
+    player.agent.speed_modifier = 100%
+}

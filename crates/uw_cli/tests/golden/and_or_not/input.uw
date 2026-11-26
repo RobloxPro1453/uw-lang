@@ -1,0 +1,27 @@
+// Grammar 2, guide 3.6: `and` is a plain sequence of conditions. `or` uses `this_or_next|` when
+// every alternative is one condition operation; a mixed `and / or` keeps its result in a flag
+// local (`:_uw0`) instead. `not` flips a comparison and puts `neg|` in front of a Native condition.
+mod golden_logic
+
+override menu_start_phase_2 {
+    // `this_or_next|` group: two single conditions joined by `or`
+    option uw_either "Some gold, or a party on the map." when $g_gold >= 100 or party_is_active(p_main_party) {
+        display_message("@UW: either is enough.")
+    }
+
+    // flag case: `a and b or c` cannot be a plain sequence, so UW asks a flag local first
+    option uw_mixed "Rich and on the map, or just lucky." when $g_gold >= 100 and party_is_active(p_main_party) or $g_lucky == 1 {
+        display_message("@UW: the flag held.")
+    }
+}
+
+on game.start {
+    if not $g_gold == 0 and not party_is_active(p_main_party) {
+        display_message("@UW: some gold, and no party left.")
+    }
+}
+
+// covers: menus.override
+// covers: scripts.hook
+// covers: op.party_is_active
+// covers: op.display_message

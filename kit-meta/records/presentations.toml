@@ -1,0 +1,30 @@
+# Presentation records: the flags field prints its `prsntf_*` bits by name and the background mesh
+# prints as a `meshes` table id; every other field is still the atlas value as it is.
+# Field names and order follow the layout comment at the top of the kit's
+# module_presentations.py (`source` points at it); §2.
+table = "presentations"
+kind = "presentation"
+id_prefix = "prsnt_"
+
+[[fields]]
+name = "id"
+ty = "raw"
+source = "module_presentations.py:12"
+
+# header_presentations.py:19-20 defines prsntf_read_only and prsntf_manual_end_only.
+[[fields]]
+name = "presentation_flags"
+ty = "flags:prsntf_"
+source = "module_presentations.py:13"
+
+# process_presentations.py:15 writes the mesh as an int and module_presentations.py imports the
+# indices from ID_meshes.py, so it is a `meshes` table index (module_meshes.py list).
+[[fields]]
+name = "background_mesh"
+ty = "ref:meshes"
+source = "module_presentations.py:14"
+
+[[fields]]
+name = "triggers"
+ty = "raw"
+source = "module_presentations.py:15"

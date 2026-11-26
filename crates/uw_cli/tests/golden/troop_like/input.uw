@@ -1,0 +1,9 @@
+// T-092: a new troop is a copy of a Native one with some fields changed, added at the end of the
+// troop list. `level` and `agility` are parts of the packed `attributes` field (troops.toml).
+troop elite_crossbowman like swadian_crossbowman {
+    name "Elite Crossbowman"
+    level 22
+    agility 18
+}
+
+// covers: troops.like

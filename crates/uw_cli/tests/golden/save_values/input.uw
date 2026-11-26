@@ -1,0 +1,25 @@
+// T-085 `save`: `rich` and `gold` are named globals that live in the save game. Their start
+// values are written once, at game start; a bare name means `$name` everywhere else.
+mod save_values
+
+save rich = false
+save gold = 0
+
+on game.start {
+    rich = true               // $rich = 1
+    gold += 5                 // $gold += 5
+    $g_total = gold + 1       // $gold as an operand
+    if rich {                 // $rich != 0
+        display_message("@Still rich.")
+    }
+}
+
+override menu start_phase_2 {
+    option uw_poor "Ask for gold." when not rich {   // $rich == 0
+        display_message("@No gold.")
+    }
+}
+
+// covers: scripts.hook
+// covers: menus.override
+// covers: op.display_message

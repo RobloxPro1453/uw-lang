@@ -1,0 +1,3 @@
+// main.uw — the whole game (core language, docs/dil/CORE-v0.md).
+// D4a: the start flow (skip character creation, start in Praven's streets) is not built yet (D4b);
+// start a normal new game and walk into any town, village or battle to try the features.

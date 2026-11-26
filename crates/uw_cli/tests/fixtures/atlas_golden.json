@@ -1,0 +1,82 @@
+{
+      "schema": 1, "kit_hash": "golden",
+      "ops": [
+        {"name":"party_relocate_near_party","code":1623,"line":667,"signature":"(party_relocate_near_party,<party_id>,<target_party_id>,<value_spawn_radius>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"change_screen_map","code":2052,"line":1093,"signature":"","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"display_message","code":1106,"line":482,"signature":"(display_message,<string_id>,[hex_colour_code]),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"assign","code":2133,"line":40,"signature":"","lhs":true,"can_fail":false,"global_lhs":false},
+        {"name":"troop_set_type","code":1509,"line":600,"signature":"(troop_set_type,<troop_id>,<type_no>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"party_is_active","code":132,"line":94,"signature":"(party_is_active,<party_id>),","lhs":false,"can_fail":true,"global_lhs":false},
+        {"name":"player_has_item","code":150,"line":95,"signature":"(player_has_item,<item_id>),","lhs":false,"can_fail":true,"global_lhs":false},
+        {"name":"troop_add_gold","code":1528,"line":611,"signature":"(troop_add_gold,<troop_id>,<value>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"call_script","code":1,"line":14,"signature":"(call_script,<script_id>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"ge","code":30,"line":40,"signature":"(ge,<value>,<value>),","lhs":false,"can_fail":true,"global_lhs":false},
+        {"name":"store_troop_gold","code":2149,"line":1204,"signature":"(store_troop_gold,<destination>,<troop_id>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"store_time_of_day","code":2271,"line":1274,"signature":"(store_time_of_day,<destination>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"troop_remove_gold","code":1529,"line":612,"signature":"(troop_remove_gold,<troop_id>,<value>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"troop_add_item","code":1530,"line":613,"signature":"(troop_add_item,<troop_id>,<item_id>,[modifier]),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"troop_remove_item","code":1531,"line":614,"signature":"(troop_remove_item,<troop_id>,<item_id>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"party_add_members","code":1610,"line":651,"signature":"(party_add_members,<party_id>,<troop_id>,<number>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"party_remove_members","code":1615,"line":657,"signature":"(party_remove_members,<party_id>,<troop_id>,<number>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"troop_get_slot","code":520,"line":252,"signature":"(troop_get_slot,<destination>,<troop_id>,<slot_no>),","lhs":false,"can_fail":false,"global_lhs":false},
+        {"name":"eq","code":31,"line":41,"signature":"(eq,<value>,<value>),","lhs":false,"can_fail":true,"global_lhs":false},
+        {"name":"store_character_level","code":2171,"line":1221,"signature":"(store_character_level,<destination>,[troop_id]),","lhs":false,"can_fail":false,"global_lhs":false}
+      ],
+      "hooks": ["game_start"],
+      "ranges": [],
+      "constants": [
+        {"name":"reg0","value":1,"module":"header_common","line":563},
+        {"name":"tf_male","value":0,"module":"header_troops","line":25},
+        {"name":"slot_troop_renown","value":7,"module":"module_constants","line":659},
+        {"name":"slot_troop_met","value":5,"module":"module_constants","line":653}
+      ],
+      "tables": {
+        "menus": {"module":"module_game_menus","var":"game_menus","id_file":"ID_menus","id_prefix":"menu_","ref_tag":"mnu",
+          "entries": [
+            {"index":0,"name":"start_game_0","id":"menu_start_game_0","dup":null,"line":39,"value":[]},
+            {"index":1,"name":"start_phase_2","id":"menu_start_phase_2","dup":null,"line":55,
+              "value":[null,null,null,null,[],{"list":[
+                ["town_1",[],null,[]],
+                ["town_2",[],null,[]],
+                ["town_3",[],null,[]],
+                ["town_4",[],null,[]],
+                ["town_5",[],null,[]],
+                ["town_6",[],null,[]]
+              ]}]},
+            {"index":23,"name":"camp","id":"menu_camp","dup":null,"line":2998,"value":[]}
+          ]},
+        "parties": {"module":"module_parties","var":"parties","id_file":"ID_parties","id_prefix":"p_","ref_tag":"p",
+          "entries": [
+            {"index":0,"name":"main_party","id":"p_main_party","dup":null,"line":1,"value":[]},
+            {"index":26,"name":"town_6","id":"p_town_6","dup":null,"line":82,
+              "value":["town_6","Praven",4219916,0,0,3,0,0,0,[-96,26.4],{"list":[]},155]}
+          ]},
+        "items": {"module":"module_items","var":"items","id_file":"ID_items","id_prefix":"itm_","ref_tag":"itm",
+          "entries": [
+            {"index":0,"name":"iron_shield","id":"itm_iron_shield","dup":null,"line":1,
+              "value":{"list":["iron_shield","Iron Shield","Iron Shields",0,0,0,0,0]}}
+          ]},
+        "factions": {"module":"module_factions","var":"factions","id_file":"ID_factions","id_prefix":"fac_","ref_tag":"fac",
+          "entries": [
+            {"index":0,"name":"kingdom_1","id":"fac_kingdom_1","dup":null,"line":5,
+              "value":["kingdom_1","Kingdom of Swadia",15,100,{"list":[]},{"list":[]}]}
+          ]},
+        "skills": {"module":"module_skills","var":"skills","id_file":"ID_skills","id_prefix":"skl_","ref_tag":"skl",
+          "entries": [
+            {"index":0,"name":"ironflesh","id":"skl_ironflesh","dup":null,"line":5,
+              "value":["ironflesh","Ironflesh",4,10,"Each point increases health."]}
+          ]},
+        "troops": {"module":"module_troops","var":"troops","id_file":"ID_troops","id_prefix":"trp_","ref_tag":"trp",
+          "entries": [
+            {"index":0,"name":"player","id":"trp_player","dup":null,"line":1,"value":[]},
+            {"index":1,"name":"swadian_crossbowman","id":"trp_swadian_crossbowman","dup":null,"line":378,
+              "value":{"list":["swadian_crossbowman","Swadian Crossbowman","Swadian Crossbowmen",1041,0,0,15,
+                {"list":["itm_bolts","itm_crossbow"]},
+                107374184469,153,0,"swadian_face_young_1","swadian_face_old_2"]}},
+            {"index":2,"name":"kingdom_1_lord","id":"trp_kingdom_1_lord","dup":null,"line":964,
+              "value":{"list":["kingdom_1_lord","King Harlaus","Harlaus"]}}
+          ]},
+        "scripts": {"module":"module_scripts","var":"scripts","id_file":"ID_scripts","id_prefix":"script_","ref_tag":"script",
+          "entries": [{"index":0,"name":"game_start","id":"script_game_start","dup":null,"line":31,"value":[]}]}
+      }
+    }

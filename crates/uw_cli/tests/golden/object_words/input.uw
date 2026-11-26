@@ -1,0 +1,41 @@
+// T-082 object words: a library (written here in the same file) defines `player.gold` and
+// `player.level`, and the modder writes them like fields. `player.gold += 1000` is the call
+// `player.gold.add(1000)`, a dotted word read as a value is `player.gold.get(:tmp)` on the line
+// just before the statement that uses it, and `player.gold >= 100` reads it the same way.
+mod object_words
+
+fn player.gold.get(:out) {
+    assign(:out, $g_gold)
+}
+
+fn player.gold.add(:amount) {
+    $g_gold += :amount
+}
+
+fn player.gold.remove(:amount) {
+    $g_gold -= :amount
+}
+
+fn player.level.set(:value) {
+    $g_level = :value
+}
+
+on game.start {
+    player.gold += 1000        // player.gold.add(1000)
+    player.gold -= 50          // player.gold.remove(50)
+    player.level = 5           // player.level.set(5)
+    $g_total = player.gold + 1 // player.gold.get(:tmp) first, then store_add
+    if player.gold >= 100 {    // player.gold.get(:tmp) before the comparison
+        display_message("@Still rich.")
+    }
+}
+
+override menu start_phase_2 {
+    option uw_rich "Ask for gold." when player.gold >= 1000 {
+        player.gold += 100
+    }
+}
+
+// covers: scripts.hook
+// covers: menus.override
+// covers: op.display_message
