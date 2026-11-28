@@ -11,5 +11,5 @@ ui.bar stamina_bar {
     position   = bottom_left
     size       = (220, 14)
     color      = #3FA34D
-    label      = "Stamina"
+    label      = "Stamina: {player.agent.stamina}"
 }
