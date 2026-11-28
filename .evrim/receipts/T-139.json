@@ -1,0 +1,12 @@
+{
+  "taskId": "T-139",
+  "checkDigest": "dee2ce8834aa0894",
+  "branch": "cv/T-139",
+  "headSha": "cd274c22a48133c3999caa0a142eca061d4b388a",
+  "treeSha": "ec27f6c3cac3793827fb30d31321f761316f9219",
+  "buildOk": true,
+  "testOk": true,
+  "status": "done",
+  "testsBy": "agent",
+  "timestamp": "2026-11-21T18:54:53.930Z"
+}

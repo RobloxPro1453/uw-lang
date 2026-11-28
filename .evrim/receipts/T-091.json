@@ -1,0 +1,11 @@
+{
+  "taskId": "T-091",
+  "branch": "cv/T-091",
+  "headSha": "b3ead47f686dab87b8ca7cecdf1604199c612f9a",
+  "treeSha": "7376eb1e48cab1d6227bdf67c153f7e18cf23dcc",
+  "buildOk": true,
+  "testOk": true,
+  "status": "done",
+  "testsBy": "agent",
+  "timestamp": "2026-11-16T13:00:54.567Z"
+}

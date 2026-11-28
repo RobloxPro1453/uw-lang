@@ -1,0 +1,6 @@
+# Dünya haritası (`map.txt`)
+
+- **[KİT]** Arazi türü kodları `Module_system 1.171/header_terrain_types.py:1-13`: water 0, mountain 1, steppe 2, plain 3, snow 4, desert 5, bridge 7, river 8, mountain_forest 9, steppe_forest 10, forest 11, snow_forest 12, desert_forest 13.
+- **[DENEY 2026-11-15, okuma]** Native `Modules/Native/map.txt` (1,6 MB) düz metin: ilk satır köşe sayısı (20791), sonra her satırda `x y z`; ardından yüz sayısı (41387), sonra her satırda 6 sayı: `arazi_türü ? 3 k1 k2 k3` (ilk alan 0-13 arası, yukarıdaki kodlarla uyumlu; ikinci alanın anlamı bilinmiyor, Native'de hep 0 görünüyor — doğrulanmadı). Yani harita = arazi türü boyanmış üçgen ağı.
+- **Sonuç (tasarım):** Yükseklik haritası (gri PNG) + arazi boyama haritası (renk = arazi türü: deniz, göl/nehir, dağ, orman, kar…) → ızgara üçgenleme → `map.txt` dönüştürücü yapılabilir görünüyor. Su seviyesi, kıyı, nehir/köprü ayrıntıları ve motorun yol bulma/performans sınırları **D8+ deneyle** doğrulanmalı.
+- Görseli kim üretir: sahibi herhangi bir çizim programıyla (ücretsiz: Krita, GIMP) ya da Claude bir betikle (gürültü + tarif edilen şekiller: "kuzeyde dağ silsilesi, ortada göl") üretebilir; ikisi aynı dönüştürücüden geçer.

@@ -70,15 +70,18 @@ Drop `--no-install` to install the mod into Warband's `Modules/` folder. `uw --h
 | [Architecture](docs/ARCHITECTURE.md) | How the compiler works |
 | [Development](docs/DEVELOPMENT.md) | Building, testing, contributing |
 | [VS Code](editors/vscode) | Highlighting, diagnostics, completion |
+| [Document map](docs/HARITA.md) | Every design, planning and progress document (Turkish) |
 
 ## Status
 
-Early and experimental (0.1.0); syntax may change. Loops over engine collections, string interpolation and fixed-size arrays are in progress, and in-game testing so far covers only a few examples. Expect rough edges, and please [report them](https://discord.gg/cjKbchTa2c).
+Early and experimental (0.1.0); syntax may change. Loops over engine collections and fixed-size arrays are in progress, and in-game testing so far covers only a few examples. Expect rough edges, and please [report them](https://discord.gg/cjKbchTa2c).
 
 ## Contributing
 
 Issues and pull requests are welcome. Run `cargo test --workspace` before submitting.
 One rule shapes the project: the compiler gains general language features only; gameplay mechanics belong in user code.
+
+The project is developed with AI agents under the [claudevolution](AGENTS.md) workflow; its configuration, decisions, lessons and plans are kept in the repository (`AGENTS.md`, `.evrim/`, `docs/`), so a fresh clone carries the full working context. Internal working documents are in Turkish.
 
 ---
 

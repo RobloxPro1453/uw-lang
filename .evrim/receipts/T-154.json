@@ -1,0 +1,12 @@
+{
+  "taskId": "T-154",
+  "checkDigest": "dee2ce8834aa0894",
+  "branch": "cv/T-154",
+  "headSha": "2cf76235cc81a3c622bb068107409ede276d7c52",
+  "treeSha": "af686771304afe4871265a1d35851b3236809ec5",
+  "buildOk": true,
+  "testOk": true,
+  "status": "done",
+  "testsBy": "agent",
+  "timestamp": "2026-11-21T18:56:47.602Z"
+}

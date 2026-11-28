@@ -1,0 +1,15 @@
+{
+  "taskId": "T-120",
+  "branch": "cv/T-120",
+  "base": "master",
+  "checkDigest": "dee2ce8834aa0894",
+  "treeSha": "73f7a5b049c99c3ffd3f6248a16fe350f79b6a93",
+  "buildOk": true,
+  "testOk": true,
+  "verdict": "PASS",
+  "ok": true,
+  "skippedRun": false,
+  "testsBy": "verifier",
+  "findingsCount": 0,
+  "timestamp": "2026-11-21T15:24:59.750Z"
+}

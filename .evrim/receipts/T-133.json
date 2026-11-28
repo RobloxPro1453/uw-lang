@@ -1,0 +1,15 @@
+{
+  "taskId": "T-133",
+  "branch": "cv/T-133",
+  "base": "master",
+  "checkDigest": "dee2ce8834aa0894",
+  "treeSha": "eff1a448120c5a3560643ea8d0483ecc3e46fc6c",
+  "buildOk": true,
+  "testOk": true,
+  "verdict": "PASS",
+  "ok": true,
+  "skippedRun": false,
+  "testsBy": "verifier",
+  "findingsCount": 0,
+  "timestamp": "2026-11-21T18:29:41.234Z"
+}

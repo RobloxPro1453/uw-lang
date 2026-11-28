@@ -1,0 +1,13 @@
+{
+  "taskId": "T-027",
+  "branch": "cv/T-027",
+  "base": "master",
+  "treeSha": "239f7369d8ff2d5edb2765fd4d6265ea8804409e",
+  "buildOk": true,
+  "testOk": true,
+  "verdict": "PASS",
+  "ok": true,
+  "skippedRun": false,
+  "findingsCount": 0,
+  "timestamp": "2026-11-15T17:24:17.586Z"
+}

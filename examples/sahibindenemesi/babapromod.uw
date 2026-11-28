@@ -1,0 +1,9 @@
+
+
+override menu start_phase_2 {
+    on enter {
+        party_relocate_near_party(p_main_party, p_town_6, 1)
+        display_message("@merhaba duya")
+        change_screen_map()
+    }
+}
