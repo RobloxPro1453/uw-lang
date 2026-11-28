@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Text with values: `"Gold: {gold}"` shows numbers (whole units) and text constants inside any text; HUD labels with values follow them every frame.
+- Text values from the kit: `{troop.player.name}`, `{party.main_party.name}` and every `str_store_*` operation by its kit name (`text.store_date(24)`); using a text as a number is a compile error.
 
 ## 0.1.0 - Initial public release
 

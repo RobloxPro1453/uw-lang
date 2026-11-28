@@ -30,6 +30,8 @@ pub fn atlas() -> Atlas {
         "str_store_string", "troop_set_face_keys", "player_set_face_keys", "party_relocate_near_party",
         "set_jump_mission", "jump_to_scene", "change_screen_mission", "change_screen_map",
         "troop_raise_attribute", "jump_to_menu",
+        // text values (D5)
+        "str_store_troop_name", "str_store_party_name", "str_store_date", "party_set_name",
     ];
     let mut ops = Vec::new();
     let mut code = 1;

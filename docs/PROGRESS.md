@@ -6,7 +6,8 @@ En üstte en yeni. Kayıt başına **en çok 5 satır**: ne yapıldı, ne bulund
 ## 2026-11-28 · D5 metin içi değer (Claude, kodu yalnız Claude yazıyor)
 `"Altın: {gold}"`: sayılar derleyicinin `reg52..reg59` yazmaçlarından (Native'de kullanılmıyor, kitte tarandı) tam birim, metin sabitleri satır içi, metin yazmaçları `{sN}` olarak; yazmaçlar derleme boyunca döner, 8'den çok sayı hatadır. HUD etiketi değer içerirse açılışta dolu, her karede `overlay_set_text` ile yenilenir. Dile eklenen kelime: yok (yalnız genel `{…}` olanağı açıldı).
 Doğrulama: çalışma alanı 575 test geçti 0 hata (+7); Alex kopyası canlı etiketle kitten 32 dosya çıktı (`"@Stamina: {reg52}"`). Oyunda deneme CHECKUP'ta.
-Sıradaki: `str_store_*` metin özellikleri (`{troop.player.name}`), sonra koleksiyon `for` döngüleri.
+Ek (aynı gün): kitin 29 `str_store_*` işlemi kitin adıyla metin değeri (`text.store_date(24)`) ve genel eşleme `str_store_<şey>_name` → `<şey>.name` okuyucusu (`{troop.player.name}`); metni sayı gibi kullanmak artık derleme hatası (sessizce toplanıyordu). Ölçü: `uw coverage` core erişilebilir işlem **901 → 927/1060 (%87,5)**, `lowered 542/542`; çalışma alanı 578 test geçti 0 hata. Dile eklenen kelime: yok (kitin adları + genel getter/setter eşlemesi).
+Sıradaki: koleksiyon `for` döngüleri (`for a in mission.agents`).
 ## 2026-11-21 akşam · YÖN-3 dil katmanı kararı + çekirdek başlangıcı (Claude + DeepSeek)
 Dil meclisi (D1-D4): üç kat tek dil, %88,7 işlem kitten otomatik kolay ada; kör sınav 8 mekanik, özelliğe özel yama 0. Sahibinin esneklik ilkesi (§2b: genel fiiller, main.uw, tam özellikli UI). `uw_core` (dil tanımı + AST), `uw_start` (game_start yorumlayıcısı), `uw coverage` (genel %3,8), 27 tabloda override/like, hardwired listesi birleşti; testler 475 geçti 0 hata. DeepSeek bugün ~$1,5.
 Sıradaki: DEVIR en üstteki plan (T-132..T-137 → Alex oyun denemesi).

@@ -118,7 +118,7 @@ ui.bar stamina_bar {
 }
 ```
 
-Metnin içine `{…}` ile değer yazılır: `"Altın: {gold}"`. Sayılar tam birim gösterilir (`75.6` → `75`), metin sabitleri olduğu gibi girer; bir metinde en çok 8 sayı olur. Değerli bir etiket HUD açılırken dolu gelir ve her karede yeniden yazılır, yani değeri izler. Arkadaki yazmaçlar (`reg52..reg59`, `s60..s67`) derleyicinindir, UW kodunda görünmez.
+Metnin içine `{…}` ile değer yazılır: `"Altın: {gold}"`. Sayılar tam birim gösterilir (`75.6` → `75`), metin sabitleri olduğu gibi girer; bir metinde en çok 8 sayı olur. Oyunun metinleri de girer: `"{troop.player.name} şehre girdi"`, `"{text.store_date(0)}"` (kitin `str_store_*` işlemleri, kitin adlarıyla). Metin sayı değildir: gösterilir, değişkene konmaz ya da toplanmaz. Değerli bir etiket HUD açılırken dolu gelir ve her karede yeniden yazılır, yani değeri izler. Arkadaki yazmaçlar (`reg52..reg59`, `s60..s67`) derleyicinindir, UW kodunda görünmez.
 
 Bütün `ui.*` bileşenleri tek bir paylaşımlı HUD sunumunda (`prsnt_uw_hud`) toplanır; envanter veya konuşma ekranı HUD'u kapattığında derleyicinin kare dağıtıcısı onu kendiliğinden geri açar.
 

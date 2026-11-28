@@ -181,6 +181,10 @@ come with `screen` (D6).
 Text with values (D5): in any text, `{expr}` shows a number as whole units (`75.6` shows `75`) through the
 compiler's own registers `reg52..reg59` (Native never uses them; at most 8 numbers in one text), a text
 constant inline, a text value by its string register. Registers never show in UW code.
+Text values come from the kit: every `str_store_*` operation is a value by its kit name
+(`text.store_party_name(party.main_party)`, `text.store_date(24)`), and `str_store_<thing>_name` also reads
+`<thing>.name` (`troop.player.name`, `party.main_party.name`, `agent.name`, …), next to the kit's `<thing>.name` setter.
+A text is not a number: it can be shown, not stored in a variable, added or compared (a compile error).
 
 ## 7. Keys (D3)
 

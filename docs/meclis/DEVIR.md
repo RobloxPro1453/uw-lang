@@ -12,14 +12,14 @@
 
 - **Çekirdek dil (`crates/uw_core`):** `main.uw` + `features/*.uw` projelerini gerçek kitle derliyor (`uw build examples/alex --no-install` → 32 dosya).
 - **D5 ilk parça bitti (2026-11-28):** metin içi değer `"Altın: {gold}"` (sayılar `reg52..reg59` üzerinden tam birim, metin sabiti satır içi, metin yazmacı `{sN}`); HUD etiketi değer içerirse her karede `overlay_set_text` ile yenilenir. Oyun denemesi `docs/CHECKUP.md` kuyruğunda.
-- **Motor işlemi erişimi (`uw coverage`, 2026-11-25 ölçüsü):** **901 / 1.060 (%85,0)**. Kalan 159 işlem: pozisyon dönüşümleri, `str_store_*` metinleri, `try_for_*` döngüleri.
+- **Motor işlemi erişimi (`uw coverage`, 2026-11-28 ölçüsü):** **927 / 1.060 (%87,5)**, `lowered 542/542`. Kalan 133 işlem: pozisyon dönüşümleri, `try_for_*` döngüleri, yazmacı yerinde değiştiren metin işlemleri.
 - **Native ters-okuma (`uw view`, 2026-11-25 ölçüsü):** `85.308` işlem satırının **18.576'sı (%21,8)**.
-- **Testler:** çalışma alanı **575 geçti, 0 hata**.
+- **Testler:** çalışma alanı **578 geçti, 0 hata**.
 - **Tam teknik yol haritası:** [docs/dil/DIL_TAMAMLAMA_TEFTISI.md](../dil/DIL_TAMAMLAMA_TEFTISI.md) (A: iç teftiş, B: %100 Module System gücü, C: `uw view` %95+).
 
 ## Önerilen Sıradaki Adımlar (kanıta göre esnek)
 
-1. **D5 devamı — metin özellikleri:** `{troop.player.name}`, `{party.town_6.name}` gibi `str_store_*` işlemlerini `unit = "text"` özellikleri olarak kitten açmak (metin yazmacına yazılır, `text_value` onu `{sN}` diye zaten gösterir).
+1. ~~D5 metin özellikleri~~ bitti (2026-11-28): `{troop.player.name}`, `text.store_*` kit adlarıyla; metin sayı gibi kullanılamaz.
 2. **D5 — koleksiyon döngüleri:** `for a in mission.agents` / `game.parties` / `game.players` / `scene.props(kind)` (`try_for_agents`, `try_for_parties`, `try_for_players`, `try_for_prop_instances`).
 3. **D5 — sabit boyutlu diziler** (`var scores: [int; 8]`, `slots.lock` içinde ardışık slot).
 4. **B.2 — motor kancaları (`kit-meta/core/events.toml`):** 45 `ti_*` + 49 `game_*` `on <alan>.<olay>(...)` ile.

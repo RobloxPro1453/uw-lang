@@ -66,3 +66,35 @@ fn registers_rotate_so_two_texts_never_share_one() {
     let found = texts(script(&lowered, "show"));
     assert!(found.contains(&"@{reg52}".to_owned()) && found.contains(&"@{reg53}".to_owned()), "{found:?}");
 }
+
+fn op<'a>(ops: &'a [Op], name: &str) -> &'a Op {
+    ops.iter().find(|op| op.name == name).unwrap_or_else(|| panic!("no {name} in {ops:?}"))
+}
+
+#[test]
+fn a_things_name_reads_into_a_string_register() {
+    let lowered = lower_ok(&[("a", "fn show() {\n  party.main_party.name = \"{troop.player.name}'s band\"\n}\n")]);
+    let ops = script(&lowered, "show");
+    let store = op(ops, "str_store_troop_name");
+    let Arg::Name(reg) = &store.args[0] else { panic!("register: {store:?}") };
+    assert!(reg.starts_with('s'), "{store:?}");
+    assert_eq!(store.args[1], Arg::Name("trp_player".to_owned()));
+    assert!(texts(ops).contains(&format!("@{{{reg}}}'s band")), "{ops:?}");
+}
+
+#[test]
+fn kit_text_operations_are_values_by_their_kit_names() {
+    let lowered = lower_ok(&[("a", "fn show() {\n  troop.player.name = \"{text.store_party_name(party.main_party)} / {text.store_date(24)}\"\n}\n")]);
+    let ops = script(&lowered, "show");
+    let party = op(ops, "str_store_party_name");
+    let date = op(ops, "str_store_date");
+    assert_eq!(party.args[1], Arg::Name("p_main_party".to_owned()));
+    assert_eq!(date.args[1], Arg::Int(24), "hours go in as whole units");
+    assert_ne!(party.args[0], date.args[0], "two texts, two registers");
+}
+
+#[test]
+fn a_text_is_not_a_number() {
+    let err = lower_err(&[("a", "var n = 0\nfn f() {\n  n = troop.player.name + 1\n}\n")]);
+    assert!(!err.is_empty());
+}

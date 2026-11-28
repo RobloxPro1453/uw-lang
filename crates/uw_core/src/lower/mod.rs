@@ -1387,6 +1387,9 @@ impl<'a> Ctx<'a> {
 
     /// Combines `value` into `target` while preserving UW's fixed-point thousandths scale.
     fn emit_compound(&mut self, target: &Arg, op: AssignOp, value: Arg, span: Span) -> Result<(), Error> {
+        if is_text_arg(&value) {
+            return Err(self.error(span, "a text is not a number: it can be shown (`\"{…}\"`), not stored or counted"));
+        }
         match op {
             AssignOp::Set => self.emit("assign", vec![target.clone(), value], span),
             AssignOp::Add => self.emit("val_add", vec![target.clone(), value], span),
@@ -1503,6 +1506,23 @@ impl<'a> Ctx<'a> {
         Arg::Name(reg)
     }
 
+    /// A string register for a text value. The registers are the compiler's own (CORE-v0 §4); they rotate
+    /// over `s60..s67`.
+    fn str_reg(&mut self) -> Arg {
+        let reg = Arg::Name(format!("s{}", 60 + self.next_str % 8));
+        self.next_str += 1;
+        reg
+    }
+
+    /// Where a getter writes: a text goes into a string register, anything else into a fresh local.
+    fn dest_for(&mut self, prop: &Property) -> Arg {
+        if prop.unit.as_deref() == Some("text") {
+            self.str_reg()
+        } else {
+            self.temp()
+        }
+    }
+
     /// Reads a vector property (`player.agent.speed`) into a fresh position register.
     fn vector_get(&mut self, path: &Path, prop: &Property) -> Result<Arg, Error> {
         let pos = self.pos_reg();
@@ -1602,7 +1622,7 @@ impl<'a> Ctx<'a> {
                 self.emit("val_mul", vec![dest.clone(), Arg::Int(10)], span)?; // centimetres → thousandths of a metre
                 return Ok(Scaled::Lang(dest));
             }
-            let dest = self.temp();
+            let dest = self.dest_for(&prop);
             let subst = Subst { object: Some(path), value: Some(dest.clone()), args: Vec::new() };
             self.emit_steps(&prop.get, &subst, span)?;
             if prop.unit.as_deref() == Some("int") && !raw {
@@ -1638,7 +1658,7 @@ impl<'a> Ctx<'a> {
         let (prop, args) = self.resolve_call(call)?;
         let object = Some(&call.callee);
         if !prop.get.is_empty() {
-            let dest = self.temp();
+            let dest = self.dest_for(&prop);
             let subst = Subst { object, value: Some(dest.clone()), args };
             self.emit_steps(&prop.get, &subst, call.span)?;
             if prop.unit.as_deref() == Some("int") {
@@ -1718,6 +1738,9 @@ impl<'a> Ctx<'a> {
 
     /// Folds two numbers; otherwise writes the operation into a fresh local, keeping thousandths scale.
     fn arith(&mut self, left: Arg, name: &str, right: Arg, span: Span) -> Result<Arg, Error> {
+        if is_text_arg(&left) || is_text_arg(&right) {
+            return Err(self.error(span, "a text is not a number: it cannot be added, taken away, multiplied or divided"));
+        }
         if name == "store_div" && matches!(right, Arg::Int(0)) {
             return Err(self.error(span, "division by zero"));
         }
@@ -2100,8 +2123,7 @@ impl<'a> Ctx<'a> {
             // a string reads a register (`troop_set_face_keys` reads nothing else in Native).
             Some("text") => match value {
                 Arg::Text(text) => {
-                    let reg = Arg::Name(format!("s{}", 60 + self.next_str % 8));
-                    self.next_str += 1;
+                    let reg = self.str_reg();
                     self.emit("str_store_string", vec![reg.clone(), Arg::Text(text)], span)?;
                     Ok(reg)
                 }
@@ -2120,6 +2142,15 @@ impl<'a> Ctx<'a> {
 const TEXT_REG_FIRST: u8 = 52;
 /// How many numbers one text can show.
 const TEXT_REGS: usize = 8;
+
+/// A text value: a quick string or one of the string registers.
+fn is_text_arg(arg: &Arg) -> bool {
+    match arg {
+        Arg::Text(_) => true,
+        Arg::Name(name) => is_str_reg(name),
+        _ => false,
+    }
+}
 
 /// `s0`..`s67`: a string register name.
 fn is_str_reg(name: &str) -> bool {

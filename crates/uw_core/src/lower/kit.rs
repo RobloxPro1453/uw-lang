@@ -230,6 +230,9 @@ pub fn kit_properties(ops: &[KitOp]) -> Vec<Property> {
         while params.last().is_some_and(|last| op.doc.contains(&format!("[{last}]")) || op.doc.contains(&format!("[<{last}>]"))) {
             params.pop();
         }
+        if let Some(entry) = name_getter(op) {
+            add_or_merge(&mut out, entry);
+        }
         let Some(entry) = shape(op, &params) else { continue };
         let key = sig_key(&entry.path);
         match out.iter_mut().find(|prop| sig_key(&prop.path) == key) {
@@ -239,6 +242,32 @@ pub fn kit_properties(ops: &[KitOp]) -> Vec<Property> {
         }
     }
     out
+}
+
+/// `str_store_<thing>_name(<string_register>, <thing>)` also reads `<thing>.name` (`troop.player.name`), next to
+/// the setter `<thing>_set_name` the kit already names `<thing>.name`. A general pairing, the same for every thing.
+fn name_getter(op: &KitOp) -> Option<Property> {
+    let subject = op.native.strip_prefix("str_store_")?.strip_suffix("_name")?;
+    if !BARE_OBJECTS.contains(&subject) {
+        return None;
+    }
+    let [register, object] = op.params.as_slice() else { return None };
+    if !base_param(register).starts_with("str") || base_param(object) != format!("{subject}_id") {
+        return None;
+    }
+    let mut prop = empty(&format!("{subject}.name"));
+    prop.unit = Some("text".to_owned());
+    prop.get = vec![step(&op.native, &["{dest}", "{object}"])];
+    Some(prop)
+}
+
+fn add_or_merge(out: &mut Vec<Property>, entry: Property) {
+    let key = sig_key(&entry.path);
+    match out.iter_mut().find(|prop| sig_key(&prop.path) == key) {
+        Some(prop) if prop.path == entry.path => merge(prop, entry),
+        Some(_) => {}
+        None => out.push(entry),
+    }
 }
 
 /// One kit operation as a property, if its parameters have a shape the language can use.
@@ -331,6 +360,17 @@ fn shape(op: &KitOp, params: &[&str]) -> Option<Property> {
                 op: native.to_owned(),
                 args: clean.iter().map(|name| format!("{{{name}}}")).collect(),
             }];
+        }
+        // `str_store_troop_name(<string_register>, <troop_id>)` → a value: `text.store_troop_name(troop.player)`
+        // is a text (the register is the compiler's, CORE-v0 §4). Operations that change a register in place
+        // (`str_clear`, `str_encode_url`) or test one (`str_is_empty`) have no use while registers never show.
+        ("text", [register, rest @ ..]) if native.starts_with("str_store_") && base_param(register).starts_with("str") => {
+            let clean = clean_params(rest)?;
+            prop.unit = Some("text".to_owned());
+            prop.path = action_path(&op.easy, &clean);
+            let mut args = vec!["{dest}".to_owned()];
+            args.extend(clean.iter().map(|name| format!("{{{name}}}")));
+            prop.get = vec![Step { op: native.to_owned(), args }];
         }
         ("condition", [object]) if is_object_param(object) => {
             prop.cond = vec![step(native, &["{object}"])];
