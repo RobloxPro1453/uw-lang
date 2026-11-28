@@ -3,6 +3,18 @@
 > **Perspektif Anayasası (Asla Şaşma!):** **Module System = Assembly, UW = Python.**
 > UW ne "küçük Native yamacısı" ne de "hazır mekanik/özellik paketi"dir. Derleyiciye asla mekaniğe özgü kelime (`sprint`, `stealth`, `cooldown`, `teleport` vb.) eklenmez; yalnız evrensel dil yapı taşları (`var`, `let`, `const`, `fn`, `if`, `for`, `while`, `every`, `after`, `on`, `ui.*`, kayıt şemaları) ve kitten gelen motor kelimeleri eklenir.
 
+## ÖNCE BUNU OKU: yeni çalışma düzeni (sahibi, 2026-11-28)
+
+Sahibinin tespiti: haftalık kota üç hafta üst üste %96'ya kadar kullanıldı, ama elle tutulur bir dil gücü çıkmadı. Teori ve belge büyüdü, uygulama küçük kaldı; stamina çubuğu bir örnek uğruna eklendi, dilin genel gücünden doğmadı. Bu düzen bitti. Yeni düzen (`.evrim/otonom/KARARNAMELER.md` > 2026-11-28 "Sınav güdümlü büyük adım"):
+
+1. **Ölçü = dil sınavı.** İlerleme yalnız UW ile yazılmış, derlenen ve oyunda çalışan gerçek programlarla sayılır: hesap makinesi (menüde), sıralanan liste, envanter tablosu, mini tablo programı. "Kaç işlem açıldı" yardımcı ölçüdür.
+2. **Önce çekirdek, tek seferde.** İlk oturum: kısa meclis (en çok bir tur) ile bellek modeli (liste/tablo/kayıt; motorda gizli slot deposu), türler (sayı, metin, doğru/yanlış, nesne, liste), tek nesne modeli (`player` tek nesne; troop/party/agent yönleri alan), canlı değer (her okunuşta yeniden hesaplanan ad) kilitlenir. Aynı oturumda kodlamaya geçilir.
+3. **Büyük adım.** Her oturum en az bir dil yapı taşını uçtan uca bitirir (sözdizimi + derleme + test + bir sınav programında kullanım). Örnek peşinde derleyiciye özel yama yok.
+4. **Belge diyeti sert.** Oturum başına: PROGRESS tek kayıt, DEVIR baştan; yeni plan belgesi yok. Kota koda gider.
+5. **Kısa oturum.** Bağlam ~250k'yı geçince yeni oturum.
+
+Sahibinin daha önceki üç notu bu işin girdisidir: canlı değer, öneksiz esnek adlar, tek nesne modeli (`NOTLAR.md`, 2026-11-28).
+
 ## Çalışma düzeni (sahibi, 2026-11-28)
 
 - DeepSeek bakiyesi bitti: **kodu yalnız Claude yazar** (`delegate.policy = kendisi`). Şerit/tarif açılmaz.
