@@ -11,6 +11,8 @@
 ## Bitenler (2026-11-28)
 - **Ayar:** API parası bittiği için kodu artık yalnız Claude yazıyor; haftalık kota haftaya yayılıyor (ilk gün tavan ~%13, hafta sonuna doğru %95).
 - **Yeni dil olanağı: metnin içine değer.** Artık `"Altın: {gold}"` yazılabiliyor; ekrandaki etiket (ör. `"Stamina: {player.agent.stamina}"`) değeri her an izliyor. 575 test geçti, GitHub'a gitti. **Senin bakman gereken:** `docs/CHECKUP.md` en üstteki "D5 canlı etiket" denemesi (oyunda etiket sayısı çubukla birlikte değişiyor mu).
+- **Oyunun metinleri de metne giriyor:** `"{troop.player.name} şehre girdi"`, `"{text.store_date(0)}"`. Metni yanlışlıkla sayı gibi toplamak artık hata veriyor (eskiden sessizce yanlış çalışıyordu). Dilin ulaştığı motor işlemi 901'den 927'ye çıktı (1060'tan, %87,5). 578 test geçti, GitHub'da.
+- **Senin bakman gereken:** oturum uzadı, her adım pahalılaştı. Yeni oturum aç, "merhaba" yaz, sonra `/loop başla` yaz.
 - **Damıtma:** "Uzun oturum pahalı; test çıktısını yalnız hata satırına süz" dersini kalıcı kurala çevirdim (bütün projeler görür). Diğer 4 ders bu projeye özgü kaldı.
 
 ## Bitenler (2026-11-25)

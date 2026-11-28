@@ -76,3 +76,8 @@ Sıradaki: D5: metin birleştirme {ifade} + koleksiyon for döngüleri (uw_core)
 Yaptım: D5 metin içi değer {…} + canlı HUD etiketi; 575 test, push
 Maliyet: 5s %5, $0 · commit: 1 · Değdi: evet
 Sıradaki: D5: str_store_* metin özellikleri ({troop.player.name}), sonra koleksiyon for
+
+## 2026-11-28 12:45 · kota 5s %31 / hafta %5
+Yaptım: D5 metin değerleri: {troop.player.name}, text.store_* kit adlarıyla; metin-sayı karışması hatası kapandı; coverage 927/1060
+Maliyet: 5s %15, $0 · commit: 1 · Değdi: evet
+Sıradaki: D5: koleksiyon for döngüleri (for a in mission.agents) — yeni oturumda
