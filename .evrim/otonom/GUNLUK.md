@@ -81,3 +81,6 @@ Sıradaki: D5: str_store_* metin özellikleri ({troop.player.name}), sonra kolek
 Yaptım: D5 metin değerleri: {troop.player.name}, text.store_* kit adlarıyla; metin-sayı karışması hatası kapandı; coverage 927/1060
 Maliyet: 5s %15, $0 · commit: 1 · Değdi: evet
 Sıradaki: D5: koleksiyon for döngüleri (for a in mission.agents) — yeni oturumda
+
+## 2026-11-28 13:01 · uyku · kota okunamadı
+tempo YAVAS: 5s %52 / hedef %18; uzun oturum bağlamı pahalı, pencere sıfırlanana kadar hafif bekleme
