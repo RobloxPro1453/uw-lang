@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Text with values: `"Gold: {gold}"` shows numbers (whole units) and text constants inside any text; HUD labels with values follow them every frame.
+
 ## 0.1.0 - Initial public release
 
 First public version of UW, a general-purpose modding language and compiler for Mount & Blade: Warband 1.174 that compiles through the official Module System 1.171.

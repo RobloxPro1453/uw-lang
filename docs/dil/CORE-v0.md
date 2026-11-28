@@ -174,8 +174,13 @@ default (200, 12), `color` default #3FA34D, `background` default black at half t
 `visible`) and `ui.text` (`label` required, `position`, `color` default white, `alpha`, `font_size` as a
 percent, `visible`). Anchors: bottom_left, bottom_center, bottom_right, center_left, center, center_right,
 top_left, top_center, top_right, 20 units from the edges. Position, size, colors and label are fixed when
-the HUD opens; `value`, `max` and `visible` follow their expressions every frame. Labels with `{…}` values
-wait for string registers (D5); image/button/panel come with `screen` (D6).
+the HUD opens; `value`, `max` and `visible` follow their expressions every frame. A label with `{…}` values
+(`"Stamina: {player.agent.stamina}"`) opens filled and is written again every frame (D5); image/button/panel
+come with `screen` (D6).
+
+Text with values (D5): in any text, `{expr}` shows a number as whole units (`75.6` shows `75`) through the
+compiler's own registers `reg52..reg59` (Native never uses them; at most 8 numbers in one text), a text
+constant inline, a text value by its string register. Registers never show in UW code.
 
 ## 7. Keys (D3)
 

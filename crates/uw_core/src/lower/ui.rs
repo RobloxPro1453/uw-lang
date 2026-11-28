@@ -12,7 +12,7 @@
 //! overlay is 1/50 of a screen unit at size 1 (Native scales it by 50 per unit: `16500` → 330 units wide,
 //! module_presentations.py, multiplayer stats table).
 
-use crate::ast::{Expr, Ident, Span};
+use crate::ast::{Expr, Ident, Span, TextPart};
 use crate::{Arg, Error, Op};
 
 use super::Ctx;
@@ -129,17 +129,22 @@ impl Ctx<'_> {
         load.push(op("overlay_set_alpha", vec![fill.clone(), Arg::Int(alpha)]));
         place(&mut load, &fill, "overlay_set_position", Arg::Int(x), Arg::Int(y));
         let mut overlays = vec![bg, fill.clone()];
+        let mut live = None;
         if let Some(text) = prop("label") {
-            let text = self.ui_text(text)?;
+            let (prep, text, parts) = self.ui_text(text)?;
+            live = parts;
+            load.extend(prep);
             load.push(op("create_text_overlay", vec![label.clone(), text]));
             load.push(op("overlay_set_color", vec![label.clone(), Arg::Int(0xFFFFFF)]));
             place(&mut load, &label, "overlay_set_position", Arg::Int(x), Arg::Int(y + h + LABEL_GAP));
-            overlays.push(label);
+            overlays.push(label.clone());
         }
 
         // Every frame: fill width = w × value ÷ max, clamped to the bar.
         self.begin_block();
-        let result = self.bar_run(value, prop("max"), &fill, w, h, prop("visible"), &overlays);
+        let result = self
+            .bar_run(value, prop("max"), &fill, w, h, prop("visible"), &overlays)
+            .and_then(|()| self.live_text(&label, live.as_deref(), span));
         let run = self.end_block();
         result?;
         Ok(HudPart { name: name.text.clone(), load, run })
@@ -184,17 +189,16 @@ impl Ctx<'_> {
         let Some(text) = prop("label") else {
             return Err(self.error(span, &format!("`ui.text {}` needs `label = \"…\"`", name.text)));
         };
-        let text = self.ui_text(text)?;
+        let (prep, text, live) = self.ui_text(text)?;
         let (x, y) = self.ui_position(prop("position"), 200, 20)?;
         let color = match prop("color") {
             Some(e) => self.ui_color(e)?,
             None => 0xFFFFFF,
         };
         let overlay = Arg::Global(format!("$uw_hud_{}_text", name.text));
-        let mut load = vec![
-            op("create_text_overlay", vec![overlay.clone(), text]),
-            op("overlay_set_color", vec![overlay.clone(), Arg::Int(color)]),
-        ];
+        let mut load = prep;
+        load.push(op("create_text_overlay", vec![overlay.clone(), text]));
+        load.push(op("overlay_set_color", vec![overlay.clone(), Arg::Int(color)]));
         if let Some(alpha) = prop("alpha") {
             let alpha = self.ui_alpha(alpha)?;
             load.push(op("overlay_set_alpha", vec![overlay.clone(), Arg::Int(alpha)]));
@@ -207,7 +211,9 @@ impl Ctx<'_> {
             place(&mut load, &overlay, "overlay_set_size", Arg::Int(value * 10), Arg::Int(value * 10));
         }
         self.begin_block();
-        let result = self.visibility(prop("visible"), std::slice::from_ref(&overlay));
+        let result = self
+            .visibility(prop("visible"), std::slice::from_ref(&overlay))
+            .and_then(|()| self.live_text(&overlay, live.as_deref(), span));
         let run = self.end_block();
         result?;
         Ok(HudPart { name: name.text.clone(), load, run })
@@ -288,12 +294,26 @@ impl Ctx<'_> {
         }
     }
 
-    /// A fixed label (`"Stamina"`); text with `{…}` values comes with string registers (D5).
-    fn ui_text(&mut self, e: &Expr) -> Result<Arg, Error> {
+    /// A label: its first text for the HUD's opening (with the operations that fill its values) and, when
+    /// it shows values (`"Stamina: {stamina}"`), its parts, so every frame can show it again.
+    fn ui_text(&mut self, e: &Expr) -> Result<(Vec<Op>, Arg, Option<Vec<TextPart>>), Error> {
         match self.resolve_const(e) {
-            Expr::Text { parts, span } => self.text_value(&parts, span),
+            Expr::Text { parts, span } => {
+                self.begin_block();
+                let text = self.text_value(&parts, span);
+                let prep = self.end_block();
+                let live = parts.iter().any(|part| matches!(part, TextPart::Expr(_))).then_some(parts);
+                Ok((prep, text?, live))
+            }
             _ => Err(self.error(e.span(), "a label is a text: `\"Stamina\"`")),
         }
+    }
+
+    /// Every frame: a label with values is written again, so it follows them.
+    fn live_text(&mut self, overlay: &Arg, parts: Option<&[TextPart]>, span: Span) -> Result<(), Error> {
+        let Some(parts) = parts else { return Ok(()) };
+        let text = self.text_value(parts, span)?;
+        self.emit("overlay_set_text", vec![overlay.clone(), text], span)
     }
 
     /// The HUD presentation and the ops that keep it up, or `None` when no feature declares a part.

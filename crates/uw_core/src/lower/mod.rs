@@ -309,6 +309,8 @@ pub struct Ctx<'a> {
     menu_appends: Vec<(String, Vec<Op>)>,
     /// String registers handed out so far for text values (rotates over the compiler's own `s60..s67`).
     next_str: usize,
+    /// Number registers handed out so far for texts with values (rotates over `reg52..reg59`).
+    next_text_reg: usize,
 }
 
 impl<'a> Ctx<'a> {
@@ -346,6 +348,7 @@ impl<'a> Ctx<'a> {
             agent_init: Vec::new(),
             menu_appends: Vec::new(),
             next_str: 0,
+            next_text_reg: 0,
         }
     }
 
@@ -1662,17 +1665,38 @@ impl<'a> Ctx<'a> {
         Err(self.error(call.span, &format!("'{}' has no value", prop.path)))
     }
 
+    /// `"Gold: {gold}"` → a quick string the engine fills in when it shows it. A number goes into one of
+    /// the compiler's own registers (`reg52..reg59`, never used by Native) as whole units; a text value is
+    /// inlined (a literal) or referenced by its string register (`{s60}`). Registers never show (CORE-v0 §4).
     fn text_value(&mut self, parts: &[TextPart], span: Span) -> Result<Arg, Error> {
         let mut text = String::from("@");
+        let mut regs = 0usize;
         for part in parts {
             match part {
                 TextPart::Literal(literal) => text.push_str(literal),
-                TextPart::Expr(_) => {
-                    return Err(self.error(
-                        span,
-                        "a string with `{…}` needs string registers, not lowered yet",
-                    ))
-                }
+                TextPart::Expr(expr) => match self.expr(expr)? {
+                    Arg::Text(inner) => text.push_str(inner.strip_prefix('@').unwrap_or(&inner)),
+                    Arg::Name(name) if is_str_reg(&name) => {
+                        text.push('{');
+                        text.push_str(&name);
+                        text.push('}');
+                    }
+                    number => {
+                        if regs == TEXT_REGS {
+                            return Err(self.error(
+                                span,
+                                &format!("a text can show at most {TEXT_REGS} numbers; split it into two texts"),
+                            ));
+                        }
+                        // Rotating over the whole build keeps two texts of one operation apart.
+                        let reg = TEXT_REG_FIRST + (self.next_text_reg % TEXT_REGS) as u8;
+                        self.next_text_reg += 1;
+                        regs += 1;
+                        let whole = self.to_engine(number, span)?;
+                        self.emit("assign", vec![Arg::Reg(reg), whole], span)?;
+                        text.push_str(&format!("{{reg{reg}}}"));
+                    }
+                },
             }
         }
         Ok(Arg::Text(text))
@@ -2090,6 +2114,16 @@ impl<'a> Ctx<'a> {
             }
         }
     }
+}
+
+/// First of the registers a text's numbers go through (`reg52..reg59`: unused by Native's module files).
+const TEXT_REG_FIRST: u8 = 52;
+/// How many numbers one text can show.
+const TEXT_REGS: usize = 8;
+
+/// `s0`..`s67`: a string register name.
+fn is_str_reg(name: &str) -> bool {
+    name.strip_prefix('s').is_some_and(|digits| !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit()))
 }
 
 /// True when any path inside `body` returns a value (`return <expr>`).

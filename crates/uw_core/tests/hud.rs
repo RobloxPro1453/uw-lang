@@ -164,3 +164,37 @@ fn keys_fire_on_the_edge_inside_the_frame() {
     let msg = lower_err(&[("a", "var n = 0\non key.pressed(q) {\n  n += 1 per second\n}\n")]);
     assert!(msg.contains("only makes sense in a continuous block"), "{msg}");
 }
+
+#[test]
+fn label_with_values_opens_filled_and_follows_them_every_frame() {
+    let lowered = lower_ok(&[(
+        "a",
+        "var stamina = 100\nui.text st {\n  label = \"Stamina: {stamina}\"\n}\nui.bar sb {\n  value = stamina\n  label = \"{stamina}/100\"\n}\n",
+    )]);
+    let p = hud(&lowered);
+    let text = global("$uw_hud_st_text");
+    let label = global("$uw_hud_sb_label");
+    let opened = |overlay: &Arg| {
+        p.on_load.iter().position(|op| op.name == "create_text_overlay" && op.args[0] == *overlay).expect("created")
+    };
+    // The register the label names is filled before the overlay opens.
+    let filled_before = |at: usize| {
+        let Arg::Text(shown) = &p.on_load[at].args[1] else { panic!("text: {:?}", p.on_load[at]) };
+        let reg: u8 = shown.split("{reg").nth(1).and_then(|rest| rest.split('}').next()).unwrap().parse().unwrap();
+        p.on_load[..at].iter().any(|op| op.name == "assign" && op.args[0] == Arg::Reg(reg))
+    };
+    let (t, l) = (opened(&text), opened(&label));
+    assert!(matches!(&p.on_load[t].args[1], Arg::Text(s) if s.starts_with("@Stamina: {reg")), "{:?}", p.on_load[t]);
+    assert!(filled_before(t) && filled_before(l), "values filled before opening: {:?}", p.on_load);
+    let all_run: Vec<&Op> = p.on_run.iter().chain(frame(&lowered).iter()).collect();
+    let refreshed =
+        |overlay: &Arg| all_run.iter().any(|op| op.name == "overlay_set_text" && op.args.first() == Some(overlay));
+    assert!(refreshed(&text) && refreshed(&label), "both labels follow their values every frame");
+}
+
+#[test]
+fn fixed_label_is_not_rewritten_every_frame() {
+    let lowered = lower_ok(&[("a", "ui.text hello {\n  label = \"Hello\"\n}\n")]);
+    let p = hud(&lowered);
+    assert!(!p.on_run.iter().chain(frame(&lowered).iter()).any(|op| op.name == "overlay_set_text"));
+}
